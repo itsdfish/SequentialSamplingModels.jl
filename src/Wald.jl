@@ -1,6 +1,11 @@
 abstract type AbstractWald <: ContinuousUnivariateDistribution
 end
 
+"""
+* `υ`: drift rate
+* `α`: decision threshold
+* `θ`: a encoding-response offset
+"""
 struct Wald{T1,T2,T3} <: AbstractWald
     υ::T1
     α::T2
@@ -23,6 +28,13 @@ end
 
 mean(d::AbstractWald) = mean(InverseGaussian(d.α/d.υ, d.α^2)) + d.θ
 std(d::AbstractWald) = std(InverseGaussian(d.α/d.υ, d.α^2))
+
+"""
+* `υ`: mean drift rate
+* `σ`: standard deviation of drift rate 
+* `α`: decision threshold
+* `θ`: a encoding-response offset
+"""
 struct WaldMixture{T1,T2,T3,T4} <: AbstractWald
     υ::T1
     σ::T2
@@ -40,7 +52,12 @@ function pdf(d::WaldMixture, t::Float64)
 end
 
 function logpdf(d::WaldMixture, t::Float64)
-    return logpdf(InverseGaussian(d.α/d.υ, d.α^2), t - d.θ)
+    @unpack υ, σ, α ,θ = d
+    c1 = log(α) - log(√(2*π*(t - θ)^3))
+    c2 = log(1) - logcdf(Normal(0,1), υ/σ)
+    c3 = -(υ*(t - θ) - α)^2/(2*(t - θ)*((t - θ)*σ^2 + 1))
+    c4 = (α*σ^2 + υ)/√(σ^2*((t - θ)*σ^2 + 1))
+    return c1 + c2 + c3 + logcdf(Normal(0,1), c4)
 end
 
 function rand(d::WaldMixture) 
