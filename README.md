@@ -1,7 +1,7 @@
 # SequentialSamplingModels
 
 This package is a collection of sequential sampling models and is based on the Distributions.jl API.
-The examples below show basic usage. Addition information can be found in the REPL with the help function, e.i., ```julia ? LNR```. 
+The examples below show basic usage. Addition information can be found in the REPL with the help function, e.i., ```? LNR```. 
 
 ## Lognormal Race Model
 
