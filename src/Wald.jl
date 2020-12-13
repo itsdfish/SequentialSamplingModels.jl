@@ -2,15 +2,26 @@ abstract type AbstractWald <: ContinuousUnivariateDistribution
 end
 
 """
-* `υ`: drift rate
-* `α`: decision threshold
-* `θ`: a encoding-response offset
+# Wald Constructor
+- `υ`: drift rate
+- `α`: decision threshold
+- `θ`: a encoding-response offset
+## Usage
+````julia
+using SequentialSamplingModels
+dist = Wald(υ=3.0, α=.5, θ=.130)
+rt = rand(dist, 10)
+like = pdf.(dist, rt)
+loglike = logpdf.(dist, rt)
+````
 """
 struct Wald{T1,T2,T3} <: AbstractWald
     υ::T1
     α::T2
     θ::T3
 end
+
+Wald(;υ, α, θ) = Wald(υ, α, θ)
 
 function pdf(d::AbstractWald, t::Float64)
     return pdf(InverseGaussian(d.α/d.υ, d.α^2), t - d.θ)
@@ -30,10 +41,23 @@ mean(d::AbstractWald) = mean(InverseGaussian(d.α/d.υ, d.α^2)) + d.θ
 std(d::AbstractWald) = std(InverseGaussian(d.α/d.υ, d.α^2))
 
 """
-* `υ`: mean drift rate
-* `σ`: standard deviation of drift rate 
-* `α`: decision threshold
-* `θ`: a encoding-response offset
+# WaldMixture Constructor
+- `υ`: drift rate
+- `σ`: standard deviation of drift rate
+- `α`: decision threshold
+- `θ`: a encoding-response offset
+## Usage
+````julia
+using SequentialSamplingModels
+dist = WaldMixture(υ=3.0, σ=.2, α=.5, θ=.130)
+rt = rand(dist, 10)
+like = pdf.(dist, rt)
+loglike = logpdf.(dist, rt)
+````
+## References
+Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2020). 
+Modeling across-trial variability in the Wald drift rate parameter. 
+Behavior Research Methods, 1-17.
 """
 struct WaldMixture{T1,T2,T3,T4} <: AbstractWald
     υ::T1
@@ -41,6 +65,8 @@ struct WaldMixture{T1,T2,T3,T4} <: AbstractWald
     α::T3
     θ::T4
 end
+
+WaldMixture(;υ, σ, α, θ) = WaldMixture(υ,σ, α, θ)
 
 function pdf(d::WaldMixture, t::Float64)
     @unpack υ, σ, α ,θ = d

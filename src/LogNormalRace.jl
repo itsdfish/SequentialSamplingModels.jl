@@ -1,7 +1,20 @@
 """
-* `μ`: a vector of means in log-space
-* `σ`: a standard deviation parameter in log-space
-* `ϕ`: a encoding-response offset
+# Lognormal Race Model Constructor
+- `μ`: a vector of means in log-space
+- `σ`: a standard deviation parameter in log-space
+- `ϕ`: a encoding-response offset
+## Usage
+```julia
+using SequentialSamplingModels
+dist = LNR(μ=[-2,-3], σ=1.0, ϕ=.3)
+data = rand(dist, 10)
+like = pdf.(dist, data)
+loglike = logpdf.(dist, data)
+```
+# References
+Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015). 
+The lognormal race: A cognitive-process model of choice and latency with desirable 
+psychometric properties. Psychometrika, 80(2), 491-513.
 """
 struct LNR{T1,T2,T3} <: ContinuousUnivariateDistribution
     μ::T1

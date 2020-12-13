@@ -1,10 +1,22 @@
 
 """
-* `ν`: a vector of drift rates
-* `A`: max start point
-* `k`: A + k = b, where b is the decision threshold
-* `σ`: drift rate standard deviation (default=1)
-* `τ`: a encoding-response offset
+# Linear Ballistic Accumulator Constructor
+- `ν`: a vector of drift rates
+- `A`: max start point
+- `k`: A + k = b, where b is the decision threshold
+- `σ`: drift rate standard deviation (default=1)
+- `τ`: a encoding-response offset
+
+## Usage
+````julia
+using SequentialSamplingModels
+dist = LBA(ν=[3.0,2.0], A = .8, k = .2, τ = .3) 
+choice,rt = rand(dist, 10)
+like = pdf.(dist, choice, rt)
+loglike = logpdf.(dist, choice, rt)
+````
+## References
+
 """
 mutable struct LBA{T1,T2,T3,T4} <: ContinuousUnivariateDistribution
     ν::T1
