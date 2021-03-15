@@ -35,7 +35,7 @@ end
 
 rand(dist::LNR, N::Int) = [rand(dist) for i in 1:N]
 
-function logpdf(d::T, r::Int, t::Float64) where {T<:LNR}
+function logpdf(d::LNR, r::Int, t::Float64)
     @unpack μ,σ,ϕ = d
     LL = 0.0
     for (i,m) in enumerate(μ)
@@ -48,18 +48,18 @@ function logpdf(d::T, r::Int, t::Float64) where {T<:LNR}
     return LL
 end
 
-function logpdf(d::LNR{T1,T2,Vector{T3}}, r::Int, t::Float64) where {T1,T2,T3}
-    @unpack μ,σ,ϕ = d
-    LL = 0.0
-    for (i,m) in enumerate(μ)
-        if i == r
-            LL += logpdf(LogNormal(m, σ), t - ϕ[i])
-        else
-            LL += logccdf(LogNormal(m, σ), t - ϕ[i])
-        end
-    end
-    return LL
-end
+# function logpdf(d::LNR, r::Int, t::Float64)
+#     @unpack μ,σ,ϕ = d
+#     LL = 0.0
+#     for (i,m) in enumerate(μ)
+#         if i == r
+#             LL += logpdf(LogNormal(m, σ), t - ϕ[i])
+#         else
+#             LL += logccdf(LogNormal(m, σ), t - ϕ[i])
+#         end
+#     end
+#     return LL
+# end
 
 logpdf(d::LNR, data::Tuple) = logpdf(d, data...)
 

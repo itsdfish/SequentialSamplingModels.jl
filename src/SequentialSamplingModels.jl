@@ -12,11 +12,13 @@ A collection of sequential sampling models based on the Distributions.jl API.
 """
 module SequentialSamplingModels
     using Distributions, Parameters
-    import Distributions: pdf, logpdf, rand, loglikelihood, mean, std
-    export Wald, WaldMixture, LNR, LBA
-    export pdf, logpdf, rand, loglikelihood, mean, std
+    import Distributions: pdf, logpdf, rand, loglikelihood, mean, std, cdf
+    import Distributions: logccdf
+    export Wald, WaldMixture, LNR, LBA, DiffusionRace
+    export pdf, cdf, logpdf, rand, loglikelihood, mean, std
 
     include("LogNormalRace.jl")
     include("Wald.jl")
     include("LBA.jl")
+    include("DiffusionRace.jl")
 end
