@@ -142,3 +142,130 @@ end
     y = pdf.(dist, (2,), x)
     @test y′ ≈ y rtol = .03
 end
+
+@safetestset "Racing Diffusion Model" begin
+    # cd(@__DIR__)
+    # using Pkg
+    # Pkg.activate("..")
+    
+    using SequentialSamplingModels, Test, KernelDensity, QuadGK, Random
+    using Interpolations, Distributions
+    #import KernelDensity: kernel_dist
+    import SequentialSamplingModels: WaldA
+    kernel_dist(::Type{Epanechnikov}, w::Float64) = Epanechnikov(0.0, w)
+    kernel(data) = kde(data; kernel=Epanechnikov)
+    Random.seed!(741)
+
+    dist = WaldA(ν=.5, k=.3, A=.7, θ=.2)
+    rts = map(_->rand(dist), 1:10^6)
+    approx_pdf = kernel(rts)
+    x = .201:.01:2.5
+    y′ = pdf(approx_pdf, x)
+    y = pdf.(dist, x)
+    @test mean(abs.(y .- y′)) < .02
+    #@test std(abs.(y .- y′)) < .04
+
+    p′ = quadgk(x->pdf(dist, x), .2, Inf)[1]
+    @test p′ ≈ 1 rtol = .001
+
+    p = cdf(dist, .25)
+    p′ = quadgk(x->pdf(dist, x), .2, .25)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean(rts .< .25) rtol = .01
+
+    p = cdf(dist, .5)
+    p′ = quadgk(x->pdf(dist, x), .2, .5)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean(rts .< .5) rtol = .01
+
+    p = cdf(dist, .6) - cdf(dist, .3)
+    p′ = quadgk(x->pdf(dist, x), .3, .6)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean((rts .< .6 ).& (rts .> .3)) rtol = .01
+
+
+    dist = WaldA(ν=1.0, k=.3, A=1.0, θ=.2)
+    rts = map(_->rand(dist), 1:10^6)
+    approx_pdf = kernel(rts)
+    x = .201:.01:2.5
+    y′ = pdf(approx_pdf, x)
+    y = pdf.(dist, x)
+    @test mean(abs.(y .- y′)) < .02
+   # @test std(abs.(y .- y′)) < .04
+
+    p′ = quadgk(x->pdf(dist, x), .2, Inf)[1]
+    @test p′ ≈ 1 rtol = .001
+    
+    p = cdf(dist, .25)
+    p′ = quadgk(x->pdf(dist, x), .2, .25)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean(rts .< .25) rtol = .01
+
+    p = cdf(dist, .5)
+    p′ = quadgk(x->pdf(dist, x), .2, .5)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean(rts .< .5) rtol = .01
+
+    p = cdf(dist, 1.0) - cdf(dist, .6)
+    p′ = quadgk(x->pdf(dist, x), .6, 1.0)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean((rts .< 1).& (rts .> .6)) rtol = .01
+
+    p = cdf(dist, 1.5) - cdf(dist, 1.4)
+    p′ = quadgk(x->pdf(dist, x), 1.4, 1.5)[1]
+    @test p′ ≈ p rtol = .001
+    @test p ≈ mean((rts .< 1.5).& (rts .> 1.4)) rtol = .02
+
+    dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2)
+    data = rand(dist, 10^6)
+    data1 = filter(x->x[1] == 1, data)
+    p1 = mean(x->x[1] == 1, data)
+    p2 = 1 - p1
+    rt1 = map(x->x[2], data1)
+    # approx_pdf = kernel(rt1)
+    # x = .201:.01:2.5
+    # y′ = pdf(approx_pdf, x) * p1
+    # y = pdf.(dist, (1,), x)
+    # @test y′ ≈ y rtol = .03
+
+    data2 = filter(x->x[1] == 2, data)
+    rt2 = map(x->x[2], data2)
+    approx_pdf = kernel(rt2)
+    # x = .201:.01:1.5
+    # y′ = pdf(approx_pdf, x) * p2
+    # y = pdf.(dist, (2,), x)
+    # @test y′ ≈ y rtol = .03
+
+    p′ = quadgk(x->pdf(dist, 1, x), .2, Inf)[1]
+    @test p′ ≈ p1 rtol = .001
+    
+    p = quadgk(x->pdf(dist, 1, x), .2, .3)[1]
+    @test p ≈ mean(rt1 .< .3) * p1 atol = .01
+
+    p = quadgk(x->pdf(dist, 1, x), .2, .5)[1]
+    @test p ≈ mean(rt1 .< .5) * p1 atol = .01
+
+    p = quadgk(x->pdf(dist, 1, x), .2, 1)[1] - quadgk(x->pdf(dist, 1, x), .2, .6)[1]
+    @test p ≈ mean((rt1 .< 1) .& (rt1 .> .6)) * p1 atol = .01
+
+    p = quadgk(x->pdf(dist, 1, x), .2, 1.5)[1] - quadgk(x->pdf(dist, 1, x), .2, 1.4)[1]
+    @test p ≈ mean((rt1 .< 1.5).& (rt1 .> 1.4)) atol = .01
+
+
+    p′ = quadgk(x->pdf(dist, 2, x), .2, Inf)[1]
+    @test p′ ≈ p2 rtol = .001
+    
+    p = quadgk(x->pdf(dist, 2, x), .2, .3)[1]
+    @test p ≈ mean(rt2 .< .3) * p2 atol = .01
+
+    p = quadgk(x->pdf(dist, 2, x), .2, .5)[1]
+    @test p ≈ mean(rt2 .< .5) * p2 atol = .02
+
+    p = quadgk(x->pdf(dist, 2, x), .2, 1)[1] - quadgk(x->pdf(dist, 2, x), .2, .6)[1]
+    @test p ≈ mean((rt2 .< 1) .& (rt2 .> .6)) * p2 atol = .01
+
+    p = quadgk(x->pdf(dist, 2, x), .2, 1.5)[1] - quadgk(x->pdf(dist, 2, x), .2, 1.4)[1]
+    @test p ≈ mean((rt2 .< 1.5).& (rt2 .> 1.4)) * p2 atol = .01
+end
+
+#f(t, b, v) = (b*(2*π*t^3)^(-.5))*exp(-(1/(2*t))*(v*t -b)^2)
