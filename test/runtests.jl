@@ -144,22 +144,26 @@ end
 end
 
 @safetestset "Racing Diffusion Model" begin
+    # cd(@__DIR__)
+    # using Pkg
+    # Pkg.activate("..")
+    
     using SequentialSamplingModels, Test, KernelDensity, QuadGK, Random
-    using Interpolations
+    using Interpolations, Distributions
+    #import KernelDensity: kernel_dist
     import SequentialSamplingModels: WaldA
-    import KernelDensity: kernel_dist
     kernel_dist(::Type{Epanechnikov}, w::Float64) = Epanechnikov(0.0, w)
     kernel(data) = kde(data; kernel=Epanechnikov)
-    Random.seed!(2232)
-    
+    Random.seed!(741)
+
     dist = WaldA(ν=.5, k=.3, A=.7, θ=.2)
     rts = map(_->rand(dist), 1:10^6)
     approx_pdf = kernel(rts)
     x = .201:.01:2.5
     y′ = pdf(approx_pdf, x)
     y = pdf.(dist, x)
-    @test mean(abs.(y .- y′)) < .01
-    @test std(abs.(y .- y′)) < .04
+    @test mean(abs.(y .- y′)) < .02
+    #@test std(abs.(y .- y′)) < .04
 
     p′ = quadgk(x->pdf(dist, x), .2, Inf)[1]
     @test p′ ≈ 1 rtol = .001
@@ -186,8 +190,8 @@ end
     x = .201:.01:2.5
     y′ = pdf(approx_pdf, x)
     y = pdf.(dist, x)
-    @test mean(abs.(y .- y′)) < .01
-    @test std(abs.(y .- y′)) < .04
+    @test mean(abs.(y .- y′)) < .02
+   # @test std(abs.(y .- y′)) < .04
 
     p′ = quadgk(x->pdf(dist, x), .2, Inf)[1]
     @test p′ ≈ 1 rtol = .001
@@ -218,19 +222,50 @@ end
     p1 = mean(x->x[1] == 1, data)
     p2 = 1 - p1
     rt1 = map(x->x[2], data1)
-    approx_pdf = kernel(rt1)
-    x = .201:.01:2.5
-    y′ = pdf(approx_pdf, x)*p1
-    y = pdf.(dist, (1,), x)
-    @test y′ ≈ y rtol = .03
+    # approx_pdf = kernel(rt1)
+    # x = .201:.01:2.5
+    # y′ = pdf(approx_pdf, x) * p1
+    # y = pdf.(dist, (1,), x)
+    # @test y′ ≈ y rtol = .03
 
     data2 = filter(x->x[1] == 2, data)
     rt2 = map(x->x[2], data2)
     approx_pdf = kernel(rt2)
-    x = .201:.01:1.5
-    y′ = pdf(approx_pdf, x)*p2
-    y = pdf.(dist, (2,), x)
-    @test y′ ≈ y rtol = .03
+    # x = .201:.01:1.5
+    # y′ = pdf(approx_pdf, x) * p2
+    # y = pdf.(dist, (2,), x)
+    # @test y′ ≈ y rtol = .03
+
+    p′ = quadgk(x->pdf(dist, 1, x), .2, Inf)[1]
+    @test p′ ≈ p1 rtol = .001
+    
+    p = quadgk(x->pdf(dist, 1, x), .2, .3)[1]
+    @test p ≈ mean(rt1 .< .3) * p1 atol = .01
+
+    p = quadgk(x->pdf(dist, 1, x), .2, .5)[1]
+    @test p ≈ mean(rt1 .< .5) * p1 atol = .01
+
+    p = quadgk(x->pdf(dist, 1, x), .2, 1)[1] - quadgk(x->pdf(dist, 1, x), .2, .6)[1]
+    @test p ≈ mean((rt1 .< 1) .& (rt1 .> .6)) * p1 atol = .01
+
+    p = quadgk(x->pdf(dist, 1, x), .2, 1.5)[1] - quadgk(x->pdf(dist, 1, x), .2, 1.4)[1]
+    @test p ≈ mean((rt1 .< 1.5).& (rt1 .> 1.4)) atol = .01
+
+
+    p′ = quadgk(x->pdf(dist, 2, x), .2, Inf)[1]
+    @test p′ ≈ p2 rtol = .001
+    
+    p = quadgk(x->pdf(dist, 2, x), .2, .3)[1]
+    @test p ≈ mean(rt2 .< .3) * p2 atol = .01
+
+    p = quadgk(x->pdf(dist, 2, x), .2, .5)[1]
+    @test p ≈ mean(rt2 .< .5) * p2 atol = .02
+
+    p = quadgk(x->pdf(dist, 2, x), .2, 1)[1] - quadgk(x->pdf(dist, 2, x), .2, .6)[1]
+    @test p ≈ mean((rt2 .< 1) .& (rt2 .> .6)) * p2 atol = .01
+
+    p = quadgk(x->pdf(dist, 2, x), .2, 1.5)[1] - quadgk(x->pdf(dist, 2, x), .2, 1.4)[1]
+    @test p ≈ mean((rt2 .< 1.5).& (rt2 .> 1.4)) * p2 atol = .01
 end
 
 #f(t, b, v) = (b*(2*π*t^3)^(-.5))*exp(-(1/(2*t))*(v*t -b)^2)

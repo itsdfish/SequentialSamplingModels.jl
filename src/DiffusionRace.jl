@@ -27,16 +27,16 @@ Broadcast.broadcastable(x::WaldA) = Ref(x)
 
 WaldA(;ν, k, A, θ) = WaldA(ν, k, A, θ)
 
-Φ(x) = cdf(Normal(0,1), x)
-ϕ(x) = pdf(Normal(0,1), x)
+Φ(x) = cdf(Normal(0, 1), x)
+ϕ(x) = pdf(Normal(0, 1), x)
 
 function pdf(d::WaldA, rt::Float64)
     @unpack ν, k, A, θ = d
     t = rt - θ
-    α = (k - t * ν)/√(t)
-    β = (A + k - t*ν)/√(t)
-    return (-ν * Φ(α) + 1/√(t) * ϕ(α) +
-        ν * Φ(β) - 1/√(t) * ϕ(β))/A
+    α = (k - t * ν) / √(t)
+    β = (A + k - t * ν) / √(t)
+    return (-ν * Φ(α) + 1 / √(t) * ϕ(α) +
+        ν * Φ(β) - 1 / √(t) * ϕ(β)) / A
 end
 
 logpdf(d::WaldA, rt::Float64) = log(pdf(d, rt))
@@ -50,24 +50,24 @@ function cdf(d::WaldA, rt::Float64)
     β1 = √(2) * ((-ν * t - b)/√(2 * t))
     β2 = √(2) * ((-ν * t - k)/√(2 * t))
     v1 = (1 / (2 * ν * A)) * (Φ(α2) - Φ(α1))
-    v2 = (√(t)/A) * (α2 * Φ(α2) - α1 * Φ(α1))
+    v2 = (√(t) / A) * (α2 * Φ(α2) - α1 * Φ(α1))
     v3 = -(1 / (2 * ν * A)) * (exp(2 * ν * k) * Φ(β2) - exp(2 * ν * b) * Φ(β1))
-    v4 = (√(t)/A) * (ϕ(α2) - ϕ(α1))
+    v4 = (√(t) / A) * (ϕ(α2) - ϕ(α1))
     return v1 + v2 + v3 + v4
 end
 
 logccdf(d::WaldA, rt::Float64) = log(1 - cdf(d, rt))
 
-function rand(d::WaldA, α)
-    @unpack ν, θ = d
-    return rand(InverseGaussian(α/ν, α^2)) + θ
-end
+# function rand(d::WaldA, α)
+#     @unpack ν, θ = d
+#     return rand(InverseGaussian(α / ν, α^2)) + θ
+# end
 
 function rand(d::WaldA)
     @unpack ν, k, A, θ = d
     z = rand(Uniform(0, A))
     α = k + A - z 
-    return rand(InverseGaussian(α/ν, α^2)) + θ
+    return rand(InverseGaussian(α / ν, α^2)) + θ
 end
 
 """
@@ -103,7 +103,7 @@ function rand(dist::DiffusionRace)
     @unpack ν, A, k, θ = dist
     z = rand(Uniform(0, A))
     α = k + A - z 
-    x = @. rand(WaldA(ν, A, k, θ), α)
+    x = @. rand(WaldA(ν, k, A, θ))
     rt,resp = findmin(x)
     return resp,rt
 end
@@ -152,7 +152,7 @@ end
 
 
 
-
+# using Distributions, Parameters
 # import Base.rand
 # import Distributions: pdf, logpdf, cdf
 # struct Race{T1,T2,T3} <: ContinuousUnivariateDistribution
