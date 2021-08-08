@@ -1,13 +1,19 @@
 
 """
-# Linear Ballistic Accumulator Constructor
+    LBA(;τ, A, k, ν, σ=1.0)
+
+A model object for the linear ballistic accumulator.
+
+# Fields
+
 - `ν`: a vector of drift rates
 - `A`: max start point
 - `k`: A + k = b, where b is the decision threshold
-- `σ`: drift rate standard deviation (default=1)
+- `σ=1`: drift rate standard deviation
 - `τ`: a encoding-response offset
 
-## Usage
+# Example 
+
 ````julia
 using SequentialSamplingModels
 dist = LBA(ν=[3.0,2.0], A = .8, k = .2, τ = .3) 
@@ -15,10 +21,12 @@ choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
 ````
-## References
 
+# References
+
+Brown, S. D., & Heathcote, A. (2008). The simplest complete model of choice response time: Linear ballistic accumulation. Cognitive psychology, 57(3), 153-178.
 """
-mutable struct LBA{T1,T2,T3,T4} <: ContinuousUnivariateDistribution
+mutable struct LBA{T1,T2,T3,T4} <: SequentialSamplingModel
     ν::T1
     A::T2
     k::T3

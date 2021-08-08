@@ -1,10 +1,17 @@
 """
-# WaldA Constructor
+    WaldA(;ν, k, A, θ)
+
+Constructor for Wald distribution 
+
+# Fields 
+
 - `ν`: drift rate
 - `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
 - `θ`: a encoding-motor time offset
+
 ## Usage
+
 ```julia
 using SequentialSamplingModels
 dist = WaldA(ν=.5, σ=1.0, ϕ=.3)
@@ -13,6 +20,7 @@ like = pdf.(dist, data)
 loglike = logpdf.(dist, data)
 ```
 # References
+
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
@@ -71,12 +79,19 @@ function rand(d::WaldA)
 end
 
 """
-# Racing Diffusion Constructor
+    DiffusionRace(;ν, k, A, θ)
+
+An object for the racing diffusion model. 
+
+# Fields
+
 - `ν`: a vector of drift rates
 - `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
 - `θ`: a encoding-motor time offset
-## Usage
+
+# Example
+
 ```julia
 using SequentialSamplingModels
 dist = DiffusionRace(;ν=[1,2], k=.3, A=.7, θ=.2)
@@ -85,10 +100,11 @@ like = pdf.(dist, data)
 loglike = logpdf.(dist, data)
 ```
 # References
+
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct DiffusionRace{T1,T2,T3,T4} <: ContinuousUnivariateDistribution
+struct DiffusionRace{T1,T2,T3,T4} <: SequentialSamplingModel
     ν::T1
     k::T2
     A::T3

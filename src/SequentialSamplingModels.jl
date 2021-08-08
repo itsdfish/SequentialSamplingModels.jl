@@ -1,5 +1,6 @@
 """
 # SequentialSamplingModels.jl
+
 A collection of sequential sampling models based on the Distributions.jl API.
 
 ## Currently Supported models
@@ -9,16 +10,20 @@ A collection of sequential sampling models based on the Distributions.jl API.
 - `Wald`: a shifted Wald represented a single boundary diffusion process
 - `WaldMixture`: a shifted Wald represented a single boundary diffusion process with across-trial 
     variability in the drift rate
+- `AttentionalDiffusion`: a drift diffusion model in which the accumulation process is determined by the 
+utility of a visually attended option
 """
 module SequentialSamplingModels
-    using Distributions, Parameters
+    using Distributions, Parameters, ConcreteStructs, PrettyTables
     import Distributions: pdf, logpdf, rand, loglikelihood, mean, std, cdf
     import Distributions: logccdf
-    export Wald, WaldMixture, LNR, LBA, DiffusionRace
+    export SequentialSamplingModel, Wald, WaldMixture, LNR, LBA, DiffusionRace, AttentionalDiffusion
     export pdf, cdf, logpdf, rand, loglikelihood, mean, std
 
+    include("utilities.jl")
     include("LogNormalRace.jl")
     include("Wald.jl")
     include("LBA.jl")
     include("DiffusionRace.jl")
+    include("AttentionalDiffusion.jl")
 end

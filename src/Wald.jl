@@ -1,4 +1,4 @@
-abstract type AbstractWald <: ContinuousUnivariateDistribution
+abstract type AbstractWald <: SequentialSamplingModel
 end
 
 """
