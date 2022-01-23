@@ -50,7 +50,7 @@ end
 
 @safetestset "LogNormal Race Tests" begin
     using SequentialSamplingModels, Test, Random, KernelDensity, Distributions
-    Random.seed!(54054)
+    Random.seed!(54154)
     d1 = LNR(;μ=[1.0], σ=1.0, ϕ=.1)
     v1 = .3
     p1 = pdf(d1, 1, v1)
