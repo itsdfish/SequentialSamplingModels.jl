@@ -14,14 +14,14 @@ using SafeTestsets
         Δe = noise*sqrt(Δt)
         e = 0.0
         t = θ
-        p = .5*(1 + υ*sqrt(Δt)/noise)
+        p = .5 * (1 + υ * sqrt(Δt) / noise)
         while (e < α)
             t += Δt
             e += rand() ≤ p ? Δe : -Δe
         end
         return t
     end
-    rts = map(_->simulate(3, 1, .2), 1:10^5)
+    rts = map(_ -> simulate(3, 1, .2), 1:10^5)
     approx_pdf = kde(rts)
     x = .2:.01:1.5
     y′ = pdf(approx_pdf, x)
@@ -122,35 +122,60 @@ end
 end
 
 @safetestset "LBA Tests" begin
-    using SequentialSamplingModels, Test, KernelDensity, Random
-    Random.seed!(10542)
-    dist = LBA(ν=[3.0,2.0], A = .8, k = .2, τ = .3) 
-    choice,rt = rand(dist, 10^5)
-    rt1 = rt[choice .== 1]
-    p1 = mean(x->x==1, choice)
-    p2 = 1 - p1
-    approx_pdf = kde(rt1)
-    x = .2:.01:1.5
-    y′ = pdf(approx_pdf, x)*p1
-    y = pdf.(dist, (1,), x)
-    @test y′ ≈ y rtol = .03
+    @safetestset "LBA Test1" begin
+        using SequentialSamplingModels, Test, KernelDensity, Random
+        Random.seed!(10542)
 
-    rt2 = rt[choice .== 2]
-    approx_pdf = kde(rt2)
-    x = .2:.01:1.5
-    y′ = pdf(approx_pdf, x)*p2
-    y = pdf.(dist, (2,), x)
-    @test y′ ≈ y rtol = .03
+        dist = LBA(ν=[3.0,2.0], A = .8, k = .2, τ = .3) 
+        choice,rt = rand(dist, 10^5)
+        rt1 = rt[choice .== 1]
+        p1 = mean(x -> x == 1, choice)
+        p2 = 1 - p1
+        approx_pdf = kde(rt1)
+        x = .2:.01:1.5
+        y′ = pdf(approx_pdf, x) * p1
+        y = pdf.(dist, (1,), x)
+        @test y′ ≈ y rtol = .03
+
+        rt2 = rt[choice .== 2]
+        approx_pdf = kde(rt2)
+        x = .2:.01:1.5
+        y′ = pdf(approx_pdf, x) * p2
+        y = pdf.(dist, (2,), x)
+        @test y′ ≈ y rtol = .03
+    end
+
+    @safetestset "LBA Test2" begin
+        using SequentialSamplingModels, Test, KernelDensity, Random
+        Random.seed!(8521)
+
+        # note for some values, tests will fail
+        # this is because kde is sensitive to outliers
+        # density overlay on histograms are valid
+        dist = LBA(ν=[2.0,2.7], A = .6, k = .26, τ = .4) 
+        choice,rt = rand(dist, 10^5)
+        rt1 = rt[choice .== 1]
+        p1 = mean(x -> x == 1, choice)
+        p2 = 1 - p1
+        approx_pdf = kde(rt1)
+        x = .2:.01:1.5
+        y′ = pdf(approx_pdf, x) * p1
+        y = pdf.(dist, (1,), x)
+        @test y′ ≈ y rtol = .03
+
+        rt2 = rt[choice .== 2]
+        approx_pdf = kde(rt2)
+        x = .2:.01:1.5
+        y′ = pdf(approx_pdf, x) * p2
+        y = pdf.(dist, (2,), x)
+        @test y′ ≈ y rtol = .03
+    end
 end
 
 @safetestset "Racing Diffusion Model" begin
-    # cd(@__DIR__)
-    # using Pkg
-    # Pkg.activate("..")
     
     using SequentialSamplingModels, Test, KernelDensity, QuadGK, Random
     using Interpolations, Distributions
-    #import KernelDensity: kernel_dist
     import SequentialSamplingModels: WaldA
     kernel_dist(::Type{Epanechnikov}, w::Float64) = Epanechnikov(0.0, w)
     kernel(data) = kde(data; kernel=Epanechnikov)

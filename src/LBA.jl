@@ -57,8 +57,8 @@ function sample_drift_rates(ν, σ)
     negative = true
     v = similar(ν)
     while negative
-        v = [rand(Normal(d,σ)) for d in ν]
-        any(x -> x > 0, v) ? negative = false : nothing
+        v = [rand(Normal(d, σ)) for d in ν]
+        negative = any(x -> x > 0, v) ? false : true
     end
     return v
 end
@@ -68,8 +68,8 @@ function rand(d::LBA)
     b = A + k
     N = length(ν)
     v = sample_drift_rates(ν, σ)
-    a = rand(Uniform(0,A), N)
-    dt = @. (b - a)/v
+    a = rand(Uniform(0, A), N)
+    dt = @. (b - a) / v
     choice,mn = select_winner(dt)
     rt = τ .+ mn
     return choice,rt
@@ -106,12 +106,12 @@ function pdf(d::LBA, c, rt)
         if c == i
             den *= dens(d, v, rt)
         else
-            den *= (1-cummulative(d, v, rt))
+            den *= (1 - cummulative(d, v, rt))
         end
     end
     pneg = pnegative(d)
-    den = den/(1-pneg)
-    den = max(den,1e-10)
+    den = den / (1 - pneg)
+    den = max(den, 1e-10)
     isnan(den) ? (return 0.0) : (return den)
 end
 
@@ -120,29 +120,29 @@ logpdf(d::LBA, data::Tuple) = logpdf(d, data...)
 function dens(d::LBA, v, rt)
     @unpack τ,A,k,ν,σ = d
     dt = rt - τ; b = A + k
-    n1 = (b-A-dt*v)/(dt*σ)
-    n2 = (b-dt*v)/(dt*σ)
-    dens = (1/A)*(-v*cdf(Normal(0,1), n1) + σ*pdf(Normal(0,1), n1) +
-        v*cdf(Normal(0,1), n2) - σ*pdf(Normal(0,1) ,n2))
+    n1 = (b - A - dt * v) / (dt * σ)
+    n2 = (b - dt * v) / (dt * σ)
+    dens = (1 / A) * (-v * cdf(Normal(0, 1), n1) + σ * pdf(Normal(0,1), n1) +
+        v * cdf(Normal(0,1), n2) - σ * pdf(Normal(0,1) ,n2))
     return dens
 end
 
 function cummulative(d::LBA, v, rt)
     @unpack τ,A,k,ν,σ = d
     dt = rt - τ; b = A + k
-    n1 = (b-A-dt*v)/(dt*σ)
-    n2 = (b-dt*v)/(dt*σ)
-    cm = 1 + ((b-A-dt*v)/A)*cdf(Normal(0,1), n1) -
-        ((b-dt*v)/A)*cdf(Normal(0,1), n2) + ((dt*σ)/A)*pdf(Normal(0,1), n1) -
-        ((dt*σ)/A)*pdf(Normal(0,1), n2)
+    n1 = (b - A - dt * v) / (dt * σ)
+    n2 = (b - dt * v) / (dt * σ)
+    cm = 1 + ((b - A -dt * v) / A)*cdf(Normal(0, 1), n1) -
+        ((b - dt * v) / A)*cdf(Normal(0,1), n2) + ((dt * σ) / A)*pdf(Normal(0,1), n1) -
+        ((dt * σ) / A) * pdf(Normal(0,1), n2)
     return cm
 end
 
 function pnegative(d::LBA)
     @unpack ν,σ=d
-    p=1.0
+    p = 1.0
     for v in ν
-        p*= cdf(Normal(0,1), -v/σ)
+        p*= cdf(Normal(0,1), -v / σ)
     end
     return p
 end

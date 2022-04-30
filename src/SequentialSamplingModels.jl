@@ -25,8 +25,7 @@ module SequentialSamplingModels
         LNR, 
         LBA, 
         DiffusionRace, 
-        AttentionalDiffusion,
-        OU
+        AttentionalDiffusion
 
     export pdf, 
         cdf, 
@@ -43,5 +42,4 @@ module SequentialSamplingModels
     include("DiffusionRace.jl")
     include("AttentionalDiffusion.jl")
     include("KDE.jl")
-    include("OrnsteinUhlenbeck.jl")
 end
