@@ -15,7 +15,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 [compat]
 ConcreteStructs = "0.2.0"
 Distributions = "v0.24.6, 0.25"
-Interpolations = "v0.13.1"
+Interpolations = "v0.13.1, 0.14"
 KernelDensity = "v0.6.2"
 Parameters = "v0.12.1"
 PrettyTables = "1.1.0"
