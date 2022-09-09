@@ -18,7 +18,7 @@ Distributions = "v0.24.6, 0.25"
 Interpolations = "v0.13.1, 0.14"
 KernelDensity = "v0.6.2"
 Parameters = "v0.12.1"
-PrettyTables = "1.1.0"
+PrettyTables = "1.1.0, 2"
 SafeTestsets = "v0.0.1"
 julia = "1"
 
