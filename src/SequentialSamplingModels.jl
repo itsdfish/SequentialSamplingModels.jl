@@ -17,6 +17,8 @@ module SequentialSamplingModels
     using Distributions, Parameters, ConcreteStructs, PrettyTables
     using KernelDensity, Interpolations
     import KernelDensity: kernel_dist
+    using KernelDensity, Interpolations
+    import KernelDensity: kernel_dist
     import Distributions: pdf, logpdf, rand, loglikelihood, mean, std, cdf
     import Distributions: logccdf
     export SequentialSamplingModel, 

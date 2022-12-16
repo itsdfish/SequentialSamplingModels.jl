@@ -5,14 +5,52 @@ using Revise
 using SequentialSamplingModels
 using SequentialSamplingModels: simulate
 
-model = OU(; α = .3, β=0.0, λ=0.0, ν=[.8,.7])
+model = OU(; α = .3, β=0.0, λ=0.0, ν=[.8,.5])
 
-rts = simulate(model, 100)
+rts = simulate(model, 10000)
 mean.(rts)
 
-dist = DiffusionRace(;ν= [2,.1], k = .8, A = 1.0, θ = .2)
-rts = rand(dist, 1000)
-rts1 = filter(x -> x[1] == 1, rts)
-rts1 = map(x -> x[2], rts1)
-rts2 = filter(x -> x[1] == 2, rts)
-rts2 = map(x -> x[2], rts2)
+using SequentialSamplingModels: compute_mean_evidence!, add_noise!
+n = length(model.ν)
+x = fill(0.0, n)
+y = fill(0.0, n)
+μ = fill(0.0, n)
+ϵ = fill(0.0, n)
+(;β,λ,ν,σ,Δt) = model
+simulate_trial(model, x, y, μ, ϵ)
+compute_mean_evidence!(ν, β, λ, x, y, μ)
+add_noise!(ν, σ, Δt, x, μ, ϵ)
+
+
+
+
+using SequentialSamplingModels: increment!
+
+model = OU(; α = .3, β=0.3, λ=0.1, ν=[.8,.5])
+x = fill(0.0, n)
+y = fill(0.0, n)
+μ = fill(0.0, n)
+ϵ = fill(0.0, n)
+t = 0.0
+evidence = Vector{Vector{Float64}}()
+while all(x .< model.α)
+    t += Δt
+    increment!(model, x, y, μ, ϵ)
+    push!(evidence, copy(x))
+end  
+
+plot(hcat(evidence...)')
+
+
+
+function sim(;v = 1.7, α=1.5, σ=1.0, Δt=.0005, ter=.00)
+    x = α / 2
+    t = ter
+    while (x < α) && (x > 0)
+        t += Δt
+        x += (v * Δt + randn() * σ * sqrt(Δt))
+    end
+    c = x > α ? 1 : 2
+    return c, t
+end
+
