@@ -22,57 +22,24 @@ function OU(;
     return OU(ν, α, β, λ, τ, σ, Δt)
 end
 
-function inhabition(x, i)
-    v = 0.0
-    for j in 1:length(x)
-        v += j ≠ i ? x[j] : 0.0
-    end
-    return v
-end
-
-function compute_mean_evidence!(ν, β, λ, x, y, μ)
-    n = length(ν)
-    for i in 1:n
-        y[i] = inhabition(x, i)
-        μ[i] = ν[i] - λ * x[i] - β * y[i]
-    end
-    return nothing
-end
-
-function add_noise!(ν, σ, Δt, x, μ, ϵ)
-    n = length(ν)
-    ϵ .= rand(Normal(0, σ), n)
-    x .+= μ * Δt .+ ϵ * √(Δt)
-    x .= max.(x, 0.0)
-    return nothing
-end
-
-function increment!(ν, β, λ, σ, Δt, x, y, μ, ϵ)
-    compute_mean_evidence!(ν, β, λ, x, y, μ)
-    add_noise!(ν, σ, Δt, x, μ, ϵ)
-    return nothing
-end
-
-function increment!(dist, x, y, μ, ϵ)
-    (;ν, β, λ, σ, Δt) = dist
-    return increment!(ν, β, λ, σ, Δt, x, y, μ, ϵ)
-end
-
 function simulate_trial(dist)
+    # number of trials 
     n = length(dist.ν)
+    # evidence for each alternative
     x = fill(0.0, n)
-    y = fill(0.0, n)
+    # mean change in evidence for each alternative
     μ = fill(0.0, n)
+    # noise for each alternative 
     ϵ = fill(0.0, n)
-    return simulate_trial(dist, x, y, μ, ϵ)
+    return simulate_trial(dist, x, μ, ϵ)
 end
 
-function simulate_trial(dist, x, y, μ, ϵ)
+function simulate_trial(dist, x, μ, ϵ)
     (;Δt, α, τ) = dist
     t = 0.0
     while all(x .< α)
         t += Δt
-        increment!(dist, x, y, μ, ϵ)
+        increment!(dist, x, μ, ϵ)
     end    
     _,choice = findmax(x) 
     rt = t + τ
@@ -82,16 +49,51 @@ end
 function simulate(dist, n_sim=10_000)
     n = length(dist.ν)
     x = fill(0.0, n)
-    y = fill(0.0, n)
     μ = fill(0.0, n)
     ϵ = fill(0.0, n)
     rts = [Vector{Float64}() for _ in 1:n]
     for i in 1:n_sim
-        choice,rt = simulate_trial(dist, x, y, μ, ϵ)
+        choice,rt = simulate_trial(dist, x, μ, ϵ)
         push!(rts[choice], rt)
         x .= 0.0
     end
     return rts 
+end
+
+function increment!(ν, β, λ, σ, Δt, x, μ, ϵ)
+    # compute change of mean evidence, μ
+    compute_mean_evidence!(ν, β, λ, x, μ)
+    # add noise to mean evidence, x += (μ + ϵ)  
+    add_noise!(ν, σ, Δt, x, μ, ϵ)
+    return nothing
+end
+
+function increment!(dist, x, μ, ϵ)
+    (;ν, β, λ, σ, Δt) = dist
+    return increment!(ν, β, λ, σ, Δt, x, μ, ϵ)
+end
+
+function compute_mean_evidence!(ν, β, λ, x, μ)
+    for i in 1:length(ν)
+        μ[i] = ν[i] - λ * x[i] - β * inhibit(x, i)
+    end
+    return nothing
+end
+
+function inhibit(x, i)
+    v = 0.0
+    for j in 1:length(x)
+        v += j ≠ i ? x[j] : 0.0
+    end
+    return v
+end
+
+function add_noise!(ν, σ, Δt, x, μ, ϵ)
+    n = length(ν)
+    ϵ .= rand(Normal(0, σ), n)
+    x .+= (μ * Δt .+ ϵ * √(Δt))
+    x .= max.(x, 0.0)
+    return nothing
 end
 
 function make_kdes(sim_data)
@@ -101,3 +103,4 @@ function make_kdes(sim_data)
     dists = InterpKDE.(kdes)
     return dists, probs
 end
+
