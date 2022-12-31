@@ -15,8 +15,6 @@ utility of a visually attended option
 """
 module SequentialSamplingModels
     using Distributions, Parameters, ConcreteStructs, PrettyTables
-    using KernelDensity, Interpolations
-    import KernelDensity: kernel_dist
     import Distributions: pdf, logpdf, rand, loglikelihood, mean, std, cdf
     import Distributions: logccdf
     export SequentialSamplingModel, 
@@ -41,5 +39,4 @@ module SequentialSamplingModels
     include("LBA.jl")
     include("DiffusionRace.jl")
     include("AttentionalDiffusion.jl")
-    include("KDE.jl")
 end

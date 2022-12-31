@@ -11,7 +11,7 @@ using SafeTestsets
         #Time Step
         Δt = .0005
         #Evidence step
-        Δe = noise*sqrt(Δt)
+        Δe = noise * sqrt(Δt)
         e = 0.0
         t = θ
         p = .5 * (1 + υ * sqrt(Δt) / noise)
