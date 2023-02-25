@@ -64,7 +64,7 @@ function sample_drift_rates(ν, σ)
 end
 
 function rand(d::LBA)
-    @unpack τ,A,k,ν,σ = d
+    (;τ,A,k,ν,σ) = d
     b = A + k
     N = length(ν)
     v = sample_drift_rates(ν, σ)
@@ -99,7 +99,7 @@ function logpdf(dist::LBA, data::Array{<:Tuple,1})
 end
 
 function pdf(d::LBA, c, rt)
-    @unpack τ,A,k,ν,σ = d
+    (;τ,A,k,ν,σ) = d
     b = A + k; den = 1.0
     rt < τ ? (return 1e-10) : nothing
     for (i,v) in enumerate(ν)
@@ -118,7 +118,7 @@ end
 logpdf(d::LBA, data::Tuple) = logpdf(d, data...)
 
 function dens(d::LBA, v, rt)
-    @unpack τ,A,k,ν,σ = d
+    (;τ,A,k,ν,σ) = d
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
@@ -128,21 +128,21 @@ function dens(d::LBA, v, rt)
 end
 
 function cummulative(d::LBA, v, rt)
-    @unpack τ,A,k,ν,σ = d
+    (;τ,A,k,ν,σ) = d
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    cm = 1 + ((b - A -dt * v) / A)*cdf(Normal(0, 1), n1) -
-        ((b - dt * v) / A)*cdf(Normal(0,1), n2) + ((dt * σ) / A)*pdf(Normal(0,1), n1) -
-        ((dt * σ) / A) * pdf(Normal(0,1), n2)
+    cm = 1 + ((b - A -dt * v) / A) * cdf(Normal(0, 1), n1) -
+        ((b - dt * v) / A) * cdf(Normal(0, 1), n2) + ((dt * σ) / A)*pdf(Normal(0, 1), n1) -
+        ((dt * σ) / A) * pdf(Normal(0, 1), n2)
     return cm
 end
 
 function pnegative(d::LBA)
-    @unpack ν,σ=d
+    (;ν,σ) = d
     p = 1.0
     for v in ν
-        p*= cdf(Normal(0,1), -v / σ)
+        p *= cdf(Normal(0, 1), -v / σ)
     end
     return p
 end

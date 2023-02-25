@@ -55,7 +55,7 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 function rand(dist::AttentionalDiffusion, n_sim::Int, fixation, args...; kwargs...)
     rts = [Vector{Int}() for _ in 1:2]
     for sim in 1:n_sim 
-       choice,rt = _rand(dist, ()->fixation(args...; kwargs...))
+       choice,rt = _rand(dist, () -> fixation(args...; kwargs...))
        push!(rts[choice], rt)
     end
     return rts
@@ -78,11 +78,11 @@ Generate a single simulated trial from the attention diffusion model.
 - `kwargs...`: optional keyword arguments for the `fixation` function
 """
 function rand(dist::AttentionalDiffusion, fixation, args...; kwargs...)
-    return _rand(dist, ()->fixation(args...; kwargs...))
+    return _rand(dist, () -> fixation(args...; kwargs...))
 end
 
 function _rand(dist::AttentionalDiffusion, fixation)
-    @unpack α,z,σ,ν1,ν2,θ,Δ = dist
+    (;α,z,σ,ν1,ν2,θ,Δ) = dist
     t = 0
     v = z
     while abs(v) < α

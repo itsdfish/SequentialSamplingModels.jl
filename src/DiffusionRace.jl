@@ -39,7 +39,7 @@ WaldA(;ν, k, A, θ) = WaldA(ν, k, A, θ)
 ϕ(x) = pdf(Normal(0, 1), x)
 
 function pdf(d::WaldA, rt::Float64)
-    @unpack ν, k, A, θ = d
+    (;ν, k, A, θ) = d
     t = rt - θ
     α = (k - t * ν) / √(t)
     β = (A + k - t * ν) / √(t)
@@ -50,7 +50,7 @@ end
 logpdf(d::WaldA, rt::Float64) = log(pdf(d, rt))
 
 function cdf(d::WaldA, rt::Float64)
-    @unpack ν, k, A, θ = d
+    (;ν, k, A, θ) = d
     t = rt - θ
     b = A + k
     α1 = √(2) * ((ν * t - b)/√(2 * t))
@@ -72,7 +72,7 @@ logccdf(d::WaldA, rt::Float64) = log(1 - cdf(d, rt))
 # end
 
 function rand(d::WaldA)
-    @unpack ν, k, A, θ = d
+    (;ν, k, A, θ) = d
     z = rand(Uniform(0, A))
     α = k + A - z 
     return rand(InverseGaussian(α / ν, α^2)) + θ
@@ -116,7 +116,7 @@ Broadcast.broadcastable(x::DiffusionRace) = Ref(x)
 DiffusionRace(;ν, k, A, θ) = DiffusionRace(ν, k, A, θ)
 
 function rand(dist::DiffusionRace)
-    @unpack ν, A, k, θ = dist
+    (;ν, A, k, θ) = dist
     z = rand(Uniform(0, A))
     α = k + A - z 
     x = @. rand(WaldA(ν, k, A, θ))
@@ -127,7 +127,7 @@ end
 rand(dist::DiffusionRace, N::Int) = [rand(dist) for i in 1:N]
 
 function logpdf(d::DiffusionRace, r::Int, rt::Float64)
-    @unpack ν, k, A, θ = d
+    (;ν, k, A, θ) = d
     LL = 0.0
     for (i,m) in enumerate(ν)
         if i == r
@@ -144,7 +144,7 @@ logpdf(d::DiffusionRace, data::Tuple) = logpdf(d, data...)
 pdf(d::DiffusionRace, data::Tuple) = pdf(d, data...)
 
 function pdf(d::DiffusionRace, r::Int, rt::Float64)
-    @unpack ν, k, A, θ = d
+    (;ν, k, A, θ) = d
     like = 1.0
     for (i,m) in enumerate(ν)
         if i == r

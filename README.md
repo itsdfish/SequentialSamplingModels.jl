@@ -55,7 +55,7 @@ loglike = logpdf.(dist, data)
 ## Attentional Diffusion Model
 
 ```julia
-using StatsBase, Parameters, SequentialSamplingModels
+using StatsBase, SequentialSamplingModels
 
 mutable struct Transition
     state::Int 
@@ -70,7 +70,7 @@ mutable struct Transition
  end
  
  function attend(transition)
-     @unpack mat,n,state = transition
+     (;mat,n,state) = transition
      w = mat[state,:]
      next_state = sample(1:n, Weights(w))
      transition.state = next_state
@@ -79,11 +79,9 @@ mutable struct Transition
 
  model = AttentionalDiffusion()
  
- tmat = Transition(
-     [.98 .015 .005;
-     .015 .98 .005;
-     .45 .45 .1]
-    )
+ tmat = Transition([.98 .015 .005;
+                    .015 .98 .005;
+                    .45 .45 .1])
 
- rts = rand(model, 1000, x->attend(x), tmat)
+ rts = rand(model, 1000, x -> attend(x), tmat)
  ```

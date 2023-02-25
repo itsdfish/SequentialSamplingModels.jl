@@ -35,7 +35,7 @@ Broadcast.broadcastable(x::LNR) = Ref(x)
 LNR(;μ, σ, ϕ) = LNR(μ, σ, ϕ)
 
 function rand(dist::LNR)
-    @unpack μ,σ,ϕ = dist
+    (;μ,σ,ϕ) = dist
     x = @. rand(LogNormal(μ, σ)) + ϕ
     rt,resp = findmin(x)
     return resp,rt
@@ -44,7 +44,7 @@ end
 rand(dist::LNR, N::Int) = [rand(dist) for i in 1:N]
 
 function logpdf(d::LNR, r::Int, t::Float64)
-    @unpack μ,σ,ϕ = d
+    (;μ,σ,ϕ) = d
     LL = 0.0
     for (i,m) in enumerate(μ)
         if i == r
@@ -57,7 +57,7 @@ function logpdf(d::LNR, r::Int, t::Float64)
 end
 
 function logpdf(d::LNR{T1,T2,Vector{T3}}, r::Int, t::Float64) where {T1,T2,T3}
-    @unpack μ,σ,ϕ = d
+    (;μ,σ,ϕ) = d
     LL = 0.0
     for (i,m) in enumerate(μ)
         if i == r
@@ -74,7 +74,7 @@ logpdf(d::LNR, data::Tuple) = logpdf(d, data...)
 pdf(d::LNR, data::Tuple) = pdf(d, data...)
 
 function pdf(d::LNR, r::Int, t::Float64)
-    @unpack μ,σ,ϕ = d
+    (;μ,σ,ϕ) = d
     density = 1.0
     for (i,m) in enumerate(μ)
         if i == r
