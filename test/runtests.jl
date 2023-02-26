@@ -294,48 +294,210 @@ end
 end
 
 @safetestset "Attentional Diffusion" begin
-    using Test, SequentialSamplingModels, StatsBase, Random
-    Random.seed!(5511)
-   
-    mutable struct Transition
-        state::Int 
-        n::Int
-        mat::Array{Float64,2} 
-    end
-
-    function Transition(mat)
-        n = size(mat,1)
-        state = rand(1:n)
-        return Transition(state, n, mat)
-    end
+    @safetestset "aDDM" begin 
+        using Test, SequentialSamplingModels, StatsBase, Random
+        Random.seed!(5511)
+       
+        mutable struct Transition
+            state::Int 
+            n::Int
+            mat::Array{Float64,2} 
+        end
     
-    function attend(t)
-        w = t.mat[t.state,:]
-        next_state = sample(1:t.n, Weights(w))
-        t.state = next_state
-        return next_state
+        function Transition(mat)
+            n = size(mat,1)
+            state = rand(1:n)
+            return Transition(state, n, mat)
+        end
+        
+        function attend(t)
+            w = t.mat[t.state,:]
+            next_state = sample(1:t.n, Weights(w))
+            t.state = next_state
+            return next_state
+        end
+    
+        model = aDDM(;ν1=5.0, ν2=4.0)
+    
+        tmat = Transition([.98 .015 .005;
+                            .015 .98 .005;
+                            .45 .45 .1])
+    
+        rts1 = rand(model, 1000, x -> attend(x), tmat)
+        n1,n2 = length.(rts1)
+        @test n1 > n2
+       
+        model = aDDM(;ν1=4.0, ν2=5.0)
+        rts2 = rand(model, 1000, x -> attend(x), tmat)
+        n1,n2 = length.(rts2)
+        @test n1 < n2
+    
+        μ_rts1 = mean(vcat(rts1...))
+        model = aDDM(;ν1=5.0, ν2=5.0)
+        rts3 = rand(model, 1000, x -> attend(x), tmat)
+        μ_rts3 = mean(vcat(rts3...))
+        @test μ_rts1 < μ_rts3
     end
 
-    model = AttentionalDiffusion(;ν1=5.0, ν2=4.0)
+    @safetestset "maaDDM" begin 
+        @safetestset "update1" begin 
+            using Test, SequentialSamplingModels
+            using SequentialSamplingModels: update 
+    
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 2.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 3.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = .5, 
+                            ϕ = .50, 
+                            ω = .00, 
+                            σ = eps(), 
+                            Δ = 1.0)
+    
+            Δ1s = map(x -> update(model, x), 1:4)
+            @test Δ1s[1] > 0
+            @test Δ1s[2] > 0
+            @test Δ1s[3] < 0
+            @test Δ1s[4] < 0
 
-    tmat = Transition(
-        [.98 .015 .005;
-        .015 .98 .005;
-        .45 .45 .1]
-        )
+            model = maaDDM(ν₁₁ = 100.0, 
+                            ν₁₂ = 2.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 3.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = .5, 
+                            ϕ = .50, 
+                            ω = .00, 
+                            σ = eps(), 
+                            Δ = 1.0)
 
-    rts1 = rand(model, 1000, x->attend(x), tmat)
-    n1,n2 = length.(rts1)
-    @test n1 > n2
-   
-    model = AttentionalDiffusion(;ν1=4.0, ν2=5.0)
-    rts2 = rand(model, 1000, x->attend(x), tmat)
-    n1,n2 = length.(rts2)
-    @test n1 < n2
+            Δ2s = map(x -> update(model, x), 1:4)
+            @test Δ1s ≈ Δ2s atol = 1e-5
+        end
 
-    μ_rts1 = mean(vcat(rts1...))
-    model = AttentionalDiffusion(;ν1=5.0, ν2=5.0)
-    rts3 = rand(model, 1000, x->attend(x), tmat)
-    μ_rts3 = mean(vcat(rts3...))
-    @test μ_rts1 < μ_rts3
+        @safetestset "update2" begin 
+            using Test, SequentialSamplingModels
+            using SequentialSamplingModels: update 
+    
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 2.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 3.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = .5, 
+                            ϕ = .50, 
+                            ω = .00, 
+                            σ = eps(), 
+                            Δ = 1.0)
+    
+            Δs = map(x -> update(model, x), 1:4)
+
+            @test Δs[1] > 0
+            @test Δs[2] > 0
+            @test Δs[3] < 0
+            @test Δs[4] < 0
+        end
+
+        @safetestset "update3" begin 
+            using Test, SequentialSamplingModels
+            using SequentialSamplingModels: update 
+    
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 1.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 2.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = 1.0, 
+                            ϕ = .50, 
+                            ω = .50, 
+                            σ = eps(), 
+                            Δ = 1.0)
+
+            Δs = map(x -> update(model, x), 1:4)
+            @test all(Δs .≈ -.75)
+        end
+
+        @safetestset "update4" begin 
+            using Test, SequentialSamplingModels
+            using SequentialSamplingModels: update 
+    
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 1.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 2.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = 1.0, 
+                            ϕ = 1.0, 
+                            ω = 1.0, 
+                            σ = eps(), 
+                            Δ = 1.0)
+
+            Δ1s = map(x -> update(model, x), 1:4)
+
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 1.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 2.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = 1.0, 
+                            ϕ = 1.0, 
+                            ω = 0.0, 
+                            σ = eps(), 
+                            Δ = 1.0)
+
+            Δ2s = map(x -> update(model, x), 1:4)
+
+            @test all(Δ1s .≈ -1.0)
+            @test all(Δ2s .≈ -1.0)
+        end
+
+        @safetestset "update5" begin 
+            using Test, SequentialSamplingModels
+            using SequentialSamplingModels: update 
+    
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 1.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 2.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = 1.0, 
+                            ϕ = 0.0, 
+                            ω = 1.0, 
+                            σ = eps(), 
+                            Δ = 1.0)
+
+            Δ2s = map(x -> update(model, x), 1:4)
+
+            @test Δ2s ≈ [-1,0,-1,0]
+        end
+
+        @safetestset "update6" begin 
+            using Test, SequentialSamplingModels
+            using SequentialSamplingModels: update 
+    
+            model = maaDDM(ν₁₁ = 1.0, 
+                            ν₁₂ = 1.0, 
+                            ν₂₁ = 2.0, 
+                            ν₂₂ = 2.0, 
+                            α = 1.0, 
+                            z = 0.0, 
+                            θ = 0.0, 
+                            ϕ = 1.0, 
+                            ω = 1.0, 
+                            σ = eps(), 
+                            Δ = 1.0)
+
+            Δ2s = map(x -> update(model, x), 1:4)
+
+            @test Δ2s ≈ [1,1,-2,-2]
+        end
+    end
 end

@@ -10,7 +10,7 @@ A collection of sequential sampling models based on the Distributions.jl API.
 - `Wald`: a shifted Wald represented a single boundary diffusion process
 - `WaldMixture`: a shifted Wald represented a single boundary diffusion process with across-trial 
     variability in the drift rate
-- `AttentionalDiffusion`: a drift diffusion model in which the accumulation process is determined by the 
+- `aDDM`: a drift diffusion model in which the accumulation process is determined by the 
 utility of a visually attended option
 """
 module SequentialSamplingModels
@@ -33,7 +33,9 @@ module SequentialSamplingModels
     export LNR 
     export LBA 
     export DiffusionRace
-    export AttentionalDiffusion
+    export AbstractaDDM
+    export aDDM
+    export maaDDM
 
     export pdf 
     export cdf 
