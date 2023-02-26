@@ -87,7 +87,7 @@ mutable struct Transition
  rts = rand(model, 1000, attend, tmat)
  ```
 
- # Multiattribute Attentional Drift Diffusion
+ ## Multiattribute Attentional Drift Diffusion
 
  ```julia 
  using SequentialSamplingModels
