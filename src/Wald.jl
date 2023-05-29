@@ -1,5 +1,7 @@
 abstract type AbstractWald <: SequentialSamplingModel
 end
+loglikelihood(d::AbstractWald, data::AbstractArray{T,1}) where {T} = sum(logpdf.(d, data))
+
 
 """
 # Wald Constructor

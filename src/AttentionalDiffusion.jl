@@ -54,13 +54,13 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 - `kwargs...`: optional keyword arguments for the `fixation` function
 """
 function rand(dist::AbstractaDDM, n_sim::Int, fixation, args...; rand_state! = _rand_state!, kwargs...)
-    rts = [Vector{Float64}() for _ in 1:2]
+    choice = fill(0, n_sim)
+    rt = fill(0.0, n_sim)
     for sim in 1:n_sim 
         rand_state!(args...; kwargs...)
-        choice,rt = _rand(dist, () -> fixation(args...; kwargs...))
-        push!(rts[choice], rt)
+        choice[sim],rt[sim] = _rand(dist, () -> fixation(args...; kwargs...))
     end
-    return rts
+    return (;choice,rt)
 end
 
 function _rand_state!(tmat)
@@ -169,8 +169,8 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 
 - `ν₁₁=5.0`: relative decision value for alternative 1, attribute 1
 - `ν₁₂=4.0`: relative decision value for alternative 1, attribute 2
-- `ν₂₁`=5.0: relative decision value for alternative 2, attribute 1
-- `ν₂₂`4.0:  relative decision value for alternative 2, attribute 2
+- `ν₂₁=5.0`: relative decision value for alternative 2, attribute 1
+- `ν₂₂=4.0`:  relative decision value for alternative 2, attribute 2
 - `α=1.0`: evidence threshold 
 - `z=0.0`: initial evidence 
 - `θ=.3`: bias away from unattended alternative (lower indicates more bias)

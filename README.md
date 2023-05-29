@@ -27,9 +27,9 @@ See [Heathcote and Love (2012)](http://www.frontiersin.org/Cognitive_Science/10.
 
 ```julia
 dist = LNR(μ=[-2,-3], σ=1.0, ϕ=.3)
-data = rand(dist, 10)
-like = pdf.(dist, data)
-loglike = logpdf.(dist, data)
+choice,rts = rand(dist, 10)
+like = pdf.(dist, choice, rts)
+loglike = logpdf.(dist, choice, rts)
 ```
 
 ### Linear Ballistic Accumulator (LBA)
@@ -64,9 +64,9 @@ loglike = logpdf.(dist, rt)
 
 ```julia
 dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2)
-data = rand(dist, 10)
-like = pdf.(dist, data)
-loglike = logpdf.(dist, data)
+choice,rt = rand(dist, 10)
+like = pdf.(dist, choice, rts)
+loglike = logpdf.(dist, choice, rts)
 ```
 
 ### Attentional Diffusion Model
@@ -100,7 +100,7 @@ mutable struct Transition
                     .015 .98 .005;
                     .45 .45 .1])
 
- rts = rand(model, 1000, attend, tmat)
+ choice,rts = rand(model, 1000, attend, tmat)
  ```
 
  ### Multiattribute Attentional Drift Diffusion
@@ -141,5 +141,5 @@ mutable struct Transition
                     .0025 .0025 .98 .015;
                     .0025 .0025 .015 .98])
 
- rts = rand(model, 1000, attend, tmat)
+ choice,rts = rand(model, 1000, attend, tmat)
  ```
