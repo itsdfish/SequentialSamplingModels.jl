@@ -36,6 +36,8 @@ end
 
 Base.broadcastable(x::LBA) = Ref(x)
 
+loglikelihood(d::LBA, data) = sum(logpdf.(d, data...))
+
 LBA(;τ, A, k, ν, σ=1.0) = LBA(ν, A, k, τ, σ)
 
 function select_winner(dt)

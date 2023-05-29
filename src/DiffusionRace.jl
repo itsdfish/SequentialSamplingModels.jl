@@ -113,6 +113,8 @@ end
 
 Broadcast.broadcastable(x::DiffusionRace) = Ref(x)
 
+loglikelihood(d::DiffusionRace, data) = sum(logpdf.(d, data...))
+
 DiffusionRace(;ν, k, A, θ) = DiffusionRace(ν, k, A, θ)
 
 function rand(dist::DiffusionRace)
@@ -124,7 +126,14 @@ function rand(dist::DiffusionRace)
     return resp,rt
 end
 
-rand(dist::DiffusionRace, N::Int) = [rand(dist) for i in 1:N]
+function rand(d::DiffusionRace, N::Int)
+    choice = fill(0, N)
+    rt = fill(0.0, N)
+    for i in 1:N
+        choice[i],rt[i] = rand(d)
+    end
+    return (choice=choice,rt=rt)
+end
 
 function logpdf(d::DiffusionRace, r::Int, rt::Float64)
     (;ν, k, A, θ) = d

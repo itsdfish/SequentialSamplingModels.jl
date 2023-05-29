@@ -169,8 +169,8 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 
 - `ν₁₁=5.0`: relative decision value for alternative 1, attribute 1
 - `ν₁₂=4.0`: relative decision value for alternative 1, attribute 2
-- `ν₂₁`=5.0: relative decision value for alternative 2, attribute 1
-- `ν₂₂`4.0:  relative decision value for alternative 2, attribute 2
+- `ν₂₁=5.0`: relative decision value for alternative 2, attribute 1
+- `ν₂₂=4.0`:  relative decision value for alternative 2, attribute 2
 - `α=1.0`: evidence threshold 
 - `z=0.0`: initial evidence 
 - `θ=.3`: bias away from unattended alternative (lower indicates more bias)

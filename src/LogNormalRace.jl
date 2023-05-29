@@ -32,6 +32,8 @@ end
 
 Broadcast.broadcastable(x::LNR) = Ref(x)
 
+loglikelihood(d::LNR, data) = sum(logpdf.(d, data...))
+
 LNR(;μ, σ, ϕ) = LNR(μ, σ, ϕ)
 
 function rand(dist::LNR)
@@ -41,7 +43,14 @@ function rand(dist::LNR)
     return resp,rt
 end
 
-rand(dist::LNR, N::Int) = [rand(dist) for i in 1:N]
+function rand(d::LNR, N::Int)
+    choice = fill(0, N)
+    rt = fill(0.0, N)
+    for i in 1:N
+        choice[i],rt[i] = rand(d)
+    end
+    return (choice=choice,rt=rt)
+end
 
 function logpdf(d::LNR, r::Int, t::Float64)
     (;μ,σ,ϕ) = d
