@@ -8,9 +8,9 @@ The examples below show basic usage. Addition information can be found in the RE
 ```julia
 using SequentialSamplingModels
 dist = LNR(μ=[-2,-3], σ=1.0, ϕ=.3)
-data = rand(dist, 10)
-like = pdf.(dist, data)
-loglike = logpdf.(dist, data)
+choice,rts = rand(dist, 10)
+like = pdf.(dist, choice, rts)
+loglike = logpdf.(dist, choice, rts)
 ```
 
 ## Linear Ballistic Accumulator
@@ -47,9 +47,9 @@ loglike = logpdf.(dist, rt)
 ```julia
 using SequentialSamplingModels
 dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2)
-data = rand(dist, 10)
-like = pdf.(dist, data)
-loglike = logpdf.(dist, data)
+choice,rt = rand(dist, 10)
+like = pdf.(dist, choice, rts)
+loglike = logpdf.(dist, choice, rts)
 ```
 
 ## Attentional Diffusion Model
@@ -84,7 +84,7 @@ mutable struct Transition
                     .015 .98 .005;
                     .45 .45 .1])
 
- rts = rand(model, 1000, attend, tmat)
+ choice,rts = rand(model, 1000, attend, tmat)
  ```
 
  ## Multiattribute Attentional Drift Diffusion

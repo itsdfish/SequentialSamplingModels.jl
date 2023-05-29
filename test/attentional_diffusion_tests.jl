@@ -28,19 +28,19 @@
                             .015 .98 .005;
                             .45 .45 .1])
     
-        rts1 = rand(model, 1000, x -> attend(x), tmat)
-        n1,n2 = length.(rts1)
-        @test n1 > n2
+        choice,rts = rand(model, 1000, x -> attend(x), tmat)
+        p1 = mean(choice .== 1)
+        @test p1 > .50
        
         model = aDDM(;ν1=4.0, ν2=5.0)
-        rts2 = rand(model, 1000, x -> attend(x), tmat)
-        n1,n2 = length.(rts2)
-        @test n1 < n2
+        choice,rts1 = rand(model, 1000, x -> attend(x), tmat)
+        p1 = mean(choice .== 1)
+        @test p1 < .50
     
-        μ_rts1 = mean(vcat(rts1...))
+        μ_rts1 = mean(rts1)
         model = aDDM(;ν1=5.0, ν2=5.0)
-        rts3 = rand(model, 1000, x -> attend(x), tmat)
-        μ_rts3 = mean(vcat(rts3...))
+        choice,rts3 = rand(model, 1000, x -> attend(x), tmat)
+        μ_rts3 = mean(rts3)
         @test μ_rts1 < μ_rts3
     end
 end
