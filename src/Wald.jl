@@ -1,5 +1,7 @@
 abstract type AbstractWald <: SequentialSamplingModel
 end
+loglikelihood(d::AbstractWald, data::AbstractArray{T,1}) where {T} = sum(logpdf.(d, data))
+
 
 """
 # Wald Constructor
@@ -77,7 +79,7 @@ end
 WaldMixture(;ν, σ, α, θ) = WaldMixture(ν, σ, α, θ)
 
 function pdf(d::WaldMixture, t::AbstractFloat)
-    @unpack ν, σ, α ,θ = d
+    (;ν, σ, α ,θ) = d
     c1 = α / √(2 * π * (t - θ)^3)
     c2 = 1 / cdf(Normal(0,1), ν / σ)
     c3 = exp(-(ν * (t - θ) - α)^2 / (2 * (t - θ) * ((t - θ) * σ^2 + 1)))
@@ -86,7 +88,7 @@ function pdf(d::WaldMixture, t::AbstractFloat)
 end
 
 function logpdf(d::WaldMixture, t::AbstractFloat)
-    @unpack ν, σ, α ,θ = d
+    (;ν, σ, α ,θ) = d
     c1 = log(α) - log(√(2 * π * (t - θ)^3))
     c2 = log(1) - logcdf(Normal(0,1), ν / σ)
     c3 = -(ν * (t - θ) - α)^2 / (2*(t - θ)*((t - θ)*σ^2 + 1))
