@@ -14,7 +14,7 @@
              σ=1.0)
 
         model = LCA(;parms...)
-        choice,rt = rand(model, 100_000)
+        choice,rt = rand(model, 10_000)
         
         @test mean(choice .== 1) ≈ 0.60024 atol = 5e-3
         @test mean(rt[choice .== 1]) ≈ 0.7478 atol = 5e-3
@@ -62,4 +62,72 @@
 
     # np.std(rts[resps == 0])
     # np.std(rts[resps == 1])
+
+    @safetestset "compute_mean_evidence!" begin 
+        using SequentialSamplingModels
+        using SequentialSamplingModels: compute_mean_evidence!
+        using Test
+        
+        β = 0.20
+        λ = 0.10 
+        ν = [2.5,2.0] 
+        Δμ = [0.0,0.0]
+        x = [1.0,2.0]
+
+        compute_mean_evidence!(ν, β, λ, x, Δμ)
+        @test Δμ[1] ≈ (2.5 - .1 - .4)
+        @test Δμ[2] ≈ (2.0 - .2 - .2)
+
+        β = 0.00
+        λ = 0.00 
+        ν = [2.5,2.0] 
+        Δμ = [0.0,0.0]
+        x = [1.0,2.0]
+
+        compute_mean_evidence!(ν, β, λ, x, Δμ)
+        @test Δμ[1] ≈ 2.5 
+        @test Δμ[2] ≈ 2.0
+
+        β = 0.20
+        λ = 0.10 
+        ν = [0.0,0.0]
+        Δμ = [0.0,0.0]
+        x = [1.0,2.0]
+
+        compute_mean_evidence!(ν, β, λ, x, Δμ)
+        @test Δμ[1] ≈ (- .1 - .4)
+        @test Δμ[2] ≈ (- .2 - .2)
+    end
+
+    @safetestset "increment!" begin 
+        using SequentialSamplingModels
+        using SequentialSamplingModels: increment!
+        using Test
+        using Random 
+        Random.seed!(6521)
+        
+        Δt = 0.001
+        β = 0.20
+        λ = 0.10 
+        σ = 0.10
+        ν = [2.5,2.0] 
+        Δμ = [0.0,0.0]
+        x = [0.0,0.0]
+        ϵ = [0.0,0.0]
+
+        n_reps = 1000
+        evidence = fill(0.0, n_reps, 2)
+        for i ∈ 1:n_reps
+            x .= 1.0 
+            increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ)
+            evidence[i,:] = x 
+        end
+
+        true_std = σ * sqrt(Δt)
+        true_means = [(2.5 - .1 - .4) (2.0 - .2 - .2)] * Δt .+ 1.0
+
+        @test mean(evidence, dims=1) ≈ true_means atol = 5e-4
+        @test std(evidence, dims=1) ≈ fill(true_std, 1, 2) atol = 5e-4
+    end
 end
+

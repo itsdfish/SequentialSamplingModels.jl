@@ -1,5 +1,18 @@
-# https://web.archive.org/web/20210715113857id_/https://pure.uva.nl/ws/files/54450607/1_s2.0_S0010028520300219_main.pdf
-# Double responding: A new constraint for models of speeded decision making
+"""
+    LCA 
+
+Model object for the Leaky Competing Accumulator. 
+
+# Fields
+
+- `ν`: drift rates 
+- `α`: evidence threshold 
+- `β`: lateral inhabition 
+- `λ`: leak rate
+- `τ`: non-decision time 
+- `σ`: diffusion noise 
+- `Δt`: time step 
+"""
 @concrete mutable struct LCA <: SequentialSamplingModel
     ν
     α
@@ -10,18 +23,45 @@
     Δt
 end
 
-function LCA(;
-    ν = [.1,.15], 
-    α = .1, 
-    β = .1, 
-    λ = .1, 
-    τ = .3, 
-    σ = .1, 
-    Δt = .001
-    )
+"""
+    LCA(;ν = [2.5,2.0], 
+        α = 1.5, 
+        β = .20, 
+        λ = .10, 
+        τ = .30, 
+        σ = 1.0, 
+        Δt = .001)
+
+Constructor for Leaky Competing Accumulator model. 
+    
+# Keywords 
+- `ν = [2.5,2.0]`: drift rates 
+- `α = 1.5`: evidence threshold 
+- `β = .20`: lateral inhabition 
+- `λ = .10`: leak rate
+- `τ = .30`: non-decision time 
+- `σ = 1.0`: diffusion noise 
+- `Δt = .001`: time step 
+"""
+function LCA(;ν = [2.5,2.0], 
+    α = 1.5, 
+    β = .20, 
+    λ = .10, 
+    τ = .30, 
+    σ = 1.0, 
+    Δt = .001)
+
     return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
+"""
+    rand(dist::LCA)
+
+Generate a random choice-rt pair for the Leaky Competing Accumulator.
+
+# Arguments
+- `dist`: model object for the Leaky Competing Accumulator. 
+"""
 function rand(dist::LCA)
     # number of trials 
     n = length(dist.ν)
@@ -34,6 +74,15 @@ function rand(dist::LCA)
     return simulate_trial(dist, x, Δμ, ϵ)
 end
 
+"""
+    rand(dist::LCA, n_sim::Int)
+
+Generate `n_sim` random choice-rt pairs for the Leaky Competing Accumulator.
+
+# Arguments
+- `dist`: model object for the Leaky Competing Accumulator.
+- `n_sim::Int`: the number of simulated choice-rt pairs  
+"""
 function rand(dist::LCA, n_sim::Int)
     n = length(dist.ν)
     x = fill(0.0, n)

@@ -132,6 +132,6 @@ mutable struct Transition
  ## Leaky Competing Accumulator
 
  ```julia 
- model = LCA(; α = 1.5, β=0.20, λ=0.10, ν=[2.5,2.0], Δt=.001, τ=.30, σ=1.0)
-choice,rt = rand(model, 100_000)
+model = LCA(; α = 1.5, β=0.20, λ=0.10, ν=[2.5,2.0], Δt=.001, τ=.30, σ=1.0)
+choice,rt = rand(model, 1000)
 ```
