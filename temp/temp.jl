@@ -5,10 +5,14 @@ using Revise, Plots
 using SequentialSamplingModels
 using SequentialSamplingModels: simulate, simulate_trial
 
-model = LCA(; α = .5, β=0.2, λ=0.1, ν=[2.5,3.0], Δt=.005)
+model = LCA(; α = 1.5, β=0.20, λ=0.10, ν=[2.5,2.0], Δt=.001, τ=.30, σ=1.0)
 
-rts = simulate(model, 100_000)
-mean.(rts)
+choice,rt = rand(model, 100_000)
+mean(choice .== 1)
+mean(rt[choice .== 1])
+mean(rt[choice .== 2])
+std(rt[choice .== 1])
+std(rt[choice .== 2])
 
 
 

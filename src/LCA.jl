@@ -22,7 +22,7 @@ function LCA(;
     return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
-function simulate_trial(dist)
+function rand(dist::LCA)
     # number of trials 
     n = length(dist.ν)
     # evidence for each alternative
@@ -34,26 +34,26 @@ function simulate_trial(dist)
     return simulate_trial(dist, x, Δμ, ϵ)
 end
 
-function simulate(dist, n_sim=10_000)
+function rand(dist::LCA, n_sim::Int)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
     ϵ = fill(0.0, n)
-    rts = [Vector{Float64}() for _ in 1:n]
+    choices = fill(0, n_sim)
+    rts = fill(0.0, n_sim)
     for i in 1:n_sim
-        choice,rt = simulate_trial(dist, x, Δμ, ϵ)
-        push!(rts[choice], rt)
+        choices[i],rts[i] = simulate_trial(dist, x, Δμ, ϵ)
         x .= 0.0
     end
-    return rts 
+    return choices,rts 
 end
 
 function simulate_trial(dist, x, Δμ, ϵ)
     (;Δt, α, τ) = dist
     t = 0.0
     while all(x .< α)
-        t += Δt
         increment!(dist, x, Δμ, ϵ)
+        t += Δt
     end    
     _,choice = findmax(x) 
     rt = t + τ
