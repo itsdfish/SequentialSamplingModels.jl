@@ -37,6 +37,7 @@ module SequentialSamplingModels
     export aDDM
     export maaDDM
     export LCA
+    export DDM
 
     export pdf 
     export cdf 
@@ -54,4 +55,5 @@ module SequentialSamplingModels
     include("AttentionalDiffusion.jl")
     include("KDE.jl")
     include("LCA.jl")
+    include("DDM.jl")
 end

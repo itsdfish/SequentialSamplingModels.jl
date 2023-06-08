@@ -3,20 +3,15 @@ using Pkg
 Pkg.activate("..")
 using Revise, Plots
 using SequentialSamplingModels
-using SequentialSamplingModels: simulate, simulate_trial
 
-model = LCA(; α = 1.5, β=0.20, λ=0.10, ν=[2.5,2.0], Δt=.001, τ=.30, σ=1.0)
+model = DDM(ν = .30)
 
-choice,rt = rand(model, 100_000)
+choice,rt = rand(model, 10_000)
 mean(choice .== 1)
 mean(rt[choice .== 1])
 mean(rt[choice .== 2])
 std(rt[choice .== 1])
 std(rt[choice .== 2])
-
-
-
-
 
 using SequentialSamplingModels: increment!
 
