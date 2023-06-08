@@ -1,8 +1,8 @@
 abstract type SequentialSamplingModel <: ContinuousUnivariateDistribution end
 
-function Base.show(io::IO, ::MIME"text/html", model::SequentialSamplingModel)
+function Base.show(io::IO, ::MIME"text/plain", model::SequentialSamplingModel)
     values = [getfield(model, f) for f in fieldnames(typeof(model))]
-    values = map(x->typeof(x)== Bool ? string(x) : x, values)
+    values = map(x -> typeof(x) == Bool ? string(x) : x, values)
     T = typeof(model)
     model_name = string(T.name.name)
     return pretty_table(
