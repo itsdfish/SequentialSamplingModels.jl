@@ -1,3 +1,3 @@
 # SequentialSamplingModels.jl
 
-Documentation for SequentialSamplingModels.jl
+Documentation is under construction.

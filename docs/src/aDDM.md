@@ -1,5 +1,6 @@
 # Attentional Drift Diffusion Model 
 
+The attentional drift diffusion model (ADDM; Krajbich, Armel, & Rangel, 2010) describes how attentional processes drive drive decision making. In the ADDM, preference for the currently attended option accrues faster than preference for non-attended options. As with other sequential sampling models, the first option to hit a decision threshold determines the resulting choice and reaction time.
 
 # Example
 
@@ -7,6 +8,9 @@
 using SequentialSamplingModels
 using StatsBase
 using Plots
+using Random
+
+Random.seed!(5487)
 
 mutable struct Transition
     state::Int 
@@ -44,7 +48,7 @@ rts2 = rts[choices .== 2]
 p1 = length(rts1) / length(rts)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density")
+     xlabel="Reaction Time", ylabel="Density", ylims = (0,10))
 histogram!(rts1, subplot=1, color=:grey, bins = 50, norm=true, title="Choice 1")
 histogram!(rts2, subplot=2, color=:grey, bins = 50, norm=true, title="Choice 2")
 # weight histogram according to choice probability
@@ -52,14 +56,28 @@ hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)
 hist
 ```
+
+In this example, we will develope a ADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 
 ## Load Packages
+The first step is to load the required packages.
 
 ```@example aDDM
 using SequentialSamplingModels
 using StatsBase
+using Plots
+
+Random.seed!(5487)
 ```
 
 ## Define Transition Type 
+
+To represent the transition of attention from one option to the other, we will definite a `Transition` type and constructor. The fields of the `Transition` type are:
+
+1. `state`: an index for the current state
+2. `n`: the number of states
+3. `mat`: an $n\times n$ transition matrix
+
+The constructor accepts a transition matrix, extracts the number of states, and initializes the first state randomly with equal probability.
 
 ```@example aDDM 
 mutable struct Transition
@@ -77,20 +95,59 @@ function Transition(mat)
 
 
 ## Define Transition Matrix 
+
+The transition matrix is defined below in the constructor for `Transition`. As shown in the table below, the model's attention can be in one of three states: option 1, option 2, or non-option, which is any area except the two options. 
+
+|             	| option 1  	| option 2 	| non-option  	|
+|-------------	|-----------	|----------	|-------------	|
+| **option 1**   	| 0.98      	| 0.015    	| 0.005       	|
+| **option 2**    	| 0.015     	| 0.98     	| 0.005       	|
+| **non-option**  	| 0.45      	| 0.45     	| 0.1         	|
+
+
+The transition matrix above embodies the following assumptions:
+
+1. Once the model attends to an option, it dwells on the option for some time.
+2. There is not a bias for one option over the other.
+3. The chance of fixating on a non-option is small, and such fixations are brief when they do occur.
+4. Transitions are Markovian in that they only depend on the previous state.
+
+
+
  ```@example aDDM 
 tmat = Transition([.98 .015 .005;
                     .015 .98 .005;
                     .45 .45 .1])
 ```
+
+## Attend Function 
+
+The function below generates the next attention location based on the previous location. 
+
+```@example aDDM 
+ function attend(transition)
+     (;mat,n,state) = transition
+     w = mat[state,:]
+     next_state = sample(1:n, Weights(w))
+     transition.state = next_state
+     return next_state
+ end
+```
 ## Create Model Object
+The code below defines an `aDDM` model with default parameter values. 
+
  ```@example aDDM 
  model = aDDM()
 ```
 ## Simulate Model
+
+Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. The `rand` function accepts the model object, the number of simulated trials, the `attend` function, and the transition matrix object. 
+
  ```@example aDDM 
  choices,rts = rand(model, 10_000, attend, tmat)
 ```
 ## Plot Simulation
+Finally, we can generate histograms of the reaction times for each decision option. 
  ```@example aDDM 
 # rts for option 1
 rts1 = rts[choices .== 1]
@@ -100,9 +157,9 @@ rts2 = rts[choices .== 2]
 p1 = length(rts1) / length(rts)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density")
-histogram!(rts1, subplot=1, color=:grey, bins = 50, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 50, norm=true, title="Choice 2")
+     xlabel="Reaction Time", ylabel="Density", xlims=(0,10))
+histogram!(rts1, subplot=1, color=:grey, bins = 50, norm=true, title="Option 1")
+histogram!(rts2, subplot=2, color=:grey, bins = 50, norm=true, title="Option 2")
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)
