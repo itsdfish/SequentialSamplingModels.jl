@@ -16,7 +16,7 @@ makedocs(
     pages = ["home" => "index.md",
             "api" => "api.md",
             "examples" => ["Attentional Diffusion" => "aDDM.md",
-                 ]]
+                 "Linear Ballistic Accumulator" => "lba.md"]]
 )
 
 deploydocs(

@@ -32,13 +32,21 @@ mutable struct Transition
      return next_state
  end
 
- model = aDDM()
+ν1 = 6.0
+ν2 = 5.0
+α = 1.0
+z = 0.0
+θ = 0.30
+σ = 0.02
+Δ = 0.0004  
+
+ model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
  
  tmat = Transition([.98 .015 .005;
                     .015 .98 .005;
                     .45 .45 .1])
 
- choices,rts = rand(model, 10_000, attend, tmat)
+ choices,rts = rand(model, 100, attend, tmat)
 
 # rts for option 1
 rts1 = rts[choices .== 1]
@@ -48,9 +56,9 @@ rts2 = rts[choices .== 2]
 p1 = length(rts1) / length(rts)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", ylims = (0,10))
-histogram!(rts1, subplot=1, color=:grey, bins = 50, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 50, norm=true, title="Choice 2")
+     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
+histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
+histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)
@@ -134,10 +142,44 @@ The function below generates the next attention location based on the previous l
  end
 ```
 ## Create Model Object
-The code below defines an `aDDM` model with default parameter values. 
+The code snippets assign values to parameters of the ADDM and create a model object.
 
+### Drift Rate Components
+The ADDM has two drift rates components corresponding to the utlity of each option. To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
+```@example aDDM 
+ν1 = 6.0
+ν2 = 5.0
+```
+### Threshold
+The threshold hold represents the amount of evidence required to make a decision. This parameter is typically fixed at $\alpha = 1$.
+```@example aDDM 
+α = 1.0
+```
+### Starting Point
+The starting point of the evidence accumulation process is denoted $z$ and is typically fixed to $0$.
+```@example aDDM 
+z = 0.0
+```
+### Non-Attend Bias
+The non-attend bias parameter $\theta$ determines how much the non-attended option contributes to the 
+evidence accumulation process. In the standard DDM, $\theta=1$. 
+```@example aDDM 
+θ = 0.30
+```
+### Diffusion Noise
+Diffusion noise, $\sigma$ represents intra-trial noise during the evidence accumulation process.
+```@example aDDM 
+σ = 0.02
+```
+### Drift Rate Scalar
+The drift rate scalar controls how quickly evidence accumulates for each option. 
+```@example aDDM 
+Δ = 0.0004 
+```
+### Model Object
+Finally, we pass the parameters to the `aDDM` constructor to initialize the model.
  ```@example aDDM 
- model = aDDM()
+ model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
 ```
 ## Simulate Model
 
@@ -157,9 +199,9 @@ rts2 = rts[choices .== 2]
 p1 = length(rts1) / length(rts)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims=(0,10))
-histogram!(rts1, subplot=1, color=:grey, bins = 50, norm=true, title="Option 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 50, norm=true, title="Option 2")
+     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
+histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
+histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)

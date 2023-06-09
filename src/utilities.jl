@@ -5,7 +5,7 @@ function Base.show(io::IO, ::MIME"text/plain", model::SequentialSamplingModel)
     values = map(x -> typeof(x) == Bool ? string(x) : x, values)
     T = typeof(model)
     model_name = string(T.name.name)
-    return pretty_table(
+    return pretty_table(io,
         values;
         title=model_name,
         row_name_column_title="Parameter",
