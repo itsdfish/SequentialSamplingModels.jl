@@ -13,10 +13,13 @@ makedocs(
         collapselevel = 1,
     ),
     modules = [SequentialSamplingModels],
-    pages = ["home" => "index.md",
-            "api" => "api.md",
-            "examples" => ["Attentional Drift Diffusion" => "aDDM.md",
-                 "Linear Ballistic Accumulator" => "lba.md"]]
+    pages = ["Home" => "index.md",
+            "API" => "api.md",
+            "Examples" => ["Attentional Drift Diffusion" => "aDDM.md",
+                 "Linear Ballistic Accumulator" => "lba.md",
+                 "Lognormal Race Model" => "lnr.md"],
+            "Parameter Estimation with Turing" => "turing.md"
+            ]
 )
 
 deploydocs(

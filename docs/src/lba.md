@@ -48,6 +48,7 @@ The first step is to load the required packages.
 using SequentialSamplingModels
 using StatsBase
 using Plots
+using Random
 
 Random.seed!(8741)
 ```
