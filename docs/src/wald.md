@@ -1,6 +1,6 @@
 # Wald Model
 
-The Lognormal Race model (LNR) assumes evidence for each option races independently and that the first passage time for each option is lognormally distributed. One way in which the LNR has been used is to provide a likelihood function for the ACT-R cognitive architecture. An example of such an application can be found in [ACTRModels.jl](https://itsdfish.github.io/ACTRModels.jl/dev/example2/). We will present a simplified version below.
+The Wald model is used to model single choice decisions. It is formally equivalent to a drift diffusion model with one decision threshold and no starting point or across trial drift rate variability.
 
 # Example
 In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task. 
@@ -9,17 +9,17 @@ using SequentialSamplingModels
 using Plots
 using Random
 
-ν = 3.0,
+ν = 3.0
 α = 0.50
 θ = 0.130
 
 dist = Wald(ν, α, θ)
 
-rts = rand(dist, 1000)
+rts = rand(dist, 10_000)
 t_range = range(θ, 1, length=100)
 pdf1 = pdf.(dist, t_range)
 # histogram of retrieval times
-hist = histogram(rts, layout=(2,1), leg=false, grid=false,
+hist = histogram(rts, leg=false, grid=false, norm=true,
      xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
 plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
 hist
@@ -92,17 +92,14 @@ logpdf.(dist, rts)
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
  ```@example wald 
+rts = rand(dist, 10_000)
 t_range = range(θ, 1, length=100)
 pdf1 = pdf.(dist, t_range)
 # histogram of retrieval times
-hist = histogram(rts, layout=(2,1), leg=false, grid=false,
+hist = histogram(rts, leg=false, grid=false, norm=true, color=:grey,
      xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
 plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist```
-## Compute PDF
-The PDF for each observation can be computed as follows:
- ```@example wald 
-pdf.(dist, choices, rts)
+hist
 ```
 # References
 
