@@ -46,7 +46,6 @@ The first step is to load the required packages.
 
 ```@example lba
 using SequentialSamplingModels
-using StatsBase
 using Plots
 using Random
 

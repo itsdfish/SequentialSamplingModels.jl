@@ -1,20 +1,20 @@
-# Lognormal Race Model
+# Racing Diffusion Model
 
-The Lognormal Race model (LNR) assumes evidence for each option races independently and that the first passage time for each option is lognormally distributed. One way in which the LNR has been used is to provide a likelihood function for the ACT-R cognitive architecture. An example of such an application can be found in [ACTRModels.jl](https://itsdfish.github.io/ACTRModels.jl/dev/example2/). We will present a simplified version below.
+The Diffusion Race Model (DRM; Tillman, Van Zandt, & Logan, 2020) is a sequential sampling model in which evidence for options races independently. The LBA makes an additional simplification that evidence accumulates in a linear and ballistic fashion, meaning there is no intra-trial noise. Instead, evidence accumulates deterministically and linearly until it hits the threshold.
 
 # Example
-In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task. 
-```@setup lnr
+In this example, we will demonstrate how to use the LBA in a generic two alternative forced choice task. 
+```@setup drm
 using SequentialSamplingModels
 using Plots
 using Random
 
-μ = [-1,-1.5]
-σ = 0.50
-ϕ = 0.30
+ν = [1.0,0.50]
+k = 0.50
+A = 1.0
+θ = 0.20
 
-dist = LNR(μ, σ, ϕ)
-
+dist = DiffusionRace(;ν, k, A, θ)
 choices,rts = rand(dist, 1000)
 
 # rts for option 1
@@ -23,7 +23,7 @@ rts1 = rts[choices .== 1]
 rts2 = rts[choices .== 2]
 # probability of choosing 1
 p1 = length(rts1) / length(rts)
-t_range = range(.31, 1, length=100)
+t_range = range(.31, 2, length=100)
 # pdf for choice 1
 pdf1 = pdf.(dist, (1,), t_range)
 # pdf for choice 2
@@ -31,9 +31,9 @@ pdf2 = pdf.(dist, (2,), t_range)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
      xlabel="Reaction Time", ylabel="Density", xlims = (0,1.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
+histogram!(rts1, subplot=1, color=:grey, bins = 200, norm=true, title="Choice 1")
 plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
+histogram!(rts2, subplot=2, color=:grey, bins = 150, norm=true, title="Choice 2")
 plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
@@ -44,7 +44,7 @@ hist
 ## Load Packages
 The first step is to load the required packages.
 
-```@example lnr
+```@example drm
 using SequentialSamplingModels
 using Plots
 using Random
@@ -54,63 +54,70 @@ Random.seed!(8741)
 ## Create Model Object
 In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
 
-### Mean Log Time
+### Drift Rates
 
-The parameter $\mu$ represents the mean processing time of each accumulator in log space.
+The drift rates control the speed with which information accumulates. Typically, there is one drift rate per option. 
 
-```@example lnr
-μ = [-1,-1.5]
+```@example drm
+ν = [1.0,0.50]
 ```
 
-### Log Standard Deviation
+### Maximum Starting Point
 
-The parameter $\sigma$ repesents the mean processing time in log space.
+The starting point of each accumulator is sampled uniformly between $[0,A]$.
 
-```@example lnr 
-σ = 0.50
+```@example drm 
+A = 0.80
+```
+### Threshold - Maximum Starting Point
+
+Evidence accumulates until accumulator reaches a threshold $\alpha = k +A$. The threshold is parameterized this way to faciliate parameter estimation and to ensure that $A \le \alpha$.
+```@example drm 
+k = 0.50
 ```
 ### Non-Decision Time
+
 Non-decision time is an additive constant representing encoding and motor response time. 
-```@example lnr 
-ϕ = 0.30
+```@example drm 
+θ  = 0.30
 ```
-### LNR Constructor 
+### LBA Constructor 
 
-Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
+Now that values have been asigned to the parameters, we will pass them to `LBA` to generate the model object.
 
-```@example lnr 
-dist = LNR(μ, σ, ϕ)
+```@example drm 
+dist = DiffusionRace(;ν, k, A, θ)
 ```
 ## Simulate Model
 
 Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. 
 
- ```@example lnr 
+ ```@example drm 
  choices,rts = rand(dist, 10_000)
 ```
 ## Compute PDF
 The PDF for each observation can be computed as follows:
- ```@example lnr 
+ ```@example drm 
 pdf.(dist, choices, rts)
 ```
 
 ## Compute Log PDF
 Similarly, the log PDF for each observation can be computed as follows:
 
- ```@example lnr 
+ ```@example drm 
 logpdf.(dist, choices, rts)
 ```
 
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
- ```@example lnr 
+ ```@example drm 
 # rts for option 1
 rts1 = rts[choices .== 1]
 # rts for option 2 
 rts2 = rts[choices .== 2]
 # probability of choosing 1
 p1 = length(rts1) / length(rts)
-t_range = range(.31, 1, length=100)
+t_range = range(.31, 2, length=100)
 # pdf for choice 1
 pdf1 = pdf.(dist, (1,), t_range)
 # pdf for choice 2
@@ -118,9 +125,9 @@ pdf2 = pdf.(dist, (2,), t_range)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
      xlabel="Reaction Time", ylabel="Density", xlims = (0,1.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
+histogram!(rts1, subplot=1, color=:grey, bins = 200, norm=true, title="Choice 1")
 plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
+histogram!(rts2, subplot=2, color=:grey, bins = 150, norm=true, title="Choice 2")
 plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
@@ -129,6 +136,6 @@ hist
 ```
 # References
 
-Heathcote, A., & Love, J. (2012). Linear deterministic accumulator models of simple choice. Frontiers in psychology, 3, 292.
-
-Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015). The lognormal race: A cognitive-process model of choice and latency with desirable psychometric properties. Psychometrika, 80, 491-513.
+Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling
+models without random between-trial variability: The racing diffusion model
+of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.

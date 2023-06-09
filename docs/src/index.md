@@ -8,6 +8,7 @@ Sequential sampling models, also known as an evidence accumulation models, are a
 ```@setup accumulation
 using Plots
 using Random
+using Colors
 using SequentialSamplingModels
 using SequentialSamplingModels: increment!
 Random.seed!(8437)
@@ -39,8 +40,10 @@ model = LCA(; parms...)
 t,evidence = sim(model)
 n_steps = length(evidence)
 time_steps = range(0, t, length=n_steps)
-lca_plot = plot(time_steps, hcat(evidence...)', xlabel="Time (seconds)",         ylabel="Evidence", label=["option1" "option2"], ylims=(0, 2.0), grid=false)
-hline!(lca_plot, [model.α], color=:black, linestyle=:dash, label="threshold")
+lca_plot = plot(time_steps, hcat(evidence...)', xlabel="Time (seconds)", ylabel="Evidence", 
+    label=["option1" "option2"], ylims=(0, 2.0), grid=false, linewidth = 2,
+    color =[RGB(148/255, 90/255, 147/255) RGB(90/255, 112/255, 148/255)])
+hline!(lca_plot, [model.α], color=:black, linestyle=:dash, label="threshold", linewidth = 2)
 ```
 
 ```@example accumulation 

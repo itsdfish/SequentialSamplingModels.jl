@@ -17,8 +17,10 @@ makedocs(
             "API" => "api.md",
             "Examples" => ["Attentional Drift Diffusion" => "aDDM.md",
                  "Linear Ballistic Accumulator" => "lba.md",
-                 "Lognormal Race Model" => "lnr.md"],
-            "Parameter Estimation with Turing" => "turing.md"
+                 "Lognormal Race Model" => "lnr.md",
+                 "Racing Diffusion Model" => "rdm.md",
+                 "Wald Model" => "wald.md"],
+            "Parameter Estimation with Turing" => "turing.md",
             ]
 )
 
