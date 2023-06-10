@@ -16,10 +16,12 @@ makedocs(
     pages = ["Home" => "index.md",
             "API" => "api.md",
             "Examples" => ["Attentional Drift Diffusion" => "aDDM.md",
-                 "Linear Ballistic Accumulator" => "lba.md",
-                 "Lognormal Race Model" => "lnr.md",
-                 "Racing Diffusion Model" => "rdm.md",
-                 "Wald Model" => "wald.md"],
+                "Leaky Competing Accumulator" => "lca.md",
+                "Linear Ballistic Accumulator" => "lba.md",
+                "Lognormal Race Model" => "lnr.md",
+                "Racing Diffusion Model" => "rdm.md",
+                "Wald Model" => "wald.md",
+                "Wald Mixture Model" => "wald_mixture.md"],
             "Parameter Estimation with Turing" => "turing.md",
             ]
 )
@@ -27,3 +29,4 @@ makedocs(
 deploydocs(
     repo = "github.com/itsdfish/SequentialSamplingModels.jl.git",
 )
+

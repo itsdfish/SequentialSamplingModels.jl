@@ -1,6 +1,6 @@
 # Wald Model
 
-The Wald model is used to model single choice decisions. It is formally equivalent to a drift diffusion model with one decision threshold and no starting point or across trial drift rate variability.
+The Wald model, also known as the inverse Gaussian, a sequential sampling model for single choice decisions. It is formally equivalent to a drift diffusion model with one decision threshold and no starting point or across trial drift rate variability.
 
 # Example
 In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task. 
@@ -38,19 +38,16 @@ Random.seed!(8741)
 ## Create Model Object
 In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
 
-### Mean Log Time
+### Drift Rate
 
-The parameter $\mu$ represents the mean processing time of each accumulator in log space.
+The parameter $\nu$ represents the evidence accumulation rate.
 
 ```@example wald
 ν = 3.0
 ```
-
-
-dist = Wald(ν, α, θ)
 ### Threshold
 
-The parameter $\sigma$ repesents the mean processing time in log space.
+The parameter $\alpha$ the amount of evidence required to make a decision.
 
 ```@example wald 
 α = 0.50
@@ -90,7 +87,7 @@ logpdf.(dist, rts)
 ```
 
 ## Plot Simulation
-The code below overlays the PDF on reaction time histograms for each option.
+The code below overlays the PDF on reaction time histogram.
  ```@example wald 
 rts = rand(dist, 10_000)
 t_range = range(θ, 1, length=100)
@@ -103,6 +100,9 @@ hist
 ```
 # References
 
-Heathcote, A., & Love, J. (2012). Linear deterministic accumulator models of simple choice. Frontiers in psychology, 3, 292.
+Anders, R., Alario, F., & Van Maanen, L. (2016). The shifted Wald distribution for response time data analysis. Psychological methods, 21(3), 309.
 
-Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015). The lognormal race: A cognitive-process model of choice and latency with desirable psychometric properties. Psychometrika, 80, 491-513.
+Folks, J. L., & Chhikara, R. S. (1978). The inverse Gaussian distribution and its statistical application—a review. Journal of the Royal Statistical Society: Series B (Methodological), 40(3), 263-275.
+
+Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2021). Modeling across-trial variability in the Wald drift rate parameter. Behavior Research Methods, 53, 1060-1076.
+
