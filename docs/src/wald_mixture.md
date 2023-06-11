@@ -1,9 +1,9 @@
 # Wald Mixture Model
 
-The Wald model, also known as the inverse Gaussian, a sequential sampling model for single choice decisions. It is formally equivalent to a drift diffusion model with one decision threshold and no starting point or across trial drift rate variability.
+The Wald mixture model is a sequential sampling model for single choice decisions. It extends the Wald model by allowing the drift rate to vary randomly across trials. 
 
 # Example
-In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task. 
+In this example, we will demonstrate how to use the Wald mixture model in a generic single choice decision task. 
 ```@setup wald_mixture
 using SequentialSamplingModels
 using Plots
@@ -77,7 +77,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 ```
 ### Wald Constructor 
 
-Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
+Now that values have been asigned to the parameters, we will pass them to `WaldMixture` to generate the model object.
 
 ```@example wald_mixture 
 dist = WaldMixture(ν, σ, α, θ)
