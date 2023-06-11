@@ -70,7 +70,7 @@ hist[2][1][:y] *= (1 - p1)
 hist
 ```
 
-In this example, we will develope a ADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 
+In this example, we will develope a MAADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 
 ## Load Packages
 The first step is to load the required packages.
 
@@ -238,3 +238,5 @@ hist
 # References
 
 Yang, X., & Krajbich, I. (2023). A dynamic computational model of gaze and choice in multi-attribute decisions. Psychological Review, 130(1), 52.
+
+Fisher, G. (2021). A multiattribute attentional drift diffusion model. Organizational Behavior and Human Decision Processes, 165, 167-182.

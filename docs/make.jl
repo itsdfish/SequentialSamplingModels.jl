@@ -15,7 +15,7 @@ makedocs(
     modules = [SequentialSamplingModels],
     pages = ["Home" => "index.md",
             "API" => "api.md",
-            "Examples" => ["Attentional Drift Diffusion" => "aDDM.md",
+            "Models" => ["Attentional Drift Diffusion" => "aDDM.md",
                 "Leaky Competing Accumulator" => "lca.md",
                 "Linear Ballistic Accumulator" => "lba.md",
                 "Lognormal Race Model" => "lnr.md",
