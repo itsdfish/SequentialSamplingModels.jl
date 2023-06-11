@@ -3,7 +3,7 @@
 Documentation is under construction.
 
 This package is a collection of sequential sampling models and is based on the Distributions.jl API.
-Sequential sampling models, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. An example of the evidence accumulation process is illustrated below for the leaking competing accumulator. 
+Sequential sampling models, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. See the references below for a broad overview of sequential sampling models. An example of the evidence accumulation process is illustrated below for the leaking competing accumulator. 
 
 ```@setup accumulation
 using Plots
@@ -49,7 +49,6 @@ hline!(lca_plot, [model.α], color=:black, linestyle=:dash, label="threshold", l
 ```@example accumulation 
 lca_plot
 ```
-
 # Installation
 
 You can install a stable version of SequentialSamplingModels by running the following in the Julia REPL:
@@ -63,3 +62,10 @@ The package can then be loaded with:
 ```julia
 using SequentialSamplingModels
 ```
+
+# References
+Evans, N. J. & Wagenmakers, E.-J. Evidence accumulation models: Current limitations and future directions. Quantitative Methods for Psychololgy 16, 73–90 (2020).
+
+Forstmann, B. U., Ratcliff, R., & Wagenmakers, E. J. (2016). Sequential sampling models in cognitive neuroscience: Advantages, applications, and extensions. Annual Review of Psychology, 67, 641-666.
+
+Jones, M., & Dzhafarov, E. N. (2014). Unfalsifiability and mutual translatability of major modeling schemes for choice reaction time. Psychological Review, 121(1), 1.

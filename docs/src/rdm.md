@@ -1,9 +1,9 @@
 # Racing Diffusion Model
 
-The Diffusion Race Model (DRM; Tillman, Van Zandt, & Logan, 2020) is a sequential sampling model in which evidence for options races independently. The LBA makes an additional simplification that evidence accumulates in a linear and ballistic fashion, meaning there is no intra-trial noise. Instead, evidence accumulates deterministically and linearly until it hits the threshold.
+The Diffusion Race Model (DRM; Tillman, Van Zandt, & Logan, 2020) is a sequential sampling model in which evidence for options races independently. The DRM is similar to the Linear Ballistic Accumulator, except it assumes noise occurs during the within-trial evidence accumulation process, but the drift rate is constant across trials. 
 
 # Example
-In this example, we will demonstrate how to use the LBA in a generic two alternative forced choice task. 
+In this example, we will demonstrate how to use the DRM in a generic two alternative forced choice task. 
 ```@setup drm
 using SequentialSamplingModels
 using Plots
@@ -52,7 +52,7 @@ using Random
 Random.seed!(8741)
 ```
 ## Create Model Object
-In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
+In the code below, we will define parameters for the DRM and create a model object to store the parameter values. 
 
 ### Drift Rates
 
@@ -83,7 +83,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 ```
 ### LBA Constructor 
 
-Now that values have been asigned to the parameters, we will pass them to `LBA` to generate the model object.
+Now that values have been asigned to the parameters, we will pass them to `DiffusionRace` to generate the model object.
 
 ```@example drm 
 dist = DiffusionRace(;ν, k, A, θ)

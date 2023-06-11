@@ -19,6 +19,7 @@ makedocs(
                 "Leaky Competing Accumulator" => "lca.md",
                 "Linear Ballistic Accumulator" => "lba.md",
                 "Lognormal Race Model" => "lnr.md",
+                "Muti-attribute attentional drift diffusion Model" => "maaDDM.md",
                 "Racing Diffusion Model" => "rdm.md",
                 "Wald Model" => "wald.md",
                 "Wald Mixture Model" => "wald_mixture.md"],
@@ -29,4 +30,3 @@ makedocs(
 deploydocs(
     repo = "github.com/itsdfish/SequentialSamplingModels.jl.git",
 )
-

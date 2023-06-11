@@ -1,10 +1,10 @@
-# Attentional Drift Diffusion Model 
+ # Attentional Drift Diffusion Model 
 
-The attentional drift diffusion model (ADDM; Krajbich, Armel, & Rangel, 2010) describes how attentional processes drive drive decision making. In the ADDM, preference for the currently attended option accrues faster than preference for non-attended options. As with other sequential sampling models, the first option to hit a decision threshold determines the resulting choice and reaction time.
+The multi-attribute attentional drift diffusion model (MAADDM; Yang & Krajbich, 2023) describes how attentional processes drive drive decision making. Much like the ADDM, in the MAADDM preference for the currently attended option accrues faster than preference for non-attended options. However, the MAADDM has been extended to model shifts in attention for alternatives with two attributes. As with other sequential sampling models, the first option to hit a decision threshold determines the resulting choice and reaction time.
 
 # Example
 
-```@setup aDDM
+```@setup maaDDM
 using SequentialSamplingModels
 using StatsBase
 using Plots
@@ -32,21 +32,26 @@ mutable struct Transition
      return next_state
  end
 
-ν1 = 6.0
-ν2 = 5.0
-α = 1.0
+ν₁₁ = 4.0 
+ν₁₂ = 5.0 
+ν₂₁ = 5.0 
+ν₂₂ = 4.0
+α = 1.0 
 z = 0.0
-θ = 0.30
-σ = 0.02
-Δ = 0.0004  
+θ = .3
+ϕ = .50
+ω = .70
+σ = .02
+Δ = .0004
 
- model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
- 
- tmat = Transition([.98 .015 .005;
-                    .015 .98 .005;
-                    .45 .45 .1])
+dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
 
- choices,rts = rand(model, 100, attend, tmat)
+tmat = Transition([.98 .015 .0025 .0025;
+                .015 .98 .0025 .0025;
+                .0025 .0025 .98 .015;
+                .0025 .0025 .015 .98])
+
+ choices,rts = rand(dist, 100, attend, tmat)
 
 # rts for option 1
 rts1 = rts[choices .== 1]
@@ -69,12 +74,12 @@ In this example, we will develope a ADDM for binary choice and generate its pred
 ## Load Packages
 The first step is to load the required packages.
 
-```@example aDDM
+```@example maaDDM
 using SequentialSamplingModels
 using StatsBase
 using Plots
 
-Random.seed!(5487)
+Random.seed!(9854)
 ```
 
 ## Define Transition Type 
@@ -87,7 +92,7 @@ To represent the transition of attention from one option to the other, we will d
 
 The constructor accepts a transition matrix, extracts the number of states, and initializes the first state randomly with equal probability.
 
-```@example aDDM 
+```@example maaDDM
 mutable struct Transition
     state::Int 
     n::Int
@@ -104,35 +109,37 @@ function Transition(mat)
 
 ## Define Transition Matrix 
 
-The transition matrix is defined below in the constructor for `Transition`. As shown in the table below, the model's attention can be in one of three states: option 1, option 2, or non-option, which is any area except the two options. 
+The transition matrix is defined below in the constructor for `Transition`. As shown in the table below, the model's attention can be in one of three states: option 1, option 2, or non-option, which is any area except the two options.
 
-|             	| option 1  	| option 2 	| non-option  	|
-|-------------	|-----------	|----------	|-------------	|
-| **option 1**   	| 0.98      	| 0.015    	| 0.005       	|
-| **option 2**    	| 0.015     	| 0.98     	| 0.005       	|
-| **non-option**  	| 0.45      	| 0.45     	| 0.10         	|
+|          	|              	| Option 1     	|             	| Option 1     	|             	|
+|----------	|--------------	|--------------	|-------------	|--------------	|-------------	|
+|          	|              	| **Attribute 1**  	| **Attribute 2** 	| **Attribute 1**  	| **Attribute 2** 	|
+| **Option 1** 	| **Attribute 1**  	| 0.980         |0.015          |    0.0025    	| 0.0025        |
+|          	| **Attribute 2**  	|    0.015      | 0.980          |     0.0025    | 0.0025        |
+| **Option 1** 	| **Attribute 1**  	|    0.0025    	| 0.0025        | 0.980          |    0.015      |
+|          	| **Attribute 2**  	|    0.0025    	| 0.0025       	|0.015          | 0.980          |
 
 
 The transition matrix above embodies the following assumptions:
 
 1. Once the model attends to an option, it dwells on the option for some time.
 2. There is not a bias for one option over the other.
-3. The chance of fixating on a non-option is small, and such fixations are brief when they do occur.
+3. There is a larger chance of transitioning between attributes within the same alternative than transitioning between alternatives
 4. Transitions are Markovian in that they only depend on the previous state.
 
+ ```@example maaDDM
+ tmat = Transition([.98 .015 .0025 .0025;
+                    .015 .98 .0025 .0025;
+                    .0025 .0025 .98 .015;
+                    .0025 .0025 .015 .98])
 
-
- ```@example aDDM 
-tmat = Transition([.98 .015 .005;
-                    .015 .98 .005;
-                    .45 .45 .1])
 ```
 
 ## Attend Function 
 
 The function below generates the next attention location based on the previous location. 
 
-```@example aDDM 
+```@example maaDDM
  function attend(transition)
      (;mat,n,state) = transition
      w = mat[state,:]
@@ -142,55 +149,76 @@ The function below generates the next attention location based on the previous l
  end
 ```
 ## Create Model Object
-The code snippets assign values to parameters of the ADDM and create a model object.
+The code snippets assign values to parameters of the MAADDM and create a model object.
+
 
 ### Drift Rate Components
-The ADDM has two drift rates components corresponding to the utlity of each option. To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
-```@example aDDM 
-ν1 = 6.0
-ν2 = 5.0
+In the decision making task, there are two alternatives with two attributes each. This leads to four components of the drift rates: $\nu_{1,1}, \nu_{1,2},\nu_{2,1},\nu_{2,2}$ where the first index corresponds to alternative and the second index corresponds to attribute.  To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
+```@example maaDDM
+ν₁₁ = 4.0 
+ν₁₂ = 5.0 
+ν₂₁ = 5.0 
+ν₂₂ = 4.0
 ```
+
 ### Threshold
 The threshold hold represents the amount of evidence required to make a decision. This parameter is typically fixed at $\alpha = 1$.
-```@example aDDM 
+```@example maaDDM
 α = 1.0
 ```
+
 ### Starting Point
 The starting point of the evidence accumulation process is denoted $z$ and is typically fixed to $0$.
-```@example aDDM 
+```@example maaDDM
 z = 0.0
 ```
-### Non-Attend Bias
+
+### Non-Attend Bias Alternative
 The non-attend bias parameter $\theta$ determines how much the non-attended option contributes to the 
 evidence accumulation process. In the standard DDM, $\theta=1$. 
-```@example aDDM 
+```@example maaDDM
 θ = 0.30
 ```
+
+### Non-Attend Bias Attribute
+The non-attend bias parameter $\psi$ determines how much the non-attended option contributes to the 
+evidence accumulation process. In the standard DDM, $\psi=1$. 
+```@example maaDDM
+ϕ = .50
+```
+
+### Attribute Weight
+The parameter $\omega$ denotes the weight of the first attribute.
+```@example maaDDM
+ω = .70
+```
+
 ### Diffusion Noise
 Diffusion noise, $\sigma$ represents intra-trial noise during the evidence accumulation process.
-```@example aDDM 
+```@example maaDDM
 σ = 0.02
 ```
+
 ### Drift Rate Scalar
 The drift rate scalar controls how quickly evidence accumulates for each option. 
-```@example aDDM 
+```@example maaDDM
 Δ = 0.0004 
 ```
 ### Model Object
-Finally, we pass the parameters to the `aDDM` constructor to initialize the model.
- ```@example aDDM 
- model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
+Finally, we pass the parameters to the `maaDDM` constructor to initialize the model.
+ ```@example maaDDM
+dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
 ```
 ## Simulate Model
 
 Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. The `rand` function accepts the model object, the number of simulated trials, the `attend` function, and the transition matrix object. 
 
- ```@example aDDM 
- choices,rts = rand(model, 10_000, attend, tmat)
+ ```@example maaDDM
+ choices,rts = rand(dist, 10_000, attend, tmat)
 ```
 ## Plot Simulation
 Finally, we can generate histograms of the reaction times for each decision option. 
- ```@example aDDM 
+ ```@example maaDDM
 # rts for option 1
 rts1 = rts[choices .== 1]
 # rts for option 2 
@@ -209,4 +237,4 @@ hist
 ```
 # References
 
-Krajbich, I., Armel, C., & Rangel, A. (2010). Visual fixations and the computation and comparison of value in simple choice. Nature neuroscience, 13(10), 1292-1298.
+Yang, X., & Krajbich, I. (2023). A dynamic computational model of gaze and choice in multi-attribute decisions. Psychological Review, 130(1), 52.
