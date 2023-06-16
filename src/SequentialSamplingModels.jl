@@ -18,6 +18,7 @@ module SequentialSamplingModels
     using ConcreteStructs
     using PrettyTables
 
+    import StatsAPI: params
     import Distributions: pdf
     import Distributions: logpdf
     import Distributions: rand
@@ -46,6 +47,7 @@ module SequentialSamplingModels
     export loglikelihood 
     export mean 
     export std
+    export params
 
     include("utilities.jl")
     include("LogNormalRace.jl")

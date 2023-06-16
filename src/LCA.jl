@@ -54,6 +54,10 @@ function LCA(;ν = [2.5,2.0],
     return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
+function params(d::LCA)
+    (d.ν, d.α, d.β, d.λ, d.τ, d.σ, d.Δt)    
+end
+
 """
     rand(dist::LCA)
 

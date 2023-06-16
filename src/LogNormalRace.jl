@@ -32,6 +32,10 @@ end
 
 Broadcast.broadcastable(x::LNR) = Ref(x)
 
+function params(d::LNR)
+    (d.μ, d.σ, d.ϕ)    
+end
+
 loglikelihood(d::LNR, data) = sum(logpdf.(d, data...))
 
 LNR(;μ, σ, ϕ) = LNR(μ, σ, ϕ)

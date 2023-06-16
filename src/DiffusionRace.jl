@@ -33,6 +33,10 @@ end
 
 Broadcast.broadcastable(x::WaldA) = Ref(x)
 
+function params(d::WaldA)
+    (d.ν, d.k, d.A, d.θ)    
+end
+
 WaldA(;ν, k, A, θ) = WaldA(ν, k, A, θ)
 
 Φ(x) = cdf(Normal(0, 1), x)
@@ -112,6 +116,10 @@ struct DiffusionRace{T1,T2,T3,T4} <: SequentialSamplingModel
 end
 
 Broadcast.broadcastable(x::DiffusionRace) = Ref(x)
+
+function params(d::DiffusionRace)
+    (d.ν, d.k, d.A, d.θ)    
+end
 
 loglikelihood(d::DiffusionRace, data) = sum(logpdf.(d, data...))
 

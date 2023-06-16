@@ -64,6 +64,10 @@ function DDM(; ν = 0.50,
     return DDM(ν, η, α, z, sz, τ, st, σ, Δt)
 end
 
+function params(d::DDM)
+    (d.ν, d.η, d.α, d.z, d.sz, d.τ, d.st, d.σ, d.Δt)    
+end
+
 """
     rand(dist::DDM)
 

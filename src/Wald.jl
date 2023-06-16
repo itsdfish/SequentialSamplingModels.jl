@@ -78,6 +78,10 @@ end
 
 WaldMixture(;ν, σ, α, θ) = WaldMixture(ν, σ, α, θ)
 
+function params(d::WaldMixture)
+    (d.ν, d.σ, d.α, d.θ)    
+end
+
 function pdf(d::WaldMixture, t::AbstractFloat)
     (;ν, σ, α ,θ) = d
     c1 = α / √(2 * π * (t - θ)^3)

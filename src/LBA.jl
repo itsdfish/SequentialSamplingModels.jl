@@ -36,6 +36,10 @@ end
 
 Base.broadcastable(x::LBA) = Ref(x)
 
+function params(d::LBA)
+    (d.τ,d.A,d.k,d.ν,d.σ)    
+end
+
 loglikelihood(d::LBA, data) = sum(logpdf.(d, data...))
 
 LBA(;τ, A, k, ν, σ=1.0) = LBA(ν, A, k, τ, σ)
@@ -148,3 +152,5 @@ function pnegative(d::LBA)
     end
     return p
 end
+#add Distribution methods for ContinuousUnivariateDistribution
+#Distribution.rand(rng::AbstractRNG, d::LBA) = 
