@@ -37,7 +37,7 @@ end
 Base.broadcastable(x::LBA) = Ref(x)
 
 function params(d::LBA)
-    (d.τ,d.A,d.k,d.ν,d.σ)    
+    (d.ν,d.A,d.k,d.τ,d.σ)    
 end
 
 loglikelihood(d::LBA, data) = sum(logpdf.(d, data...))

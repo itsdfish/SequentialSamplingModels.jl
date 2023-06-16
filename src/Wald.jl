@@ -25,6 +25,10 @@ end
 
 Wald(;ν, α, θ) = Wald(ν, α, θ)
 
+function params(d::Wald)
+    (d.ν, d.α, d.θ)    
+end
+
 function pdf(d::AbstractWald, t::AbstractFloat)
     return pdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.θ)
 end
