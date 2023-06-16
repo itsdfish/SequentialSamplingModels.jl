@@ -1,53 +1,48 @@
 """
-# SequentialSamplingModels.jl
+    SequentialSamplingModels
 
-A collection of sequential sampling models based on the Distributions.jl API.
-
-## Currently Supported models
-
-- `LBA`: Linear Ballistic Accumulator
-- `LNR`: Lognormal Race Model
-- `Wald`: a shifted Wald represented a single boundary diffusion process
-- `WaldMixture`: a shifted Wald represented a single boundary diffusion process with across-trial 
-    variability in the drift rate
-- `aDDM`: a drift diffusion model in which the accumulation process is determined by the 
-utility of a visually attended option
+See documentation at: 
+https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
     using Distributions
     using ConcreteStructs
     using PrettyTables
 
-    import StatsAPI: params
-    import Distributions: pdf
-    import Distributions: logpdf
-    import Distributions: rand
-    import Distributions: loglikelihood
-    import Distributions: mean
-    import Distributions: std
     import Distributions: cdf
+    import Distributions: loglikelihood
     import Distributions: logccdf
+    import Distributions: logpdf
+    import Distributions: maximum
+    import Distributions: mean
+    import Distributions: minimum
+    import Distributions: pdf
+    import Distributions: rand
+    import Distributions: std
+    import StatsAPI: params
 
     export SequentialSamplingModel
-    export Wald
-    export WaldMixture 
-    export LNR 
-    export LBA 
-    export DiffusionRace
     export AbstractaDDM
     export aDDM
-    export maaDDM
-    export LCA
     export DDM
+    export DiffusionRace
+    export LBA 
+    export LCA
+    export LNR 
+    export maaDDM
+    export Wald
+    export WaldMixture 
 
-    export pdf 
     export cdf 
-    export logpdf 
-    export rand 
     export loglikelihood 
-    export mean 
-    export std
+    export logpdf
+    export maximum
+    export mean
+    export minimum
     export params
+    export pdf 
+    export rand 
+    export std
 
     include("utilities.jl")
     include("LogNormalRace.jl")

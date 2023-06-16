@@ -1,5 +1,8 @@
 abstract type SequentialSamplingModel <: ContinuousUnivariateDistribution end
 
+minimum(d::SequentialSamplingModel) = 0.0
+maximum(d::SequentialSamplingModel) = Inf
+
 function Base.show(io::IO, ::MIME"text/plain", model::SequentialSamplingModel)
     values = [getfield(model, f) for f in fieldnames(typeof(model))]
     values = map(x -> typeof(x) == Bool ? string(x) : x, values)
