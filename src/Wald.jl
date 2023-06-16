@@ -25,6 +25,10 @@ end
 
 Wald(;ν, α, θ) = Wald(ν, α, θ)
 
+function params(d::Wald)
+    (d.ν, d.α, d.θ)    
+end
+
 function pdf(d::AbstractWald, t::AbstractFloat)
     return pdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.θ)
 end
@@ -77,6 +81,10 @@ struct WaldMixture{T1,T2,T3,T4} <: AbstractWald
 end
 
 WaldMixture(;ν, σ, α, θ) = WaldMixture(ν, σ, α, θ)
+
+function params(d::WaldMixture)
+    (d.ν, d.σ, d.α, d.θ)    
+end
 
 function pdf(d::WaldMixture, t::AbstractFloat)
     (;ν, σ, α ,θ) = d
