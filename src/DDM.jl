@@ -6,23 +6,36 @@
 # Fields
     - `ν`: drift rate
     - `α`: evidence threshold 
-    - `z`: mean starting point
     - `τ`: non-decision time 
+    - `z`: mean starting point
 """
 @concrete mutable struct DDM{T1,T2,T3,T4} <: SequentialSamplingModel
     ν::T1
     α::T2
-    z::T3
-    τ::T4
+    τ::T3
+    z::T4
 end
+
+function DDM(ν::T, α::T, τ::T, z::T; check_args::Bool=true) where {T <: Real}
+    check_args && Distributions.@check_args DDM (α, α > zero(α)) (τ, τ > zero(τ)) (z, z ≥ 0 && z ≤ 1)
+    return DDM{T}(ν, α, τ, z)
+end
+
+function DDM(ν::T, α::T, τ::T; check_args::Bool=true) where {T <: Real}
+    return DDM(ν, α, τ, 0.5; check_args=check_args)
+end
+
+DDM(ν::Real, α::Real, τ::Real, z::Real; check_args::Bool=true) = DDM(promote(ν, α, τ, z)...; check_args=check_args)
+DDM(ν::Real, α::Real, τ::Real; check_args::Bool=true) = DDM(promote(ν, α, τ)...; check_args=check_args)
+
 
 Base.broadcastable(x::DDM) = Ref(x)
 
 """
 DDM(; ν = 0.50,
     α = 0.08,
-    z = 0.04,
     τ = 0.3
+    z = 0.4,
     )
 
 Constructor for Diffusion Decision Model. 
@@ -30,18 +43,19 @@ Constructor for Diffusion Decision Model.
 # Keywords 
 - `ν=.50`: drift rates 
 - `α=0.08`: evidence threshold 
-- `z=0.4`: mean starting point
 - `τ=0.3`: non-decision time 
+- `z=0.4`: mean starting point
+
 """
 function DDM(; ν = 0.50,
     α = 0.08,
-    z = 0.4,
-    τ = 0.30
+    τ = 0.30,
+    z = 0.4
     )
-    return DDM(ν, α, z, τ)
+    return DDM(ν, α, τ, z)
 end
 
-DDM(;ν, α, z, τ) = DDM(ν, α, z, τ)
+DDM(;ν, α, τ, z) = DDM(ν, α, τ, z)
 
 ################################################################################
 #  Converted from WienerDiffusionModel.jl repository orginally by Tobias Alfers#
@@ -49,7 +63,7 @@ DDM(;ν, α, z, τ) = DDM(ν, α, z, τ)
 ################################################################################
 
 function params(d::DDM)
-    (d.ν, d.α, d.z, d.τ)    
+    (d.ν, d.α, d.τ, d.z)    
 end
 #####################################
 # Probability density function      #
@@ -329,6 +343,7 @@ Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
 - `dist`: model object for the Drift Diffusion Model.
 - `n_sim::Int`: the number of simulated rts  
 """
+
 function rand(rng::AbstractRNG, d::DDM, n_sim::Int)
     rts = fill(0.0, n_sim)
     for i in 1:n_sim
