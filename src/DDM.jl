@@ -4,10 +4,25 @@
     Model object for the Standard Diffusion Decision Model.
 
 # Fields
-    - `ν`: drift rate
-    - `α`: evidence threshold 
-    - `τ`: non-decision time 
-    - `z`: mean starting point
+    - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
+    - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
+    - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+    - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+
+# Example 
+
+````julia
+using SequentialSamplingModels
+dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
+choice,rt = rand(dist, 10)
+like = pdf.(dist, choice, rt)
+loglike = logpdf.(dist, choice, rt)
+````
+
+# References
+    
+Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
+
 """
 @concrete mutable struct DDM{T1,T2,T3,T4} <: SequentialSamplingModel
     ν::T1
@@ -15,18 +30,6 @@
     τ::T3
     z::T4
 end
-
-# function DDM(ν::T, α::T, τ::T, z::T; check_args::Bool=true) where {T <: Real}
-#     check_args && Distributions.@check_args DDM (α, α > zero(α)) (τ, τ > zero(τ)) (z, z ≥ 0 && z ≤ 1)
-#     return DDM{T}(ν, α, τ, z)
-# end
-
-# function DDM(ν::T, α::T, τ::T; check_args::Bool=true) where {T <: Real}
-#     return DDM(ν, α, τ, 0.5; check_args=check_args)
-# end
-
-# DDM(ν::Real, α::Real, τ::Real, z::Real; check_args::Bool=true) = DDM(promote(ν, α, τ, z)...; check_args=check_args)
-# DDM(ν::Real, α::Real, τ::Real; check_args::Bool=true) = DDM(promote(ν, α, τ)...; check_args=check_args)
 
 Base.broadcastable(x::DDM) = Ref(x)
 
@@ -37,25 +40,32 @@ end
 loglikelihood(d::DDM, data) = sum(logpdf.(d, data...))
 
 """
-DDM(; ν = 0.50,
-    α = 0.08,
+DDM(; ν = 1.0,
+    α = 0.8,
     τ = 0.3
-    z = 0.4,
+    z = 0.25
     )
 
 Constructor for Diffusion Decision Model. 
     
 # Keywords 
-- `ν=.50`: drift rates 
-- `α=0.08`: evidence threshold 
-- `τ=0.3`: non-decision time 
-- `z=0.4`: mean starting point
+    - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
+    - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
+    - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+    - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+
+# Example 
+
+````julia
+using SequentialSamplingModels
+dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
+````
 
 """
-function DDM(; ν = 0.50,
-    α = 0.08,
+function DDM(; ν = 1.00,
+    α = 0.80,
     τ = 0.30,
-    z = 0.4
+    z = 0.25
     )
     return DDM(ν, α, τ, z)
 end
@@ -87,7 +97,7 @@ function pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     if τ ≥ t
         return T(NaN)
     end
-    u = (t - τ) / α^2
+    u = (t - τ) / α^2 #use normalized time
 
     K_s = 2.0
     K_l = 1 / (π * sqrt(u))
@@ -276,7 +286,7 @@ function rand(rng::AbstractRNG, d::DDM)
     return _rand_rejection(rng, d)
 end
 
-# Rejection-based sampling method (Tuerlinckx et al., 2001 based on Lichters et al., 1995)
+# Rejection-based Method for the Symmetric Wiener Process(Tuerlinckx et al., 2001 based on Lichters et al., 1995)
 # adapted from the RWiener R package, note, here σ = 0.1
 function _rand_rejection(rng::AbstractRNG, d::DDM)
     (ν, α, τ, z) = params(d)
@@ -343,7 +353,7 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
             return choice,rt
         elseif (dir - ϵ) < Alower
             rt = total_time + τ
-            choice = 0
+            choice = 2
             return choice,rt
         else
             start_pos = dir
