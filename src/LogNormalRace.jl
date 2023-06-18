@@ -40,18 +40,18 @@ loglikelihood(d::LNR, data) = sum(logpdf.(d, data...))
 
 LNR(;μ, σ, ϕ) = LNR(μ, σ, ϕ)
 
-function rand(dist::LNR)
+function rand(rng::AbstractRNG, dist::LNR)
     (;μ,σ,ϕ) = dist
-    x = @. rand(LogNormal(μ, σ)) + ϕ
+    x = @. rand(rng, LogNormal(μ, σ)) + ϕ
     rt,resp = findmin(x)
     return resp,rt
 end
 
-function rand(d::LNR, N::Int)
+function rand(rng::AbstractRNG, d::LNR, N::Int)
     choice = fill(0, N)
     rt = fill(0.0, N)
     for i in 1:N
-        choice[i],rt[i] = rand(d)
+        choice[i],rt[i] = rand(rng, d)
     end
     return (choice=choice,rt=rt)
 end
