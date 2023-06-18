@@ -70,16 +70,11 @@ end
 
 logccdf(d::WaldA, rt::Float64) = log(1 - cdf(d, rt))
 
-# function rand(d::WaldA, α)
-#     @unpack ν, θ = d
-#     return rand(InverseGaussian(α / ν, α^2)) + θ
-# end
-
-function rand(d::WaldA)
+function rand(rng::AbstractRNG, d::WaldA)
     (;ν, k, A, θ) = d
-    z = rand(Uniform(0, A))
+    z = rand(rng, Uniform(0, A))
     α = k + A - z 
-    return rand(InverseGaussian(α / ν, α^2)) + θ
+    return rand(rng, InverseGaussian(α / ν, α^2)) + θ
 end
 
 """
@@ -125,20 +120,20 @@ loglikelihood(d::DiffusionRace, data) = sum(logpdf.(d, data...))
 
 DiffusionRace(;ν, k, A, θ) = DiffusionRace(ν, k, A, θ)
 
-function rand(dist::DiffusionRace)
+function rand(rng::AbstractRNG, dist::DiffusionRace)
     (;ν, A, k, θ) = dist
-    z = rand(Uniform(0, A))
+    z = rand(rng, Uniform(0, A))
     α = k + A - z 
-    x = @. rand(WaldA(ν, k, A, θ))
+    x = @. rand(rng, WaldA(ν, k, A, θ))
     rt,resp = findmin(x)
     return resp,rt
 end
 
-function rand(d::DiffusionRace, N::Int)
+function rand(rng::AbstractRNG, d::DiffusionRace, N::Int)
     choice = fill(0, N)
     rt = fill(0.0, N)
     for i in 1:N
-        choice[i],rt[i] = rand(d)
+        choice[i],rt[i] = rand(rng, d)
     end
     return (choice=choice,rt=rt)
 end

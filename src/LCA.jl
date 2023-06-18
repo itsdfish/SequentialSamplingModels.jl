@@ -66,7 +66,7 @@ Generate a random choice-rt pair for the Leaky Competing Accumulator.
 # Arguments
 - `dist`: model object for the Leaky Competing Accumulator. 
 """
-function rand(dist::LCA)
+function rand(rng::AbstractRNG, dist::LCA)
     # number of trials 
     n = length(dist.ν)
     # evidence for each alternative
@@ -75,7 +75,7 @@ function rand(dist::LCA)
     Δμ = fill(0.0, n)
     # noise for each alternative 
     ϵ = fill(0.0, n)
-    return simulate_trial(dist, x, Δμ, ϵ)
+    return simulate_trial(rng, dist, x, Δμ, ϵ)
 end
 
 """
@@ -87,7 +87,7 @@ Generate `n_sim` random choice-rt pairs for the Leaky Competing Accumulator.
 - `dist`: model object for the Leaky Competing Accumulator.
 - `n_sim::Int`: the number of simulated choice-rt pairs  
 """
-function rand(dist::LCA, n_sim::Int)
+function rand(rng::AbstractRNG, dist::LCA, n_sim::Int)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
@@ -95,17 +95,17 @@ function rand(dist::LCA, n_sim::Int)
     choices = fill(0, n_sim)
     rts = fill(0.0, n_sim)
     for i in 1:n_sim
-        choices[i],rts[i] = simulate_trial(dist, x, Δμ, ϵ)
+        choices[i],rts[i] = simulate_trial(rng, dist, x, Δμ, ϵ)
         x .= 0.0
     end
     return choices,rts 
 end
 
-function simulate_trial(dist, x, Δμ, ϵ)
+function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ)
     (;Δt, α, τ) = dist
     t = 0.0
     while all(x .< α)
-        increment!(dist, x, Δμ, ϵ)
+        increment!(rng, dist, x, Δμ, ϵ)
         t += Δt
     end    
     _,choice = findmax(x) 
@@ -113,12 +113,14 @@ function simulate_trial(dist, x, Δμ, ϵ)
     return choice,rt
 end
 
-function increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ)
+increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ) = increment!(Random.default_rng(), ν, β, λ, σ, Δt, x, Δμ, ϵ)
+
+function increment!(rng::AbstractRNG, ν, β, λ, σ, Δt, x, Δμ, ϵ)
     n = length(ν)
     # compute change of mean evidence: νᵢ - λxᵢ - βΣⱼxⱼ
     compute_mean_evidence!(ν, β, λ, x, Δμ)
     # sample noise 
-    ϵ .= rand(Normal(0, σ), n)
+    ϵ .= rand(rng, Normal(0, σ), n)
     # add mean change in evidence plus noise 
     x .+= Δμ * Δt .+ ϵ * √(Δt)
     # ensure that evidence is non-negative 
@@ -126,9 +128,9 @@ function increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ)
     return nothing
 end
 
-function increment!(dist, x, Δμ, ϵ)
+function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ)
     (;ν, β, λ, σ, Δt) = dist
-    return increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ)
+    return increment!(rng, ν, β, λ, σ, Δt, x, Δμ, ϵ)
 end
 
 function compute_mean_evidence!(ν, β, λ, x, Δμ)

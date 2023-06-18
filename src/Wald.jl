@@ -45,29 +45,33 @@ function cdf(d::Wald, t::AbstractFloat)
     return cdf(InverseGaussian(d.α/d.ν, d.α^2), t - d.θ)
 end
 
-rand(d::AbstractWald) = rand(InverseGaussian(d.α/d.ν, d.α^2)) + d.θ
+rand(rng::AbstractRNG, d::AbstractWald) = rand(InverseGaussian(rng, d.α/d.ν, d.α^2)) + d.θ
 
-function rand(d::AbstractWald, n::Int)
-    return rand(InverseGaussian(d.α / d.ν, d.α^2), n) .+ d.θ
+function rand(rng::AbstractRNG, d::AbstractWald, n::Int)
+    return rand(rng, InverseGaussian(d.α / d.ν, d.α^2), n) .+ d.θ
 end
 
 mean(d::AbstractWald) = mean(InverseGaussian(d.α / d.ν, d.α^2)) + d.θ
 std(d::AbstractWald) = std(InverseGaussian(d.α / d.ν, d.α^2))
 
 """
-# WaldMixture Constructor
+    WaldMixture
+
+# Fields
+
 - `υ`: drift rate
 - `σ`: standard deviation of drift rate
 - `α`: decision threshold
 - `θ`: a encoding-response offset
-## Usage
-````julia
+
+## Example
+```julia
 using SequentialSamplingModels
 dist = WaldMixture(υ=3.0, σ=.2, α=.5, θ=.130)
 rt = rand(dist, 10)
 like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)
-````
+```
 ## References
 Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2020). 
 Modeling across-trial variability in the Wald drift rate parameter. 
@@ -104,11 +108,11 @@ function logpdf(d::WaldMixture, t::AbstractFloat)
     return c1 + c2 + c3 + logcdf(Normal(0,1), c4)
 end
 
-function rand(d::WaldMixture) 
-    x = rand(truncated(Normal(d.ν, d.σ), 0, Inf))
-    return rand(InverseGaussian(d.α / x, d.α^2)) + d.θ
+function rand(rng::AbstractRNG, d::WaldMixture) 
+    x = rand(rng, truncated(Normal(d.ν, d.σ), 0, Inf))
+    return rand(rng, InverseGaussian(d.α / x, d.α^2)) + d.θ
 end
 
-function rand(d::WaldMixture, n::Int)
-    return map(x -> rand(d), 1:n)
+function rand(rng::AbstractRNG, d::WaldMixture, n::Int)
+    return map(x -> rand(rng, d), 1:n)
 end
