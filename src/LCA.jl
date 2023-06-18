@@ -128,6 +128,8 @@ function increment!(rng::AbstractRNG, ν, β, λ, σ, Δt, x, Δμ, ϵ)
     return nothing
 end
 
+increment!(dist, x, Δμ, ϵ) = increment!(Random.default_rng(), dist, x, Δμ, ϵ)
+
 function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ)
     (;ν, β, λ, σ, Δt) = dist
     return increment!(rng, ν, β, λ, σ, Δt, x, Δμ, ϵ)

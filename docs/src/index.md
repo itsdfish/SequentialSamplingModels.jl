@@ -44,11 +44,10 @@ lca_plot = plot(time_steps, hcat(evidence...)', xlabel="Time (seconds)", ylabel=
     label=["option1" "option2"], ylims=(0, 2.0), grid=false, linewidth = 2,
     color =[RGB(148/255, 90/255, 147/255) RGB(90/255, 112/255, 148/255)])
 hline!(lca_plot, [model.α], color=:black, linestyle=:dash, label="threshold", linewidth = 2)
+savefig("lca_plot.png")
 ```
 
-```@example accumulation 
-lca_plot
-```
+![](lca_plot.png)
 # Installation
 
 You can install a stable version of SequentialSamplingModels by running the following in the Julia REPL:
