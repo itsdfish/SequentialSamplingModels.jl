@@ -16,17 +16,17 @@
     z::T4
 end
 
-function DDM(ν::T, α::T, τ::T, z::T; check_args::Bool=true) where {T <: Real}
-    check_args && Distributions.@check_args DDM (α, α > zero(α)) (τ, τ > zero(τ)) (z, z ≥ 0 && z ≤ 1)
-    return DDM{T}(ν, α, τ, z)
-end
+# function DDM(ν::T, α::T, τ::T, z::T; check_args::Bool=true) where {T <: Real}
+#     check_args && Distributions.@check_args DDM (α, α > zero(α)) (τ, τ > zero(τ)) (z, z ≥ 0 && z ≤ 1)
+#     return DDM{T}(ν, α, τ, z)
+# end
 
-function DDM(ν::T, α::T, τ::T; check_args::Bool=true) where {T <: Real}
-    return DDM(ν, α, τ, 0.5; check_args=check_args)
-end
+# function DDM(ν::T, α::T, τ::T; check_args::Bool=true) where {T <: Real}
+#     return DDM(ν, α, τ, 0.5; check_args=check_args)
+# end
 
-DDM(ν::Real, α::Real, τ::Real, z::Real; check_args::Bool=true) = DDM(promote(ν, α, τ, z)...; check_args=check_args)
-DDM(ν::Real, α::Real, τ::Real; check_args::Bool=true) = DDM(promote(ν, α, τ)...; check_args=check_args)
+# DDM(ν::Real, α::Real, τ::Real, z::Real; check_args::Bool=true) = DDM(promote(ν, α, τ, z)...; check_args=check_args)
+# DDM(ν::Real, α::Real, τ::Real; check_args::Bool=true) = DDM(promote(ν, α, τ)...; check_args=check_args)
 
 
 Base.broadcastable(x::DDM) = Ref(x)
@@ -50,12 +50,10 @@ Constructor for Diffusion Decision Model.
 function DDM(; ν = 0.50,
     α = 0.08,
     τ = 0.30,
-    z = 0.4
-    )
+    z = 0.4)
+    
     return DDM(ν, α, τ, z)
 end
-
-DDM(;ν, α, τ, z) = DDM(ν, α, τ, z)
 
 ################################################################################
 #  Converted from WienerDiffusionModel.jl repository orginally by Tobias Alfers#
