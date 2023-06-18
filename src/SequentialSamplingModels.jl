@@ -9,6 +9,8 @@ module SequentialSamplingModels
     using ConcreteStructs
     using PrettyTables
 
+    import Distributions: AbstractRNG
+    import Distributions: sampler
     import Distributions: cdf
     import Distributions: loglikelihood
     import Distributions: logccdf
