@@ -16,6 +16,7 @@ makedocs(
     pages = ["Home" => "index.md",
             "API" => "api.md",
             "Models" => ["Attentional Drift Diffusion" => "aDDM.md",
+                "Drift Diffusion Model" => "DDM.md",
                 "Leaky Competing Accumulator" => "lca.md",
                 "Linear Ballistic Accumulator" => "lba.md",
                 "Lognormal Race Model" => "lnr.md",

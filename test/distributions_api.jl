@@ -26,6 +26,7 @@
             LNR(μ=[-1.0,3.0], σ=.3, ϕ=0.0),
             DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2),
             Wald(3,1,.2),
+            DDM(),
             WaldMixture(2, .2, 1, .1),
             aDDM(),
             maaDDM()]
@@ -45,6 +46,7 @@
             LNR(μ=[-1.0,3.0], σ=.3, ϕ=0.0),
             DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2),
             Wald(3,1,.2),
+            DDM(),
             WaldMixture(2, .2, 1, .1),
             aDDM(),
             maaDDM()]
