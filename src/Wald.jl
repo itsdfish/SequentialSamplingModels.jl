@@ -45,7 +45,7 @@ function cdf(d::Wald, t::AbstractFloat)
     return cdf(InverseGaussian(d.α/d.ν, d.α^2), t - d.θ)
 end
 
-rand(rng::AbstractRNG, d::AbstractWald) = rand(InverseGaussian(rng, d.α/d.ν, d.α^2)) + d.θ
+rand(rng::AbstractRNG, d::AbstractWald) = rand(rng, InverseGaussian(d.α/d.ν, d.α^2)) + d.θ
 
 function rand(rng::AbstractRNG, d::AbstractWald, n::Int)
     return rand(rng, InverseGaussian(d.α / d.ν, d.α^2), n) .+ d.θ
