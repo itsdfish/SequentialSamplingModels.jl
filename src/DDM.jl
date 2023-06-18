@@ -16,20 +16,25 @@
     z::T4
 end
 
-function DDM(ν::T, α::T, τ::T, z::T; check_args::Bool=true) where {T <: Real}
-    check_args && Distributions.@check_args DDM (α, α > zero(α)) (τ, τ > zero(τ)) (z, z ≥ 0 && z ≤ 1)
-    return DDM{T}(ν, α, τ, z)
-end
+# function DDM(ν::T, α::T, τ::T, z::T; check_args::Bool=true) where {T <: Real}
+#     check_args && Distributions.@check_args DDM (α, α > zero(α)) (τ, τ > zero(τ)) (z, z ≥ 0 && z ≤ 1)
+#     return DDM{T}(ν, α, τ, z)
+# end
 
-function DDM(ν::T, α::T, τ::T; check_args::Bool=true) where {T <: Real}
-    return DDM(ν, α, τ, 0.5; check_args=check_args)
-end
+# function DDM(ν::T, α::T, τ::T; check_args::Bool=true) where {T <: Real}
+#     return DDM(ν, α, τ, 0.5; check_args=check_args)
+# end
 
-DDM(ν::Real, α::Real, τ::Real, z::Real; check_args::Bool=true) = DDM(promote(ν, α, τ, z)...; check_args=check_args)
-DDM(ν::Real, α::Real, τ::Real; check_args::Bool=true) = DDM(promote(ν, α, τ)...; check_args=check_args)
-
+# DDM(ν::Real, α::Real, τ::Real, z::Real; check_args::Bool=true) = DDM(promote(ν, α, τ, z)...; check_args=check_args)
+# DDM(ν::Real, α::Real, τ::Real; check_args::Bool=true) = DDM(promote(ν, α, τ)...; check_args=check_args)
 
 Base.broadcastable(x::DDM) = Ref(x)
+
+function params(d::DDM)
+    (d.ν, d.α, d.τ, d.z)    
+end
+
+loglikelihood(d::DDM, data) = sum(logpdf.(d, data...))
 
 """
 DDM(; ν = 0.50,
@@ -62,21 +67,18 @@ DDM(;ν, α, τ, z) = DDM(ν, α, τ, z)
 #  See https://github.com/t-alfers/WienerDiffusionModel.jl                     #
 ################################################################################
 
-function params(d::DDM)
-    (d.ν, d.α, d.τ, d.z)    
-end
 #####################################
 # Probability density function      #
 # Navarro & Fuss (2009)             #
 # Wabersich & Vandekerckhove (2014) #
 #####################################
 
-function pdf(d::DDM, t::Real; ϵ::Real = 1.0e-12)
-    if t >= zero(t)
+function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
+    if choice == 1
         (ν, α, τ, z) = params(d)
-        return pdf(DDM(-ν, α, τ, 1-z), t; ϵ=ϵ)
+        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ=ϵ)
     end
-    return pdf(d, t; ϵ=ϵ)
+    return pdf(d, rt; ϵ=ϵ)
 end
 
 # probability density function over the lower boundary
@@ -131,23 +133,35 @@ function _large_time_pdf(u::T, z::T, K::Int) where {T<:Real}
     return π * inf_sum
 end
 
-#logpdf(d::DDM, x::Int, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, x, t; ϵ=ϵ))
-logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ=ϵ))
+logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ=ϵ))
+#logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ=ϵ))
 
-loglikelihood(d::DDM, t::Real) = sum(logpdf.(d, t...))
+function logpdf(d::DDM, data::T) where {T<:NamedTuple}
+    return sum(logpdf.(d, data...))
+end
+
+function logpdf(dist::DDM, data::Array{<:Tuple,1})
+    LL = 0.0
+    for d in data
+        LL += logpdf(dist, d...)
+    end
+    return LL
+end
+
+logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 
 #########################################
 # Cumulative density function           #
 # Blurton, Kesselmeier, & Gondan (2012) #
 #########################################
  
-function cdf(d::DDM, t::Real; ϵ::Real = 1.0e-12)
-    if  t >= zero(t)
+function cdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
+    if choice == 1
         (ν, α, τ, z) = params(d)
-        return cdf(DDM(-ν, α, τ, 1-z), t; ϵ=ϵ)
+        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ=ϵ)
     end
 
-    return cdf(d, t; ϵ=ϵ)
+    return cdf(d, rt; ϵ=ϵ)
 end
 
 # cumulative density function over the lower boundary
@@ -324,9 +338,13 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
         dir = start_pos + dir * radius
 
         if (dir + ϵ) > Aupper
-            return total_time + τ
+            rt = total_time + τ
+            choice = 1
+            return choice,rt
         elseif (dir - ϵ) < Alower
-            return -(total_time + τ)
+            rt = total_time + τ
+            choice = 0
+            return choice,rt
         else
             start_pos = dir
             radius = min(abs(Aupper - start_pos), (abs(Alower - start_pos)))
@@ -345,11 +363,12 @@ Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
 """
 
 function rand(rng::AbstractRNG, d::DDM, n_sim::Int)
-    rts = fill(0.0, n_sim)
+    choice = fill(0, n_sim)
+    rt = fill(0.0, n_sim)
     for i in 1:n_sim
-        rts[i] =  _rand_rejection(rng, d)
+        choice[i],rt[i] = rand(d)
     end
-    return rts
+    return (choice=choice,rt=rt)
 end
 
 sampler(rng::AbstractRNG, d::DDM) = rand(rng::AbstractRNG, d::DDM)
