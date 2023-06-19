@@ -182,7 +182,6 @@ function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     if K_l < 10*K_s
         return _Fl_lower(d, K_l, t)
     end
-
     return _Fs_lower(d, K_s, t)
 end
 
@@ -209,16 +208,17 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     S1 = zero(T)
     S2 = zero(T)
     K_series = K:-1:1
+
     for k in K_series
         S1 += (_exp_pnorm(2*ν*α*k, -sign(ν)*(2*α*k+α*z+ν*(t-τ))/sqt) -
             _exp_pnorm(-2*ν*α*k-2*ν*α*z, sign(ν)*(2*α*k+α*z-ν*(t-τ))/sqt))
+
         S2 += (_exp_pnorm(-2*ν*α*k, sign(ν)*(2*α*k-α*z-ν*(t-τ))/sqt) - 
-            _exp_pnorm(-2*ν*α*k-2*ν*α*z, -sign(ν)*(2*α*k-α*z-ν*(t-τ))/sqt))
+            _exp_pnorm(2*ν*α*k-2*ν*α*z, -sign(ν)*(2*α*k-α*z+ν*(t-τ))/sqt))
     end
 
-    return _P_upper(ν, α, z) + sign(ν) * (
-        (cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) - _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt))
-    ) + S1 + S2
+    return _P_upper(ν, α, z) + sign(ν) * ((cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) -
+             _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt)) + S1 + S2)
 end
 
 function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}

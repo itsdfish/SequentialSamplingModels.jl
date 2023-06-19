@@ -62,7 +62,7 @@
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         ecdf1 = ecdf(rt1)
-        x = range(.31, 1.0, length=100)
+        x = range(.301, 1.0, length=100)
         y′ = ecdf1.(x) * p1
         y = cdf.(dist, (1,), x)
         @test y′ ≈ y rtol = .01
@@ -87,7 +87,7 @@
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         ecdf1 = ecdf(rt1)
-        x = range(.31, 1.0, length=100)
+        x = range(.301, 1.0, length=100)
         y′ = ecdf1.(x) * p1
         y = cdf.(dist, (1,), x)
         @test y′ ≈ y rtol = .01
@@ -203,7 +203,7 @@
         using Test
         
         test_val1 = _Fs_lower(DDM(;ν=1.5, α=.50, z=.25, τ=.50), 10, .75)
-        @test_skip test_val1 ≈ 0.5955567 atol = 1e-5
+        @test test_val1 ≈ 0.5955567 atol = 1e-5
 
         test_val2 = _Fs_lower(DDM(;ν=1.5, α=.50, z=.25, τ=.50), 10, .501)
         @test test_val2 ≈ 6.393096e-05 atol = 1e-8
