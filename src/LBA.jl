@@ -59,33 +59,33 @@ function select_winner(dt)
     return mi,mv
 end
 
-function sample_drift_rates(ν, σ)
+function sample_drift_rates(rng::AbstractRNG, ν, σ)
     negative = true
     v = similar(ν)
     while negative
-        v = [rand(Normal(d, σ)) for d in ν]
+        v = [rand(rng, Normal(d, σ)) for d in ν]
         negative = any(x -> x > 0, v) ? false : true
     end
     return v
 end
 
-function rand(d::LBA)
+function rand(rng::AbstractRNG, d::LBA)
     (;τ,A,k,ν,σ) = d
     b = A + k
     N = length(ν)
-    v = sample_drift_rates(ν, σ)
-    a = rand(Uniform(0, A), N)
+    v = sample_drift_rates(rng, ν, σ)
+    a = rand(rng, Uniform(0, A), N)
     dt = @. (b - a) / v
     choice,mn = select_winner(dt)
     rt = τ .+ mn
     return choice,rt
 end
 
-function rand(d::LBA, N::Int)
+function rand(rng::AbstractRNG, d::LBA, N::Int)
     choice = fill(0, N)
     rt = fill(0.0, N)
     for i in 1:N
-        choice[i],rt[i] = rand(d)
+        choice[i],rt[i] = rand(rng, d)
     end
     return (choice=choice,rt=rt)
 end

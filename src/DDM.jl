@@ -11,13 +11,13 @@
 
 # Example 
 
-````julia
+```julia
 using SequentialSamplingModels
 dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
-````
+```
 
 # References
     
@@ -56,11 +56,10 @@ Constructor for Diffusion Decision Model.
 
 # Example 
 
-````julia
+```julia
 using SequentialSamplingModels
 dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
-````
-
+```
 """
 function DDM(; ν = 1.00,
     α = 0.80,
@@ -69,8 +68,6 @@ function DDM(; ν = 1.00,
     )
     return DDM(ν, α, τ, z)
 end
-
-DDM(;ν, α, τ, z) = DDM(ν, α, τ, z)
 
 ################################################################################
 #  Converted from WienerDiffusionModel.jl repository orginally by Tobias Alfers#

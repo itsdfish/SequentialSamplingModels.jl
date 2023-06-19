@@ -5,9 +5,10 @@ See documentation at:
 https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
-    using Distributions
     using ConcreteStructs
+    using Distributions
     using PrettyTables
+    using Random
 
     import Distributions: AbstractRNG
     import Distributions: sampler
