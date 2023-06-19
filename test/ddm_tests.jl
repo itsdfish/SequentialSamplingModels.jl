@@ -1,27 +1,28 @@
 @safetestset "DDM Tests" begin
     @safetestset "DDM pdf 1" begin
         using SequentialSamplingModels
+        using SequentialSamplingModels: kernel
         using Test
         using KernelDensity
         using Random
         Random.seed!(654)
 
         dist = DDM(ν=1.0, α = .8, z = .5, τ = .3) 
-        choice,rt = rand(dist, 10^5)
+        choice,rt = rand(dist, 10^6)
         rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
-        approx_pdf = kde(rt1)
+        approx_pdf = kernel(rt1)
         x = range(.301, 1.5, length=100)
         y′ = pdf(approx_pdf, x) * p1
         y = pdf.(dist, (1,), x)
-        @test y′ ≈ y rtol = .10
+        @test y′ ≈ y rtol = .05
 
         rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
-        @test y′ ≈ y rtol = .10
+        @test y′ ≈ y rtol = .05
     end
 
     @safetestset "DDM pdf 2" begin
@@ -32,21 +33,21 @@
         Random.seed!(750)
 
         dist = DDM(ν=2.0, α = 1.5, z = .5, τ = .30) 
-        choice,rt = rand(dist, 10^5)
+        choice,rt = rand(dist, 10^6)
         rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
-        approx_pdf = kde(rt1)
+        approx_pdf = kernel(rt1)
         x = range(.301, 1.5, length=100)
         y′ = pdf(approx_pdf, x) * p1
         y = pdf.(dist, (1,), x)
-        @test y′ ≈ y rtol = .05
+        @test y′ ≈ y rtol = .02
 
         rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
-        @test y′ ≈ y rtol = .10
+        @test y′ ≈ y rtol = .05
     end
 
     @safetestset "DDM cdf 1" begin
