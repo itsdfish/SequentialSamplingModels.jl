@@ -229,4 +229,25 @@
     #     Fs_lower(.25, 1.5, .5, .25, 10)
     #     Fs_lower(.001, 1.5, .5, .25, 10)
 
+    @safetestset "_Fl_lower" begin
+        using SequentialSamplingModels
+        using SequentialSamplingModels: _Fl_lower
+        using Test
+        
+        test_val1 = _Fl_lower(DDM(;ν=1.5, α=.50, z=.25, τ=.50), 10, .75)
+        @test test_val1 ≈ 0.5955567 atol = 1e-5
+
+        test_val2 = _Fl_lower(DDM(;ν=1.5, α=.50, z=.25, τ=.50), 10, .501)
+        @test test_val2 ≈  0.001206451 atol = 1e-8
+    end
+    # Fl_lower = function(t, v, a, w, K)
+    #     {
+    #       F = numeric(length(t))
+    #       for(k in K:1)
+    #         F = F - k / (v*v + k*k*pi*pi/a/a) * exp(-v*a*w - 1/2*v*v*t - 1/2*k*k*pi*pi/a/a*t) * sin(pi*k*w)
+    #       Pu(v, a, w) + 2*pi/a/a * F
+    #     } 
+        
+    #     Fl_lower(.25, 1.5, .5, .25, 10)
+    #     Fl_lower(.001, 1.5, .5, .25, 10)
 end
