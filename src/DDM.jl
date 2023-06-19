@@ -41,31 +41,30 @@ loglikelihood(d::DDM, data) = sum(logpdf.(d, data...))
 
 """
 DDM(; ν = 1.0,
-    α = 0.8,
-    τ = 0.3
-    z = 0.25
-    )
+    α = 0.80,
+    τ = 0.30
+    z = 0.50)
 
 Constructor for Diffusion Decision Model. 
     
 # Keywords 
-    - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-    - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-    - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
-    - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+    - `ν=1.0`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
+    - `α=0.80`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
+    - `τ=0.30`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+    - `z=.50`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
 
 # Example 
 
 ```julia
 using SequentialSamplingModels
-dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
+dist = DDM(;ν = 1.0, α = 0.8, τ = 0.30 z = 0.50) 
 ```
 """
 function DDM(; ν = 1.00,
     α = 0.80,
     τ = 0.30,
-    z = 0.25
-    )
+    z = 0.50)
+
     return DDM(ν, α, τ, z)
 end
 
@@ -83,9 +82,9 @@ end
 function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ=ϵ)
+        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
-    return pdf(d, rt; ϵ=ϵ)
+    return pdf(d, rt; ϵ)
 end
 
 # probability density function over the lower boundary
@@ -140,8 +139,8 @@ function _large_time_pdf(u::T, z::T, K::Int) where {T<:Real}
     return π * inf_sum
 end
 
-logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ=ϵ))
-#logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ=ϵ))
+logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
+#logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ))
 
 function logpdf(d::DDM, data::T) where {T<:NamedTuple}
     return sum(logpdf.(d, data...))
@@ -165,10 +164,10 @@ logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 function cdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ=ϵ)
+        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
 
-    return cdf(d, rt; ϵ=ϵ)
+    return cdf(d, rt; ϵ)
 end
 
 # cumulative density function over the lower boundary
@@ -177,8 +176,8 @@ function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
         return T(NaN)
     end
 
-    K_s = _K_small(d, t; ϵ=ϵ)
-    K_l = _K_large(d, t; ϵ=ϵ)
+    K_s = _K_small(d, t; ϵ)
+    K_l = _K_large(d, t; ϵ)
 
     if K_l < 10*K_s
         return _Fl_lower(d, K_l, t)
