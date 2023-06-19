@@ -27,6 +27,7 @@
 
     @safetestset "DDM pdf 2" begin
         using SequentialSamplingModels
+        using SequentialSamplingModels: kernel
         using Test
         using KernelDensity
         using Random
