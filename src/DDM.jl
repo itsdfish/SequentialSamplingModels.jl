@@ -253,7 +253,7 @@ end
 function _P_upper(ν::T, α::T, z::T) where {T<:Real}
     e = exp(-2 * ν * α * (1-z))
     if isinf(e)
-        return 1
+        return 1.0
     end
     if abs(e-1) < sqrt(eps(T))
         return 1-z

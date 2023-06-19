@@ -178,4 +178,55 @@
     # K_small(.25, 1.5, .5, .25, 1e-10)
     # K_small(.001, 1.5, .5, .25, 1e-10)
     # K_small(.10, .50, 2.5, .50, 1e-10)
+
+    @safetestset "_P_upper" begin
+        using SequentialSamplingModels
+        using SequentialSamplingModels: _P_upper
+        using Test
+        
+        test_val1 = _P_upper(1., .5, .5)
+        @test test_val1 ≈ 0.3775407 atol = 1e-5
+
+        test_val2 = _P_upper(-1., .75, .25)
+        @test test_val2 ≈ .8693188 atol = 1e-5
+
+        test_val3 = _P_upper(-1e10, .75, .25)
+        @test test_val3 ≈ 1
+
+        test_val4 = _P_upper(eps(), .75, .25)
+        @test test_val4 ≈ .75
+    end
+
+    @safetestset "_Fs_lower" begin
+        using SequentialSamplingModels
+        using SequentialSamplingModels: _Fs_lower
+        using Test
+        
+        test_val1 = _Fs_lower(DDM(;ν=1.5, α=.50, z=.25, τ=.50), 10, .75)
+        @test_skip test_val1 ≈ 0.5955567 atol = 1e-5
+
+        test_val2 = _Fs_lower(DDM(;ν=1.5, α=.50, z=.25, τ=.50), 10, .501)
+        @test test_val2 ≈ 6.393096e-05 atol = 1e-8
+    end
+
+    # Fs_lower = function(t, v, a, w, K)
+    #     {
+    #       if(abs(v) < sqrt(.Machine$double.eps)) # zero drift case
+    #         return(Fs0_lower(t, a, w, K))
+    #       S1 = S2 = numeric(length(t))
+    #       sqt = sqrt(t)
+    #       for(k in K:1)
+    #       {
+    #         S1 = S1 + exp_pnorm(2*v*a*k, -sign(v)*(2*a*k+a*w+v*t)/sqt) -
+    #           exp_pnorm(-2*v*a*k - 2*v*a*w, sign(v)*(2*a*k+a*w-v*t)/sqt)
+    #         S2 = S2 + exp_pnorm(-2*v*a*k, sign(v)*(2*a*k-a*w-v*t)/sqt) -
+    #           exp_pnorm(2*v*a*k - 2*v*a*w, -sign(v)*(2*a*k-a*w+v*t)/sqt)
+    #       }
+    #       Pu(v, a, w) + sign(v) * ((pnorm(-sign(v) * (a*w+v*t)/sqt) -
+    #                                   exp_pnorm(-2*v*a*w, sign(v) * (a*w-v*t)/sqt)) + S1 + S2)
+    #     }
+        
+    #     Fs_lower(.25, 1.5, .5, .25, 10)
+    #     Fs_lower(.001, 1.5, .5, .25, 10)
+
 end
