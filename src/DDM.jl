@@ -1,13 +1,13 @@
 """
     DDM 
 
-    Model object for the Standard Diffusion Decision Model.
+Model object for the Standard Diffusion Decision Model.
 
 # Fields
-    - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-    - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-    - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
-    - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+- `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
+- `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
+- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+- `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
 
 # Example 
 
@@ -22,9 +22,8 @@ loglike = logpdf.(dist, choice, rt)
 # References
     
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
-
 """
-@concrete mutable struct DDM{T1,T2,T3,T4} <: SequentialSamplingModel
+mutable struct DDM{T1,T2,T3,T4} <: SequentialSamplingModel
     ν::T1
     α::T2
     τ::T3
@@ -40,19 +39,18 @@ end
 loglikelihood(d::DDM, data) = sum(logpdf.(d, data...))
 
 """
-DDM(; ν = 1.0,
-    α = 0.8,
-    τ = 0.3
-    z = 0.25
-    )
+    DDM(; ν = 1.0,
+        α = 0.8,
+        τ = 0.3
+        z = 0.25)
 
 Constructor for Diffusion Decision Model. 
     
 # Keywords 
-    - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-    - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-    - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
-    - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+- `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
+- `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
+- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+- `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
 
 # Example 
 
