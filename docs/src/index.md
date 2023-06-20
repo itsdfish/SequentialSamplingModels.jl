@@ -66,18 +66,23 @@ using SequentialSamplingModels
 
 The package implements sequential sampling models as distributions, that we can use you estimate the likelihood, or generate data from. In the example below, we instantiate a Linear Ballistic Accumulator (LBA) model, and generate data from it.
 
-```julia
+```@example quick_example
+using SequentialSamplingModels
 using StatsPlots
+using Random
+
+Random.seed!(2054)
 
 # Create LBA distribution with known parameters
-dist = LBA(; ν=[0, 0.5], A=0.2, k=0.8, τ=0.3)
+dist = LBA(; ν=[2.75,1.75], A=0.8, k=0.5, τ=0.25)
 # Sample 1000 random data points from this distribution
-choice, rt = rand(dist, 1000)
+choice, rt = rand(dist, 10_000)
 
 # Plot the RT distribution for each choice
-histogram(layout=(2, 1), xlabel="Reaction Time", ylabel="Density", xlims = (0,5))
-histogram!(rt[choice.==1], subplot=1, color=:green)
-histogram!(rt[choice.==2], subplot=2, color=:red)
+histogram(layout=(2, 1), xlabel="Reaction Time", ylabel="Frequency", xlims = (0,1),
+    grid=false, ylims = (0, 650))
+histogram!(rt[choice.==1], subplot=1, color=:grey, leg=false, bins=200)
+histogram!(rt[choice.==2], subplot=2, color=:darkred, leg=false, bins=200)
 ```
 
 *SequentialSamplingModels* provides such unified interface to a variety of models.
