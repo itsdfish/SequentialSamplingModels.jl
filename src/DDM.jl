@@ -85,13 +85,13 @@ end
 function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
+        return _pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
-    return pdf(d, rt; ϵ)
+    return _pdf(d, rt; ϵ)
 end
 
 # probability density function over the lower boundary
-function pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
     if τ ≥ t
         return T(NaN)

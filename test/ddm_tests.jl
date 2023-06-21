@@ -251,4 +251,21 @@
         
     #     Fl_lower(.25, 1.5, .5, .25, 10)
     #     Fl_lower(.001, 1.5, .5, .25, 10)
+
+    @safetestset "pdf" begin
+        using SequentialSamplingModels
+        using Test
+        # tested against rtdists
+        test_val1 = pdf(DDM(;ν=2.0, α=1.0, z=.5, τ=.3), 1, .5)
+        @test test_val1 ≈ 2.131129 atol = 1e-5
+
+        test_val2 = pdf(DDM(;ν=2.0, α=1.0, z=.5, τ=.3), 2, .5)
+        @test test_val2 ≈ 0.2884169 atol = 1e-5
+
+        test_val3 = pdf(DDM(;ν=.8, α=.5, z=.3, τ=.2), 1, .35)
+        @test test_val3 ≈ 0.6635714 atol = 1e-5
+
+        test_val4 = pdf(DDM(;ν=.8, α=.5, z=.3, τ=.2), 2, .35)
+        @test test_val4 ≈ 0.4450956 atol = 1e-5
+    end
 end
