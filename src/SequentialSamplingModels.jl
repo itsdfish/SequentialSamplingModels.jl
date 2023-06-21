@@ -33,6 +33,7 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
+    export RatcliffDDM
     export Wald
     export WaldMixture 
 
@@ -56,4 +57,5 @@ module SequentialSamplingModels
     include("KDE.jl")
     include("LCA.jl")
     include("DDM.jl")
+    include("RatcliffDDM.jl")
 end
