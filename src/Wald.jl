@@ -1,5 +1,3 @@
-abstract type AbstractWald <: SequentialSamplingModel
-end
 loglikelihood(d::AbstractWald, data::AbstractArray{T,1}) where {T} = sum(logpdf.(d, data))
 
 
@@ -17,13 +15,17 @@ like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)
 ````
 """
-struct Wald{T1,T2,T3} <: AbstractWald
-    ν::T1
-    α::T2
-    θ::T3
+struct Wald{T<:Real} <: AbstractWald
+    ν::T
+    α::T
+    θ::T
 end
 
 Wald(;ν, α, θ) = Wald(ν, α, θ)
+
+function Wald(ν, α, θ)
+    return Wald(promote(ν, α, θ)...)
+end
 
 function params(d::Wald)
     (d.ν, d.α, d.θ)    
@@ -53,66 +55,3 @@ end
 
 mean(d::AbstractWald) = mean(InverseGaussian(d.α / d.ν, d.α^2)) + d.θ
 std(d::AbstractWald) = std(InverseGaussian(d.α / d.ν, d.α^2))
-
-"""
-    WaldMixture
-
-# Fields
-
-- `υ`: drift rate
-- `σ`: standard deviation of drift rate
-- `α`: decision threshold
-- `θ`: a encoding-response offset
-
-## Example
-```julia
-using SequentialSamplingModels
-dist = WaldMixture(υ=3.0, σ=.2, α=.5, θ=.130)
-rt = rand(dist, 10)
-like = pdf.(dist, rt)
-loglike = logpdf.(dist, rt)
-```
-## References
-Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2020). 
-Modeling across-trial variability in the Wald drift rate parameter. 
-Behavior Research Methods, 1-17.
-"""
-struct WaldMixture{T1,T2,T3,T4} <: AbstractWald
-    ν::T1
-    σ::T2
-    α::T3
-    θ::T4
-end
-
-WaldMixture(;ν, σ, α, θ) = WaldMixture(ν, σ, α, θ)
-
-function params(d::WaldMixture)
-    (d.ν, d.σ, d.α, d.θ)    
-end
-
-function pdf(d::WaldMixture, t::AbstractFloat)
-    (;ν, σ, α ,θ) = d
-    c1 = α / √(2 * π * (t - θ)^3)
-    c2 = 1 / cdf(Normal(0,1), ν / σ)
-    c3 = exp(-(ν * (t - θ) - α)^2 / (2 * (t - θ) * ((t - θ) * σ^2 + 1)))
-    c4 = (α * σ^2 + ν) / √(σ^2 * ((t - θ)*σ^2 + 1))
-    return c1 * c2 * c3 * cdf(Normal(0,1), c4)
-end
-
-function logpdf(d::WaldMixture, t::AbstractFloat)
-    (;ν, σ, α ,θ) = d
-    c1 = log(α) - log(√(2 * π * (t - θ)^3))
-    c2 = log(1) - logcdf(Normal(0,1), ν / σ)
-    c3 = -(ν * (t - θ) - α)^2 / (2*(t - θ)*((t - θ)*σ^2 + 1))
-    c4 = (α * σ^2 + ν) / √(σ^2 * ((t - θ) * σ^2 + 1))
-    return c1 + c2 + c3 + logcdf(Normal(0,1), c4)
-end
-
-function rand(rng::AbstractRNG, d::WaldMixture) 
-    x = rand(rng, truncated(Normal(d.ν, d.σ), 0, Inf))
-    return rand(rng, InverseGaussian(d.α / x, d.α^2)) + d.θ
-end
-
-function rand(rng::AbstractRNG, d::WaldMixture, n::Int)
-    return map(x -> rand(rng, d), 1:n)
-end

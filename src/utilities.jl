@@ -1,5 +1,7 @@
 abstract type SequentialSamplingModel <: ContinuousUnivariateDistribution end
 
+abstract type AbstractWald <: SequentialSamplingModel end
+
 minimum(d::SequentialSamplingModel) = 0.0
 maximum(d::SequentialSamplingModel) = Inf
 

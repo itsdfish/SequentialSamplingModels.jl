@@ -1,13 +1,16 @@
 abstract type AbstractaDDM <: SequentialSamplingModel end
+struct aDDM{T<:Real} <: AbstractaDDM
+    ν1::T
+    ν2::T
+    α::T
+    z::T
+    θ::T
+    σ::T
+    Δ::T
+end
 
-@concrete struct aDDM <: AbstractaDDM
-    ν1
-    ν2
-    α
-    z
-    θ
-    σ
-    Δ
+function aDDM(ν1, ν2, α, z, θ, σ, Δ)
+    return aDDM(promote(ν1, ν2, α, z, θ, σ, Δ)...)
 end
 
 """
@@ -129,18 +132,22 @@ end
 
 noise(σ) = rand(Normal(0, σ))
 
-@concrete struct maaDDM <: AbstractaDDM
-    ν₁₁
-    ν₁₂
-    ν₂₁
-    ν₂₂
-    α
-    z
-    θ
-    ϕ
-    ω
-    σ
-    Δ
+struct maaDDM{T<:Real} <: AbstractaDDM
+    ν₁₁::T
+    ν₁₂::T
+    ν₂₁::T
+    ν₂₂::T
+    α::T
+    z::T
+    θ::T
+    ϕ::T
+    ω::T
+    σ::T
+    Δ::T
+end
+
+function maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+    return maaDDM(promote(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)...)
 end
 
 """

@@ -24,12 +24,17 @@ Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015).
 The lognormal race: A cognitive-process model of choice and latency with desirable 
 psychometric properties. Psychometrika, 80(2), 491-513.
 """
-struct LNR{T1,T2,T3} <: SequentialSamplingModel
-    μ::T1
-    σ::T2
-    ϕ::T3
+struct LNR{T<:Real} <: SequentialSamplingModel
+    μ::Vector{T}
+    σ::T
+    ϕ::T
 end
 
+function LNR(μ, σ, ϕ)
+    _, σ, ϕ = promote(μ[1], σ, ϕ)
+    μ = convert(Vector{typeof(σ)}, μ)
+    return LNR(μ, σ, ϕ)
+end
 Broadcast.broadcastable(x::LNR) = Ref(x)
 
 function params(d::LNR)
@@ -69,18 +74,18 @@ function logpdf(d::LNR, r::Int, t::Float64)
     return LL
 end
 
-function logpdf(d::LNR{T1,T2,Vector{T3}}, r::Int, t::Float64) where {T1,T2,T3}
-    (;μ,σ,ϕ) = d
-    LL = 0.0
-    for (i,m) in enumerate(μ)
-        if i == r
-            LL += logpdf(LogNormal(m, σ), t - ϕ[i])
-        else
-            LL += logccdf(LogNormal(m, σ), t - ϕ[i])
-        end
-    end
-    return LL
-end
+# function logpdf(d::LNR{T1,T2,Vector{T3}}, r::Int, t::Float64) where {T1,T2,T3}
+#     (;μ,σ,ϕ) = d
+#     LL = 0.0
+#     for (i,m) in enumerate(μ)
+#         if i == r
+#             LL += logpdf(LogNormal(m, σ), t - ϕ[i])
+#         else
+#             LL += logccdf(LogNormal(m, σ), t - ϕ[i])
+#         end
+#     end
+#     return LL
+# end
 
 logpdf(d::LNR, data::Tuple) = logpdf(d, data...)
 

@@ -13,14 +13,20 @@ Model object for the Leaky Competing Accumulator.
 - `σ`: diffusion noise 
 - `Δt`: time step 
 """
-@concrete mutable struct LCA <: SequentialSamplingModel
-    ν
-    α
-    β
-    λ
-    τ
-    σ
-    Δt
+mutable struct LCA{T<:Real} <: SequentialSamplingModel
+    ν::Vector{T}
+    α::T
+    β::T
+    λ::T
+    τ::T
+    σ::T
+    Δt::T
+end
+
+function LCA(ν, α, β, λ, τ, σ, Δt)
+    _,  α, β, λ, τ, σ, Δt = promote(ν[1], α, β, λ, τ, σ, Δt)
+    ν = convert(Vector{typeof(τ)}, ν)
+    return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
 """

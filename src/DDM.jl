@@ -23,11 +23,15 @@ loglike = logpdf.(dist, choice, rt)
     
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
 """
-mutable struct DDM{T1,T2,T3,T4} <: SequentialSamplingModel
-    ν::T1
-    α::T2
-    τ::T3
-    z::T4
+mutable struct DDM{T<:Real} <: SequentialSamplingModel
+    ν::T
+    α::T
+    τ::T
+    z::T
+end
+
+function DDM(ν, α, τ, z)
+    return DDM(promote(ν, α, τ, z)...)
 end
 
 Base.broadcastable(x::DDM) = Ref(x)

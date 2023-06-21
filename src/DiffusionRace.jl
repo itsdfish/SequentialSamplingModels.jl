@@ -24,11 +24,15 @@ loglike = logpdf.(dist, data)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct WaldA{T1,T2,T3,T4} <: ContinuousUnivariateDistribution
-    ν::T1
-    k::T2
-    A::T3
-    θ::T4
+struct WaldA{T<:Real} <: ContinuousUnivariateDistribution
+    ν::T
+    k::T
+    A::T
+    θ::T
+end
+
+function WaldA(ν, k, A, θ)
+    return WaldA(promote(ν, k, A, θ)...)
 end
 
 Broadcast.broadcastable(x::WaldA) = Ref(x)
@@ -103,11 +107,17 @@ loglike = logpdf.(dist, data)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct DiffusionRace{T1,T2,T3,T4} <: SequentialSamplingModel
-    ν::T1
-    k::T2
-    A::T3
-    θ::T4
+struct DiffusionRace{T<:Real} <: SequentialSamplingModel
+    ν::Vector{T}
+    k::T
+    A::T
+    θ::T
+end
+
+function DiffusionRace(ν, k, A, θ)
+    _, k, A, θ = promote(ν[1], k, A, θ)
+    ν = convert(Vector{typeof(k)}, ν)
+    return DiffusionRace(ν, k, A, θ)
 end
 
 Broadcast.broadcastable(x::DiffusionRace) = Ref(x)
