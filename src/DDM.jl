@@ -56,14 +56,14 @@ Constructor for Diffusion Decision Model.
 
 ```julia
 using SequentialSamplingModels
-dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
+dist = DDM(;ν = 1.0, α = 0.8, τ = 0.30 z = 0.50) 
 ```
 """
 function DDM(; ν = 1.00,
     α = 0.80,
     τ = 0.30,
-    z = 0.25
-    )
+    z = 0.50)
+
     return DDM(ν, α, τ, z)
 end
 
@@ -81,9 +81,9 @@ end
 function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ=ϵ)
+        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
-    return pdf(d, rt; ϵ=ϵ)
+    return pdf(d, rt; ϵ)
 end
 
 # probability density function over the lower boundary
@@ -138,8 +138,8 @@ function _large_time_pdf(u::T, z::T, K::Int) where {T<:Real}
     return π * inf_sum
 end
 
-logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ=ϵ))
-#logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ=ϵ))
+logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
+#logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ))
 
 function logpdf(d::DDM, data::T) where {T<:NamedTuple}
     return sum(logpdf.(d, data...))
@@ -163,10 +163,10 @@ logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 function cdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ=ϵ)
+        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
 
-    return cdf(d, rt; ϵ=ϵ)
+    return cdf(d, rt; ϵ)
 end
 
 # cumulative density function over the lower boundary
@@ -175,13 +175,12 @@ function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
         return T(NaN)
     end
 
-    K_s = _K_small(d, t; ϵ=ϵ)
-    K_l = _K_large(d, t; ϵ=ϵ)
+    K_s = _K_small(d, t; ϵ)
+    K_l = _K_large(d, t; ϵ)
 
     if K_l < 10*K_s
         return _Fl_lower(d, K_l, t)
     end
-
     return _Fs_lower(d, K_s, t)
 end
 
@@ -208,16 +207,17 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     S1 = zero(T)
     S2 = zero(T)
     K_series = K:-1:1
+
     for k in K_series
         S1 += (_exp_pnorm(2*ν*α*k, -sign(ν)*(2*α*k+α*z+ν*(t-τ))/sqt) -
             _exp_pnorm(-2*ν*α*k-2*ν*α*z, sign(ν)*(2*α*k+α*z-ν*(t-τ))/sqt))
+
         S2 += (_exp_pnorm(-2*ν*α*k, sign(ν)*(2*α*k-α*z-ν*(t-τ))/sqt) - 
-            _exp_pnorm(-2*ν*α*k-2*ν*α*z, -sign(ν)*(2*α*k-α*z-ν*(t-τ))/sqt))
+            _exp_pnorm(2*ν*α*k-2*ν*α*z, -sign(ν)*(2*α*k-α*z+ν*(t-τ))/sqt))
     end
 
-    return _P_upper(ν, α, z) + sign(ν) * (
-        (cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) - _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt))
-    ) + S1 + S2
+    return _P_upper(ν, α, z) + sign(ν) * ((cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) -
+             _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt)) + S1 + S2)
 end
 
 function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
@@ -252,7 +252,7 @@ end
 function _P_upper(ν::T, α::T, z::T) where {T<:Real}
     e = exp(-2 * ν * α * (1-z))
     if isinf(e)
-        return 1
+        return 1.0
     end
     if abs(e-1) < sqrt(eps(T))
         return 1-z
