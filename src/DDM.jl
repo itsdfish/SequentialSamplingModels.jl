@@ -175,15 +175,15 @@ function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
         return T(NaN)
     end
 
-    K_s = _K_small(d, t; ϵ)
     K_l = _K_large(d, t; ϵ)
+    K_s = _K_small(d, t; ϵ)
 
     if K_l < 10*K_s
         return _Fl_lower(d, K_l, t)
     end
     return _Fs_lower(d, K_s, t)
 end
-
+# Large time representation of lower subdistribution
 function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     (ν, α, τ, z) = params(d)
     F = zero(T)
@@ -195,7 +195,7 @@ function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     end
     return _P_upper(ν, α, z) + 2*π/(α^2) * F
 end
-
+# Small time representation of the upper subdistribution
 function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     (ν, α, τ, z) = params(d)
     if abs(ν) < sqrt(eps(T))
@@ -219,22 +219,25 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     return _P_upper(ν, α, z) + sign(ν) * ((cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) -
              _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt)) + S1 + S2)
 end
-
+# Zero drift version
 function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     (_, α, τ, z) = params(d)
     F = zero(T)
     K_series = K:-1:0
     for k in K_series
-        F -= (cdf(Normal(), (-2*k - 2+z) * α / sqrt(t-τ)) + cdf(Normal(), (-2*k -z) * α / sqrt(t-τ)))
+        F -= (cdf(Distributions.Normal(), (-2*k - 2+z) * α / sqrt(t-τ)) + cdf(Distributions.Normal(), (-2*k -z) * α / sqrt(t-τ)))
     end
     return 2*F
 end
-
+# Number of terms required for large time representation
 function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
-    return ceil(Int, max(sqrt(1/(t-τ)) * α/π, sqrt(max(1, -2/(t-τ)*α^2/(π^2) * (log(ϵ*π*(t-τ)/2 * (ν^2 + π^2/(α^2)))) + ν*α*z + ν^2*(t-τ)/2))))
+    x = t-τ
+    sqrtL1 = sqrt(1/x) * α/π
+    sqrtL2 = sqrt(max(1, -2/x*α*α/π/π * (log(ϵ*π*x/2 * (ν*ν + π*π/α/α)) + ν*α*z + ν*ν*x/2)))
+    return ceil(Int, max(sqrtL1, sqrtL2))
 end
-
+# Number of terms required for small time representation
 function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
     if abs(ν) < sqrt(eps(T))
@@ -248,7 +251,7 @@ function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     S4 = z/2 - sqrt(t-τ)/(2*α) * quantile(Normal(), max(0, min(1, ϵ*α/(0.3 * sqrt(2*π*(t-τ))) * exp(ν^2*(t-τ)/2 + ν*α*z) ))) 
     return ceil(Int, max(0, S2, S3, S4))
 end
-
+# Probability for absorption at upper barrier
 function _P_upper(ν::T, α::T, z::T) where {T<:Real}
     e = exp(-2 * ν * α * (1-z))
     if isinf(e)
@@ -259,10 +262,9 @@ function _P_upper(ν::T, α::T, z::T) where {T<:Real}
     end
     return (1-e)/(exp(2*ν*α*z) - e)
 end
-
-# Approximation by Kiani et al. (2008)
+# Calculates exp(a) * pnorm(b) using an approximation by Kiani et al. (2008)
 function _exp_pnorm(a::T, b::T) where {T<:Real}
-    r = exp(a) * cdf(Normal(), b)
+    r = exp(a) * cdf(Distributions.Normal(), b)
     if isnan(r) && b < -5.5
         r = (1/sqrt(2)) * exp(a - b^2/2) * (0.5641882/(b^3) - 1/(b * sqrt(π))) 
     end
@@ -377,71 +379,3 @@ function rand(rng::AbstractRNG, d::DDM, n_sim::Int)
 end
 
 sampler(rng::AbstractRNG, d::DDM) = rand(rng::AbstractRNG, d::DDM)
-
-# """
-#     RatcliffDDM 
-
-#     Model object for the Ratcliff Diffusion Decision Model.
-
-# # Fields
-#     - `ν`: drift rate
-#     - `α`: evidence threshold 
-#     - `z`: mean starting point
-#     - `τ`: non-decision time 
-#     - `σ`: diffusion noise 
-#     - `η`: across-trial drift rate standard deviation
-#     - `sz`: range of starting point variability
-#     - `st`: range of non-decision time
-#     - `Δt`: time step 
-# """
-# @concrete mutable struct RatcliffDDM <: SequentialSamplingModel
-#     ν
-#     α
-#     z
-#     τ
-#     σ
-#     η
-#     sz
-#     st
-#     Δt
-# end
-
-# """
-# RatcliffDDM(; ν = 0.50,
-#     η = 0.10,
-#     α = 0.08,
-#     z = 0.04,
-#     sz = 0.02,
-#     τ = 0.30,
-#     st = .02,
-#     σ = 0.10,
-#     Δt = 0.001)
-
-# Constructor for the Ratcliff Diffusion Decision Model. 
-    
-# # Keywords 
-# - `ν=.50`: drift rates 
-# - `α=0.08`: evidence threshold 
-# - `z=0.04`: mean starting point
-# - `τ=0.3`: non-decision time 
-# - `σ=0.10`: diffusion noise 
-# - `η=0.10`: across-trial drift rate standard deviation
-# - `sz=0.02`: range of starting point variability
-# - `st=0.02`: range of non-decision time
-# - `Δt=.001`: time step 
-# """
-# function RatcliffDDM(; ν = 0.50,
-#     η = 0.10,
-#     α = 0.08,
-#     z = 0.04,
-#     sz = 0.02,
-#     τ = 0.30,
-#     st = .02,
-#     σ = 0.10,
-#     Δt = 0.001)
-#     return RatcliffDDM(ν, η, α, z, sz, τ, st, σ, Δt)
-# end
-
-# function params(d::RatcliffDDM)
-#     (d.ν, d.η, d.α, d.z, d.sz, d.τ, d.st, d.σ, d.Δt)    
-# end

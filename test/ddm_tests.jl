@@ -138,8 +138,7 @@
         @test test_val1 ≈ 3.0
 
         test_val2 = _K_large(DDM(;ν=1.5, α=.50, z=.25, τ=.50), .501; ϵ = 1e-10)
-        # currently fails
-        @test_skip test_val2 ≈ 36
+        @test test_val2 ≈ 36
     end
     # K_large = function(t, v, a, w, epsilon)
     #     {
