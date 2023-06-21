@@ -176,9 +176,7 @@ function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     end
 
     K_l = _K_large(d, t; ϵ=ϵ)
-    println(K_l)    
     K_s = _K_small(d, t; ϵ=ϵ)
-    println(K_s)
 
     if K_l < 10*K_s
         return _Fl_lower(d, K_l, t)
@@ -236,9 +234,7 @@ function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
     x = t-τ
     sqrtL1 = sqrt(1/x) * α/π
-    println(sqrtL1)
     sqrtL2 = sqrt(max(1, -2/x*α*α/π/π * (log(ϵ*π*x/2 * (ν*ν + π*π/α/α)) + ν*α*z + ν*ν*x/2)))
-    println(sqrtL2)
     return ceil(Int, max(sqrtL1, sqrtL2))
 end
 # Number of terms required for small time representation
