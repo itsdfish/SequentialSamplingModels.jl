@@ -17,7 +17,7 @@
 
 ````julia
 using SequentialSamplingModels
-dist = RatcliffDDM(ν = 0.50,α = 0.08,τ = 0.30,z = 0.04,η = 0.10,sz = 0.02,st = .02,σ = 0.10) 
+dist = RatcliffDDM(ν = 1.0,α = 0.80,τ = 0.30,z = 0.25,η = 0.16,sz = 0.05,st = .10,σ = 1) 
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
@@ -263,3 +263,186 @@ logpdf(d::RatcliffDDM, data::Tuple) = logpdf(d, data...)
 #     Instruments, & Computers, 36 (4), 702-716.
 
 # """
+
+"""
+    rand(dist::RatcliffDDM)
+
+Generate a random choice and rt for the Ratcliff Diffusion Model
+
+# Arguments
+- `dist`: model object for Ratcliff Diffusion Model. 
+- `method`: method simulating the diffusion process. 
+    "rejection" uses Tuerlinckx et al., 2001 rejection-based method for the general wiener process
+    "stochastic" uses the stochastic Euler method to directly simulate the stochastic differential equation
+
+# References
+
+    Tuerlinckx, F., Maris, E., Ratcliff, R., & De Boeck, P. (2001). 
+    A comparison of four methods for simulating the diffusion process. 
+    Behavior Research Methods, Instruments, & Computers, 33, 443-456.
+
+    Converted from Rhddmjagsutils.R R script by Kianté Fernandez
+
+    See also https://github.com/kiante-fernandez/Rhddmjags.
+"""
+function rand(rng::AbstractRNG, d::RatcliffDDM)
+    # method::Char = "rejection"
+    return _rand_rejection(rng, d)
+    # method::Char = "stochastic"
+#    return _rand_stochastic(rng, d)
+end
+
+function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    if (ν < -5) || (ν > 5)
+        ν = sign(ν) * 5
+        warn("ν is not in the range [-5, 5], bounding drift rate to $Nu...")
+    end
+
+    if η > 3
+        warn("Standard deviation of drift rate is out of bounds, bounding drift rate to 3")
+        η = 3
+    end
+
+    if η == 0
+        η = 1e-16
+    end
+
+    # Initialize output vectors
+    result = zeros(N)
+    T = zeros(N)
+    XX = zeros(N)
+
+    # Called sigma in 2001 paper
+    D = σ^2 / 2
+
+    # Program specifications
+    ϵ = 2.220446049250313e-16  # precision from 1.0 to next double-precision number
+    Δ = ϵ
+
+    for n in 1:N
+        r1 = randn()
+        μ = ν + r1 * η
+        bb = z - sz / 2 + sz * rand()
+        zz = bb * α
+        finish = 0
+        totaltime = 0
+        startpos = 0
+        Aupper = α - zz
+        Alower = -zz
+        radius = min(abs(Aupper), abs(Alower))
+
+        while finish == 0
+            λ = 0.25 * μ^2 / D + 0.25 * D * π^2 / radius^2
+            # eq. formula (13) in 2001 paper with D = sigma^2/2 and radius = Alpha/2
+            F = D * π / (radius * μ)
+            F = F^2 / (1 + F^2)
+            # formula p447 in 2001 paper
+            prob = exp(radius * μ / D)
+            prob = prob / (1 + prob)
+            dir_ = 2 * (rand() < prob) - 1
+            l = -1
+            s2 = 0
+            s1 = 0
+            while s2 > l
+                s2 = rand()
+                s1 = rand()
+                tnew = 0
+                told = 0
+                uu = 0
+                while abs(tnew - told) > ϵ || uu == 0
+                    told = tnew
+                    uu += 1
+                    tnew = told + (2 * uu + 1) * (-1)^uu * s1^(F * (2 * uu + 1)^2)
+                    # infinite sum in formula (16) in BRMIC,2001
+                end
+                l = 1 + s1^(-F) * tnew
+            end
+            # rest of formula (16)
+            t = abs(log(s1)) / λ
+            # is the negative of t* in (14) in BRMIC,2001
+            totaltime += t
+            dir_ = startpos + dir_ * radius
+            ndt = τ - st / 2 + st * rand()
+            if (dir_ + Δ) > Aupper
+                T[n] = ndt + totaltime
+                XX[n] = 1
+                finish = 1
+            elseif (dir_ - Δ) < Alower
+                T[n] = ndt + totaltime
+                XX[n] = 2
+                finish = 1
+            else
+                startpos = dir_
+                radius = minimum(abs.([Aupper, Alower] .- startpos))
+            end
+        end
+    end
+    return (choice=XX,rt=T)
+end
+
+function _rand_stochastic(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1, nsteps::Int=300, step_length::Int=0.01)
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    if (ν < -5) || (ν > 5)
+        ν = sign(ν) * 5
+        warn("ν is not in the range [-5, 5], bounding drift rate to $Nu...")
+    end
+
+    if η > 3
+        warn("Standard deviation of drift rate is out of bounds, bounding drift rate to 3")
+        η = 3
+    end
+
+    if η == 0
+        η = 1e-16
+    end
+
+    # Initialize output vectors
+    rts = zeros(N)
+    choice = zeros(N)
+
+    for n in 1:N
+        random_walk = Array{Float64}(undef, nsteps)
+        start_point = (z - sz/2) + ((z + sz/2) - (z - sz/2)) * rand()
+        ndt = (τ - st/2) + ((τ + st/2) - (τ - st/2)) * rand()
+        drift = rand(Distributions.Normal(ν, η))
+        random_walk[1] = start_point * α
+        for s in 2:nsteps
+            random_walk[s] = random_walk[s-1] + rand(Distributions.Normal(drift * step_length, σ * sqrt(step_length)))
+            if random_walk[s] >= α
+                random_walk[s:end] .= α
+                rts[n] = s * step_length + ndt
+                choice[n] = 1
+                break
+            elseif random_walk[s] <= 0
+                random_walk[s:end] .= 0
+                rts[n] = s * step_length + ndt
+                choice[n] = 2
+                break
+            elseif s == nsteps
+                rts[n] = NaN
+                choice[n] = NaN
+                break
+            end
+        end
+    end   
+    return  (choice=choice,rt=rts)
+end
+
+"""
+    rand(dist::DDM, n_sim::Int)
+
+Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
+
+# Arguments
+- `dist`: model object for the Drift Diffusion Model.
+- `n_sim::Int`: the number of simulated rts  
+"""
+
+function rand(rng::AbstractRNG, d::RatcliffDDM, n_sim::Int)
+    return _rand_rejection(rng, d, N = n_sim)
+end
+
+sampler(rng::AbstractRNG, d::RatcliffDDM) = rand(rng::AbstractRNG, d::RatcliffDDM)
