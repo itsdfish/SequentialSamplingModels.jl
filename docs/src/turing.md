@@ -102,8 +102,8 @@ p1 = length(rts1) / length(rts)
 # histogram of retrieval times
 hist = histogram(layout=(2,1), leg=false, grid=false,
      xlabel="Reaction Time", ylabel="Density", xlims = (0,1), ylims=(0,4))
-histogram!(rts1, subplot=1, color=:grey, bins = 150, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 800, norm=true, title="Choice 2")
+histogram!(rts1, subplot=1, color=:grey, bins = 300, norm=true, title="Choice 1")
+histogram!(rts2, subplot=2, color=:grey, bins = 300, norm=true, title="Choice 2")
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)
