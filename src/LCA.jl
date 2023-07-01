@@ -1,5 +1,5 @@
 """
-    LCA 
+    LCA{T<:Real} <: SSM2D
 
 Model object for the Leaky Competing Accumulator. 
 
@@ -13,14 +13,20 @@ Model object for the Leaky Competing Accumulator.
 - `σ`: diffusion noise 
 - `Δt`: time step 
 """
-@concrete mutable struct LCA <: SequentialSamplingModel
-    ν
-    α
-    β
-    λ
-    τ
-    σ
-    Δt
+mutable struct LCA{T<:Real} <: SSM2D
+    ν::Vector{T}
+    α::T
+    β::T
+    λ::T
+    τ::T
+    σ::T
+    Δt::T
+end
+
+function LCA(ν, α, β, λ, τ, σ, Δt)
+    _,  α, β, λ, τ, σ, Δt = promote(ν[1], α, β, λ, τ, σ, Δt)
+    ν = convert(Vector{typeof(τ)}, ν)
+    return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
 """
@@ -98,7 +104,7 @@ function rand(rng::AbstractRNG, dist::LCA, n_sim::Int)
         choices[i],rts[i] = simulate_trial(rng, dist, x, Δμ, ϵ)
         x .= 0.0
     end
-    return choices,rts 
+    return (;choices,rts) 
 end
 
 function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ)
@@ -110,7 +116,7 @@ function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ)
     end    
     _,choice = findmax(x) 
     rt = t + τ
-    return choice,rt
+    return (;choice,rt)
 end
 
 increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ) = increment!(Random.default_rng(), ν, β, λ, σ, Δt, x, Δμ, ϵ)

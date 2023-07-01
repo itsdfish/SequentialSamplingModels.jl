@@ -23,20 +23,20 @@ loglike = logpdf.(dist, choice, rt)
     
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
 """
-mutable struct DDM{T1,T2,T3,T4} <: SequentialSamplingModel
-    ν::T1
-    α::T2
-    τ::T3
-    z::T4
+mutable struct DDM{T<:Real} <: SSM2D
+    ν::T
+    α::T
+    τ::T
+    z::T
 end
 
-Base.broadcastable(x::DDM) = Ref(x)
+function DDM(ν, α, τ, z)
+    return DDM(promote(ν, α, τ, z)...)
+end
 
 function params(d::DDM)
     (d.ν, d.α, d.τ, d.z)    
 end
-
-loglikelihood(d::DDM, data) = sum(logpdf.(d, data...))
 
 """
     DDM(; ν = 1.0,
@@ -44,7 +44,7 @@ loglikelihood(d::DDM, data) = sum(logpdf.(d, data...))
         τ = 0.3
         z = 0.25)
 
-Constructor for Diffusion Decision Model. 
+Constructor for Drift Diffusion Model. 
     
 # Keywords 
 - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
@@ -81,13 +81,13 @@ end
 function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
+        return _pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
-    return pdf(d, rt; ϵ)
+    return _pdf(d, rt; ϵ)
 end
 
 # probability density function over the lower boundary
-function pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
     if τ ≥ t
         return T(NaN)
@@ -183,6 +183,7 @@ function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     end
     return _Fs_lower(d, K_s, t)
 end
+
 # Large time representation of lower subdistribution
 function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     (ν, α, τ, z) = params(d)
@@ -195,6 +196,7 @@ function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     end
     return _P_upper(ν, α, z) + 2*π/(α^2) * F
 end
+
 # Small time representation of the upper subdistribution
 function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     (ν, α, τ, z) = params(d)
@@ -219,6 +221,7 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     return _P_upper(ν, α, z) + sign(ν) * ((cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) -
              _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt)) + S1 + S2)
 end
+
 # Zero drift version
 function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     (_, α, τ, z) = params(d)
@@ -237,6 +240,7 @@ function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     sqrtL2 = sqrt(max(1, -2/x*α*α/π/π * (log(ϵ*π*x/2 * (ν*ν + π*π/α/α)) + ν*α*z + ν*ν*x/2)))
     return ceil(Int, max(sqrtL1, sqrtL2))
 end
+
 # Number of terms required for small time representation
 function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
@@ -262,6 +266,7 @@ function _P_upper(ν::T, α::T, z::T) where {T<:Real}
     end
     return (1-e)/(exp(2*ν*α*z) - e)
 end
+
 # Calculates exp(a) * pnorm(b) using an approximation by Kiani et al. (2008)
 function _exp_pnorm(a::T, b::T) where {T<:Real}
     r = exp(a) * cdf(Distributions.Normal(), b)
@@ -347,35 +352,14 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
         if (dir + ϵ) > Aupper
             rt = total_time + τ
             choice = 1
-            return choice,rt
+            return (;choice,rt)
         elseif (dir - ϵ) < Alower
             rt = total_time + τ
             choice = 2
-            return choice,rt
+            return (;choice,rt)
         else
             start_pos = dir
             radius = min(abs(Aupper - start_pos), (abs(Alower - start_pos)))
         end
     end
 end
-
-"""
-    rand(dist::DDM, n_sim::Int)
-
-Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
-
-# Arguments
-- `dist`: model object for the Drift Diffusion Model.
-- `n_sim::Int`: the number of simulated rts  
-"""
-
-function rand(rng::AbstractRNG, d::DDM, n_sim::Int)
-    choice = fill(0, n_sim)
-    rt = fill(0.0, n_sim)
-    for i in 1:n_sim
-        choice[i],rt[i] = rand(d)
-    end
-    return (choice=choice,rt=rt)
-end
-
-sampler(rng::AbstractRNG, d::DDM) = rand(rng::AbstractRNG, d::DDM)
