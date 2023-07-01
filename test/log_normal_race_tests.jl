@@ -80,7 +80,7 @@
         choice,rt = rand(dist, 10)
 
         sum_logpdf = logpdf.(dist, choice, rt) |> sum 
-        loglike = loglikelihood(dist, (choice, rt))
+        loglike = loglikelihood(dist, (;choice, rt))
         @test sum_logpdf ≈ loglike 
     end
 end

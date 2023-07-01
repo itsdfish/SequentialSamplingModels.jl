@@ -24,11 +24,15 @@ loglike = logpdf.(dist, data)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct WaldA{T1,T2,T3,T4} <: ContinuousUnivariateDistribution
-    ν::T1
-    k::T2
-    A::T3
-    θ::T4
+struct WaldA{T<:Real} <: ContinuousUnivariateDistribution
+    ν::T
+    k::T
+    A::T
+    θ::T
+end
+
+function WaldA(ν, k, A, θ)
+    return WaldA(promote(ν, k, A, θ)...)
 end
 
 Broadcast.broadcastable(x::WaldA) = Ref(x)
@@ -103,20 +107,22 @@ loglike = logpdf.(dist, data)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct DiffusionRace{T1,T2,T3,T4} <: SequentialSamplingModel
-    ν::T1
-    k::T2
-    A::T3
-    θ::T4
+struct DiffusionRace{T<:Real} <: SSM2D
+    ν::Vector{T}
+    k::T
+    A::T
+    θ::T
 end
 
-Broadcast.broadcastable(x::DiffusionRace) = Ref(x)
+function DiffusionRace(ν, k, A, θ)
+    _, k, A, θ = promote(ν[1], k, A, θ)
+    ν = convert(Vector{typeof(k)}, ν)
+    return DiffusionRace(ν, k, A, θ)
+end
 
 function params(d::DiffusionRace)
     (d.ν, d.k, d.A, d.θ)    
 end
-
-loglikelihood(d::DiffusionRace, data) = sum(logpdf.(d, data...))
 
 DiffusionRace(;ν, k, A, θ) = DiffusionRace(ν, k, A, θ)
 
@@ -125,17 +131,8 @@ function rand(rng::AbstractRNG, dist::DiffusionRace)
     z = rand(rng, Uniform(0, A))
     α = k + A - z 
     x = @. rand(rng, WaldA(ν, k, A, θ))
-    rt,resp = findmin(x)
-    return resp,rt
-end
-
-function rand(rng::AbstractRNG, d::DiffusionRace, N::Int)
-    choice = fill(0, N)
-    rt = fill(0.0, N)
-    for i in 1:N
-        choice[i],rt[i] = rand(rng, d)
-    end
-    return (choice=choice,rt=rt)
+    rt,choice = findmin(x)
+    return (;choice,rt)
 end
 
 function logpdf(d::DiffusionRace, r::Int, rt::Float64)

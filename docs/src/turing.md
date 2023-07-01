@@ -9,8 +9,7 @@ using Random
 using LinearAlgebra
 using StatsPlots
 
-@model model(data) = begin
-    min_rt = minimum(data[2])
+@model function model(data; min_rt = minimum(data[2]))
     ν ~ MvNormal(zeros(2), I * 2)
     A ~ truncated(Normal(.8, .4), 0.0, Inf)
     k ~ truncated(Normal(.2, .2), 0.0, Inf)
@@ -25,6 +24,7 @@ data = rand(dist, 100)
 
 # estimate parameters
 chain = sample(model(data), NUTS(1000, .65), MCMCThreads(), 1000, 4)
+predictions = predict(model(missing; min_rt = minimum(data[2])), chain)
 ```
 
 # Example
@@ -44,8 +44,7 @@ using LinearAlgebra
 The code snippet below defines a model in Turing. The model function accepts a tuple containing
 a vector of choices and a vector of reaction times. The sampling statements define the prior distributions for each parameter. The non-decision time parameter $\tau$ must be founded by the minimum reaction time, `min_rt`. The last sampling statement defines the likelihood of the data given the sampled parameter values. 
 ```@example Turing 
-@model model(data) = begin
-    min_rt = minimum(data[2])
+@model function model(data; min_rt = minimum(data[2]))
     ν ~ MvNormal(zeros(2), I * 2)
     A ~ truncated(Normal(.8, .4), 0.0, Inf)
     k ~ truncated(Normal(.2, .2), 0.0, Inf)
@@ -84,3 +83,29 @@ It is important to verify that the chains converged. We see that the chains conv
 plot(chain, grid=false)
 ```
 
+## Posterior Predictive Distribution
+
+With `predict`, it is possible to sample from the posterior predictive distribution, as follows. 
+```@example Turing 
+predictions = predict(model(missing; min_rt = minimum(data[2])), chain)
+```
+In the following code block, we plot the predictive distributions for each choice. 
+```@example Turing 
+choices = predictions.value[:,1,:][:]
+rts = predictions.value[:,2,:][:]
+# rts for option 1
+rts1 = rts[choices .== 1]
+# rts for option 2 
+rts2 = rts[choices .== 2]
+# probability of choosing 1
+p1 = length(rts1) / length(rts)
+# histogram of retrieval times
+hist = histogram(layout=(2,1), leg=false, grid=false,
+     xlabel="Reaction Time", ylabel="Density", xlims = (0,1), ylims=(0,4))
+histogram!(rts1, subplot=1, color=:grey, bins = 300, norm=true, title="Choice 1")
+histogram!(rts2, subplot=2, color=:grey, bins = 300, norm=true, title="Choice 2")
+# weight histogram according to choice probability
+hist[1][1][:y] *= p1
+hist[2][1][:y] *= (1 - p1)
+hist
+```
