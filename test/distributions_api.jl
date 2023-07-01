@@ -45,11 +45,17 @@
             LCA(;α = 1.5, β=0.20, λ=0.10, ν=[2.5,2.0], Δt=.001, τ=.30, σ=1.0),
             LNR(μ=[-1.0,3.0], σ=.3, ϕ=0.0),
             DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2),
-            Wald(3,1,.2),
             DDM(),
-            WaldMixture(2, .2, 1, .1),
             aDDM(),
             maaDDM()]
+
+        for m ∈ models 
+            @test insupport(m, (choice=1,rt=1.0))
+            @test !insupport(m, (choice=1,rt=-1.0))
+        end
+
+        models = [Wald(3,1,.2),
+            WaldMixture(2, .2, 1, .1)]
 
         for m ∈ models 
             @test insupport(m, 1.0)

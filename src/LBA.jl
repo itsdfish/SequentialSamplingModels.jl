@@ -26,7 +26,7 @@ loglike = logpdf.(dist, choice, rt)
 
 Brown, S. D., & Heathcote, A. (2008). The simplest complete model of choice response time: Linear ballistic accumulation. Cognitive psychology, 57(3), 153-178.
 """
-mutable struct LBA{T<:Real} <: SequentialSamplingModel
+mutable struct LBA{T<:Real} <: SSM2D
     ν::Vector{T}
     A::T
     k::T
@@ -40,13 +40,9 @@ function LBA(ν, A, k, τ, σ)
     return LBA(ν, A, k, τ, σ)
 end
 
-Base.broadcastable(x::LBA) = Ref(x)
-
 function params(d::LBA)
-    (d.ν,d.A,d.k,d.τ,d.σ)    
+    return (d.ν,d.A,d.k,d.τ,d.σ)    
 end
-
-loglikelihood(d::LBA, data) = sum(logpdf.(d, data...))
 
 LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=1.0) = LBA(ν, A, k, τ, σ)
 
@@ -84,7 +80,7 @@ function rand(rng::AbstractRNG, d::LBA)
     dt = @. (b - a) / v
     choice,mn = select_winner(dt)
     rt = τ .+ mn
-    return choice,rt
+    return (;choice,rt)
 end
 
 function rand(rng::AbstractRNG, d::LBA, N::Int)
@@ -158,5 +154,3 @@ function pnegative(d::LBA)
     end
     return p
 end
-#add Distribution methods for ContinuousUnivariateDistribution
-#Distribution.rand(rng::AbstractRNG, d::LBA) = 

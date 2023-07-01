@@ -24,7 +24,7 @@ Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015).
 The lognormal race: A cognitive-process model of choice and latency with desirable 
 psychometric properties. Psychometrika, 80(2), 491-513.
 """
-struct LNR{T<:Real} <: SequentialSamplingModel
+struct LNR{T<:Real} <: SSM2D
     μ::Vector{T}
     σ::T
     ϕ::T
@@ -35,30 +35,18 @@ function LNR(μ, σ, ϕ)
     μ = convert(Vector{typeof(σ)}, μ)
     return LNR(μ, σ, ϕ)
 end
-Broadcast.broadcastable(x::LNR) = Ref(x)
 
 function params(d::LNR)
-    (d.μ, d.σ, d.ϕ)    
+    return (d.μ, d.σ, d.ϕ)    
 end
-
-loglikelihood(d::LNR, data) = sum(logpdf.(d, data...))
 
 LNR(;μ, σ, ϕ) = LNR(μ, σ, ϕ)
 
 function rand(rng::AbstractRNG, dist::LNR)
     (;μ,σ,ϕ) = dist
     x = @. rand(rng, LogNormal(μ, σ)) + ϕ
-    rt,resp = findmin(x)
-    return resp,rt
-end
-
-function rand(rng::AbstractRNG, d::LNR, N::Int)
-    choice = fill(0, N)
-    rt = fill(0.0, N)
-    for i in 1:N
-        choice[i],rt[i] = rand(rng, d)
-    end
-    return (choice=choice,rt=rt)
+    rt,choice = findmin(x)
+    return (;choice,rt)
 end
 
 function logpdf(d::LNR, r::Int, t::Float64)

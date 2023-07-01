@@ -73,10 +73,8 @@ function maaDDM(; ν₁₁ = 4.0,
     return maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
 end
 
-Broadcast.broadcastable(x::maaDDM) = Ref(x)
-
 """
-    update(dist::maaDDM, location)
+    update(rng, dist::maaDDM, location)
 
 Returns the change evidence for a single iteration. 
 
@@ -85,20 +83,20 @@ Returns the change evidence for a single iteration.
 - `dist::maaDDM`: a model object for the multiattribute attentional drift diffusion model
 - `location`: an index for fixation location 
 """
-function update(dist::maaDDM, location)
+function update(rng, dist::maaDDM, location)
     (;ν₁₁,ν₁₂,ν₂₁,ν₂₂,θ,ϕ,ω,Δ,σ) = dist
     # option 1, attribute 1
     if location == 1
-        return Δ * (ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * ϕ * (ν₁₂ - θ * ν₂₂)) + noise(σ)
+        return Δ * (ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * ϕ * (ν₁₂ - θ * ν₂₂)) + noise(rng, σ)
     # option 1, attribute 2
     elseif location == 2
-        return Δ * (ϕ * ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * (ν₁₂ - θ * ν₂₂)) + noise(σ)
+        return Δ * (ϕ * ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * (ν₁₂ - θ * ν₂₂)) + noise(rng, σ)
     # option 2, attribute 1
     elseif location == 3
-        return Δ * (ω * (θ * ν₁₁ - ν₂₁) + (1 - ω) * ϕ * (θ * ν₁₂ - ν₂₂)) + noise(σ)
+        return Δ * (ω * (θ * ν₁₁ - ν₂₁) + (1 - ω) * ϕ * (θ * ν₁₂ - ν₂₂)) + noise(rng, σ)
     # option 2, attribute 2
     else
-        return Δ * (ϕ * ω * (θ * ν₁₁ - ν₂₁) + (1 - ω) * (θ * ν₁₂ - ν₂₂)) + noise(σ)
+        return Δ * (ϕ * ω * (θ * ν₁₁ - ν₂₁) + (1 - ω) * (θ * ν₁₂ - ν₂₂)) + noise(rng, σ)
     end
     return -100.0
 end 
