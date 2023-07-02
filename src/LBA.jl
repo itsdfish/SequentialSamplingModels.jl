@@ -1,10 +1,10 @@
 
 """
-    LBA(;τ, A, k, ν, σ=1.0)
+    LBA{T<:Real} <: SSM2D
 
 A model object for the linear ballistic accumulator.
 
-# Fields
+# Parameters
 
 - `ν`: a vector of drift rates
 - `A`: max start point
@@ -12,15 +12,21 @@ A model object for the linear ballistic accumulator.
 - `σ=1`: drift rate standard deviation
 - `τ`: a encoding-response offset
 
+# Constructors 
+
+    LBA(ν, A, k, τ, σ)
+    
+    LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=1.0)
+
 # Example 
 
-````julia
+```julia
 using SequentialSamplingModels
 dist = LBA(ν=[3.0,2.0], A = .8, k = .2, τ = .3) 
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
-````
+```
 
 # References
 

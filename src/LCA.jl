@@ -1,17 +1,48 @@
 """
     LCA{T<:Real} <: SSM2D
 
-Model object for the Leaky Competing Accumulator. 
+A model type for the Leaky Competing Accumulator. 
+    
+# Parameters 
 
-# Fields
+- `ν = [2.5,2.0]`: drift rates 
+- `α = 1.5`: evidence threshold 
+- `β = .20`: lateral inhabition 
+- `λ = .10`: leak rate
+- `τ = .30`: non-decision time 
+- `σ = 1.0`: diffusion noise 
+- `Δt = .001`: time step 
 
-- `ν`: drift rates 
-- `α`: evidence threshold 
-- `β`: lateral inhabition 
-- `λ`: leak rate
-- `τ`: non-decision time 
-- `σ`: diffusion noise 
-- `Δt`: time step 
+# Constructors 
+
+    LCA(ν, α, β, λ, τ, σ, Δt)
+
+    LCA(;ν = [2.5,2.0], 
+        α = 1.5, 
+        β = .20, 
+        λ = .10, 
+        τ = .30, 
+        σ = 1.0, 
+        Δt = .001)
+        
+# Example 
+
+```julia 
+using SequentialSamplingModels 
+ν = [2.5,2.0]
+α = 1.5
+β = 0.20
+λ = 0.10 
+σ = 1.0
+τ = 0.30
+Δt = .001
+
+dist = LCA(; ν, α, β, λ, τ, σ, Δt)
+choices,rts = rand(dist, 500)
+```
+# References
+
+Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The leaky, competing accumulator model. Psychological Review, 108 3, 550–592. https://doi.org/10.1037/0033-295X.108.3.550
 """
 mutable struct LCA{T<:Real} <: SSM2D
     ν::Vector{T}
@@ -29,26 +60,6 @@ function LCA(ν, α, β, λ, τ, σ, Δt)
     return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
-"""
-    LCA(;ν = [2.5,2.0], 
-        α = 1.5, 
-        β = .20, 
-        λ = .10, 
-        τ = .30, 
-        σ = 1.0, 
-        Δt = .001)
-
-Constructor for Leaky Competing Accumulator model. 
-    
-# Keywords 
-- `ν = [2.5,2.0]`: drift rates 
-- `α = 1.5`: evidence threshold 
-- `β = .20`: lateral inhabition 
-- `λ = .10`: leak rate
-- `τ = .30`: non-decision time 
-- `σ = 1.0`: diffusion noise 
-- `Δt = .001`: time step 
-"""
 function LCA(;ν = [2.5,2.0], 
     α = 1.5, 
     β = .20, 

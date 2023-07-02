@@ -1,14 +1,23 @@
 """
-    DDM 
+    DDM{T<:Real} <: SSM2D
 
-Model object for the Standard Diffusion Decision Model.
+Model object for the standard Drift Diffusion Model.
 
-# Fields
+# Parameters
 - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
 - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
 - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
 - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
 
+# Constructors 
+
+    DDM(ν, α, τ, z)
+    
+    DDM(; ν = 1.0,
+        α = 0.8,
+        τ = 0.3
+        z = 0.25)
+        
 # Example 
 
 ```julia
@@ -38,27 +47,6 @@ function params(d::DDM)
     (d.ν, d.α, d.τ, d.z)    
 end
 
-"""
-    DDM(; ν = 1.0,
-        α = 0.8,
-        τ = 0.3
-        z = 0.25)
-
-Constructor for Drift Diffusion Model. 
-    
-# Keywords 
-- `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-- `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
-- `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
-
-# Example 
-
-```julia
-using SequentialSamplingModels
-dist = DDM(;ν = 1.0, α = 0.8, τ = 0.30 z = 0.50) 
-```
-"""
 function DDM(; ν = 1.00,
     α = 0.80,
     τ = 0.30,

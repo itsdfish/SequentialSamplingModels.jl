@@ -1,8 +1,6 @@
 # SequentialSamplingModels.jl
 
-**Documentation is under construction.**
-
-This package is a collection of sequential sampling models in Julia and is based on the Distributions.jl API.
+This package provides a unified interface for sequential sampling models in Julia and is based on the Distributions.jl API.
 Sequential sampling models, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. See the references below for a broad overview of sequential sampling models. An example of the evidence accumulation process is illustrated below for the leaking competing accumulator.
 
 ```@setup accumulation
@@ -84,8 +82,6 @@ histogram(layout=(2, 1), xlabel="Reaction Time", ylabel="Frequency", xlims = (0,
 histogram!(rt[choice.==1], subplot=1, color=:grey, leg=false, bins=200)
 histogram!(rt[choice.==2], subplot=2, color=:darkred, leg=false, bins=200)
 ```
-
-*SequentialSamplingModels* provides such unified interface to a variety of models.
 
 # References
 Evans, N. J. & Wagenmakers, E.-J. Evidence accumulation models: Current limitations and future directions. Quantitative Methods for Psychololgy 16, 73–90 (2020).

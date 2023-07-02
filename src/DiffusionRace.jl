@@ -10,7 +10,7 @@ Constructor for Wald distribution
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
 - `θ`: a encoding-motor time offset
 
-## Usage
+# Example
 
 ```julia
 using SequentialSamplingModels
@@ -82,11 +82,17 @@ function rand(rng::AbstractRNG, d::WaldA)
 end
 
 """
+    DiffusionRace{T<:Real} <: SSM2D
+
+An object for the racing diffusion model.
+
+# Constructors
+
     DiffusionRace(;ν, k, A, θ)
 
-An object for the racing diffusion model. 
+    DiffusionRace(ν, k, A, θ)
 
-# Fields
+# Parameters
 
 - `ν`: a vector of drift rates
 - `k`: k = b - A where b is the decision threshold, and A is the maximum starting point

@@ -1,9 +1,26 @@
 abstract type Mixed <: ValueSupport end 
 
+"""
+    MixedMultivariateDistribution   
+
+An abstract distribution type for multivariate distributions with mixed value support. 
+"""
 const MixedMultivariateDistribution = Distribution{Multivariate, Mixed}
 
+"""
+    SSM1D <: ContinuousUnivariateDistribution
+
+An abstract type for sequential sampling models characterized by a single choice reaction time distribution.
+Sub-types of `SSM1D` output a vector of reaction times.
+"""
 abstract type SSM1D <: ContinuousUnivariateDistribution end 
 
+"""
+    SSM2D <: MixedMultivariateDistribution
+
+An abstract type for sequential sampling models characterized by a multivariate choice-reaction time distribution.
+Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and reaction times. 
+"""
 abstract type SSM2D <: MixedMultivariateDistribution end 
 
 abstract type AbstractWald <: SSM1D end

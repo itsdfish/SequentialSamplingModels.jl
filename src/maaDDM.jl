@@ -1,23 +1,12 @@
-
-struct maaDDM{T<:Real} <: AbstractaDDM
-    ν₁₁::T
-    ν₁₂::T
-    ν₂₁::T
-    ν₂₂::T
-    α::T
-    z::T
-    θ::T
-    ϕ::T
-    ω::T
-    σ::T
-    Δ::T
-end
-
-function maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
-    return maaDDM(promote(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)...)
-end
-
 """
+    maaDDM{T<:Real} <: AbstractaDDM
+
+An object for the multi-attribute attentional drift diffusion model. 
+
+# Constructors
+
+    maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+
     maaDDM(; ν₁₁ = 4.0, 
             ν₁₂ = 5.0, 
             ν₂₁ = 5.0, 
@@ -53,11 +42,77 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 - `σ=.02`: standard deviation of noise in evidence accumulation
 - `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
 
+# Example 
+
+```julia 
+using SequentialSamplingModels
+using StatsBase
+
+mutable struct Transition
+    state::Int 
+    n::Int
+    mat::Array{Float64,2} 
+ end
+
+ function Transition(mat)
+    n = size(mat,1)
+    state = rand(1:n)
+    return Transition(state, n, mat)
+ end
+ 
+ function attend(transition)
+     (;mat,n,state) = transition
+     w = mat[state,:]
+     next_state = sample(1:n, Weights(w))
+     transition.state = next_state
+     return next_state
+ end
+
+ν₁₁ = 4.0 
+ν₁₂ = 5.0 
+ν₂₁ = 5.0 
+ν₂₂ = 4.0
+α = 1.0 
+z = 0.0
+θ = .3
+ϕ = .50
+ω = .70
+σ = .02
+Δ = .0004
+
+dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+
+tmat = Transition([.98 .015 .0025 .0025;
+                .015 .98 .0025 .0025;
+                .0025 .0025 .98 .015;
+                .0025 .0025 .015 .98])
+
+ choices,rts = rand(dist, 100, attend, tmat)
+```
+
 # References 
 
 Yang, X., & Krajbich, I. (2023). A dynamic computational model of gaze and choice in multi-attribute decisions. 
 Psychological Review, 130(1), 52.
 """
+struct maaDDM{T<:Real} <: AbstractaDDM
+    ν₁₁::T
+    ν₁₂::T
+    ν₂₁::T
+    ν₂₂::T
+    α::T
+    z::T
+    θ::T
+    ϕ::T
+    ω::T
+    σ::T
+    Δ::T
+end
+
+function maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+    return maaDDM(promote(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)...)
+end
+
 function maaDDM(; ν₁₁ = 4.0, 
                     ν₁₂ = 5.0, 
                     ν₂₁ = 5.0, 

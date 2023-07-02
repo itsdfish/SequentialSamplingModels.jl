@@ -1,15 +1,22 @@
 
 """
-    WaldMixture
+    WaldMixture{T<:Real} <: AbstractWald
 
-# Fields
+# Parameters
 
 - `υ`: drift rate
 - `σ`: standard deviation of drift rate
 - `α`: decision threshold
 - `θ`: a encoding-response offset
 
-## Example
+# Constructors
+
+    WaldMixture(ν, σ, α, θ)
+    
+    WaldMixture(;ν, σ, α, θ)
+    
+# Example
+
 ```julia
 using SequentialSamplingModels
 dist = WaldMixture(υ=3.0, σ=.2, α=.5, θ=.130)
@@ -17,7 +24,7 @@ rt = rand(dist, 10)
 like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)
 ```
-## References
+# References
 Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2020). 
 Modeling across-trial variability in the Wald drift rate parameter. 
 Behavior Research Methods, 1-17.
