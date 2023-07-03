@@ -104,9 +104,9 @@ An object for the racing diffusion model.
 ```julia
 using SequentialSamplingModels
 dist = DiffusionRace(;ν=[1,2], k=.3, A=.7, θ=.2)
-data = rand(dist, 10)
-like = pdf.(dist, data)
-loglike = logpdf.(dist, data)
+choice,rt = rand(dist, 10)
+like = pdf.(dist, choice, rt)
+loglike = logpdf.(dist, choice, rt)
 ```
 # References
 
@@ -154,9 +154,9 @@ function logpdf(d::DiffusionRace, r::Int, rt::Float64)
     return LL
 end
 
-logpdf(d::DiffusionRace, data::Tuple) = logpdf(d, data...)
+# logpdf(d::DiffusionRace, data::NamedTuple) = logpdf(d, data...)
 
-pdf(d::DiffusionRace, data::Tuple) = pdf(d, data...)
+# pdf(d::DiffusionRace, data::NamedTuple) = pdf(d, data...)
 
 function pdf(d::DiffusionRace, r::Int, rt::Float64)
     (;ν, k, A, θ) = d

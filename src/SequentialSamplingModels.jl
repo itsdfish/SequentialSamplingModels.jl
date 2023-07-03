@@ -17,7 +17,6 @@ module SequentialSamplingModels
     import Distributions: insupport
     import Distributions: loglikelihood
     import Distributions: logccdf
-    import Distributions: _logpdf
     import Distributions: logpdf
     import Distributions: maximum
     import Distributions: mean

@@ -49,7 +49,7 @@ logpdf(d::MixedMultivariateDistribution, data::NamedTuple) = logpdf(d, data.choi
 
 loglikelihood(d::MixedMultivariateDistribution, data::NamedTuple) = sum(logpdf.(d, data...))
 
-Distributions._logpdf(d::SSM2D, data::Vector{Real}) = logpdf(d, data[1], data[2]) 
+logpdf(d::SSM2D, data::Vector{Real}) = logpdf(d, Int(data[1]), data[2]) 
 
 """
     rand(rng::AbstractRNG, d::SSM2D, N::Int)

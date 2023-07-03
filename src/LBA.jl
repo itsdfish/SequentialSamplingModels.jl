@@ -100,10 +100,6 @@ end
 
 logpdf(d::LBA, choice, rt) = log(pdf(d, choice, rt))
 
-function logpdf(d::LBA, data::T) where {T<:NamedTuple}
-    return sum(logpdf.(d, data...))
-end
-
 function logpdf(dist::LBA, data::Array{<:Tuple,1})
     LL = 0.0
     for d in data
