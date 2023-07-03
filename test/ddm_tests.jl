@@ -1,11 +1,10 @@
 @safetestset "DDM Tests" begin
     @safetestset "DDM pdf 1" begin
         using SequentialSamplingModels
-        using SequentialSamplingModels: kernel
         using Test
-        using KernelDensity
         using Random
         Random.seed!(654)
+        include("KDE.jl")
 
         dist = DDM(ν=1.0, α = .8, z = .5, τ = .3) 
         choice,rt = rand(dist, 10^6)
@@ -27,10 +26,9 @@
 
     @safetestset "DDM pdf 2" begin
         using SequentialSamplingModels
-        using SequentialSamplingModels: kernel
         using Test
-        using KernelDensity
         using Random
+        include("KDE.jl")
         Random.seed!(750)
 
         dist = DDM(ν=2.0, α = 1.5, z = .5, τ = .30) 

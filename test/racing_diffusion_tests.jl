@@ -1,10 +1,8 @@
 @safetestset "Racing Diffusion Model" begin
     @safetestset "pdf" begin
-        using SequentialSamplingModels, Test, KernelDensity, QuadGK, Random
-        using Interpolations, Distributions
+        using SequentialSamplingModels, Test, QuadGK, Random
         import SequentialSamplingModels: WaldA
-        kernel_dist(::Type{Epanechnikov}, w::Float64) = Epanechnikov(0.0, w)
-        kernel(data) = kde(data; kernel=Epanechnikov)
+        include("KDE.jl")
         Random.seed!(741)
 
         dist = WaldA(ν=.5, k=.3, A=.7, θ=.2)
