@@ -232,30 +232,9 @@ end
 logpdf(d::RatcliffDDM, data::Tuple) = logpdf(d, data...)
 
 ########################################################################################################################################################################
-# Calculate Drift-diffusion Probability Density
+# Calculate Cumulative Distribution Function
 #
-# compute the densities g- and g+ of the first exit time. `cdf` implement A1 to A4 equations in Voss, Rothermund, and Voss (2004). These equations calculate Ratcliff's
-# drift-diffusion model (1978). This source codes are derived from Henrik Singmann's Density.h (rtdists) &  Voss & Voss's density.c (fast-dm).
-#
-#  * ------------------------------------------------------------------------
-#  * A verbatim copy of Jochen Voss & Andreas Voss's copyright.
-#  * ------------------------------------------------------------------------
-#  * Copyright (C) 2012  Andreas Voss, Jochen Voss.
-#  *
-#  * This program is free software; you can redistribute it and/or
-#  * modify it under the terms of the GNU General Public License as
-#  * published by the Free Software Foundation; either version 2 of the
-#  * License, or (at your option) any later version.
-#  *
-#  * This program is distributed in the hope that it will be useful, but
-#  * WITHOUT ANY WARRANTY; without even the implied warranty of
-#  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  * General Public License for more details.
-#  *
-#  * You should have received a copy of the GNU General Public License
-#  * along with this program; if not, write to the Free Software
-#  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-#  * 02110-1301 USA.
+#  This source codes are adpated from Henrik Singmann's Density.h (rtdists) &  Voss & Voss's density.c (fast-dm).
 #
 #  # References
 #
@@ -518,16 +497,6 @@ end
 
 function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
     (ν, α, τ, z, η, sz, st, σ) = params(d)
-
-    if (ν < -5) || (ν > 5)
-        ν = sign(ν) * 5
-        warn("ν is not in the range [-5, 5], bounding drift rate to $Nu...")
-    end
-
-    if η > 3
-        warn("Standard deviation of drift rate is out of bounds, bounding drift rate to 3")
-        η = 3
-    end
 
     if η == 0
         η = 1e-16
