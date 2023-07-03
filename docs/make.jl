@@ -25,6 +25,7 @@ makedocs(
                 "Wald Model" => "wald.md",
                 "Wald Mixture Model" => "wald_mixture.md"],
             "Parameter Estimation with Turing" => "turing.md",
+            "Developer Guide" => "developer_guide.md"
             ]
 )
 

@@ -3,22 +3,29 @@ loglikelihood(d::AbstractWald, data::AbstractArray{T,1}) where {T} = sum(logpdf.
 """
     Wald{T<:Real} <: AbstractWald
 
-Creattes a model object for the Wald model.
+A model object for the Wald model.
 
-# Fields 
+# Parameters 
 
 - `υ`: drift rate
 - `α`: decision threshold
 - `θ`: a encoding-response offset
 
-## Usage
-````julia
+# Constructors
+
+    Wald(ν, α, θ)
+
+    Wald(;ν, α, θ)
+
+# Example
+
+```julia
 using SequentialSamplingModels
 dist = Wald(υ=3.0, α=.5, θ=.130)
 rt = rand(dist, 10)
 like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)
-````
+```
 """
 struct Wald{T<:Real} <: AbstractWald
     ν::T

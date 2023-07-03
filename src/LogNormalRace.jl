@@ -1,13 +1,19 @@
 """
-    LNR(;μ, σ, ϕ)
+    LNR{T<:Real} <: SSM2D
 
-A lognormal race model object 
+A lognormal race model object. 
 
-# Fields 
+# Parameters 
 
 - `μ`: a vector of means in log-space
 - `σ`: a standard deviation parameter in log-space
 - `ϕ`: a encoding-response offset
+
+# Constructors
+
+    LNR(μ, σ, ϕ)
+
+    LNR(;μ, σ, ϕ)
 
 # Example
 

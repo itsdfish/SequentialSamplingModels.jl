@@ -1,3 +1,29 @@
+"""
+    aDDM{T<:Real} <: AbstractaDDM
+    
+An object for the attentional diffusion model. 
+
+# Parameters 
+
+- `ν1=5.0`: relative decision value for alternative 1
+- `ν2=4.0`: relative decision value for alternative 2
+- `α=1.0`: evidence threshold 
+- `z=0.0`: initial evidence 
+- `θ=.3`: bias towards attended alternative (lower indicates more bias)
+- `σ=.02`: standard deviation of noise in evidence accumulation
+- `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
+
+# Constructors
+
+    aDDM(ν1, ν2, α, z, θ, σ, Δ)
+
+    aDDM(;ν1=5.0, ν2=4.0, α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004)
+
+# References 
+
+Krajbich, I., Armel, C., & Rangel, A. (2010). Visual fixations and the computation and comparison of 
+value in simple choice. Nature neuroscience, 13(10), 1292-1298.
+"""
 struct aDDM{T<:Real} <: AbstractaDDM
     ν1::T
     ν2::T
@@ -12,26 +38,6 @@ function aDDM(ν1, ν2, α, z, θ, σ, Δ)
     return aDDM(promote(ν1, ν2, α, z, θ, σ, Δ)...)
 end
 
-"""
-    aDDM(;ν1=5.0, ν2=4.0, α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004)
-
-Constructor for attentional diffusion model object. 
-
-# Keywords 
-
-- `ν1=5.0`: relative decision value for alternative 1
-- `ν2=4.0`: relative decision value for alternative 2
-- `α=1.0`: evidence threshold 
-- `z=0.0`: initial evidence 
-- `θ=.3`: bias towards attended alternative (lower indicates more bias)
-- `σ=.02`: standard deviation of noise in evidence accumulation
-- `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
-
-# References 
-
-Krajbich, I., Armel, C., & Rangel, A. (2010). Visual fixations and the computation and comparison of 
-value in simple choice. Nature neuroscience, 13(10), 1292-1298.
-"""
 function aDDM(;ν1=5.0, ν2=4.0, α=1.0, z=0.0, θ=.3, σ=.02, Δ=.0004)
     return aDDM(ν1, ν2, α, z, θ, σ, Δ)
 end
