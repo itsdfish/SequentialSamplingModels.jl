@@ -231,22 +231,262 @@ end
 
 logpdf(d::RatcliffDDM, data::Tuple) = logpdf(d, data...)
 
-# """
-# cdf_full()
+########################################################################################################################################################################
+# Calculate Drift-diffusion Probability Density
+#
+# compute the densities g- and g+ of the first exit time. `cdf` implement A1 to A4 equations in Voss, Rothermund, and Voss (2004). These equations calculate Ratcliff's
+# drift-diffusion model (1978). This source codes are derived from Henrik Singmann's Density.h (rtdists) &  Voss & Voss's density.c (fast-dm).
+#
+#  * ------------------------------------------------------------------------
+#  * A verbatim copy of Jochen Voss & Andreas Voss's copyright.
+#  * ------------------------------------------------------------------------
+#  * Copyright (C) 2012  Andreas Voss, Jochen Voss.
+#  *
+#  * This program is free software; you can redistribute it and/or
+#  * modify it under the terms of the GNU General Public License as
+#  * published by the Free Software Foundation; either version 2 of the
+#  * License, or (at your option) any later version.
+#  *
+#  * This program is distributed in the hope that it will be useful, but
+#  * WITHOUT ANY WARRANTY; without even the implied warranty of
+#  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  * General Public License for more details.
+#  *
+#  * You should have received a copy of the GNU General Public License
+#  * along with this program; if not, write to the Free Software
+#  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#  * 02110-1301 USA.
+#
+#  # References
+#
+# - Singmann H, Brown S, Gretton M, Heathcote A (2022). _rtdists: Response Time Distributions_. Rpackage version 0.11-5, <https://CRAN.R-project.org/package=rtdists>.
+# - Voss, A., Rothermund, K., & Voss, J. (2004). Interpreting the parameters of the diffusion model: An empirical validation. *Memory and Cognition, 32(7)*, 1206-1220.
+# - Ratcliff, R. (1978). A theory of memory retrieval. *Psychology Review, 85(2)*, 59-108.
+# - Voss, A., Voss, J., & Lerche, V. (2015). Assessing cognitive processes with diffusion model analyses: A tutorial based on fast-dm-30. *Frontiers in Psychology, 6*, Article 336. https://doi.org/10.3389/fpsyg.2015.00336
+#
+################################################################################################################################################################
 
-#  The orignial algorithm was written on 09/01/06 by Joachim Vandekerckhove
-#  Then converted from c to julia by Kianté Fernandez
- 
-#  Computes Cumulative Distribution Function for the Diffusion model with random trial to trial mean drift (normal), 
-#  starting point and non-decision (ter) time (both rectangular). Uses 6 quadrature points for drift and 6 for the others.
+TUNE_PDE_DT_MIN = 1e-6
+TUNE_PDE_DT_MAX = 1e-6
+TUNE_PDE_DT_SCALE = 0.0
 
-#  Based on methods described in:
-#     Tuerlinckx, F. (2004). The efficient computation of the
-#     cumulative distribution and probability density functions
-#     in the diffusion model, Behavior Research Methods,
-#     Instruments, & Computers, 36 (4), 702-716.
+TUNE_DZ = 0.0
+TUNE_DV = 0.0
+TUNE_DT0 = 0.0
 
-# """
+TUNE_INT_T0 = 0
+TUNE_INT_Z = 0
+
+precision_set = 0
+
+function cdf(d::RatcliffDDM, choice, rt; ϵ::Real = 1.0e-12, precision::Real = 3)
+    if choice == 1
+        (ν, α, τ, z, η, sz, st, σ) = params(d)
+        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ, precision) #over the upper boundary (g_plus)
+    end
+
+    return cdf(d, rt; ϵ, precision)
+end
+
+# cumulative density function over the lower boundary (g_minus)
+function cdf(d::RatcliffDDM{T}, x::Real; ϵ::Real= 1.0e-6, precision::Real = 3) where {T<:Real}
+    if d.τ ≥ t
+        return T(NaN)
+    end
+    _set_precision(precision)
+    DT = x - τ - 0.5 * z
+    return _integral_τ_g_minus(x, d)
+end
+
+function _set_precision(precision::Real = 3)
+    """
+    Precision of calculation. 
+    Corresponds roughly to the number of decimals of the predicted CDFs that are calculated accurately. Default is 3.
+    The function adjusts various parameters used in the calculations based on the precision value. 	
+    """
+    global TUNE_PDE_DT_MIN = (-0.400825*precision-1.422813)^10
+    global TUNE_PDE_DT_MAX = (-0.627224*precision+0.492689)^10
+    global TUNE_PDE_DT_SCALE = (-1.012677*precision+2.261668)^10
+    global TUNE_DZ = (-0.5*precision-0.033403)^10
+    global TUNE_DV = (-1.0*precision+1.4)^10
+    global TUNE_DT0 = (-0.5*precision-0.323859)^10
+
+    global TUNE_INT_T0 = 0.089045 * exp(-1.037580*precision)
+    global TUNE_INT_Z = 0.508061 * exp(-1.022373*precision)
+  
+    global precision_set = 1
+end
+
+function _integrate(F::Function, d::RatcliffDDM, a::Int, b::Int, step_width::Real)
+    """
+    These functions perform numerical integration using a specified function, range, and step width. The integrate function performs the integration sequentially
+    """
+    width = b - a  # integration width
+    N = max(4, Int(width / step_width))  # N at least equals 4
+    step = width / N
+    x = a + 0.5 * step
+    out = 0
+    while x < b
+        out += step * F(x, d)
+        x += step
+    end
+    return out
+end
+
+function _g_minus_small_time(x::Real, d::RatcliffDDM, N::Int)
+    """
+    calculate the densities g- for the first exit time for small time
+    """
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    DT = x - τ #make into decision time
+
+    sum = 0.0
+    for i = -N:N÷2
+        d = 2*i + z
+        sum += exp(-d*d / (2*DT)) * d
+    end
+    return sum / sqrt(2π*DT*DT*DT)
+end
+
+function _g_minus_large_time(x::Real, d::RatcliffDDM, N::Int)
+    """
+    calculate the densities g- for the first exit time for large time values
+    """
+    DT = x - τ #make into decision time
+
+    sum = 0.0
+    for i = 1:N
+        d = i * π
+        sum += exp(-0.5 * d*d * DT) * sin(d*z) * i
+    end
+    return sum * π
+end
+
+function _g_minus_no_var(x::Real, d::RatcliffDDM)
+    """
+    calculates the density g- when there is no variability in the input parameters.
+    """
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    DT = x - τ #make into decision time
+
+    N_small = 0
+    N_large = 0
+    simple = 0.0
+    factor = exp(-α*z*ν - 0.5*ν*ν*DT) / (α*α)  # Front term in A3
+    ϵ = ϵ / factor
+
+    ta = x / (α*α)
+
+    N_large = ceil(1 / (π*sqrt(DT)))
+    if π*ta*ϵ < 1
+        N_large = max(N_large, ceil(sqrt(-2*log(π*ta*ϵ) / (π*π*ta))))
+    end
+
+    if 2*sqrt(2*π*ta)*ϵ < 1
+        N_small = ceil(max(sqrt(ta) + 1, 2 + sqrt(-2*ta*log(2*ϵ*sqrt(2*π*ta)))))
+    else
+        N_small = 2
+    end
+
+    if N_small < N_large
+        simple = _g_minus_small_time(x / (α*α), z, N_small)
+    else
+        simple = _g_minus_large_time(x / (α*α), z, N_large)
+    end
+
+    out = isinf(factor) ? 0 : (factor * simple)
+    return out
+end
+
+function _integral_v_g_minus(Real::x, d::RatcliffDDM; ϵ::Real = 1e-6)
+    """
+    calculates the integral of the density g- over the variable ν for a given set of input parameters. It takes into account variability in the parameters η
+    """
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    DT = x - τ #make into decision time
+
+    N_small = 0
+    N_large = 0
+    simple = 0.0
+    factor = 1 / (α*α * sqrt(DT * η*η + 1)) *
+        exp(-0.5 * (ν*ν*DT + 2*ν*α*z - α*z*α*z*η*η) / (DT*η*η+1))
+    ϵ = ϵ / factor
+
+    ta = DT / (α*α)
+
+    N_large = ceil(1 / (π*sqrt(DT)))
+    if π*ta*ϵ < 1
+        N_large = max(N_large, ceil(sqrt(-2*log(π*ta*ϵ) / (π*π*ta))))
+    end
+
+    if 2*sqrt(2*π*ta)*ϵ < 1
+        N_small = ceil(max(sqrt(ta)+1, 2+sqrt(-2*ta*log(2*ϵ*sqrt(2*π*ta))))) 
+    else
+        N_small = 2
+    end
+
+    if isinf(factor)
+        out = 0
+    elseif η == 0
+        out = _g_minus_no_var(x, d)
+    elseif N_small < N_large
+        simple = _g_minus_small_time(x/(α*α), d, N_small)
+        out = factor * simple
+    else
+        simple = _g_minus_large_time(x/(a*a), d, N_large)
+        out = factor * simple
+    end
+
+    return out
+end
+
+function _integral_z_g_minus(x::Real, d::RatcliffDDM)
+    """
+    calculate the integral of integral_v_g_minus over the variable zr for a given set of input parameters. They handle variability in the parameter sz
+    """
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    DT = x - τ #make into decision time
+
+    out = 0.0
+    
+    if DT <= 0  # if DT <= 0
+        out = 0
+    elseif sz == 0  # this should be sz
+        out = _integral_v_g_minus(x, d)
+    else
+        a = z - 0.5*sz  # zr - 0.5*szr; uniform variability
+        b = z + 0.5*sz  # zr + 0.5*szr
+        step_width = TUNE_INT_Z 
+        out = _integrate(integral_v_g_minus, d, a, b, step_width) / sz
+    end
+
+    return out
+end
+
+function _integral_τ_g_minus(x::Real, d::RatcliffDDM)
+    """
+    calculate the integral of integral_z_g_minus over the variable τ for a given set of input parameters. They handle variability in the parameter st
+    """
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    DT = x - τ #make into decision time
+
+    out = 0.0
+    if st == 0
+        out = _integral_z_g_minus(x, d)  # should send t as RT
+    else
+        a = DT - 0.5*st  # DT - 0.5*st
+        b = DT + 0.5*st  # DT + 0.5*st
+        step_width = TUNE_INT_T0
+        out = _integrate(integral_z_g_minus, d, a, b, step_width) / sts
+    end
+
+    return out
+end
 
 """
     rand(dist::RatcliffDDM)
