@@ -85,29 +85,29 @@ end
 #     return pdf_sv(d, rt; ϵ)
 # end
 
-function pdf_sv(d::RatcliffDDM{T}, rt::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _pdf_sv(d::RatcliffDDM{T}, rt::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
     if η == 0
-        return pdf(SequentialSamplingModels.DDM(ν, α, τ, z), rt; ϵ)
+        return _pdf(SequentialSamplingModels.DDM(ν, α, τ, z), rt; ϵ)
     end
     # if isless(ν,0)
     #     return pdf(SequentialSamplingModels.DDM(ν, α, τ, z), t; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*t ) / (2*(η^2)*t+2)  ) - log(sqrt((η^2)*t+1)) + ν*α*z + (ν^2)*t*0.5
     # end
     # return pdf(SequentialSamplingModels.DDM(ν, α, τ, z), t; ϵ)  + (  ( (α*(1-z)*η)^2 + 2*ν*α*(1-z) - (ν^2)*t ) / (2*(η^2)*t+2)  ) - log(sqrt((η^2)*t+1)) - ν*α*(1-z) + (ν^2)*t*0.5
-    return pdf(SequentialSamplingModels.DDM(ν, α, τ, z), rt; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*(rt-τ) ) / (2*(η^2)*(rt-τ)+2)  ) - log(sqrt((η^2)*(rt-τ)+1)) + ν*α*z + (ν^2)*(rt-τ)*0.5
+    return _pdf(SequentialSamplingModels.DDM(ν, α, τ, z), rt; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*(rt-τ) ) / (2*(η^2)*(rt-τ)+2)  ) - log(sqrt((η^2)*(rt-τ)+1)) + ν*α*z + (ν^2)*(rt-τ)*0.5
 end
 
 function pdf(d::RatcliffDDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z, η, sz, st, σ) = params(d)
-        return pdf(RatcliffDDM(-ν, α, τ, 1-z, η, sz, st, σ), rt; ϵ)
+        return _pdf(RatcliffDDM(-ν, α, τ, 1-z, η, sz, st, σ), rt; ϵ)
     end
-    return pdf(d, rt; ϵ)
+    return _pdf(d, rt; ϵ)
 end
 
 #use numerical integration for variability in non-decision time and bias (Ratcliff and Tuerlinckx, 2002)
-function pdf(d::RatcliffDDM{T}, rt; ϵ::Real = 1.0e-12, n_st::Int=2, n_sz::Int=2)  where {T<:Real}
+function _pdf(d::RatcliffDDM{T}, rt; ϵ::Real = 1.0e-12, n_st::Int=2, n_sz::Int=2)  where {T<:Real}
     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
     if τ ≥ rt
@@ -123,7 +123,7 @@ function pdf(d::RatcliffDDM{T}, rt; ϵ::Real = 1.0e-12, n_st::Int=2, n_sz::Int=2
 
     if sz==0
         if st==0 #sv=0,sz=0,st=0
-            return pdf_sv(d, rt; ϵ)
+            return  _pdf_sv(d, rt; ϵ)
         else #sv=0,sz=0,st=$
             return _simpson_1D(rt, ν, η, α, z, τ, ϵ, z, z, 0, τ-st/2., τ+st/2., n_st)
         end
@@ -160,7 +160,7 @@ function _simpson_1D(x::Real, ν::Real, η::Real, α::Real, z::Real, τ::Real, �
         ub_z = z
     end
 
-    S =  pdf_sv(RatcliffDDM(ν, α, lb_t, lb_z, η, 0, 0, 1), x; ϵ)
+    S =  _pdf_sv(RatcliffDDM(ν, α, lb_t, lb_z, η, 0, 0, 1), x; ϵ)
     
     y = 0 
     z_tag = 0 
@@ -170,7 +170,7 @@ function _simpson_1D(x::Real, ν::Real, η::Real, α::Real, z::Real, τ::Real, �
         z_tag = lb_z + hz * i
         t_tag = lb_t + ht * i
        
-        y = pdf_sv(RatcliffDDM(ν, α, t_tag, z_tag, η, 0, 0, 1), x; ϵ)
+        y = _pdf_sv(RatcliffDDM(ν, α, t_tag, z_tag, η, 0, 0, 1), x; ϵ)
            
         if isodd(i)
             S += 4 * y
