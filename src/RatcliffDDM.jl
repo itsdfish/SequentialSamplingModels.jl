@@ -1,9 +1,9 @@
 """
-    RatcliffDDM 
+    RatcliffDDM{T<:Real} <: SSM2D
 
     Model object for the Ratcliff Diffusion Model.
 
-# Fields
+# Parameters
     - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
     - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
     - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
@@ -12,6 +12,20 @@
     - `sz`: across-trial-variability of starting point. Typical range: 0 < sz < 0.5. Default is 0.
     - `st`: across-trial-variability of non-decision time. Typical range: 0 < st < 0.2. Default is 0.
     - `σ`: diffusion noise constant. Default is 1.
+
+# Constructors 
+
+    RatcliffDDM(ν, α, τ, z, η, sz, st, σ)
+    
+    RatcliffDDM(; ν = 1.00,
+    α = 0.80,
+    τ = 0.30,
+    z = 0.25,
+    η = 0.16,
+    sz = 0.05,
+    st = 0.10,
+    σ = 1.0
+    )
 
 # Example 
 
@@ -28,55 +42,25 @@ loglike = logpdf.(dist, choice, rt)
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
 Ratcliff, R. (1978). A theory of memory retrieval. Psychological Review, 85, 59–108. https://doi.org/10.1037/0033-295X.85.2.59
 """
-mutable struct RatcliffDDM{T1,T2,T3,T4,T5,T6,T7,T8} <: SequentialSamplingModel
-    ν::T1
-    α::T2
-    τ::T3
-    z::T4
-    η::T5
-    sz::T6
-    st::T7
-    σ::T8
+mutable struct RatcliffDDM{T<:Real} <: SSM2D
+    ν::T
+    α::T
+    τ::T
+    z::T
+    η::T
+    sz::T
+    st::T
+    σ::T
 end
 
-Base.broadcastable(x::RatcliffDDM) = Ref(x)
+function RatcliffDDM(ν, α, τ, z, η, sz, st, σ)
+    return RatcliffDDM(promote(ν, α, τ, z, η, sz, st, σ)...)
+end
 
 function params(d::RatcliffDDM)
     (d.ν, d.α, d.τ, d.z,d.η, d.sz, d.st, d.σ)    
 end
 
-loglikelihood(d::RatcliffDDM, data) = sum(logpdf.(d, data...))
-
-"""
-RatcliffDDM(; ν = 1.00,
-    α = 0.80,
-    τ = 0.30,
-    z = 0.25,
-    η = 0.16,
-    sz = 0.05,
-    st = 0.10,
-    σ = 1.0
-    )
-
-Constructor for the Ratcliff Diffusion Model. 
-    
-# Keywords 
-- `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-- `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
-- `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
-- `η`:  across-trial-variability of drift rate. Typical range: 0 < η < 2. Default is 0.
-- `sz`: across-trial-variability of starting point. Typical range: 0 < sz < 0.5. Default is 0.
-- `st`: across-trial-variability of non-decision time. Typical range: 0 < st < 0.2. Default is 0.
-- `σ`: diffusion noise constant. Default is 1.
-
-# Example 
-
-```julia
-using SequentialSamplingModels
-dist = RatcliffDDM(;ν = 1.00,α = 0.80,τ = 0.30,z = 0.25,η = 0.16,sz = 0.05,st = 0.10,σ = 1.0) 
-```
-"""
 function RatcliffDDM(; ν = 1.00,
     α = 0.80,
     τ = 0.30,
@@ -318,7 +302,7 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
     D = σ^2 / 2
 
     # Program specifications
-    ϵ = 2.220446049250313e-16  # precision from 1.0 to next double-precision number
+    ϵ = eps()  # precision from 1.0 to next double-precision number
     Δ = ϵ
 
     for n in 1:N
@@ -385,23 +369,13 @@ end
 function _rand_stochastic(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1, nsteps::Int=300, step_length::Int=0.01)
     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
-    if (ν < -5) || (ν > 5)
-        ν = sign(ν) * 5
-        warn("ν is not in the range [-5, 5], bounding drift rate to $Nu...")
-    end
-
-    if η > 3
-        warn("Standard deviation of drift rate is out of bounds, bounding drift rate to 3")
-        η = 3
-    end
-
     if η == 0
         η = 1e-16
     end
 
     # Initialize output vectors
-    rts = zeros(N)
-    choice = zeros(N)
+    choice = fill(0, N)
+    rt = fill(0.0, N)
 
     for n in 1:N
         random_walk = Array{Float64}(undef, nsteps)
