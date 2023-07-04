@@ -1,4 +1,3 @@
 Manifest.toml
 /temp
-/benchmark/*.json
-/benchmark/*.md./vscode
+/.vscode
