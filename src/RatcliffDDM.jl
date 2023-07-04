@@ -231,23 +231,23 @@ end
 
 logpdf(d::RatcliffDDM, data::Tuple) = logpdf(d, data...)
 
-########################################################################################################################################################################
-# Calculate Cumulative Distribution Function
-#
-# Computes Cumulative Distribution Function for the Ratcliff Diffusion model
-# using 6 Gaussian quadrature for numerical integration
-#
-#  References
-#     Tuerlinckx, F. (2004). The efficient computation of the
-#       cumulative distribution and probability density functions
-#       in the diffusion model, Behavior Research Methods,
-#       Instruments, & Computers, 36 (4), 702-716.#
-#
-# 
-# Converted from cdfdif.c C script by Joachim Vandekerckhove
-# See also https://ppw.kuleuven.be/okp/software/dmat/
-################################################################################################################################################################
-function cdf(d::RatcliffDDM,choice,rt,p_outlier; w_outlier::Real = 0.1, ϵ::Real = 1e-7)
+################################################################################
+# Calculate Cumulative Distribution Function                                   #
+#                                                                              # 
+# Computes Cumulative Distribution Function for the Ratcliff Diffusion model   #
+# using 6 Gaussian quadrature for numerical integration                        #
+#                                                                              # 
+#  References                                                                  #
+#     Tuerlinckx, F. (2004). The efficient computation of the                  #
+#       cumulative distribution and probability density functions              #
+#       in the diffusion model, Behavior Research Methods,                     #
+#       Instruments, & Computers, 36 (4), 702-716.                             #
+#                                                                              #
+# Converted from cdfdif.c C script by Joachim Vandekerckhove                   #
+# See also https://ppw.kuleuven.be/okp/software/dmat/                          #
+################################################################################
+
+function cdf(d::RatcliffDDM, choice, rt, p_outlier; w_outlier::Real = 0.1, ϵ::Real = 1e-7)
 
     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
@@ -293,7 +293,7 @@ function _cdf(d::RatcliffDDM{T}, choice,rt; ϵ::Real = 1e-7)  where {T<:Real}
     #note we need to make sure this is consistent in the all the relative bound models
     if choice == 2 #lower
         choice = 0
-    else if choice == 1 #upper
+    elseif choice == 1 #upper
         choice = 1
     end
 
@@ -591,12 +591,12 @@ function _rand_stochastic(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1, nsteps::
 end
 
 """
-    rand(dist::DDM, n_sim::Int)
+    rand(dist::RatcliffDDM, n_sim::Int)
 
-Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
+Generate `n_sim` random choice-rt pairs for the Ratcliff Diffusion Decision Model.
 
 # Arguments
-- `dist`: model object for the Drift Diffusion Model.
+- `dist`: model object for the Ratcliff DDM.
 - `n_sim::Int`: the number of simulated rts  
 """
 
