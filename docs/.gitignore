@@ -2,3 +2,4 @@ build/
 site/
 docs/build/
 Manifest.toml
+settings.json
