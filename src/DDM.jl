@@ -267,7 +267,7 @@ end
 """
     rand(dist::DDM)
 
-Generate a random rt for the Diffusion Decision Model (negative coding)
+Generate a random rt for the Diffusion Decision Model
 
 # Arguments
 - `dist`: model object for the Diffusion Decision Model. 

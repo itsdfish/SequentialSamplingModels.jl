@@ -234,237 +234,215 @@ logpdf(d::RatcliffDDM, data::Tuple) = logpdf(d, data...)
 ########################################################################################################################################################################
 # Calculate Cumulative Distribution Function
 #
-#  This source codes are adpated from Henrik Singmann's Density.h (rtdists) &  Voss & Voss's density.c (fast-dm).
+# Computes Cumulative Distribution Function for the Ratcliff Diffusion model
+# using 6 Gaussian quadrature for numerical integration
 #
-#  # References
+#  References
+#     Tuerlinckx, F. (2004). The efficient computation of the
+#       cumulative distribution and probability density functions
+#       in the diffusion model, Behavior Research Methods,
+#       Instruments, & Computers, 36 (4), 702-716.#
 #
-# - Singmann H, Brown S, Gretton M, Heathcote A (2022). _rtdists: Response Time Distributions_. Rpackage version 0.11-5, <https://CRAN.R-project.org/package=rtdists>.
-# - Voss, A., Rothermund, K., & Voss, J. (2004). Interpreting the parameters of the diffusion model: An empirical validation. *Memory and Cognition, 32(7)*, 1206-1220.
-# - Ratcliff, R. (1978). A theory of memory retrieval. *Psychology Review, 85(2)*, 59-108.
-# - Voss, A., Voss, J., & Lerche, V. (2015). Assessing cognitive processes with diffusion model analyses: A tutorial based on fast-dm-30. *Frontiers in Psychology, 6*, Article 336. https://doi.org/10.3389/fpsyg.2015.00336
-#
+# 
+# Converted from cdfdif.c C script by Joachim Vandekerckhove
+# See also https://ppw.kuleuven.be/okp/software/dmat/
 ################################################################################################################################################################
+function cdf(d::RatcliffDDM,choice,rt,p_outlier; w_outlier::Real = 0.1, ϵ::Real = 1e-7)
 
-TUNE_PDE_DT_MIN = 1e-6
-TUNE_PDE_DT_MAX = 1e-6
-TUNE_PDE_DT_SCALE = 0.0
-
-TUNE_DZ = 0.0
-TUNE_DV = 0.0
-TUNE_DT0 = 0.0
-
-TUNE_INT_T0 = 0
-TUNE_INT_Z = 0
-
-precision_set = 0
-
-function cdf(d::RatcliffDDM, choice, rt; ϵ::Real = 1.0e-12, precision::Real = 3)
-    if choice == 1
-        (ν, α, τ, z, η, sz, st, σ) = params(d)
-        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ, precision) #over the upper boundary (g_plus)
-    end
-
-    return cdf(d, rt; ϵ, precision)
-end
-
-# cumulative density function over the lower boundary (g_minus)
-function cdf(d::RatcliffDDM{T}, x::Real; ϵ::Real= 1.0e-6, precision::Real = 3) where {T<:Real}
-    if d.τ ≥ t
-        return T(NaN)
-    end
-    _set_precision(precision)
-    DT = x - τ - 0.5 * z
-    return _integral_τ_g_minus(x, d)
-end
-
-function _set_precision(precision::Real = 3)
-    """
-    Precision of calculation. 
-    Corresponds roughly to the number of decimals of the predicted CDFs that are calculated accurately. Default is 3.
-    The function adjusts various parameters used in the calculations based on the precision value. 	
-    """
-    global TUNE_PDE_DT_MIN = (-0.400825*precision-1.422813)^10
-    global TUNE_PDE_DT_MAX = (-0.627224*precision+0.492689)^10
-    global TUNE_PDE_DT_SCALE = (-1.012677*precision+2.261668)^10
-    global TUNE_DZ = (-0.5*precision-0.033403)^10
-    global TUNE_DV = (-1.0*precision+1.4)^10
-    global TUNE_DT0 = (-0.5*precision-0.323859)^10
-
-    global TUNE_INT_T0 = 0.089045 * exp(-1.037580*precision)
-    global TUNE_INT_Z = 0.508061 * exp(-1.022373*precision)
-  
-    global precision_set = 1
-end
-
-function _integrate(F::Function, d::RatcliffDDM, a::Int, b::Int, step_width::Real)
-    """
-    These functions perform numerical integration using a specified function, range, and step width. The integrate function performs the integration sequentially
-    """
-    width = b - a  # integration width
-    N = max(4, Int(width / step_width))  # N at least equals 4
-    step = width / N
-    x = a + 0.5 * step
-    out = 0
-    while x < b
-        out += step * F(x, d)
-        x += step
-    end
-    return out
-end
-
-function _g_minus_small_time(x::Real, d::RatcliffDDM, N::Int)
-    """
-    calculate the densities g- for the first exit time for small time
-    """
     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
-    DT = x - τ #make into decision time
+    #check arguments
+    # if p_outlier > 0
+    #     @assert maximum(abs.(x)) < (1./(2*w_outlier)) "1. / (2*w_outlier) must be smaller than RT"
+    # end
 
-    sum = 0.0
-    for i = -N:N÷2
-        d = 2*i + z
-        sum += exp(-d*d / (2*DT)) * d
+    # if (η < 0) || (α <=0 ) || (z < 0) || (z > 1) || (sz < 0) || (sz > 1) || (z+sz/2.>1) || \
+    # (z-sz/2.<0) || (τ-st/2.<0) || (τ<0) || (st < 0) || !_p_outlier_in_range(p_outlier)
+    #     error("At least one of the parameters is out of the support")
+    # end
+
+    size = length(rt)
+    y = zeros(Float64, size)
+    epsi = 1e-10
+
+    #transform parameters
+    α = α/10.
+    τ = τ
+    η = η/10. + epsi
+    z = z*(α/10.)
+    sz = sz*(α/10.) + epsi
+    st = st + epsi
+    ν = ν/10.
+
+    p_boundary = 0.0
+
+    for i in 1:size
+        y[i] = _cdf(d,rt[i],choice[i],p_boundary; ϵ)     
+        y[i] = (1 - p_boundary) + rt[i]*y[i]
+        #add p_outlier probability? 
+        #y[i] = _add_outlier_cdf(y[i], x[i], p_outlier, w_outlier)
     end
-    return sum / sqrt(2π*DT*DT*DT)
+
+    return y
 end
 
-function _g_minus_large_time(x::Real, d::RatcliffDDM, N::Int)
-    """
-    calculate the densities g- for the first exit time for large time values
-    """
-    DT = x - τ #make into decision time
-
-    sum = 0.0
-    for i = 1:N
-        d = i * π
-        sum += exp(-0.5 * d*d * DT) * sin(d*z) * i
-    end
-    return sum * π
-end
-
-function _g_minus_no_var(x::Real, d::RatcliffDDM)
-    """
-    calculates the density g- when there is no variability in the input parameters.
-    """
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
-
-    DT = x - τ #make into decision time
-
-    N_small = 0
-    N_large = 0
-    simple = 0.0
-    factor = exp(-α*z*ν - 0.5*ν*ν*DT) / (α*α)  # Front term in A3
-    ϵ = ϵ / factor
-
-    ta = x / (α*α)
-
-    N_large = ceil(1 / (π*sqrt(DT)))
-    if π*ta*ϵ < 1
-        N_large = max(N_large, ceil(sqrt(-2*log(π*ta*ϵ) / (π*π*ta))))
-    end
-
-    if 2*sqrt(2*π*ta)*ϵ < 1
-        N_small = ceil(max(sqrt(ta) + 1, 2 + sqrt(-2*ta*log(2*ϵ*sqrt(2*π*ta)))))
-    else
-        N_small = 2
-    end
-
-    if N_small < N_large
-        simple = _g_minus_small_time(x / (α*α), z, N_small)
-    else
-        simple = _g_minus_large_time(x / (α*α), z, N_large)
-    end
-
-    out = isinf(factor) ? 0 : (factor * simple)
-    return out
-end
-
-function _integral_v_g_minus(Real::x, d::RatcliffDDM; ϵ::Real = 1e-6)
-    """
-    calculates the integral of the density g- over the variable ν for a given set of input parameters. It takes into account variability in the parameters η
-    """
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
-
-    DT = x - τ #make into decision time
-
-    N_small = 0
-    N_large = 0
-    simple = 0.0
-    factor = 1 / (α*α * sqrt(DT * η*η + 1)) *
-        exp(-0.5 * (ν*ν*DT + 2*ν*α*z - α*z*α*z*η*η) / (DT*η*η+1))
-    ϵ = ϵ / factor
-
-    ta = DT / (α*α)
-
-    N_large = ceil(1 / (π*sqrt(DT)))
-    if π*ta*ϵ < 1
-        N_large = max(N_large, ceil(sqrt(-2*log(π*ta*ϵ) / (π*π*ta))))
-    end
-
-    if 2*sqrt(2*π*ta)*ϵ < 1
-        N_small = ceil(max(sqrt(ta)+1, 2+sqrt(-2*ta*log(2*ϵ*sqrt(2*π*ta))))) 
-    else
-        N_small = 2
-    end
-
-    if isinf(factor)
-        out = 0
-    elseif η == 0
-        out = _g_minus_no_var(x, d)
-    elseif N_small < N_large
-        simple = _g_minus_small_time(x/(α*α), d, N_small)
-        out = factor * simple
-    else
-        simple = _g_minus_large_time(x/(a*a), d, N_large)
-        out = factor * simple
-    end
-
-    return out
-end
-
-function _integral_z_g_minus(x::Real, d::RatcliffDDM)
-    """
-    calculate the integral of integral_v_g_minus over the variable zr for a given set of input parameters. They handle variability in the parameter sz
-    """
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
-
-    DT = x - τ #make into decision time
-
-    out = 0.0
+function _cdf(d::RatcliffDDM{T}, choice,rt; ϵ::Real = 1e-7)  where {T<:Real}
     
-    if DT <= 0  # if DT <= 0
-        out = 0
-    elseif sz == 0  # this should be sz
-        out = _integral_v_g_minus(x, d)
-    else
-        a = z - 0.5*sz  # zr - 0.5*szr; uniform variability
-        b = z + 0.5*sz  # zr + 0.5*szr
-        step_width = TUNE_INT_Z 
-        out = _integrate(integral_v_g_minus, d, a, b, step_width) / sz
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+    #Explcit recode of the choice from 2(lower) & 1(upper) to 0(lower) and 1(upper)
+    #note we need to make sure this is consistent in the all the relative bound models
+    if choice == 2 #lower
+        choice = 0
+    else if choice == 1 #upper
+        choice = 1
     end
 
-    return out
+    # Initializing variables
+    a2 = α*α
+    Z_U = (1-choice)*z+choice*(α-z)+sz/2
+    Z_L = (1-choice)*z+choice*(α-z)-sz/2
+    lower_t = τ-st/2
+    upper_t = 0.0
+    Δ = 1e-29
+    min_rt=0.001
+    v_max = 5000 # maximum number of terms in a partial sum approximating infinite series
+
+    Fnew = 0.0
+    sum_z=0.0
+    sum_ν=0.0
+    p1 = 0.0
+    p0 = 0.0
+    sum_hist = zeros(3)
+    denom = 0.0
+    sifa = 0.0
+    upp = 0.0
+    low = 0.0
+    fact = 0.0
+    exdif = 0.0
+    su = 0.0
+    sl = 0.0
+    zzz = 0.0
+    ser = 0.0
+    nr_ν = 6
+    nr_z = 6
+
+    # Defining Gauss-Hermite abscissae and weights for numerical integration
+    gk = [-2.3506049736744922818,-1.3358490740136970132,-.43607741192761650950,.43607741192761650950,1.3358490740136970132,2.3506049736744922818]
+    w_gh = [.45300099055088421593e-2,.15706732032114842368,.72462959522439207571,.72462959522439207571,.15706732032114842368,.45300099055088421593e-2]
+    gz = [-.93246951420315193904,-.66120938646626381541,-.23861918608319693247,.23861918608319712676,.66120938646626459256,.93246951420315160597]
+    w_g = [.17132449237917049545,.36076157304813916138,.46791393457269092604,.46791393457269092604,.36076157304813843973,.17132449237917132812]
+
+    # Adjusting Gauss-Hermite abscissae and weights
+    for i=1:nr_ν
+        gk[i] = 1.41421356237309505*gk[i]*η+ν
+        w_gh[i] = w_gh[i]/1.772453850905515882
+    end
+    for i=1:nr_z
+        gz[i] = (.5*sz*gz[i])+z
+    end
+
+    #   numerical integration
+    for i=1:nr_z
+        sum_ν=0.0
+            #   numerical integration 
+        for m=1:nr_ν
+            if abs(gk[m])>ϵ
+                sum_ν+=(exp(-200*gz[i]*gk[m])-1)/(exp(-200*α*gk[m])-1)*w_gh[m]
+            else
+                sum_ν+=gz[i]/α*w_gh[m]
+            end
+        end
+        sum_z+=sum_ν*w_g[i]/2
+    end
+    prob = sum_z
+
+    if (rt-τ+st/2 > min_RT) # is t larger than lower boundary τ distribution?
+        upper_t = min(rt, τ+st/2)
+        p1 = prob*(upper_t-lower_t)/st # integrate probability with respect to t
+        p0 = (1-prob)*(upper_t-lower_t)/st
+        if rt > τ+st/2 # is t larger than upper boundary Ter distribution?
+            sum_hist = zeros(3)
+            for v in 1:v_max # infinite series
+                sum_hist = circshift(sum_hist, 1)
+                sum_ν = 0
+                sifa = π*v/α
+                for m in 1:nr_ν # numerical integration with respect to xi
+                    denom = (100*gk[m]*gk[m] + (π*π)*(v*v)/(100*a2))
+                    upp = exp((2*choice-1)*Z_U*gk[m]*100 - 3*log(denom) + log(w_gh[m]) - 2*log(100))
+                    low = exp((2*choice-1)*Z_L*gk[m]*100 - 3*log(denom) + log(w_gh[m]) - 2*log(100))
+                    fact = upp*((2*choice-1)*gk[m]*sin(sifa*Z_U)*100 - sifa*cos(sifa*Z_U)) - 
+                           low*((2*choice-1)*gk[m]*sin(sifa*Z_L)*100 - sifa*cos(sifa*Z_L))
+                    exdif = exp((-.5*denom*(rt-upper_t)) + log(1-exp(-.5*denom*(upper_t-lower_t))))
+                    sum_ν += fact*exdif
+                end
+                sum_hist[3] = sum_hist[2] + v*sum_ν
+                if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
+                    break
+                end
+            end
+
+            Fnew = (p0*(1-choice) + p1*choice) - sum_hist[3]*4*π/(a2*sz*st)
+            # cumulative distribution function for t and x
+        elseif t <= τ+st/2 # is t lower than upper boundary Ter distribution?
+            sum_ν = 0
+            for m in 1:nr_ν
+                if abs(gk[m]) > ϵ
+                    sum_z = 0
+                    for i in 1:nr_z
+                        zzz = (α - gz[i])*choice + gz[i]*(1 - choice)
+                        ser = -((α*a2)/((1 - 2*choice)*gk[m]*π*.01))*sinh(zzz*(1 - 2*x)*gk[m]/.01)/
+                              (sinh((1 - 2*choice)*gk[m]*α/.01)^2) +
+                              (zzz*a2)/((1 - 2*choice)*gk[m]*π*.01)*cosh((α - zzz)*(1 - 2*choice)*gk[m]/.01)/
+                              sinh((1 - 2*choice)*gk[m]*α/.01)
+                        sum_hist = zeros(3)
+                        for v in 1:v_max
+                            sum_hist = circshift(sum_hist, 1)
+                            sifa = π*v/α
+                            denom = (gk[m]*gk[m]*100 + (π*v)*(π*v)/(a2*100))
+                            sum_hist[3] = sum_hist[2] + v*sin(sifa*zzz)*exp(-.5*denom*(rt - lower_t) - 2*log(denom))
+                            if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
+                                break
+                            end
+                        end
+                        sum_z += .5*w_g[i]*(ser - 4*sum_hist[3])*(π/100)/(a2*st)*exp((2*choice - 1)*zzz*gk[m]*100)
+                    end
+                else
+                    sum_hist = zeros(3)
+                    su = -(Z_U*Z_U)/(12*a2) + (Z_U*Z_U*Z_U)/(12*α*a2) - (Z_U*Z_U*Z_U*Z_U)/(48*a2*a2)
+                    sl = -(Z_L*Z_L)/(12*a2) + (Z_L*Z_L*Z_L)/(12*α*a2) - (Z_L*Z_L*Z_L*Z_L)/(48*a2*a2)
+                    for v in 1:v_max
+                        sum_hist = circshift(sum_hist, 1)
+                        sifa = π*v/α
+                        denom = (π*v)*(π*v)/(a2*100)
+                        sum_hist[3] = sum_hist[2] + 1/(π*π*π*π*v*v*v*v)*(cos(sifa*Z_L) - cos(sifa*Z_U))*
+                                      exp(-.5*denom*(rt - lower_t))
+                        if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
+                            break
+                        end
+                    end
+                    sum_z = 400*a2*α*(sl - su - sum_hist[3])/(st*sz)
+                end
+                sum_ν += sum_z*w_gh[m]
+            end
+            Fnew = (p0*(1 - choice) + p1*choice) - sum_ν
+        end
+    elseif rt - τ + st/2 <= min_RT # is t lower than lower boundary Ter distr?
+        Fnew = 0
+    end
+    
+    Fnew = Fnew > Δ ? Fnew : 0
+
+    return    Fnew
+
 end
 
-function _integral_τ_g_minus(x::Real, d::RatcliffDDM)
-    """
-    calculate the integral of integral_z_g_minus over the variable τ for a given set of input parameters. They handle variability in the parameter st
-    """
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
+function _add_outlier_cdf(y::Real, x::Real, p_outlier::Real; w_outlier::Real = 0.1)
+    #Ratcliff and Tuerlinckx, 2002 containment process
+    return y * (1 - p_outlier) + (x + (1. / (2 * w_outlier))) * w_outlier * p_outlier
+end
 
-    DT = x - τ #make into decision time
-
-    out = 0.0
-    if st == 0
-        out = _integral_z_g_minus(x, d)  # should send t as RT
-    else
-        a = DT - 0.5*st  # DT - 0.5*st
-        b = DT + 0.5*st  # DT + 0.5*st
-        step_width = TUNE_INT_T0
-        out = _integrate(integral_z_g_minus, d, a, b, step_width) / sts
-    end
-
-    return out
+function _p_outlier_in_range(p_outlier)
+    return (p_outlier >= 0) & (p_outlier <= 1)
 end
 
 """
@@ -485,7 +463,6 @@ Generate a random choice and rt for the Ratcliff Diffusion Model
     Behavior Research Methods, Instruments, & Computers, 33, 443-456.
 
     Converted from Rhddmjagsutils.R R script by Kianté Fernandez
-
     See also https://github.com/kiante-fernandez/Rhddmjags.
 """
 function rand(rng::AbstractRNG, d::RatcliffDDM)
@@ -503,9 +480,8 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
     end
 
     # Initialize output vectors
-    result = zeros(N)
-    T = zeros(N)
-    XX = zeros(N)
+    choice = fill(0, N)
+    rt = fill(0.0, N)
 
     # Called sigma in 2001 paper
     D = σ^2 / 2
@@ -559,12 +535,12 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
             dir_ = startpos + dir_ * radius
             ndt = τ - st / 2 + st * rand()
             if (dir_ + Δ) > Aupper
-                T[n] = ndt + totaltime
-                XX[n] = 1
+                rt[n] = ndt + totaltime
+                choice[n] = 1
                 finish = 1
             elseif (dir_ - Δ) < Alower
-                T[n] = ndt + totaltime
-                XX[n] = 2
+                rt[n] = ndt + totaltime
+                choice[n] = 2
                 finish = 1
             else
                 startpos = dir_
@@ -572,7 +548,7 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
             end
         end
     end
-    return (choice=XX,rt=T)
+    return (choice=choice,rt=rt)
 end
 
 function _rand_stochastic(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1, nsteps::Int=300, step_length::Int=0.01)
@@ -627,5 +603,3 @@ Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
 function rand(rng::AbstractRNG, d::RatcliffDDM, n_sim::Int)
     return _rand_rejection(rng, d, N = n_sim)
 end
-
-sampler(rng::AbstractRNG, d::RatcliffDDM) = rand(rng::AbstractRNG, d::RatcliffDDM)
