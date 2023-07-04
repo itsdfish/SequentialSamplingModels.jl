@@ -286,7 +286,7 @@ function cdf(d::RatcliffDDM, choice, rt, p_outlier; w_outlier::Real = 0.1, ϵ::R
     return y
 end
 
-function _cdf(d::RatcliffDDM{T}, choice,rt; ϵ::Real = 1e-7)  where {T<:Real}
+function _cdf(d::RatcliffDDM{T}, choice, rt, prob; ϵ::Real = 1e-7)  where {T<:Real}
     
     (ν, α, τ, z, η, sz, st, σ) = params(d)
     #Explcit recode of the choice from 2(lower) & 1(upper) to 0(lower) and 1(upper)
@@ -356,7 +356,7 @@ function _cdf(d::RatcliffDDM{T}, choice,rt; ϵ::Real = 1e-7)  where {T<:Real}
     end
     prob = sum_z
 
-    if (rt-τ+st/2 > min_RT) # is t larger than lower boundary τ distribution?
+    if (rt-τ+st/2 > min_rt) # is t larger than lower boundary τ distribution?
         upper_t = min(rt, τ+st/2)
         p1 = prob*(upper_t-lower_t)/st # integrate probability with respect to t
         p0 = (1-prob)*(upper_t-lower_t)/st
@@ -426,7 +426,7 @@ function _cdf(d::RatcliffDDM{T}, choice,rt; ϵ::Real = 1e-7)  where {T<:Real}
             end
             Fnew = (p0*(1 - choice) + p1*choice) - sum_ν
         end
-    elseif rt - τ + st/2 <= min_RT # is t lower than lower boundary Ter distr?
+    elseif rt - τ + st/2 <= min_rt # is t lower than lower boundary Ter distr?
         Fnew = 0
     end
     
