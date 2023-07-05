@@ -27,9 +27,6 @@ module SequentialSamplingModels
     import DynamicPPL: vectorize
     import StatsAPI: params
 
-    export MixedMultivariateDistribution
-    export SSM1D
-    export SSM2D
     export AbstractaDDM
     export aDDM
     export DDM
@@ -38,7 +35,9 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
-    export RatcliffDDM
+    export MixedMultivariateDistribution
+    export SSM1D
+    export SSM2D
     export Wald
     export WaldMixture 
 
@@ -62,7 +61,7 @@ module SequentialSamplingModels
     include("DiffusionRace.jl")
     include("AttentionalDiffusion.jl")
     include("maaDDM.jl")
-    include("KDE.jl")
+    # include("KDE.jl")
     include("LCA.jl")
     include("DDM.jl")
     include("RatcliffDDM.jl")
