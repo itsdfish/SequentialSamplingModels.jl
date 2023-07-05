@@ -72,7 +72,7 @@ sz = 0.05
 Now that values have been assigned to the parameters, we will pass them to `RatcliffDDM` to generate the model object.
 
 ```@example RatcliffDDM 
-dist = DDM(ν, α, τ, z)
+dist = RatcliffDDM(ν, α, τ, z, η, sz, st, σ)
 ```
 
 ## Simulate Model

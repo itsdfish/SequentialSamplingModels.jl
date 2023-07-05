@@ -44,6 +44,8 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
+    export MixedMultivariateDistribution
+    export RatcliffDDM
     export SSM1D
     export SSM2D
     export ContinuousMultivariateSSM
