@@ -80,7 +80,7 @@ choice, rt = rand(dist, 10_000)
 histogram(layout=(2, 1), xlabel="Reaction Time", ylabel="Frequency", xlims = (0,1),
     grid=false, ylims = (0, 650))
 histogram!(rt[choice.==1], subplot=1, color=:grey, leg=false, bins=200)
-histogram!(rt[choice.==2], subplot=2, color=:darkred, leg=false, bins=200)
+histogram!(rt[choice.==2], subplot=2, color=:grey, leg=false, bins=200)
 ```
 
 # References

@@ -30,9 +30,9 @@ A lognormal race model object.
 ```julia
 using SequentialSamplingModels
 dist = LNR(μ=[-2,-3], σ=1.0, ϕ=.3)
-data = rand(dist, 10)
-like = pdf.(dist, data)
-loglike = logpdf.(dist, data)
+choice,rt = rand(dist, 10)
+like = pdf.(dist, choice, rt)
+loglike = logpdf.(dist, choice, rt)
 ```
 # References
 

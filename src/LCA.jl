@@ -166,12 +166,3 @@ function inhibit(x, i)
     end
     return v
 end
-
-function make_kdes(sim_data)
-    ns = length.(sim_data)
-    probs = ns ./ sum(ns)
-    kdes = kernel.(sim_data)
-    dists = InterpKDE.(kdes)
-    return dists, probs
-end
-

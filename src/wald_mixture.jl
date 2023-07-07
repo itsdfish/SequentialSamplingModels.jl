@@ -19,7 +19,7 @@
 
 ```julia
 using SequentialSamplingModels
-dist = WaldMixture(υ=3.0, σ=.2, α=.5, θ=.130)
+dist = WaldMixture(;ν=3.0, σ=.2, α=.5, θ=.130)
 rt = rand(dist, 10)
 like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)

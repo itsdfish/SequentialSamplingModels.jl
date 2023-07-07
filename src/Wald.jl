@@ -3,11 +3,11 @@ loglikelihood(d::AbstractWald, data::AbstractArray{T,1}) where {T} = sum(logpdf.
 """
     Wald{T<:Real} <: AbstractWald
 
-A model object for the Wald model.
+A model object for the Wald model, also known as the inverse Gaussian model.
 
 # Parameters 
 
-- `υ`: drift rate
+- `ν`: drift rate
 - `α`: decision threshold
 - `θ`: a encoding-response offset
 
@@ -21,11 +21,15 @@ A model object for the Wald model.
 
 ```julia
 using SequentialSamplingModels
-dist = Wald(υ=3.0, α=.5, θ=.130)
+dist = Wald(ν=3.0, α=.5, θ=.130)
 rt = rand(dist, 10)
 like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)
 ```
+# References
+Anders, R., Alario, F., & Van Maanen, L. (2016). The shifted Wald distribution for response time data analysis. Psychological methods, 21(3), 309.
+
+Folks, J. L., & Chhikara, R. S. (1978). The inverse Gaussian distribution and its statistical application—a review. Journal of the Royal Statistical Society Series B: Statistical Methodology, 40(3), 263-275.
 """
 struct Wald{T<:Real} <: AbstractWald
     ν::T

@@ -35,7 +35,6 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
-    export MixedMultivariateDistribution
     export SSM1D
     export SSM2D
     export Wald
@@ -61,7 +60,6 @@ module SequentialSamplingModels
     include("DiffusionRace.jl")
     include("AttentionalDiffusion.jl")
     include("maaDDM.jl")
-    # include("KDE.jl")
     include("LCA.jl")
     include("DDM.jl")
 end
