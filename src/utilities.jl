@@ -20,6 +20,8 @@ abstract type AbstractWald <: SSM1D end
 
 abstract type AbstractaDDM <: SSM2D end
 
+abstract type Simulator <: SSM2D end
+
 minimum(d::SSM1D) = 0.0
 maximum(d::SSM1D) = Inf
 

@@ -35,6 +35,7 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
+    export MDFT
     export SSM1D
     export SSM2D
     export Wald
@@ -62,4 +63,5 @@ module SequentialSamplingModels
     include("maaDDM.jl")
     include("LCA.jl")
     include("DDM.jl")
+    include("MDFT.jl")
 end

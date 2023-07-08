@@ -1,5 +1,5 @@
 """
-    LCA{T<:Real} <: SSM2D
+    LCA{T<:Real} <: Simulator
 
 A model type for the Leaky Competing Accumulator. 
     
@@ -44,7 +44,7 @@ choices,rts = rand(dist, 500)
 
 Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The leaky, competing accumulator model. Psychological Review, 108 3, 550–592. https://doi.org/10.1037/0033-295X.108.3.550
 """
-mutable struct LCA{T<:Real} <: SSM2D
+mutable struct LCA{T<:Real} <: Simulator
     ν::Vector{T}
     α::T
     β::T
@@ -83,8 +83,8 @@ Generate a random choice-rt pair for the Leaky Competing Accumulator.
 # Arguments
 - `dist`: model object for the Leaky Competing Accumulator. 
 """
-function rand(rng::AbstractRNG, dist::LCA)
-    # number of trials 
+function rand(rng::AbstractRNG, dist::Simulator)
+    # number of alternatives 
     n = length(dist.ν)
     # evidence for each alternative
     x = fill(0.0, n)
@@ -104,7 +104,7 @@ Generate `n_sim` random choice-rt pairs for the Leaky Competing Accumulator.
 - `dist`: model object for the Leaky Competing Accumulator.
 - `n_sim::Int`: the number of simulated choice-rt pairs  
 """
-function rand(rng::AbstractRNG, dist::LCA, n_sim::Int)
+function rand(rng::AbstractRNG, dist::Simulator, n_sim::Int)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
@@ -118,7 +118,7 @@ function rand(rng::AbstractRNG, dist::LCA, n_sim::Int)
     return (;choices,rts) 
 end
 
-function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ)
+function simulate_trial(rng::AbstractRNG, dist::Simulator, x, Δμ, ϵ)
     (;Δt, α, τ) = dist
     t = 0.0
     while all(x .< α)
@@ -145,9 +145,9 @@ function increment!(rng::AbstractRNG, ν, β, λ, σ, Δt, x, Δμ, ϵ)
     return nothing
 end
 
-increment!(dist, x, Δμ, ϵ) = increment!(Random.default_rng(), dist, x, Δμ, ϵ)
+increment!(dist::Simulator, x, Δμ, ϵ) = increment!(Random.default_rng(), dist, x, Δμ, ϵ)
 
-function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ)
+function increment!(rng::AbstractRNG, dist::LCA, x, Δμ, ϵ)
     (;ν, β, λ, σ, Δt) = dist
     return increment!(rng, ν, β, λ, σ, Δt, x, Δμ, ϵ)
 end
