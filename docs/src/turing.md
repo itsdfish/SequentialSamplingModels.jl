@@ -173,9 +173,58 @@ In this case, the model matrix is pretty simple: the key part is the second colu
 
 ### Specify Turing Model
 
+In this model, the priors for the parameters that we want to vary between conditions are split, with one prior for their intercept (condition A) and another for the effect of condition B (relative to the intercept).
+
+Because the *drift* parameters is a vector of length 2, the priors for both the intercet and condition effect drifts have themselves to be a vector of 2 distributions, which is done via `filldist(prior_distribution, 2)`.
+
+Next, we need to specify these parameters as the result of a (linear) equation. Note that:
+- We have added a keyword argument, `condition`, to let the user pass the condition data vector.
+- Since we're computing parameters as the results of an equation, we need to use a `for` loop that loops through all the observations.
+- Because the priors for the drift is a `filldist` (i.e., a vector of distributions), we need to broadcast the addition (`.+` instead of `+`).
+
+```@example Turing
+@model function model_lba(data; min_rt=0.2, condition=nothing)
+    # Priors for auxiliary parameters
+    A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
+    tau ~ Uniform(0.0, min_rt)
+
+    # Priors for k
+    k_intercept ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
+    k_condition ~ Normal(0, 0.05)
+
+    # Priors for coefficients
+    drift_intercept ~ filldist(Normal(0, 1), 2)
+    drift_condition ~ filldist(Normal(0, 1), 2)
+
+    for i in 1:length(data)
+        drifts = drift_intercept .+ drift_condition * condition[i]
+        k = k_intercept + k_condition * condition[i]
+        data[i] ~ LBA(; τ=tau, A=A, k=k, ν=drifts)
+    end
+end
+```
+
+Importantly, although we have the data as a dataframe, we will need to convert to a tuple, as it is the shape that the `LBA()` distribution expects. However, since we're iterating on each observation, we need to come up with an indexable version of the data: a **vector of tuples**.
+
+```@example Turing
+# Format the data to match the input type
+data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
+```
+
+### Prior Predictive Check
+
+#### Sample from Priors
+
+Before we fit the model, we want to inspect our priors to make sure that they are okay. To do that, we sample the model from priors only. Noe that `condition` is supplied as the 2nd column of the model matrix.
+
+```@example Turing
+chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(), 10_000)
+StatsPlots.plot(chain; size=(600, 2000))
+```
 
 
-**WIP.**
+
+
 
 
 ## Random Effects
