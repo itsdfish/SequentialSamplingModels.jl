@@ -64,7 +64,7 @@ Finally, we perform parameter estimation with `sample()`, which takes the model,
 
 ```@example Turing
 # Estimate parameters
-chain = sample(model(data), NUTS(1000, .85), MCMCThreads(), 1000, 4)
+chain = sample(model_lba(data), NUTS(1000, .85), MCMCThreads(), 1000, 4)
 ```
 
 ### Posterior Summary
@@ -113,3 +113,25 @@ hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)
 hist
 ```
+
+### Maximum Likelihood Estimation (MLE)
+
+Note that one can also perform a maximum likelihood estimation to estimate the parameters under the Frequentist framework.
+
+```@example Turing
+# using Optim
+
+# mle = optimize(model_lba(data), MLE())
+```
+
+*TODO: replace with `coeftable` once [this](https://github.com/TuringLang/Turing.jl/) is merged*
+
+
+## Effect of a Condition on Multiple Parameters
+
+**WIP.**
+
+
+## Random Effects
+
+**WIP.**
