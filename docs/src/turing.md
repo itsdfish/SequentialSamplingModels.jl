@@ -129,6 +129,34 @@ Note that one can also perform a maximum likelihood estimation to estimate the p
 
 ## Effect of a Condition on Multiple Parameters
 
+### Generate Data
+
+In this example, we will get closer to real use-cases by starting with the data stored in a `DataFrame`. This dataframe will be a combination of data generated from two different distributions with different parameters, corresponding to two experimental conditions (e.g., Speed vs. Accuracy).
+
+```@example Turing
+using Turing
+using SequentialSamplingModels
+using Random
+using LinearAlgebra
+using Distributions
+using DataFrames
+using StatsPlots
+using StatsModels
+
+
+# Generate data with different drifts for two conditions A vs. B
+Random.seed!(254)
+df1 = DataFrame(rand(LBA(ν=[3.0, -1.0], A=0.5, k=0.5, τ=0.3), 500))
+df1[!, :condition] = repeat(["A"], nrow(df1))
+df2 = DataFrame(rand(LBA(ν=[2.0, -1.5], A=0.5, k=0.2, τ=0.3), 500))
+df2[!, :condition] = repeat(["B"], nrow(df2))
+
+df = vcat(df1, df2)
+```
+
+These 2 conditions *A* and *B* differ on their drift rates (`[3.0, -1.0]` vs. `[2.0, -1.5]`) and on threshold *k* (`0.5` vs. `0.2`)
+
+
 **WIP.**
 
 
