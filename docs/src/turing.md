@@ -147,15 +147,29 @@ using KernelDensity
 
 # Generate data with different drifts for two conditions A vs. B
 Random.seed!(254)
-df1 = DataFrame(rand(LBA(ν=[3.0, -1.0], A=0.5, k=0.5, τ=0.3), 500))
+df1 = DataFrame(rand(LBA(ν=[0.5, 0.0], A=0.5, k=0.5, τ=0.3), 5000))
 df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[2.0, -1.5], A=0.5, k=0.2, τ=0.3), 500))
+df2 = DataFrame(rand(LBA(ν=[1.0, 1.5], A=0.5, k=0.2, τ=0.3), 5000))
 df2[!, :condition] = repeat(["B"], nrow(df2))
 
 df = vcat(df1, df2)
 ```
 
-These 2 conditions *A* and *B* differ on their drift rates (`[3.0, -1.0]` vs. `[2.0, -1.5]`) and on threshold *k* (`0.5` vs. `0.2`)
+These 2 conditions *A* and *B* differ on their drift rates (`[0.5, 0.0]` vs. `[1.0, 1.5]`) and on threshold *k* (`0.5` vs. `0.2`)
+
+### Visualize Data
+
+We can visualize the RT distribution for each response choice by looping through the conditions.
+
+```@example Turing
+# Make histogram
+histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 350), xlims=(0, 3), legend=false)
+for (i, cond) in enumerate(["A", "B"])
+    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
+    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
+end
+plot!()
+```
 
 ### Format Predictors
 
@@ -223,7 +237,7 @@ chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(
 StatsPlots.plot(chain; size=(600, 2000))
 ```
 
-## Prior Predictive Check
+#### Plot Prior Predictive Check
 
 The next step is to generate ***predictions*** from this model (i.e., from the priors). For this, we need to pass a dataset with empty (`missing`) values. Since the `data` used above was a vector (of tuples) of length 1000, we will create a vector of `(missing)` of the same length.
 
@@ -259,6 +273,22 @@ plot!()
 ```
 
 We can see that the bulk of the predicted RTs fall within 0 - 1.5 seconds, which is realistic, but that the same time it's all over the place, which means that the priors are not too informative.
+
+### Parameters Estimation
+
+```@example Turing
+chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), NUTS(), 2000)
+
+summarystats(chain)
+```
+
+```@example Turing
+StatsPlots.plot(chain; size=(600, 2000)
+```
+
+### Posterior Predictive Check
+
+**WIP.**
 
 ## Random Effects
 
