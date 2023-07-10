@@ -32,7 +32,7 @@ dist = LBA(ν=[3.0, 2.0], A = .8, k = .2, τ = .3)
 data = rand(dist, 100)
 ```
 
-### Define Turing Model
+### Specify Turing Model
 
 The code snippet below defines a model in Turing. The model function accepts a tuple containing
 a vector of choices and a vector of reaction times. The sampling statements define the prior distributions for each parameter. The non-decision time parameter $\tau$ must be founded by the minimum reaction time, `min_rt`. The last sampling statement defines the likelihood of the data given the sampled parameter values.
@@ -155,6 +155,24 @@ df = vcat(df1, df2)
 ```
 
 These 2 conditions *A* and *B* differ on their drift rates (`[3.0, -1.0]` vs. `[2.0, -1.5]`) and on threshold *k* (`0.5` vs. `0.2`)
+
+### Format Predictors
+
+One additional step that we need to do here is to transform the dataframe into an input suited for modelling with Turing. For that, we will leverage the features of `StatsModels` to build an input matrix based on a formula.
+
+```@example Turing
+# Format input data
+f = @formula(rt ~ 1 + condition)
+f = apply_schema(f, schema(f, df))
+
+_, predictors = coefnames(f)
+X = modelmatrix(f, df)
+```
+
+In this case, the model matrix is pretty simple: the key part is the second column that is simply a binary vector indicating whenever `condition == "B"`. However, using formulas is a good way of dealing with more complex model specifications.
+
+### Specify Turing Model
+
 
 
 **WIP.**
