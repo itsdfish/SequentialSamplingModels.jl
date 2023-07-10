@@ -31,5 +31,5 @@ using Random
 # Create LBA distribution with known parameters
 dist = LBA(; ν=[2.75,1.75], A=0.8, k=0.5, τ=0.25)
 # Sample 1000 random data points from this distribution
-choice, rt = rand(dist, 10_000)
+choice, rt = rand(dist, 1000)
 ```
