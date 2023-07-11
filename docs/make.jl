@@ -24,7 +24,9 @@ makedocs(
                 "Racing Diffusion Model" => "rdm.md",
                 "Wald Model" => "wald.md",
                 "Wald Mixture Model" => "wald_mixture.md"],
-            "Parameter Estimation with Turing" => "turing.md",
+            "Parameter Estimation" => ["Simple Bayesian" => "turing_simple.md",
+            "Advanced Bayesian" => "turing_advanced.md",
+            ],
             "Developer Guide" => "developer_guide.md"
             ]
 )
