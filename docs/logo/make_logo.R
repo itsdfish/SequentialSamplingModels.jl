@@ -30,5 +30,18 @@ lower <- ddm_plot_lower(sim$data, breaks = 150, density = sim$density, xlim = c(
 
 p <- (upper) / text / (lower) + patchwork::plot_layout(heights=c(1.5, 1, 1.5))
 p
+
 ggsave("logo.png", p, width=20, height=(1.83*4), dpi=300)
+
+p2 <- (upper + theme(plot.background = element_rect(fill = "transparent",colour = NA),
+                     panel.background = element_rect(fill = "transparent", colour = NA))) /
+  (plot_spacer() + theme(plot.background = element_rect(fill = "transparent",colour = NA),
+                        panel.background = element_rect(fill = "transparent", colour = NA))) /
+  (lower + theme(plot.background = element_rect(fill = "transparent", colour = NA),
+                 panel.background = element_rect(fill = "transparent", colour = NA))) +
+  patchwork::plot_layout(heights=c(1.5, -0.21, 1.5)) +
+  patchwork::plot_annotation(theme =  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+                                            panel.background = element_rect(fill = "transparent", colour = NA)))
+p2
+ggsave("../src/assets/logo.png", p2, width=10, height=6, dpi=300, bg = "transparent")
 

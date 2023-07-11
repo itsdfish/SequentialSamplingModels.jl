@@ -1,7 +1,12 @@
 # SequentialSamplingModels.jl
 
-This package provides a unified interface for sequential sampling models in Julia and is based on the Distributions.jl API.
-Sequential sampling models, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. See the references below for a broad overview of sequential sampling models. An example of the evidence accumulation process is illustrated below for the leaking competing accumulator.
+Sequential sampling models (SSM), also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process (see the references below for a broad overview).
+
+Despite their usefulness in psychology, models such as Drift-Diffusion Models and their variants are notoriously hard to implement, with packages such as Python's [*HDDM*](https://github.com/hddm-devs/hddm) and [*PyDDM*](https://github.com/mwshinn/PyDDM), or R's [*fddm*](https://github.com/rtdists/fddm), sometimes lacking coverage (implementing only specific model subtypes) or flexibility (hard to use in bespoke real-life cases).
+
+This package provides a unified interface for sequential sampling models (such as DDM, LBA, LNR, LCA, ...) in Julia, based on the Distributions.jl API, that can be used within [**Turing**](https://turing.ml/) framework for Bayesian estimation.
+
+An example of the evidence accumulation process is illustrated below for the Leaking Competing Accumulator (LCA):
 
 ```@setup accumulation
 using Plots
