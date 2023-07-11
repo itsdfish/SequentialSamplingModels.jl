@@ -26,7 +26,7 @@ using KernelDensity
 Random.seed!(6)
 df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.5, τ=0.3), 50))
 df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[2.0, 1.0], A=0.5, k=0.2, τ=0.3), 50))
+df2 = DataFrame(rand(LBA(ν=[2.0, 1.0], A=0.5, k=0.5, τ=0.3), 50))
 df2[!, :condition] = repeat(["B"], nrow(df2))
 
 df = vcat(df1, df2)
@@ -34,8 +34,8 @@ df = vcat(df1, df2)
 
 histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 3), legend=false)
 for (i, cond) in enumerate(["A", "B"])
-    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
-    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
+    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=50))
+    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=50))
 end
 plot!()
 
@@ -88,19 +88,17 @@ using StatsPlots
 using StatsModels
 using KernelDensity
 
-
 # Generate data with different drifts for two conditions A vs. B
 Random.seed!(6)
-df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.5, τ=0.3), 50))
-df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[2.0, 1.0], A=0.5, k=0.2, τ=0.3), 50))
-df2[!, :condition] = repeat(["B"], nrow(df2))
-
+n_obs = 50
+df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.2, τ=0.3), n_obs))
+df2 = DataFrame(rand(LBA(ν=[2.5, 1.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df = vcat(df1, df2)
+df.condition = repeat(["A","B"], inner=n_obs)
 first(df)
 ```
 
-These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.0, 1.0]`) and on threshold *k* (`0.5` vs. `0.2`)
+These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.5, 1.5]`).
 
 ## Exclude Outliers
 
@@ -114,17 +112,16 @@ first(df)
 
 Note that standard outlier detection methods, such as *z*-scores (mean +- SD), are not necessarily appropriate for RTs, given the skewed nature of their distribution. Their asymmetric distribution is in fact accounted for by the models that we use. The outlier exclusion done here is more theory-driven (i.e., excluding extreme trials that likely do not reflect well the cognitive processes of interest) than data-driven (to better fit the model). That said, outlier exclusion should always be explicitly documented and justified.
 
-
 ## Visualize Data
 
 We can visualize the RT distribution for each response choice by looping through the conditions.
 
 ```@example turing_advanced
 # Make histogram
-histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 3), legend=false)
+histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 2), legend=false)
 for (i, cond) in enumerate(["A", "B"])
-    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
-    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
+    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=25))
+    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 2, length=25))
 end
 plot!()
 ```
@@ -193,7 +190,7 @@ plot(chain; size=(800, 1200))
 
 ### Plot Prior Predictive Check
 
-The next step is to generate ***predictions*** from this model (i.e., from the priors). For this, we need to pass a dataset with empty (`missing`) values. Since the `data` used above was a vector (of tuples) of length 1000, we will create a vector of `(missing)` of the same length.
+The next step is to generate predictions from this model (i.e., from the priors). For this, we need to pass a dataset with empty (`missing`) values. Since the `data` used above was a vector (of tuples) of length 1000, we will create a vector of `(missing)` of the same length.
 
 We can then use the `predict()` method to generate predictions from this model. However, because the most of `SequentialSamplingModels` distributions return a tuple (choice and RT), the predicted output has the two types of variables mixed together. We can delineate the two by taking every 2nd values to get the predicted choice and RTs, respectively.
 
