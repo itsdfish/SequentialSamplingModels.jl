@@ -4,8 +4,6 @@
 It is possible to use [Turing.jl](https://turinglang.org/stable/) to perform Bayesian parameter estimation on models defined in SequentialSamplingModels.jl. Below, we show you how to estimate the parameters for the Linear Ballistic Accumulator (LBA) and to use it to estimate effects.
 
 
-
-
 ## Simple Example
 
 ### Load Packages
@@ -13,11 +11,12 @@ It is possible to use [Turing.jl](https://turinglang.org/stable/) to perform Bay
 The first step is to load the required packages. You will need to install each package in your local
 environment in order to run the code locally. We will also set a random number generator so that the results are reproducible.
 
-```@example Turing
+```@setup Turing
 using Turing
 using SequentialSamplingModels
 using Random
 using LinearAlgebra
+using StatsPlots
 
 Random.seed!(45461)
 ```
@@ -90,10 +89,13 @@ plot(chain, grid=false)
 ### Posterior Predictive Distribution
 
 With `predict`, it is possible to sample from the posterior predictive distribution, as follows.
+
 ```@example Turing
-predictions = predict(model(missing; min_rt = minimum(data[2])), chain)
+predictions = predict(model_lba(missing; min_rt = minimum(data[2])), chain)
 ```
+
 In the following code block, we plot the predictive distributions for each choice.
+
 ```@example Turing
 choices = predictions.value[:,1,:][:]
 rts = predictions.value[:,2,:][:]
