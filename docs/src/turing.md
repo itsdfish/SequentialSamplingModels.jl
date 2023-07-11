@@ -148,16 +148,28 @@ using KernelDensity
 
 
 # Generate data with different drifts for two conditions A vs. B
-Random.seed!(254)
-df1 = DataFrame(rand(LBA(ν=[0.5, 0.0], A=0.5, k=0.5, τ=0.3), 500))
+Random.seed!(6)
+df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.5, τ=0.3), 500))
 df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[1.0, 1.5], A=0.5, k=0.2, τ=0.3), 500))
+df2 = DataFrame(rand(LBA(ν=[2.0, 1.0], A=0.5, k=0.2, τ=0.3), 500))
 df2[!, :condition] = repeat(["B"], nrow(df2))
 
 df = vcat(df1, df2)
 ```
 
-These 2 conditions *A* and *B* differ on their drift rates (`[0.5, 0.0]` vs. `[1.0, 1.5]`) and on threshold *k* (`0.5` vs. `0.2`)
+These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.0, 1.0]`) and on threshold *k* (`0.5` vs. `0.2`)
+
+### Exclude Outliers
+
+Next, we are going to remove outliers, i.e., implausible RTs (RTs that likely do not reflect the processes of interest). In our case, we consider that RTs shorter than 0.2 seconds are too short for the cognitive process of interest to unfold, and that RTs longer than 3 seconds are too long to be of interest.
+
+```@example Turing
+# Remove outliers
+df = df[(df.rt.>0.2).&(df.rt.<3), :]
+```
+
+Note that standard outlier detection methods, such as *z*-scores (mean +- SD), are not necessarily appropriate for RTs, given the skewed nature of their distribution. Their asymmetric distribution is in fact accounted for by the models that we use. The outlier exclusion done here is more theory-driven (i.e., excluding extreme trials that likely do not reflect well the cognitive processes of interest) than data-driven (to better fit the model). That said, outlier exclusion should always be explicitly documented and justified.
+
 
 ### Visualize Data
 
@@ -165,7 +177,7 @@ We can visualize the RT distribution for each response choice by looping through
 
 ```@example Turing
 # Make histogram
-histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 350), xlims=(0, 3), legend=false)
+histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 3), legend=false)
 for (i, cond) in enumerate(["A", "B"])
     histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
     histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=100))
