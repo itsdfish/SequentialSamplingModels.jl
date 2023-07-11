@@ -149,9 +149,9 @@ using KernelDensity
 
 # Generate data with different drifts for two conditions A vs. B
 Random.seed!(254)
-df1 = DataFrame(rand(LBA(ν=[0.5, 0.0], A=0.5, k=0.5, τ=0.3), 5000))
+df1 = DataFrame(rand(LBA(ν=[0.5, 0.0], A=0.5, k=0.5, τ=0.3), 500))
 df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[1.0, 1.5], A=0.5, k=0.2, τ=0.3), 5000))
+df2 = DataFrame(rand(LBA(ν=[1.0, 1.5], A=0.5, k=0.2, τ=0.3), 500))
 df2[!, :condition] = repeat(["B"], nrow(df2))
 
 df = vcat(df1, df2)
@@ -247,9 +247,9 @@ We can then use the `predict()` method to generate predictions from this model. 
 
 
 ```@example Turing
-dat0 = [(missing) for i in 1:nrow(df)]
+datamissing = [(missing) for i in 1:nrow(df)]
 
-pred = predict(model_lba(dat0; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
+pred = predict(model_lba(datamissing; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
 
 priorpred_choice = Array(pred)[:, 1:2:end]
 priorpred_rt = Array(pred)[:, 2:2:end]
@@ -266,9 +266,9 @@ for i in 1:100
     rt = priorpred_rt[i, :]
     for (j, cond) in enumerate([0, 1])
         U1 = KernelDensity.kde(rt[(choice .== 1) .& (X[:, 2] .== cond)], boundary=(0, 5))
-        StatsPlots.plot!(U1.x, U1.density, subplot=1, color = [:red, :blue][j], alpha=0.1)
+        plot!(U1.x, U1.density, subplot=1, color = [:red, :blue][j], alpha=0.1)
         U2 = KernelDensity.kde(rt[(choice .== 2) .& (X[:, 2] .== cond)], boundary=(0, 5))
-        StatsPlots.plot!(U2.x, U2.density, subplot=2, color = [:red, :blue][j], alpha=0.1)
+        plot!(U2.x, U2.density, subplot=2, color = [:red, :blue][j], alpha=0.1)
     end
 end
 plot!()
@@ -290,7 +290,43 @@ StatsPlots.plot(chain; size=(600, 2000)
 
 ### Posterior Predictive Check
 
-**WIP.**
+Next, we will run a posterior predictive check by first sampling from the posteriors. For that, we will re-use the code for the prior predictive check, including the `datamissing` empty data.
+
+
+```@example Turing
+# Sample from posteriors
+pred = predict(model_lba(datamissing; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
+pred_choice = Array(pred)[:, 1:2:end]
+pred_rt = Array(pred)[:, 2:2:end]
+```
+
+Next, we will plot the predicted distributions on top of the observed distribution of data (the thick black lines).
+
+```@example Turing
+# Observed density
+plot(layout=(2, 1), xlabel="Reaction Time", xlims=(0, 2.5), legend=false)
+for cond in ["A", "B"]
+    d_A = KernelDensity.kde(df.rt[(df.choice.==1).&(df.condition.==cond)], boundary=(0, 5))
+    plot!(d_A.x, d_A.density, subplot=1, color=:black, linewidth=3)
+    d_B = KernelDensity.kde(df.rt[(df.choice.==2).&(df.condition.==cond)], boundary=(0, 5))
+    plot!(d_B.x, d_B.density, subplot=2, color=:black, linewidth=3)
+end
+
+# Predicted densities
+for i in 1:100
+    choice = pred_choice[i, :]
+    rt = pred_rt[i, :]
+    for (j, cond) in enumerate([0, 1])
+        U1 = KernelDensity.kde(rt[(choice.==1).&(X[:, 2].==cond)], boundary=(0, 5))
+        plot!(U1.x, U1.density, subplot=1, color=[:red, :blue][j], alpha=0.05)
+        U2 = KernelDensity.kde(rt[(choice.==2).&(X[:, 2].==cond)], boundary=(0, 5))
+        plot!(U2.x, U2.density, subplot=2, color=[:red, :blue][j], alpha=0.05)
+    end
+end
+plot!()
+```
+
+As we can see, the model predicts well the shape of the data.
 
 ## Random Effects
 
