@@ -3,7 +3,7 @@
 The Lognormal Race model (LNR) assumes evidence for each option races independently and that the first passage time for each option is lognormally distributed. One way in which the LNR has been used is to provide a likelihood function for the ACT-R cognitive architecture. An example of such an application can be found in [ACTRModels.jl](https://itsdfish.github.io/ACTRModels.jl/dev/example2/). We will present a simplified version below.
 
 # Example
-In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task. 
+In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task.
 ```@setup lnr
 using SequentialSamplingModels
 using Plots
@@ -19,7 +19,7 @@ choices,rts = rand(dist, 1000)
 
 # rts for option 1
 rts1 = rts[choices .== 1]
-# rts for option 2 
+# rts for option 2
 rts2 = rts[choices .== 2]
 # probability of choosing 1
 p1 = length(rts1) / length(rts)
@@ -52,7 +52,7 @@ using Random
 Random.seed!(8741)
 ```
 ## Create Model Object
-In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
+In the code below, we will define parameters for the LBA and create a model object to store the parameter values.
 
 ### Mean Log Time
 
@@ -64,49 +64,49 @@ The parameter $\mu$ represents the mean processing time of each accumulator in l
 
 ### Log Standard Deviation
 
-The parameter $\sigma$ repesents the mean processing time in log space.
+The parameter $\sigma$ represents the standard deviation of processing time in log space.
 
-```@example lnr 
+```@example lnr
 σ = 0.50
 ```
 ### Non-Decision Time
-Non-decision time is an additive constant representing encoding and motor response time. 
-```@example lnr 
+Non-decision time is an additive constant representing encoding and motor response time.
+```@example lnr
 ϕ = 0.30
 ```
-### LNR Constructor 
+### LNR Constructor
 
 Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
 
-```@example lnr 
+```@example lnr
 dist = LNR(μ, σ, ϕ)
 ```
 ## Simulate Model
 
-Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. 
+Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`.
 
- ```@example lnr 
+ ```@example lnr
  choices,rts = rand(dist, 10_000)
 ```
 ## Compute PDF
 The PDF for each observation can be computed as follows:
- ```@example lnr 
+ ```@example lnr
 pdf.(dist, choices, rts)
 ```
 
 ## Compute Log PDF
 Similarly, the log PDF for each observation can be computed as follows:
 
- ```@example lnr 
+ ```@example lnr
 logpdf.(dist, choices, rts)
 ```
 
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
- ```@example lnr 
+ ```@example lnr
 # rts for option 1
 rts1 = rts[choices .== 1]
-# rts for option 2 
+# rts for option 2
 rts2 = rts[choices .== 2]
 # probability of choosing 1
 p1 = length(rts1) / length(rts)

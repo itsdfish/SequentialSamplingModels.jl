@@ -154,10 +154,6 @@ function logpdf(d::DiffusionRace, r::Int, rt::Float64)
     return LL
 end
 
-# logpdf(d::DiffusionRace, data::NamedTuple) = logpdf(d, data...)
-
-# pdf(d::DiffusionRace, data::NamedTuple) = pdf(d, data...)
-
 function pdf(d::DiffusionRace, r::Int, rt::Float64)
     (;ν, k, A, θ) = d
     like = 1.0
@@ -170,68 +166,3 @@ function pdf(d::DiffusionRace, r::Int, rt::Float64)
     end
     return like
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-# using Distributions, Parameters
-# import Base.rand
-# import Distributions: pdf, logpdf, cdf
-# struct Race{T1,T2,T3} <: ContinuousUnivariateDistribution
-#     ν::T1
-#     α::T2
-#     θ::T3
-# end
-
-# Broadcast.broadcastable(x::Race) = Ref(x)
-
-# Race(;ν, α, θ) = Race(ν, α, θ)
-
-# function rand(dist::Race)
-#     @unpack ν, α, θ = dist
-#     x = @. rand(Wald(ν, α, θ))
-#     rt,resp = findmin(x)
-#     return resp,rt
-# end
-
-# rand(dist::Race, N::Int) = [rand(dist) for i in 1:N]
-
-# function logpdf(d::Race, r::Int, rt::Float64)
-#     @unpack ν, α, θ = d
-#     LL = 0.0
-#     for (i,m) in enumerate(ν)
-#         if i == r
-#             LL += logpdf(Wald(;ν, α, θ), rt)
-#         else
-#             LL += logccdf(Wald(;ν, α, θ), rt)
-#         end
-#     end
-#     return LL
-# end
-
-# logpdf(d::Race, data::Tuple) = logpdf(d, data...)
-
-# pdf(d::Race, data::Tuple) = pdf(d, data...)
-
-# function pdf(d::Race, r::Int, rt::Float64)
-#     @unpack ν, α, θ = d
-#     like = 1.0
-#     for (i,m) in enumerate(ν)
-#         if i == r
-#             like *= pdf(Wald(;ν=m, α, θ), rt)
-#         else
-#             like *= (1 - cdf(Wald(;ν=m, α, θ), rt))
-#         end
-#     end
-#     return like
-# end
-

@@ -62,7 +62,6 @@ module SequentialSamplingModels
     include("DiffusionRace.jl")
     include("AttentionalDiffusion.jl")
     include("maaDDM.jl")
-    # include("KDE.jl")
     include("LCA.jl")
     include("DDM.jl")
     include("RatcliffDDM.jl")

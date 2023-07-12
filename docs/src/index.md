@@ -1,7 +1,12 @@
 # SequentialSamplingModels.jl
 
-This package provides a unified interface for sequential sampling models in Julia and is based on the Distributions.jl API.
-Sequential sampling models, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. See the references below for a broad overview of sequential sampling models. An example of the evidence accumulation process is illustrated below for the leaking competing accumulator.
+Sequential sampling models (SSM), also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process (see the references below for a broad overview).
+
+Despite their usefulness in psychology, models such as Drift-Diffusion Models and their variants are notoriously hard to implement, with packages such as Python's [*HDDM*](https://github.com/hddm-devs/hddm) and [*PyDDM*](https://github.com/mwshinn/PyDDM), or R's [*fddm*](https://github.com/rtdists/fddm), sometimes lacking coverage (implementing only specific model subtypes) or flexibility (hard to use in bespoke real-life cases).
+
+This package provides a unified interface for sequential sampling models (such as DDM, LBA, LNR, LCA, ...) in Julia, based on the Distributions.jl API, that can be used within [**Turing**](https://turing.ml/) framework for Bayesian estimation.
+
+An example of the evidence accumulation process is illustrated below for the Leaking Competing Accumulator (LCA):
 
 ```@setup accumulation
 using Plots
@@ -73,14 +78,14 @@ Random.seed!(2054)
 
 # Create LBA distribution with known parameters
 dist = LBA(; ν=[2.75,1.75], A=0.8, k=0.5, τ=0.25)
-# Sample 1000 random data points from this distribution
+# Sample 10,000 random data points from this distribution
 choice, rt = rand(dist, 10_000)
 
 # Plot the RT distribution for each choice
 histogram(layout=(2, 1), xlabel="Reaction Time", ylabel="Frequency", xlims = (0,1),
     grid=false, ylims = (0, 650))
 histogram!(rt[choice.==1], subplot=1, color=:grey, leg=false, bins=200)
-histogram!(rt[choice.==2], subplot=2, color=:darkred, leg=false, bins=200)
+histogram!(rt[choice.==2], subplot=2, color=:grey, leg=false, bins=200)
 ```
 
 # References

@@ -1,4 +1,3 @@
-
 """
     LBA{T<:Real} <: SSM2D
 
@@ -89,24 +88,7 @@ function rand(rng::AbstractRNG, d::LBA)
     return (;choice,rt)
 end
 
-function rand(rng::AbstractRNG, d::LBA, N::Int)
-    choice = fill(0, N)
-    rt = fill(0.0, N)
-    for i in 1:N
-        choice[i],rt[i] = rand(rng, d)
-    end
-    return (choice=choice,rt=rt)
-end
-
 logpdf(d::LBA, choice, rt) = log(pdf(d, choice, rt))
-
-function logpdf(dist::LBA, data::Array{<:Tuple,1})
-    LL = 0.0
-    for d in data
-        LL += logpdf(dist, d...)
-    end
-    return LL
-end
 
 function pdf(d::LBA, c, rt)
     (;τ,A,k,ν,σ) = d
@@ -124,8 +106,6 @@ function pdf(d::LBA, c, rt)
     den = max(den, 1e-10)
     isnan(den) ? (return 0.0) : (return den)
 end
-
-logpdf(d::LBA, data::Tuple) = logpdf(d, data...)
 
 function dens(d::LBA, v, rt)
     (;τ,A,k,ν,σ) = d

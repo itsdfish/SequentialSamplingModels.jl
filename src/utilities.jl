@@ -1,11 +1,12 @@
 abstract type Mixed <: ValueSupport end 
 
 """
-    MixedMultivariateDistribution   
+    SSM2D = Distribution{Multivariate, Mixed}
 
-An abstract distribution type for multivariate distributions with mixed value support. 
+An abstract type for sequential sampling models characterized by a multivariate choice-reaction time distribution.
+Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and reaction times. 
 """
-const MixedMultivariateDistribution = Distribution{Multivariate, Mixed}
+const SSM2D = Distribution{Multivariate, Mixed}
 
 """
     SSM1D <: ContinuousUnivariateDistribution
@@ -14,14 +15,6 @@ An abstract type for sequential sampling models characterized by a single choice
 Sub-types of `SSM1D` output a vector of reaction times.
 """
 abstract type SSM1D <: ContinuousUnivariateDistribution end 
-
-"""
-    SSM2D <: MixedMultivariateDistribution
-
-An abstract type for sequential sampling models characterized by a multivariate choice-reaction time distribution.
-Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and reaction times. 
-"""
-abstract type SSM2D <: MixedMultivariateDistribution end 
 
 abstract type AbstractWald <: SSM1D end
 
@@ -36,20 +29,52 @@ maximum(d::SSM2D) = Inf
 insupport(d::SSM2D, data) = data.rt ≥ minimum(d) && data.rt ≤ maximum(d)
 
 Base.broadcastable(x::SSM1D) = Ref(x)
-Base.broadcastable(x::MixedMultivariateDistribution) = Ref(x)
+Base.broadcastable(x::SSM2D) = Ref(x)
 
-vectorize(d::MixedMultivariateDistribution, r::NamedTuple) = [r...]
+vectorize(d::SSM2D, r::NamedTuple) = [r...]
 
-Base.length(d::MixedMultivariateDistribution) = 2
+Base.length(d::SSM2D) = 2
 
-rand(d::MixedMultivariateDistribution) = rand(Random.default_rng(), d)
-rand(d::MixedMultivariateDistribution, n::Int) = rand(Random.default_rng(), d, n)
+rand(d::SSM2D) = rand(Random.default_rng(), d)
+rand(d::SSM2D, n::Int) = rand(Random.default_rng(), d, n)
 
-logpdf(d::MixedMultivariateDistribution, data::NamedTuple) = logpdf(d, data.choice, data.rt)
+"""
+    logpdf(d::SSM2D, data::NamedTuple) 
 
-loglikelihood(d::MixedMultivariateDistribution, data::NamedTuple) = sum(logpdf.(d, data...))
+Computes the likelihood for a 2D sequential sampling model. 
 
+# Arguments
+
+- `d::SSM2D`: an object for a 2D sequential sampling model 
+- `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
+"""
+logpdf(d::SSM2D, data::NamedTuple) = logpdf.(d, data.choice, data.rt)
 logpdf(d::SSM2D, data::Vector{Real}) = logpdf(d, Int(data[1]), data[2]) 
+
+"""
+    loglikelihood(d::SSM2D, data::NamedTuple) 
+
+Computes the summed log likelihood for a 2D sequential sampling model. 
+
+# Arguments
+
+- `d::SSM2D`: an object for a 2D sequential sampling model 
+- `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
+"""
+loglikelihood(d::SSM2D, data::NamedTuple) = sum(logpdf.(d, data...))
+
+"""
+    pdf(d::SSM2D, data::NamedTuple) 
+
+Computes the probability density for a 2D sequential sampling model. 
+
+# Arguments
+
+- `d::SSM2D`: an object for a 2D sequential sampling model 
+- `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
+"""
+pdf(d::SSM2D, data::NamedTuple) = pdf.(d, data.choice, data.rt)
+
 
 """
     rand(rng::AbstractRNG, d::SSM2D, N::Int)

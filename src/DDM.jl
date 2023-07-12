@@ -22,7 +22,7 @@ Model object for the standard Drift Diffusion Model.
 
 ```julia
 using SequentialSamplingModels
-dist = DDM(ν = 1.0, α = 0.8, τ = 0.3 z = 0.25) 
+dist = DDM(ν = 1.0, α = 0.8, τ = 0.3, z = 0.25) 
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
