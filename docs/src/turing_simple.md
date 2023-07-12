@@ -31,7 +31,7 @@ dist = LBA(ν=[3.0, 2.0], A = .8, k = .2, τ = .3)
 data = rand(dist, 100)
 ```
 
-The `rand()` function will sample random draws from the distribution, and store that into a tuple of 2 vectors (one for `choice` and one for `rt`).
+The `rand()` function will sample random draws from the distribution, and store that into a named tuple of 2 vectors (one for `choice` and one for `rt`). The individual vectors can be accessed by their names using `data.choice` and `data.rt`.
 
 ## Specify Turing Model
 
