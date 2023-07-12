@@ -4,7 +4,7 @@ Sequential sampling models (SSM), also known as an evidence accumulation models,
 
 Despite their usefulness in psychology, models such as Drift-Diffusion Models and their variants are notoriously hard to implement, with packages such as Python's [*HDDM*](https://github.com/hddm-devs/hddm) and [*PyDDM*](https://github.com/mwshinn/PyDDM), or R's [*fddm*](https://github.com/rtdists/fddm), sometimes lacking coverage (implementing only specific model subtypes) or flexibility (hard to use in bespoke real-life cases).
 
-This package provides a unified interface for sequential sampling models (such as DDM, LBA, LNR, LCA, ...) in Julia, based on the Distributions.jl API, that can be used within [**Turing**](https://turing.ml/) framework for Bayesian estimation.
+This package provides a unified interface for all the popular sequential sampling models (such as DDM, LBA, LNR, LCA, ...) in Julia, based on the Distributions.jl API, that can be used with [*Turing*](https://turing.ml/) for Bayesian estimation.
 
 An example of the evidence accumulation process is illustrated below for the Leaking Competing Accumulator (LCA):
 

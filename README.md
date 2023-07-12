@@ -8,8 +8,9 @@ This package provides a unified interface for sequential sampling models (such a
 
 Please see the [documentation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) for more information.
 
-- [**Bayesian Modeling: Usage with Turing**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/turing/)
+- [**Bayesian Modeling: Usage with Turing**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/turing_simple/)
 - [**Developer Guide**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/developer_guide/)
+- [**List of Supported Models**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/)
 
 ## Installation
 
