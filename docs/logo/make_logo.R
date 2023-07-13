@@ -39,9 +39,10 @@ p2 <- (upper + theme(plot.background = element_rect(fill = "transparent",colour 
                         panel.background = element_rect(fill = "transparent", colour = NA))) /
   (lower + theme(plot.background = element_rect(fill = "transparent", colour = NA),
                  panel.background = element_rect(fill = "transparent", colour = NA))) +
-  patchwork::plot_layout(heights=c(1.5, -0.21, 1.5)) +
+  patchwork::plot_layout(heights=c(1.5, -0.175, 1.5)) +
   patchwork::plot_annotation(theme =  theme(plot.background = element_rect(fill = "transparent", colour = NA),
-                                            panel.background = element_rect(fill = "transparent", colour = NA)))
+                                            panel.background = element_rect(fill = "transparent", colour = NA),
+                                            plot.margin = margin(b = -90)))
 p2
-ggsave("../src/assets/logo.png", p2, width=10, height=6, dpi=300, bg = "transparent")
+ggsave("../src/assets/logo.png", p2, width=12, height=6, dpi=300, bg = "transparent")
 
