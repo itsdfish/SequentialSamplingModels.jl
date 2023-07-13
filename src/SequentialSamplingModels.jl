@@ -52,13 +52,6 @@ module SequentialSamplingModels
     export std
     export vectorize
 
-
-
-
-    export myfunction
-
-    include("../ext/TestModuleExt.jl")
-
     include("utilities.jl")
     include("LogNormalRace.jl")
     include("Wald.jl")
