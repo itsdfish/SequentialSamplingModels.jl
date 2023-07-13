@@ -1,4 +1,4 @@
-```@setup temp 
+```@setup temp
 #```@example turing_advanced
 # using Optim
 
@@ -9,75 +9,16 @@
 
 ```
 
-```@setup turing_advanced 
-
-using Turing
-using SequentialSamplingModels
-using Random
-using LinearAlgebra
-using Distributions
-using DataFrames
-using StatsPlots
-using StatsModels
-using KernelDensity
-
-
-# Generate data with different drifts for two conditions A vs. B
-Random.seed!(6)
-df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.5, τ=0.3), 50))
-df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[2.0, 1.0], A=0.5, k=0.5, τ=0.3), 50))
-df2[!, :condition] = repeat(["B"], nrow(df2))
-
-df = vcat(df1, df2)
-
-
-histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 3), legend=false)
-for (i, cond) in enumerate(["A", "B"])
-    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=50))
-    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=50))
-end
-plot!()
-
-# Format input data
-f = @formula(rt ~ 1 + condition)
-f = apply_schema(f, schema(f, df))
-
-_, predictors = coefnames(f)
-X = modelmatrix(f, df)
-
-
-@model function model_lba(data; min_rt=0.2, condition=nothing)
-    # Priors for auxiliary parameters
-    A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
-    k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
-    tau ~ Uniform(0.0, min_rt)
-
-    # Priors for coefficients
-    drift_intercept ~ filldist(Normal(0, 1), 2)
-    drift_condition ~ filldist(Normal(0, 1), 2)
-
-    for i in 1:length(data)
-        drifts = drift_intercept .+ drift_condition * condition[i]
-        data[i] ~ LBA(; τ=tau, A=A, k=k, ν=drifts)
-    end
-end
-
-# Format the data to match the input type
-data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
-
-chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(), 100)
-```
 
 # Estimate Effect on Drift Rate
 
-This advanced example illustrates how to estimate the effect of an experimental condition on the drift rate parameter. The drift rate could be manipulated in various ways. For example, the drift rate could be manipulated by varying the simularity of visual stimuli, or emphasizing speed or accuracy in task instructions. 
+This advanced example illustrates how to estimate the effect of an experimental condition on the drift rate parameter. The drift rate could be manipulated in various ways. For example, the drift rate could be manipulated by varying the similarity of visual stimuli, or emphasizing speed or accuracy in task instructions.
 
 ## Generate Data
 
 In this example, we will get closer to real use-cases by starting with the data stored in a `DataFrame`. This dataframe will be a combination of data generated from two different distributions with different parameters, corresponding to two experimental conditions (e.g., Speed vs. Accuracy).
 
-```@example turing_advanced
+```@setup turing_advanced
 using Turing
 using SequentialSamplingModels
 using Random
@@ -95,14 +36,13 @@ df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df2 = DataFrame(rand(LBA(ν=[2.5, 1.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df = vcat(df1, df2)
 df.condition = repeat(["A","B"], inner=n_obs)
-first(df)
 ```
 
-These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.5, 1.5]`).
+These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.5, 1.5]`). In other words, the *effect* of condition *B* over condition *A* (the baseline condition, i.e., the *intercept*) is `[1, 1]` (because both drift rates increase by 1 between condition *A* and *B*).
 
 ## Exclude Outliers
 
-Next, we are going to remove outliers, i.e., implausible RTs (RTs that likely do not reflect the processes of interest). In our case, we consider that RTs shorter than 0.2 seconds are too short for the cognitive process of interest to unfold, and that RTs longer than 3 seconds are too long to be of interest.
+Next, we are going to remove outliers, i.e., implausible RTs (RTs that likely do not reflect the processes of interest). In our case, we consider that RTs shorter than 0.2 seconds are too short for the cognitive process of interest to unfold, and that RTs longer than 3 seconds are too long to carry meaningful information.
 
 ```@example turing_advanced
 # Remove outliers
