@@ -1,5 +1,5 @@
 """
-    WaldA(;ν, k, A, θ)
+    WaldA(;ν, k, A, τ)
 
 Constructor for Wald distribution 
 
@@ -8,7 +8,7 @@ Constructor for Wald distribution
 - `ν`: drift rate
 - `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
-- `θ`: a encoding-motor time offset
+- `τ`: a encoding-motor time offset
 
 # Example
 
@@ -28,27 +28,27 @@ struct WaldA{T<:Real} <: ContinuousUnivariateDistribution
     ν::T
     k::T
     A::T
-    θ::T
+    τ::T
 end
 
-function WaldA(ν, k, A, θ)
-    return WaldA(promote(ν, k, A, θ)...)
+function WaldA(ν, k, A, τ)
+    return WaldA(promote(ν, k, A, τ)...)
 end
 
 Broadcast.broadcastable(x::WaldA) = Ref(x)
 
 function params(d::WaldA)
-    (d.ν, d.k, d.A, d.θ)    
+    (d.ν, d.k, d.A, d.τ)    
 end
 
-WaldA(;ν, k, A, θ) = WaldA(ν, k, A, θ)
+WaldA(;ν, k, A, τ) = WaldA(ν, k, A, τ)
 
 Φ(x) = cdf(Normal(0, 1), x)
 ϕ(x) = pdf(Normal(0, 1), x)
 
 function pdf(d::WaldA, rt::Float64)
-    (;ν, k, A, θ) = d
-    t = rt - θ
+    (;ν, k, A, τ) = d
+    t = rt - τ
     α = (k - t * ν) / √(t)
     β = (A + k - t * ν) / √(t)
     return (-ν * Φ(α) + 1 / √(t) * ϕ(α) +
@@ -58,8 +58,8 @@ end
 logpdf(d::WaldA, rt::Float64) = log(pdf(d, rt))
 
 function cdf(d::WaldA, rt::Float64)
-    (;ν, k, A, θ) = d
-    t = rt - θ
+    (;ν, k, A, τ) = d
+    t = rt - τ
     b = A + k
     α1 = √(2) * ((ν * t - b)/√(2 * t))
     α2 = √(2) * ((ν * t - k)/√(2 * t))
@@ -75,10 +75,10 @@ end
 logccdf(d::WaldA, rt::Float64) = log(1 - cdf(d, rt))
 
 function rand(rng::AbstractRNG, d::WaldA)
-    (;ν, k, A, θ) = d
+    (;ν, k, A, τ) = d
     z = rand(rng, Uniform(0, A))
     α = k + A - z 
-    return rand(rng, InverseGaussian(α / ν, α^2)) + θ
+    return rand(rng, InverseGaussian(α / ν, α^2)) + τ
 end
 
 """
@@ -88,22 +88,22 @@ An object for the racing diffusion model.
 
 # Constructors
 
-    DiffusionRace(;ν, k, A, θ)
+    DiffusionRace(;ν, k, A, τ)
 
-    DiffusionRace(ν, k, A, θ)
+    DiffusionRace(ν, k, A, τ)
 
 # Parameters
 
 - `ν`: a vector of drift rates
 - `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
-- `θ`: a encoding-motor time offset
+- `τ`: a encoding-motor time offset
 
 # Example
 
 ```julia
 using SequentialSamplingModels
-dist = DiffusionRace(;ν=[1,2], k=.3, A=.7, θ=.2)
+dist = DiffusionRace(;ν=[1,2], k=.3, A=.7, τ=.2)
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
@@ -117,51 +117,51 @@ struct DiffusionRace{T<:Real} <: SSM2D
     ν::Vector{T}
     k::T
     A::T
-    θ::T
+    τ::T
 end
 
-function DiffusionRace(ν, k, A, θ)
-    _, k, A, θ = promote(ν[1], k, A, θ)
+function DiffusionRace(ν, k, A, τ)
+    _, k, A, τ = promote(ν[1], k, A, τ)
     ν = convert(Vector{typeof(k)}, ν)
-    return DiffusionRace(ν, k, A, θ)
+    return DiffusionRace(ν, k, A, τ)
 end
 
 function params(d::DiffusionRace)
-    (d.ν, d.k, d.A, d.θ)    
+    (d.ν, d.k, d.A, d.τ)    
 end
 
-DiffusionRace(;ν, k, A, θ) = DiffusionRace(ν, k, A, θ)
+DiffusionRace(;ν, k, A, τ) = DiffusionRace(ν, k, A, τ)
 
 function rand(rng::AbstractRNG, dist::DiffusionRace)
-    (;ν, A, k, θ) = dist
+    (;ν, A, k, τ) = dist
     z = rand(rng, Uniform(0, A))
     α = k + A - z 
-    x = @. rand(rng, WaldA(ν, k, A, θ))
+    x = @. rand(rng, WaldA(ν, k, A, τ))
     rt,choice = findmin(x)
     return (;choice,rt)
 end
 
 function logpdf(d::DiffusionRace, r::Int, rt::Float64)
-    (;ν, k, A, θ) = d
+    (;ν, k, A, τ) = d
     LL = 0.0
     for (i,m) in enumerate(ν)
         if i == r
-            LL += logpdf(WaldA(m, k, A, θ), rt)
+            LL += logpdf(WaldA(m, k, A, τ), rt)
         else
-            LL += logccdf(WaldA(m, k, A, θ), rt)
+            LL += logccdf(WaldA(m, k, A, τ), rt)
         end
     end
     return LL
 end
 
 function pdf(d::DiffusionRace, r::Int, rt::Float64)
-    (;ν, k, A, θ) = d
+    (;ν, k, A, τ) = d
     like = 1.0
     for (i,m) in enumerate(ν)
         if i == r
-            like *= pdf(WaldA(m, k, A, θ), rt)
+            like *= pdf(WaldA(m, k, A, τ), rt)
         else
-            like *= (1 - cdf(WaldA(m, k, A, θ), rt))
+            like *= (1 - cdf(WaldA(m, k, A, τ), rt))
         end
     end
     return like

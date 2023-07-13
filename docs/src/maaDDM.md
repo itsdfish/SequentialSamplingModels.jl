@@ -32,10 +32,7 @@ mutable struct Transition
      return next_state
  end
 
-ν₁₁ = 4.0 
-ν₁₂ = 5.0 
-ν₂₁ = 5.0 
-ν₂₂ = 4.0
+ν = [4.0 5.0; 5.0 4.0]
 α = 1.0 
 z = 0.0
 θ = .3
@@ -44,7 +41,9 @@ z = 0.0
 σ = .02
 Δ = .0004
 
-dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
+
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
 
 tmat = Transition([.98 .015 .0025 .0025;
                 .015 .98 .0025 .0025;
@@ -155,10 +154,7 @@ The code snippets assign values to parameters of the MAADDM and create a model o
 ### Drift Rate Components
 In the decision making task, there are two alternatives with two attributes each. This leads to four components of the drift rates: $\nu_{1,1}, \nu_{1,2},\nu_{2,1},\nu_{2,2}$ where the first index corresponds to alternative and the second index corresponds to attribute.  To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
 ```@example maaDDM
-ν₁₁ = 4.0 
-ν₁₂ = 5.0 
-ν₂₁ = 5.0 
-ν₂₂ = 4.0
+ν = [4.0 5.0; 5.0 4.0]
 ```
 
 ### Threshold
@@ -207,7 +203,7 @@ The drift rate scalar controls how quickly evidence accumulates for each option.
 ### Model Object
 Finally, we pass the parameters to the `maaDDM` constructor to initialize the model.
  ```@example maaDDM
-dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
 ```
 ## Simulate Model
 

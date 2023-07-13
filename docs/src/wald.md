@@ -11,12 +11,12 @@ using Random
 
 ν = 3.0
 α = 0.50
-θ = 0.130
+τ = 0.130
 
-dist = Wald(ν, α, θ)
+dist = Wald(ν, α, τ)
 
 rts = rand(dist, 10_000)
-t_range = range(θ, 1, length=100)
+t_range = range(τ, 1, length=100)
 pdf1 = pdf.(dist, t_range)
 # histogram of retrieval times
 hist = histogram(rts, leg=false, grid=false, norm=true,
@@ -55,14 +55,14 @@ The parameter $\alpha$ the amount of evidence required to make a decision.
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time. 
 ```@example wald 
-θ = 0.130
+τ = 0.130
 ```
 ### Wald Constructor 
 
 Now that values have been asigned to the parameters, we will pass them to `Wald` to generate the model object.
 
 ```@example wald 
-dist = Wald(ν, α, θ)
+dist = Wald(ν, α, τ)
 ```
 ## Simulate Model
 
@@ -90,7 +90,7 @@ logpdf.(dist, rts)
 The code below overlays the PDF on reaction time histogram.
  ```@example wald 
 rts = rand(dist, 10_000)
-t_range = range(θ, 1, length=100)
+t_range = range(τ, 1, length=100)
 pdf1 = pdf.(dist, t_range)
 # histogram of retrieval times
 hist = histogram(rts, leg=false, grid=false, norm=true, color=:grey,

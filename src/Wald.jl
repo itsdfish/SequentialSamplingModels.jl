@@ -9,19 +9,19 @@ A model object for the Wald model, also known as the inverse Gaussian model.
 
 - `ν`: drift rate
 - `α`: decision threshold
-- `θ`: a encoding-response offset
+- `τ`: a encoding-response offset
 
 # Constructors
 
-    Wald(ν, α, θ)
+    Wald(ν, α, τ)
 
-    Wald(;ν, α, θ)
+    Wald(;ν, α, τ)
 
 # Example
 
 ```julia
 using SequentialSamplingModels
-dist = Wald(ν=3.0, α=.5, θ=.130)
+dist = Wald(ν=3.0, α=.5, τ=.130)
 rt = rand(dist, 10)
 like = pdf.(dist, rt)
 loglike = logpdf.(dist, rt)
@@ -34,40 +34,40 @@ Folks, J. L., & Chhikara, R. S. (1978). The inverse Gaussian distribution and it
 struct Wald{T<:Real} <: AbstractWald
     ν::T
     α::T
-    θ::T
+    τ::T
 end
 
-Wald(;ν, α, θ) = Wald(ν, α, θ)
+Wald(;ν, α, τ) = Wald(ν, α, τ)
 
-function Wald(ν, α, θ)
-    return Wald(promote(ν, α, θ)...)
+function Wald(ν, α, τ)
+    return Wald(promote(ν, α, τ)...)
 end
 
 function params(d::Wald)
-    return (d.ν, d.α, d.θ)    
+    return (d.ν, d.α, d.τ)    
 end
 
 function pdf(d::AbstractWald, t::AbstractFloat)
-    return pdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.θ)
+    return pdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
 end
 
 function logpdf(d::AbstractWald, t::AbstractFloat)
-    return logpdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.θ)
+    return logpdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
 end
 
 function logccdf(d::Wald, t::AbstractFloat)
-    return logccdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.θ)
+    return logccdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
 end
 
 function cdf(d::Wald, t::AbstractFloat)
-    return cdf(InverseGaussian(d.α/d.ν, d.α^2), t - d.θ)
+    return cdf(InverseGaussian(d.α/d.ν, d.α^2), t - d.τ)
 end
 
-rand(rng::AbstractRNG, d::AbstractWald) = rand(rng, InverseGaussian(d.α/d.ν, d.α^2)) + d.θ
+rand(rng::AbstractRNG, d::AbstractWald) = rand(rng, InverseGaussian(d.α/d.ν, d.α^2)) + d.τ
 
 function rand(rng::AbstractRNG, d::AbstractWald, n::Int)
-    return rand(rng, InverseGaussian(d.α / d.ν, d.α^2), n) .+ d.θ
+    return rand(rng, InverseGaussian(d.α / d.ν, d.α^2), n) .+ d.τ
 end
 
-mean(d::AbstractWald) = mean(InverseGaussian(d.α / d.ν, d.α^2)) + d.θ
+mean(d::AbstractWald) = mean(InverseGaussian(d.α / d.ν, d.α^2)) + d.τ
 std(d::AbstractWald) = std(InverseGaussian(d.α / d.ν, d.α^2))

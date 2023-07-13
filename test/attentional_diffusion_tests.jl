@@ -22,7 +22,7 @@
             return next_state
         end
     
-        model = aDDM(;ν1=5.0, ν2=4.0)
+        model = aDDM(;ν=[5.0,4.0])
     
         tmat = Transition([.98 .015 .005;
                             .015 .98 .005;
@@ -32,13 +32,13 @@
         p1 = mean(choice .== 1)
         @test p1 > .50
        
-        model = aDDM(;ν1=4.0, ν2=5.0)
+        model = aDDM(;ν=[4.0,5.0])
         choice,rts1 = rand(model, 1000, x -> attend(x), tmat)
         p1 = mean(choice .== 1)
         @test p1 < .50
     
         μ_rts1 = mean(rts1)
-        model = aDDM(;ν1=5.0, ν2=5.0)
+        model = aDDM(;ν=[5.0,5.0])
         choice,rts3 = rand(model, 1000, x -> attend(x), tmat)
         μ_rts3 = mean(rts3)
         @test μ_rts1 < μ_rts3

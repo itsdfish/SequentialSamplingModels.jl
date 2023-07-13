@@ -9,11 +9,11 @@ using SequentialSamplingModels
 using Plots
 using Random
 
-μ = [-1,-1.5]
+ν = [-1,-1.5]
 σ = 0.50
-ϕ = 0.30
+τ = 0.30
 
-dist = LNR(μ, σ, ϕ)
+dist = LNR(ν, σ, τ)
 
 choices,rts = rand(dist, 1000)
 
@@ -56,10 +56,10 @@ In the code below, we will define parameters for the LBA and create a model obje
 
 ### Mean Log Time
 
-The parameter $\mu$ represents the mean processing time of each accumulator in log space.
+The parameter $\nu$ represents the mean processing time of each accumulator in log space.
 
 ```@example lnr
-μ = [-1,-1.5]
+ν = [-1,-1.5]
 ```
 
 ### Log Standard Deviation
@@ -72,14 +72,14 @@ The parameter $\sigma$ represents the standard deviation of processing time in l
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time.
 ```@example lnr
-ϕ = 0.30
+τ = 0.30
 ```
 ### LNR Constructor
 
 Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
 
 ```@example lnr
-dist = LNR(μ, σ, ϕ)
+dist = LNR(ν, σ, τ)
 ```
 ## Simulate Model
 

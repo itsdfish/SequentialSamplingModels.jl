@@ -46,6 +46,7 @@ module SequentialSamplingModels
     export maximum
     export mean
     export minimum
+    export n_options
     export params
     export pdf 
     export rand 

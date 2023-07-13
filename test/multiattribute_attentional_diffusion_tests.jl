@@ -3,10 +3,7 @@
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: update 
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 2.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 3.0, 
+        model = maaDDM(;ν = [1.0 2.0; 2.0 3.0],
                         α = 1.0, 
                         z = 0.0, 
                         θ = .5, 
@@ -21,10 +18,7 @@
         @test Δ1s[3] < 0
         @test Δ1s[4] < 0
 
-        model = maaDDM(ν₁₁ = 100.0, 
-                        ν₁₂ = 2.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 3.0, 
+        model = maaDDM(;ν = [100.0 2.0; 2.0 3.0],
                         α = 1.0, 
                         z = 0.0, 
                         θ = .5, 
@@ -41,10 +35,7 @@
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: update 
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 2.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 3.0, 
+        model = maaDDM(;ν = [1.0 2.0; 2.0 3.0],
                         α = 1.0, 
                         z = 0.0, 
                         θ = .5, 
@@ -65,10 +56,7 @@
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: update 
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 1.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 2.0, 
+        model = maaDDM(ν = [1.0 1.0; 2.0 2.0],
                         α = 1.0, 
                         z = 0.0, 
                         θ = 1.0, 
@@ -85,10 +73,7 @@
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: update 
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 1.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 2.0, 
+        model = maaDDM(ν = [1.0 1.0; 2.0 2.0], 
                         α = 1.0, 
                         z = 0.0, 
                         θ = 1.0, 
@@ -99,10 +84,7 @@
 
         Δ1s = map(x -> update(model, x), 1:4)
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 1.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 2.0, 
+        model = maaDDM(ν = [1.0 1.0; 2.0 2.0], 
                         α = 1.0, 
                         z = 0.0, 
                         θ = 1.0, 
@@ -121,10 +103,7 @@
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: update 
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 1.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 2.0, 
+        model = maaDDM(ν = [1.0 1.0; 2.0 2.0],
                         α = 1.0, 
                         z = 0.0, 
                         θ = 1.0, 
@@ -142,10 +121,7 @@
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: update 
 
-        model = maaDDM(ν₁₁ = 1.0, 
-                        ν₁₂ = 1.0, 
-                        ν₂₁ = 2.0, 
-                        ν₂₂ = 2.0, 
+        model = maaDDM(ν = [1.0 1.0; 2.0 2.0],
                         α = 1.0, 
                         z = 0.0, 
                         θ = 0.0, 

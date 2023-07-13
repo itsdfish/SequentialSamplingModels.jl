@@ -5,8 +5,7 @@ An object for the attentional diffusion model.
 
 # Parameters 
 
-- `ν1=5.0`: relative decision value for alternative 1
-- `ν2=4.0`: relative decision value for alternative 2
+- `ν=[5.0,4.0]`: relative decision values (i.e., drift rates)
 - `α=1.0`: evidence threshold 
 - `z=0.0`: initial evidence 
 - `θ=.3`: bias towards attended alternative (lower indicates more bias)
@@ -15,9 +14,9 @@ An object for the attentional diffusion model.
 
 # Constructors
 
-    aDDM(ν1, ν2, α, z, θ, σ, Δ)
+    aDDM(ν, α, z, θ, σ, Δ)
 
-    aDDM(;ν1=5.0, ν2=4.0, α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004)
+    aDDM(;ν=[5.0,4.0], α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004)
 
 # References 
 
@@ -25,8 +24,7 @@ Krajbich, I., Armel, C., & Rangel, A. (2010). Visual fixations and the computati
 value in simple choice. Nature neuroscience, 13(10), 1292-1298.
 """
 struct aDDM{T<:Real} <: AbstractaDDM
-    ν1::T
-    ν2::T
+    ν::Vector{T}
     α::T
     z::T
     θ::T
@@ -34,12 +32,14 @@ struct aDDM{T<:Real} <: AbstractaDDM
     Δ::T
 end
 
-function aDDM(ν1, ν2, α, z, θ, σ, Δ)
-    return aDDM(promote(ν1, ν2, α, z, θ, σ, Δ)...)
+function aDDM(ν, α, z, θ, σ, Δ)
+    _, α, z, θ, σ, Δ = prompte(ν[1], α, z, θ, σ, Δ)
+    ν = convert(Vector{typeof(z)}, ν)
+    return aDDM(ν, α, z, θ, σ, Δ)
 end
 
-function aDDM(;ν1=5.0, ν2=4.0, α=1.0, z=0.0, θ=.3, σ=.02, Δ=.0004)
-    return aDDM(ν1, ν2, α, z, θ, σ, Δ)
+function aDDM(;ν=[5.0,4.0], α=1.0, z=0.0, θ=0.3, σ=.02, Δ=.0004)
+    return aDDM(ν, α, z, θ, σ, Δ)
 end
 
 """
@@ -124,13 +124,13 @@ Returns the change evidence for a single iteration.
 - `location`: an index for fixation location 
 """
 function update(rng::AbstractRNG, dist::aDDM, location)
-    (;σ,ν1,ν2,θ,Δ) = dist
+    (;σ,ν,θ,Δ) = dist
     # option 1
     if location == 1
-        return Δ * (ν1 - θ * ν2) + noise(rng, σ)
+        return Δ * (ν[1] - θ * ν[2]) + noise(rng, σ)
     # option 2
     elseif location == 2
-        return -Δ * (ν2 - θ * ν1) + noise(rng, σ)
+        return -Δ * (ν[2] - θ * ν[1]) + noise(rng, σ)
     else
         return noise(rng, σ)
     end

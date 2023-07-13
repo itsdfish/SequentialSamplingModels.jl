@@ -95,6 +95,28 @@ function rand(rng::AbstractRNG, d::SSM2D, N::Int)
     return (;choice,rt)
 end
 
+"""
+    n_options(dist::SSM2D)
+
+Returns the number of choice options based on the length of the drift rate vector `ν`.
+
+# Arguments
+
+- `d::SSM2D`: a sub-type of `SSM2D`
+"""
+n_options(d::SSM2D) = length(d.ν)
+
+"""
+    n_options(dist::SSM1D)
+
+Returns 1 for the number of choice options
+
+# Arguments
+
+- `d::SSM1D`: a sub-type of `SSM1D`
+"""
+n_options(d::SSM1D) = 1
+
 function Base.show(io::IO, ::MIME"text/plain", model::SSM1D)
     values = [getfield(model, f) for f in fieldnames(typeof(model))]
     values = map(x -> typeof(x) == Bool ? string(x) : x, values)
