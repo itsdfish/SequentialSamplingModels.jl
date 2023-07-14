@@ -17,7 +17,7 @@ makedocs(
         "Home" => "index.md",
         "Models" => [
             "Drift Diffusion Model (DDM)" => "DDM.md",
-            "Linear Ballistic Accumulator (LBA)" => "lba.md",
+            #"Linear Ballistic Accumulator (LBA)" => "lba.md",
             "Lognormal Race Model (LNR)" => "lnr.md",
             "Attentional Drift Diffusion" => "aDDM.md",
             "Leaky Competing Accumulator" => "lca.md",
@@ -30,6 +30,7 @@ makedocs(
             #"Simple Bayesian" => "turing_simple.md",
             #"Advanced Bayesian" => "turing_advanced.md",
         ],
+        "Plotting" => "plotting.md",
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md"
     ]

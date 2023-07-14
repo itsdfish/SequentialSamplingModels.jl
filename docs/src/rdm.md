@@ -12,33 +12,10 @@ using Random
 ν = [1.0,0.50]
 k = 0.50
 A = 1.0
-τ = 0.20
+τ = 0.30
 
 dist = RDM(;ν, k, A, τ)
 choices,rts = rand(dist, 1000)
-
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-t_range = range(.31, 2, length=100)
-# pdf for choice 1
-pdf1 = pdf.(dist, (1,), t_range)
-# pdf for choice 2
-pdf2 = pdf.(dist, (2,), t_range)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 200, norm=true, title="Choice 1")
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-histogram!(rts2, subplot=2, color=:grey, bins = 150, norm=true, title="Choice 2")
-plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
 ```
 
 ## Load Packages
@@ -111,28 +88,8 @@ logpdf.(dist, choices, rts)
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
  ```@example drm 
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-t_range = range(.31, 2, length=100)
-# pdf for choice 1
-pdf1 = pdf.(dist, (1,), t_range)
-# pdf for choice 2
-pdf2 = pdf.(dist, (2,), t_range)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 200, norm=true, title="Choice 1")
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-histogram!(rts2, subplot=2, color=:grey, bins = 150, norm=true, title="Choice 2")
-plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
+histogram(dist; xlims=(0,2.5))
+plot!(dist; t_range=range(.301, 2.5, length=100))
 ```
 # References
 

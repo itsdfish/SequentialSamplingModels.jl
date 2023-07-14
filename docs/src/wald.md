@@ -16,13 +16,6 @@ using Random
 dist = Wald(ν, α, τ)
 
 rts = rand(dist, 10_000)
-t_range = range(τ, 1, length=100)
-pdf1 = pdf.(dist, t_range)
-# histogram of retrieval times
-hist = histogram(rts, leg=false, grid=false, norm=true,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist
 ```
 
 ## Load Packages
@@ -89,14 +82,8 @@ logpdf.(dist, rts)
 ## Plot Simulation
 The code below overlays the PDF on reaction time histogram.
  ```@example wald 
-rts = rand(dist, 10_000)
-t_range = range(τ, 1, length=100)
-pdf1 = pdf.(dist, t_range)
-# histogram of retrieval times
-hist = histogram(rts, leg=false, grid=false, norm=true, color=:grey,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist
+histogram(dist)
+plot!(dist; t_range=range(.130, 1, length=100))
 ```
 # References
 

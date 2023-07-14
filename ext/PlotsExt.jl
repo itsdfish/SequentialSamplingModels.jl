@@ -52,20 +52,20 @@ module PlotsExt
     function ssm_plot(::Type{<:Exact}, d; t_range, kwargs...)
         n_subplots = n_options(d)
         pds = gen_pds(d, t_range, n_subplots)
-        ymax = maximum(vcat(pds...)) * 1.1
+        ymax = maximum(vcat(pds...)) * 1.2
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
         return plot(t_range, pds; layout=(n_subplots,1), 
             ylims = (0,ymax), xaxis=("RT [s]"), yaxis = "density", 
-            grid=false, color = :black, title, leg=false, kwargs...)
+            linewidth=1.5, grid=false, color = :black, title, leg=false, kwargs...)
     end
 
-    function ssm_plot(::Type{<:Approximate}, d; n_sim = 2000, t_range, kwargs...)
+    function ssm_plot(::Type{<:Approximate}, d; m_args = (), n_sim = 2000, t_range, kwargs...)
         n_subplots = n_options(d)
-        choices, rts = rand(d, n_sim)
+        choices, rts = rand(d, n_sim, m_args...)
         choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
         kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
         pds = gen_pds(kdes, t_range, choice_probs)
-        ymax = maximum(vcat(pds...)) * 1.1
+        ymax = maximum(vcat(pds...)) * 1.2
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
         return plot(t_range, pds; layout=(n_subplots,1), 
             ylims = (0,ymax), xaxis=("RT [s]"), yaxis = "density", 
@@ -87,20 +87,21 @@ module PlotsExt
     function ssm_plot!(::Type{<:Exact}, d, cur_plot; t_range, kwargs...)
         n_subplots = n_options(d)
         pds = gen_pds(d, t_range, n_subplots)
-        ymax = maximum(vcat(pds...)) * 1.1
+        ymax = maximum(vcat(pds...)) * 1.2
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
         return plot!(cur_plot, t_range, pds; layout=(n_subplots,1), 
             ylims = (0,ymax), xaxis=("RT [s]"), yaxis = "density", 
-            grid=false, color = :black, title, leg=false, kwargs...)
+            linewidth=1.5, grid=false, color = :black, title, leg=false, kwargs...)
     end
 
-    function ssm_plot!(::Type{<:Approximate}, d, cur_plot; n_sim = 2000, t_range, kwargs...)
+    function ssm_plot!(::Type{<:Approximate}, d, cur_plot; n_sim = 2000, m_args=(), t_range, kwargs...)
         n_subplots = n_options(d)
-        choices, rts = rand(d, n_sim)
+        println(m_args)
+        choices, rts = rand(d, n_sim, m_args...)
         choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
         kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
         pds = gen_pds(kdes, t_range, choice_probs)
-        ymax = maximum(vcat(pds...)) * 1.1
+        ymax = maximum(vcat(pds...)) * 1.2
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
         return plot!(cur_plot, t_range, pds; layout=(n_subplots,1), 
             ylims = (0,ymax), xaxis=("RT [s]"), yaxis = "density", 
@@ -141,9 +142,9 @@ module PlotsExt
         return ssm_histogram(d; norm, n_sim, kwargs...)
     end
 
-    function ssm_histogram(d::SSM2D; norm, n_sim, kwargs...)
+    function ssm_histogram(d::SSM2D; norm, m_args=(), n_sim, kwargs...)
         n_subplots = n_options(d)
-        choices, rts = rand(d, n_sim)
+        choices, rts = rand(d, n_sim, m_args...)
         choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
         rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
@@ -151,7 +152,7 @@ module PlotsExt
         hist = histogram(rt_vecs; layout=(n_subplots,1), norm,
             xaxis=("RT [s]"), yaxis = "density", grid=false, color = :grey, 
             title, leg=false, kwargs...)
-        ymax = get_y_max(hist, n_subplots) * 1.10
+        ymax = get_y_max(hist, n_subplots) * 1.20
         plot!(hist, ylims=(0, ymax); kwargs...)
         norm ? scale_density!(hist, choice_probs, 1, n_subplots) : nothing 
         return hist
@@ -161,9 +162,9 @@ module PlotsExt
         return ssm_histogram(d; norm, n_sim, kwargs...)
     end
 
-    function ssm_histogram(d::SSM1D; norm, n_sim, kwargs...)
+    function ssm_histogram(d::SSM1D; m_args=(), norm, n_sim, kwargs...)
         n_subplots = n_options(d)
-        rts = rand(d, n_sim)
+        rts = rand(d, n_sim, m_args...)
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
         yaxis = norm ? "density" : "frequency"
         hist = histogram(rts; norm, xaxis=("RT [s]"), yaxis = "density", grid=false,
@@ -180,9 +181,9 @@ module PlotsExt
         return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
     end
 
-    function ssm_histogram!(d::SSM2D, cur_plot; norm, n_sim, kwargs...)
+    function ssm_histogram!(d::SSM2D, cur_plot; m_args=(), norm, n_sim, kwargs...)
         n_subplots = n_options(d)
-        choices, rts = rand(d, n_sim)
+        choices, rts = rand(d, n_sim, m_args...)
         choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
         rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]

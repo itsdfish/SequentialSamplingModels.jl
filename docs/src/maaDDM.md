@@ -51,22 +51,6 @@ tmat = Transition([.98 .015 .0025 .0025;
                 .0025 .0025 .015 .98])
 
  choices,rts = rand(dist, 100, attend, tmat)
-
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
 ```
 
 In this example, we will develope a MAADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 
@@ -215,21 +199,9 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 ## Plot Simulation
 Finally, we can generate histograms of the reaction times for each decision option. 
  ```@example maaDDM
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
+m_args = (attend,tmat)
+histogram(dist; m_args)
+plot!(dist; m_args, t_range=range(.130, 5, length=100), xlims=(0,7))
 ```
 # References
 

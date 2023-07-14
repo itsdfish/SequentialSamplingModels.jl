@@ -121,6 +121,8 @@ end
 
 get_pdf_type(d::maaDDM) = Approximate
 
+n_options(d::maaDDM) = size(d.ν, 1)
+
 """
     update(rng, dist::maaDDM, location)
 
