@@ -5,7 +5,7 @@ An object for the multi-attribute attentional drift diffusion model.
 
 # Constructors
 
-    maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ)
+    maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 
     maaDDM(; 
         ν = [4.0 5.0; 5.0 4.0],
@@ -15,7 +15,8 @@ An object for the multi-attribute attentional drift diffusion model.
         ϕ = .50, 
         ω = .70, 
         σ = .02, 
-        Δ = .0004)
+        Δ = .0004,
+        τ = 0.0)
             
 Constructor for multialternative attentional diffusion model object. 
 
@@ -35,6 +36,7 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 - `ω=.70`: attribute weight
 - `σ=.02`: standard deviation of noise in evidence accumulation
 - `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
+- `τ=0.0`: non-decision time
 
 # Example 
 
@@ -70,8 +72,9 @@ z = 0.0
 ω = .70
 σ = .02
 Δ = .0004
+τ = 0.0
 
-dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 
 tmat = Transition([.98 .015 .0025 .0025;
                 .015 .98 .0025 .0025;
@@ -95,10 +98,11 @@ struct maaDDM{T<:Real} <: AbstractaDDM
     ω::T
     σ::T
     Δ::T
+    τ::T
 end
 
-function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ)
-    return maaDDM(promote(ν, α, z, θ, ϕ, ω, σ, Δ)...)
+function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    return maaDDM(promote(ν, α, z, θ, ϕ, ω, σ, Δ, τ)...)
 end
 
 function maaDDM(; 
@@ -109,10 +113,13 @@ function maaDDM(;
     ϕ = .50, 
     ω = .70, 
     σ = .02, 
-    Δ = .0004)
+    Δ = .0004,
+    τ = 0.0)
 
-    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ)
+    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 end
+
+get_pdf_type(d::maaDDM) = Approximate
 
 """
     update(rng, dist::maaDDM, location)

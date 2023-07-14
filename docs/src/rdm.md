@@ -14,7 +14,7 @@ k = 0.50
 A = 1.0
 τ = 0.20
 
-dist = DiffusionRace(;ν, k, A, τ)
+dist = RDM(;ν, k, A, τ)
 choices,rts = rand(dist, 1000)
 
 # rts for option 1
@@ -83,10 +83,10 @@ Non-decision time is an additive constant representing encoding and motor respon
 ```
 ### LBA Constructor 
 
-Now that values have been asigned to the parameters, we will pass them to `DiffusionRace` to generate the model object.
+Now that values have been asigned to the parameters, we will pass them to `RDM` to generate the model object.
 
 ```@example drm 
-dist = DiffusionRace(;ν, k, A, τ)
+dist = RDM(;ν, k, A, τ)
 ```
 ## Simulate Model
 

@@ -11,12 +11,13 @@ An object for the attentional diffusion model.
 - `θ=.3`: bias towards attended alternative (lower indicates more bias)
 - `σ=.02`: standard deviation of noise in evidence accumulation
 - `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
+- `τ=0.0`: non-decision time
 
 # Constructors
 
-    aDDM(ν, α, z, θ, σ, Δ)
+    aDDM(ν, α, z, θ, σ, Δ, τ)
 
-    aDDM(;ν=[5.0,4.0], α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004)
+    aDDM(;ν=[5.0,4.0], α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004, τ=0.0)
 
 # References 
 
@@ -30,17 +31,21 @@ struct aDDM{T<:Real} <: AbstractaDDM
     θ::T
     σ::T
     Δ::T
+    τ::T
 end
 
-function aDDM(ν, α, z, θ, σ, Δ)
-    _, α, z, θ, σ, Δ = prompte(ν[1], α, z, θ, σ, Δ)
+function aDDM(ν, α, z, θ, σ, Δ, τ)
+    _, α, z, θ, σ, Δ, τ = prompte(ν[1], α, z, θ, σ, Δ)
     ν = convert(Vector{typeof(z)}, ν)
-    return aDDM(ν, α, z, θ, σ, Δ)
+    return aDDM(ν, α, z, θ, σ, Δ, τ)
 end
 
-function aDDM(;ν=[5.0,4.0], α=1.0, z=0.0, θ=0.3, σ=.02, Δ=.0004)
-    return aDDM(ν, α, z, θ, σ, Δ)
+function aDDM(;ν=[5.0,4.0], α=1.0, z=0.0, θ=0.3, σ=.02, Δ=.0004, τ=0.0)
+    return aDDM(ν, α, z, θ, σ, Δ, τ)
 end
+
+get_pdf_type(d::aDDM) = Approximate
+
 
 """
     rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation, args...; rand_state! = _rand_state!, kwargs...)
@@ -99,8 +104,8 @@ end
 rand(dist::AbstractaDDM, fixation, args...; kwargs...) = rand(Random.default_rng(), dist, fixation, args...; kwargs...)
 
 function _rand(rng::AbstractRNG, dist::AbstractaDDM, fixation)
-    (;α,z) = dist
-    t = 0.0
+    (;α,z,τ) = dist
+    t = τ
     Δt = .001
     v = z
     while abs(v) < α

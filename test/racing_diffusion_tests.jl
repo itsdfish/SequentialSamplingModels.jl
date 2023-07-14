@@ -63,7 +63,7 @@
         @test p′ ≈ p rtol = .001
         @test p ≈ mean((rts .< 1.5).& (rts .> 1.4)) rtol = .02
 
-        dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, τ=.2)
+        dist = RDM(;ν=[1.0,.5], k=0.5, A=1.0, τ=.2)
         choice,rts = rand(dist, 10^6)
         rt1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
@@ -119,7 +119,7 @@
         using Random
         Random.seed!(655)
 
-        dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, τ=.2)
+        dist = RDM(;ν=[1.0,.5], k=0.5, A=1.0, τ=.2)
         choice,rt = rand(dist, 10)
 
         sum_logpdf = logpdf.(dist, choice, rt) |> sum 

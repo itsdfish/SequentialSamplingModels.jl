@@ -30,7 +30,7 @@ module SequentialSamplingModels
     export AbstractaDDM
     export aDDM
     export DDM
-    export DiffusionRace
+    export RDM
     export LBA 
     export LCA
     export LNR 
@@ -58,7 +58,7 @@ module SequentialSamplingModels
     include("Wald.jl")
     include("wald_mixture.jl")
     include("LBA.jl")
-    include("DiffusionRace.jl")
+    include("RDM.jl")
     include("AttentionalDiffusion.jl")
     include("maaDDM.jl")
     include("LCA.jl")

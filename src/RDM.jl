@@ -82,15 +82,15 @@ function rand(rng::AbstractRNG, d::WaldA)
 end
 
 """
-    DiffusionRace{T<:Real} <: SSM2D
+    RDM{T<:Real} <: SSM2D
 
 An object for the racing diffusion model.
 
 # Constructors
 
-    DiffusionRace(;ν, k, A, τ)
+    RDM(;ν, k, A, τ)
 
-    DiffusionRace(ν, k, A, τ)
+    RDM(ν, k, A, τ)
 
 # Parameters
 
@@ -103,7 +103,7 @@ An object for the racing diffusion model.
 
 ```julia
 using SequentialSamplingModels
-dist = DiffusionRace(;ν=[1,2], k=.3, A=.7, τ=.2)
+dist = RDM(;ν=[1,2], k=.3, A=.7, τ=.2)
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
@@ -113,26 +113,26 @@ loglike = logpdf.(dist, choice, rt)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct DiffusionRace{T<:Real} <: SSM2D
+struct RDM{T<:Real} <: SSM2D
     ν::Vector{T}
     k::T
     A::T
     τ::T
 end
 
-function DiffusionRace(ν, k, A, τ)
+function RDM(ν, k, A, τ)
     _, k, A, τ = promote(ν[1], k, A, τ)
     ν = convert(Vector{typeof(k)}, ν)
-    return DiffusionRace(ν, k, A, τ)
+    return RDM(ν, k, A, τ)
 end
 
-function params(d::DiffusionRace)
+function params(d::RDM)
     (d.ν, d.k, d.A, d.τ)    
 end
 
-DiffusionRace(;ν, k, A, τ) = DiffusionRace(ν, k, A, τ)
+RDM(;ν, k, A, τ) = RDM(ν, k, A, τ)
 
-function rand(rng::AbstractRNG, dist::DiffusionRace)
+function rand(rng::AbstractRNG, dist::RDM)
     (;ν, A, k, τ) = dist
     z = rand(rng, Uniform(0, A))
     α = k + A - z 
@@ -141,7 +141,7 @@ function rand(rng::AbstractRNG, dist::DiffusionRace)
     return (;choice,rt)
 end
 
-function logpdf(d::DiffusionRace, r::Int, rt::Float64)
+function logpdf(d::RDM, r::Int, rt::Float64)
     (;ν, k, A, τ) = d
     LL = 0.0
     for (i,m) in enumerate(ν)
@@ -154,7 +154,7 @@ function logpdf(d::DiffusionRace, r::Int, rt::Float64)
     return LL
 end
 
-function pdf(d::DiffusionRace, r::Int, rt::Float64)
+function pdf(d::RDM, r::Int, rt::Float64)
     (;ν, k, A, τ) = d
     like = 1.0
     for (i,m) in enumerate(ν)

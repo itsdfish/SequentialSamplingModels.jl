@@ -1,7 +1,14 @@
 module PlotsExt 
 
     using SequentialSamplingModels
-    import Plots: plot 
+    using SequentialSamplingModels: Approximate
+    using SequentialSamplingModels: Exact
+    using SequentialSamplingModels: get_pdf_type
+    using KernelDensity
+    import Plots: histogram
+    import Plots: plot
+    import Plots: plot! 
+    include("kde.jl")
 
     """
         plot(d::SSM2D; t_range=default_range(d), kwargs...)
@@ -18,7 +25,7 @@ module PlotsExt
     - `kwargs...`: optional keyword arguments for configuring  plot options
     """
     function plot(d::SSM2D; t_range=default_range(d), kwargs...)
-        return ssm_plot(d; t_range, kwargs...)
+        return ssm_plot(get_pdf_type(d), d; t_range, kwargs...)
     end
 
     """
@@ -36,17 +43,30 @@ module PlotsExt
     - `kwargs...`: optional keyword arguments for configuring plot options
     """
     function plot(d::SSM1D; t_range=default_range(d), kwargs...)
-        return ssm_plot(d; t_range, kwargs...)
+        return ssm_plot(get_pdf_type(d), d; t_range, kwargs...)
     end
 
-    function ssm_plot(d; t_range, kwargs...)
+    function ssm_plot(::Type{<:Exact}, d; t_range, kwargs...)
         n_subplots = n_options(d)
         pds = gen_pds(d, t_range, n_subplots)
         ymax = maximum(vcat(pds...)) * 1.1
         title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
         return plot(t_range, pds; layout=(n_subplots,1), 
             ylims = (0,ymax), xaxis=("RT [s]"), yaxis = "density", 
-            color = :black, title, leg=false, kwargs...)
+            grid=false, color = :black, title, leg=false, kwargs...)
+    end
+
+    function ssm_plot(pdf_type::Type{<:Approximate}, d; n_sim = 2000, t_range, kwargs...)
+        n_subplots = n_options(d)
+        choices, rts = rand(d, n_sim)
+        choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
+        kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
+        pds = gen_pds(kdes, t_range, choice_probs)
+        ymax = maximum(vcat(pds...)) * 1.1
+        title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
+        return plot(t_range, pds; layout=(n_subplots,1), 
+            ylims = (0,ymax), xaxis=("RT [s]"), yaxis = "density", 
+            grid=false, color = :black, title, leg=false, kwargs...)
     end
 
     function gen_pds(d::SSM2D, t_range, n_subplots)
@@ -57,8 +77,58 @@ module PlotsExt
         return [pdf.(d, t_range) for i ∈ 1:n_subplots]
     end
 
+    function gen_pds(kdes, t_range, probs)
+        return [pdf(kdes[i], t_range) .* probs[i] for i ∈ 1:length(kdes)]
+    end
+
     function default_range(d)
         n = n_options(d)
         return range(d.τ + eps(), d.τ+ .25 * log(n + 1), length=100)
+    end
+
+    """
+        histogram(d::SSM2D;  kwargs...)
+
+    Plots the histogram of a multi-alternative sequential sampling model.
+
+    # Arguments
+
+    - `d::SSM2D`: a model object for a mult-alternative sequential sampling model 
+
+    # Keywords 
+
+    - `kwargs...`: optional keyword arguments for configuring  plot options
+    """
+    function histogram(d::SSM2D; norm=true, n_sim=2000, kwargs...)
+        return ssm_histogram(d; norm, n_sim, kwargs...)
+    end
+
+    function ssm_histogram(d; norm, n_sim, kwargs...)
+        n_subplots = n_options(d)
+        choices, rts = rand(d, n_sim)
+        choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
+        rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
+        title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
+        yaxis = norm ? "density" : "frequency"
+        hist = histogram(rt_vecs; layout=(n_subplots,1), norm,
+            xaxis=("RT [s]"), yaxis = "density", grid=false, color = :grey, 
+            title, leg=false, kwargs...)
+        ymax = get_y_max(hist, n_subplots) * 1.10
+        plot!(hist, ylims=(0, ymax))
+        norm ? scale_density!(hist, choice_probs, n_subplots) : nothing 
+        return hist
+    end
+
+    function get_y_max(hist, n_options)
+        dens = mapreduce(i -> hist[i][1][:y], vcat, 1:n_options)
+        filter!(!isnan, dens)
+        return maximum(dens)
+    end
+
+    function scale_density!(hist, probs, n_options)
+        for i ∈ 1:n_options
+            hist[i][1][:y] .*= probs[i]
+        end
+        return nothing
     end
 end

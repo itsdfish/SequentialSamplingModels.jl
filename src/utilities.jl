@@ -20,6 +20,25 @@ abstract type AbstractWald <: SSM1D end
 
 abstract type AbstractaDDM <: SSM2D end
 
+abstract type PDFType end
+
+"""
+    Exact <: PDFType
+
+Has closed-form PDF. 
+"""
+struct Exact <: PDFType end 
+
+"""
+    Approximate <: PDFType
+
+Has approximate PDF based on kernel density estimator. 
+"""
+struct Approximate <: PDFType end 
+
+get_pdf_type(d::SSM1D) = Exact
+get_pdf_type(d::SSM2D) = Exact
+
 minimum(d::SSM1D) = 0.0
 maximum(d::SSM1D) = Inf
 
