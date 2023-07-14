@@ -32,15 +32,14 @@ mutable struct Transition
      return next_state
  end
 
-ν1 = 6.0
-ν2 = 5.0
+ν =[6.0,5.0]
 α = 1.0
 z = 0.0
 θ = 0.30
 σ = 0.02
 Δ = 0.0004  
 
- model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
+ model = aDDM(; ν, α, z, θ, σ, Δ)
  
  tmat = Transition([.98 .015 .005;
                     .015 .98 .005;
@@ -147,8 +146,7 @@ The code snippets assign values to parameters of the ADDM and create a model obj
 ### Drift Rate Components
 The ADDM has two drift rates components corresponding to the utlity of each option. To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
 ```@example aDDM 
-ν1 = 6.0
-ν2 = 5.0
+ν = [6.0,5.0]
 ```
 ### Threshold
 The threshold hold represents the amount of evidence required to make a decision. This parameter is typically fixed at $\alpha = 1$.
@@ -179,7 +177,7 @@ The drift rate scalar controls how quickly evidence accumulates for each option.
 ### Model Object
 Finally, we pass the parameters to the `aDDM` constructor to initialize the model.
  ```@example aDDM 
- model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
+ model = aDDM(; ν, α, z, θ, σ, Δ)
 ```
 ## Simulate Model
 

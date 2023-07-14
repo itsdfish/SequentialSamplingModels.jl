@@ -5,19 +5,18 @@ An object for the multi-attribute attentional drift diffusion model.
 
 # Constructors
 
-    maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+    maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 
-    maaDDM(; ν₁₁ = 4.0, 
-            ν₁₂ = 5.0, 
-            ν₂₁ = 5.0, 
-            ν₂₂ = 4.0, 
-            α = 1.0, 
-            z = 0.0, 
-            θ = .3, 
-            ϕ = .50, 
-            ω = .70, 
-            σ = .02, 
-            Δ = .0004)
+    maaDDM(; 
+        ν = [4.0 5.0; 5.0 4.0],
+        α = 1.0, 
+        z = 0.0, 
+        θ = .3, 
+        ϕ = .50, 
+        ω = .70, 
+        σ = .02, 
+        Δ = .0004,
+        τ = 0.0)
             
 Constructor for multialternative attentional diffusion model object. 
 
@@ -25,15 +24,11 @@ In this version of the model, the non-attended attribute of the non-attended alt
 the mean drift rate for the attribute 1 of alternative 1 is given by:
 
 ```julia
-    Δ * (ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * ϕ * (ν₁₂ - θ * ν₂₂))
+    Δ * (ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * ϕ * (ν[1,2] - θ * ν[2,2]))
 ```
 
 # Keywords 
-
-- `ν₁₁=5.0`: relative decision value for alternative 1, attribute 1
-- `ν₁₂=4.0`: relative decision value for alternative 1, attribute 2
-- `ν₂₁=5.0`: relative decision value for alternative 2, attribute 1
-- `ν₂₂=4.0`:  relative decision value for alternative 2, attribute 2
+- `ν = [4.0 5.0; 5.0 4.0]`: drift rates where rows are alternatives and columns are attributes
 - `α=1.0`: evidence threshold 
 - `z=0.0`: initial evidence 
 - `θ=.3`: bias away from unattended alternative (lower indicates more bias)
@@ -41,6 +36,7 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 - `ω=.70`: attribute weight
 - `σ=.02`: standard deviation of noise in evidence accumulation
 - `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
+- `τ=0.0`: non-decision time
 
 # Example 
 
@@ -68,10 +64,7 @@ mutable struct Transition
      return next_state
  end
 
-ν₁₁ = 4.0 
-ν₁₂ = 5.0 
-ν₂₁ = 5.0 
-ν₂₂ = 4.0
+ν = [4.0 5.0; 5.0 4.0]
 α = 1.0 
 z = 0.0
 θ = .3
@@ -79,8 +72,9 @@ z = 0.0
 ω = .70
 σ = .02
 Δ = .0004
+τ = 0.0
 
-dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 
 tmat = Transition([.98 .015 .0025 .0025;
                 .015 .98 .0025 .0025;
@@ -96,10 +90,7 @@ Yang, X., & Krajbich, I. (2023). A dynamic computational model of gaze and choic
 Psychological Review, 130(1), 52.
 """
 struct maaDDM{T<:Real} <: AbstractaDDM
-    ν₁₁::T
-    ν₁₂::T
-    ν₂₁::T
-    ν₂₂::T
+    ν::Array{T,2}
     α::T
     z::T
     θ::T
@@ -107,26 +98,28 @@ struct maaDDM{T<:Real} <: AbstractaDDM
     ω::T
     σ::T
     Δ::T
+    τ::T
 end
 
-function maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
-    return maaDDM(promote(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)...)
+function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    return maaDDM(promote(ν, α, z, θ, ϕ, ω, σ, Δ, τ)...)
 end
 
-function maaDDM(; ν₁₁ = 4.0, 
-                    ν₁₂ = 5.0, 
-                    ν₂₁ = 5.0, 
-                    ν₂₂ = 4.0, 
-                    α = 1.0, 
-                    z = 0.0, 
-                    θ = .3, 
-                    ϕ = .50, 
-                    ω = .70, 
-                    σ = .02, 
-                    Δ = .0004)
+function maaDDM(; 
+    ν = [4.0 5.0; 5.0 4.0],
+    α = 1.0, 
+    z = 0.0, 
+    θ = .3, 
+    ϕ = .50, 
+    ω = .70, 
+    σ = .02, 
+    Δ = .0004,
+    τ = 0.0)
 
-    return maaDDM(ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 end
+
+get_pdf_type(d::maaDDM) = Approximate
 
 """
     update(rng, dist::maaDDM, location)
@@ -139,19 +132,19 @@ Returns the change evidence for a single iteration.
 - `location`: an index for fixation location 
 """
 function update(rng, dist::maaDDM, location)
-    (;ν₁₁,ν₁₂,ν₂₁,ν₂₂,θ,ϕ,ω,Δ,σ) = dist
+    (;ν,θ,ϕ,ω,Δ,σ) = dist
     # option 1, attribute 1
     if location == 1
-        return Δ * (ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * ϕ * (ν₁₂ - θ * ν₂₂)) + noise(rng, σ)
+        return Δ * (ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * ϕ * (ν[1,2] - θ * ν[2,2])) + noise(rng, σ)
     # option 1, attribute 2
     elseif location == 2
-        return Δ * (ϕ * ω * (ν₁₁ - θ * ν₂₁) + (1 - ω) * (ν₁₂ - θ * ν₂₂)) + noise(rng, σ)
+        return Δ * (ϕ * ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * (ν[1,2] - θ * ν[2,2])) + noise(rng, σ)
     # option 2, attribute 1
     elseif location == 3
-        return Δ * (ω * (θ * ν₁₁ - ν₂₁) + (1 - ω) * ϕ * (θ * ν₁₂ - ν₂₂)) + noise(rng, σ)
+        return Δ * (ω * (θ * ν[1,1] - ν[2,1]) + (1 - ω) * ϕ * (θ * ν[1,2] - ν[2,2])) + noise(rng, σ)
     # option 2, attribute 2
     else
-        return Δ * (ϕ * ω * (θ * ν₁₁ - ν₂₁) + (1 - ω) * (θ * ν₁₂ - ν₂₂)) + noise(rng, σ)
+        return Δ * (ϕ * ω * (θ * ν[1,1] - ν[2,1]) + (1 - ω) * (θ * ν[1,2] - ν[2,2])) + noise(rng, σ)
     end
     return -100.0
 end 

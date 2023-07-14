@@ -75,6 +75,8 @@ function params(d::LCA)
     (d.ν, d.α, d.β, d.λ, d.τ, d.σ, d.Δt)    
 end
 
+get_pdf_type(d::LCA) = Approximate
+
 """
     rand(dist::LCA)
 

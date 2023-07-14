@@ -71,7 +71,7 @@ chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(
 
 # Estimate Effect on Drift Rate
 
-This advanced example illustrates how to estimate the effect of an experimental condition on the drift rate parameter. The drift rate could be manipulated in various ways. For example, the drift rate could be manipulated by varying the simularity of visual stimuli, or emphasizing speed or accuracy in task instructions. 
+This advanced example illustrates how to estimate the effect of an experimental condition on the drift rate parameter. The drift rate could be manipulated in various ways. For example, the drift rate could be manipulated by varying the simularity of visual stimuli.
 
 ## Generate Data
 

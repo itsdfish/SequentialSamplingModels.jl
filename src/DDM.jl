@@ -351,3 +351,14 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
         end
     end
 end
+
+"""
+    n_options(dist::DDM)
+
+Returns 2 for the number of choice options
+
+# Arguments
+
+- `d::DDM`: a model object for the drift diffusion model
+"""
+n_options(d::DDM) = 2

@@ -6,14 +6,15 @@
         d = Wald(2, 1, .1)
         @test mean(d) ≈ (1/2) + .1 atol = 1e-5
 
-        function simulate(υ, α, θ)
+
+        function simulate(υ, α, τ)
             noise = 1.0
             #Time Step
             Δt = .0005
             #Evidence step
             Δe = noise * sqrt(Δt)
             e = 0.0
-            t = θ
+            t = τ
             p = .5 * (1 + υ * sqrt(Δt) / noise)
             while (e < α)
                 t += Δt
