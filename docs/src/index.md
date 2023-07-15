@@ -16,22 +16,6 @@ using SequentialSamplingModels
 using SequentialSamplingModels: increment!
 Random.seed!(8437)
 
-function sim(model)
-
-    n = length(model.ν)
-    x = fill(0.0, n)
-    μΔ = fill(0.0, n)
-    ϵ = fill(0.0, n)
-    t = 0.0
-    Δt = .005
-    evidence = Vector{Vector{Float64}}()
-    while all(x .< model.α)
-        t += Δt
-        increment!(model, x, μΔ, ϵ)
-        push!(evidence, copy(x))
-    end
-    return t,evidence
-end
 parms = (α = 1.5,
             β=0.20,
              λ=0.10,
@@ -40,10 +24,8 @@ parms = (α = 1.5,
              τ=.30,
              σ=1.0)
 model = LCA(; parms...)
-t,evidence = sim(model)
-n_steps = length(evidence)
-time_steps = range(0, t, length=n_steps)
-lca_plot = plot(time_steps, hcat(evidence...)', xlabel="Time (seconds)", ylabel="Evidence",
+time_steps,evidence = simulate(model)
+lca_plot = plot(time_steps, evidence, xlabel="Time (seconds)", ylabel="Evidence",
     label=["option1" "option2"], ylims=(0, 2.0), grid=false, linewidth = 2,
     color =[RGB(148/255, 90/255, 147/255) RGB(90/255, 112/255, 148/255)])
 hline!(lca_plot, [model.α], color=:black, linestyle=:dash, label="threshold", linewidth = 2)

@@ -24,7 +24,7 @@ loglike = logpdf.(dist, data)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct WaldA{T<:Real} <: ContinuousUnivariateDistribution
+struct WaldA{T<:Real} <: SSM1D
     ν::T
     k::T
     A::T

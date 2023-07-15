@@ -50,6 +50,7 @@ module SequentialSamplingModels
     export params
     export pdf 
     export rand 
+    export simulate
     export std
     export vectorize
 
