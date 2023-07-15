@@ -6,7 +6,7 @@ The Diffusion Race Model (DRM; Tillman, Van Zandt, & Logan, 2020) is a sequentia
 In this example, we will demonstrate how to use the DRM in a generic two alternative forced choice task. 
 ```@setup drm
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = [1.0,0.50]
@@ -23,7 +23,7 @@ The first step is to load the required packages.
 
 ```@example drm
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)

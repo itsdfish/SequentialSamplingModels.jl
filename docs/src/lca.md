@@ -6,7 +6,7 @@ The Leaky Competing Accumulator (LCA; Usher & McClelland, 2001) is a sequential 
 In this example, we will demonstrate how to use the LBA in a generic two alternative forced choice task. 
 ```@setup lca
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = [2.5,2.0]
@@ -26,7 +26,7 @@ The first step is to load the required packages.
 
 ```@example lca
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)

@@ -6,7 +6,7 @@ The Wald model, also known as the inverse Gaussian, a sequential sampling model 
 In this example, we will demonstrate how to use the Wald model in a generic single choice decision task. 
 ```@setup wald
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = 3.0
@@ -23,7 +23,7 @@ The first step is to load the required packages.
 
 ```@example wald
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)

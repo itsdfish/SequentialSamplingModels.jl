@@ -7,7 +7,7 @@ The multi-attribute attentional drift diffusion model (MAADDM; Yang & Krajbich, 
 ```@setup maaDDM
 using SequentialSamplingModels
 using StatsBase
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(5487)
@@ -60,7 +60,7 @@ The first step is to load the required packages.
 ```@example maaDDM
 using SequentialSamplingModels
 using StatsBase
-using Plots
+using SSMPlots 
 
 Random.seed!(9854)
 ```

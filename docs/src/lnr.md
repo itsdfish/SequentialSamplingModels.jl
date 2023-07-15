@@ -6,7 +6,7 @@ The Lognormal Race model (LNR) assumes evidence for each option races independen
 In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task.
 ```@setup lnr
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = [-1,-1.5]
@@ -23,7 +23,7 @@ The first step is to load the required packages.
 
 ```@example lnr
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)

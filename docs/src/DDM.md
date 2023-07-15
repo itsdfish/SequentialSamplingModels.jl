@@ -14,7 +14,7 @@ The first step is to load the required packages.
 
 ```@example DDM
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)
