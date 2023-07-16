@@ -180,15 +180,15 @@ represent samples of evidence per time step and columns represent different accu
 - `model::LCA`: an LCA model object
 """
 function simulate(model::LCA; _...)
+    (;Δt,α) = model 
     n = length(model.ν)
     x = fill(0.0, n)
     μΔ = fill(0.0, n)
     ϵ = fill(0.0, n)
     t = 0.0
-    Δt = model.Δt
     evidence = [fill(0.0, n)]
     time_steps = [t]
-    while all(x .< model.α)
+    while all(x .< α)
         t += Δt
         increment!(model, x, μΔ, ϵ)
         push!(evidence, copy(x))

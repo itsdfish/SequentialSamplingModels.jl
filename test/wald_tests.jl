@@ -45,4 +45,21 @@
         loglike = loglikelihood(dist, rt)
         @test sum_logpdf ≈ loglike 
     end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random 
+
+        Random.seed!(8433)
+        α = .80
+       
+        dist = Wald(;α)
+
+        time_steps,evidence = simulate(dist; Δt = .0005)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == length(evidence)
+        @test evidence[end] ≈ α atol = .005
+    end
 end
