@@ -715,13 +715,17 @@ represent samples of evidence per time step and columns represent different accu
 function simulate(model::DDM; Δt=.001)
     (;ν, α, τ, z, η, sz, st, σ) = model
 
-    x = α * z
+    start_point = (z - sz/2) + ((z + sz/2) - (z - sz/2)) * rand()
+    drift = rand(Distributions.Normal(ν, η))
+
+    x = α * start_point
     t = 0.0
+
     evidence = [x]
     time_steps = [t]
     while (x < α) && (x > 0)
         t += Δt
-        x += ν * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
+        x += drift * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end
