@@ -36,7 +36,6 @@ module SequentialSamplingModels
     export LNR 
     export maaDDM
     export MixedMultivariateDistribution
-    export RatcliffDDM
     export SSM1D
     export SSM2D
     export Wald
@@ -65,5 +64,4 @@ module SequentialSamplingModels
     include("maaDDM.jl")
     include("LCA.jl")
     include("DDM.jl")
-    include("RatcliffDDM.jl")
 end

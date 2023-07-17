@@ -67,8 +67,8 @@ Computes the likelihood for a 2D sequential sampling model.
 - `d::SSM2D`: an object for a 2D sequential sampling model 
 - `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
 """
-logpdf(d::SSM2D, data::NamedTuple) = logpdf.(d, data.choice, data.rt)
-logpdf(d::SSM2D, data::Vector{Real}) = logpdf(d, Int(data[1]), data[2]) 
+logpdf(d::SSM2D, data::NamedTuple; kwargs...) = logpdf.(d, data.choice, data.rt; kwargs...)
+logpdf(d::SSM2D, data::Vector{Real}; kwargs...) = logpdf(d, Int(data[1]), data[2]; kwargs...) 
 
 """
     loglikelihood(d::SSM2D, data::NamedTuple) 
