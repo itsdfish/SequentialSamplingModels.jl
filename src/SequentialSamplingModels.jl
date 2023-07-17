@@ -45,7 +45,6 @@ module SequentialSamplingModels
     export LNR 
     export maaDDM
     export MixedMultivariateDistribution
-    export RatcliffDDM
     export SSM1D
     export SSM2D
     export ContinuousMultivariateSSM
@@ -89,5 +88,4 @@ module SequentialSamplingModels
     include("CircularDDM.jl")
     include("ext_functions.jl")
     include("ex_gaussian.jl")
-    include("RatcliffDDM.jl")
 end
