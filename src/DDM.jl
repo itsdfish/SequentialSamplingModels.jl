@@ -147,10 +147,10 @@ function _pdf_sv(d::DDM, rt; ϵ::Real = 1.0e-12)
     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
     if η == 0
-        return _pdf(DDM(ν, α, τ, z), rt; ϵ)
+        return _pdf(DDM(ν, α, τ, z, 0, 0, 0, σ), rt; ϵ)
     end
 
-    return _pdf(DDM(ν, α, τ, z), rt; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*(rt-τ) ) / (2*(η^2)*(rt-τ)+2)  ) - log(sqrt((η^2)*(rt-τ)+1)) + ν*α*z + (ν^2)*(rt-τ)*0.5
+    return _pdf(DDM(ν, α, τ, z, 0, 0, 0, σ), rt; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*(rt-τ) ) / (2*(η^2)*(rt-τ)+2)  ) - log(sqrt((η^2)*(rt-τ)+1)) + ν*α*z + (ν^2)*(rt-τ)*0.5
 end
 
 """
@@ -175,7 +175,8 @@ is based on the work of Navarro & Fuss (2009) and Wabersich & Vandekerckhove (20
 """
 
 function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
-    (ν, α, τ, z) = params(d)
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
     if τ ≥ t
         return T(NaN)
     end
