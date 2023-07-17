@@ -102,7 +102,9 @@ struct maaDDM{T<:Real} <: AbstractaDDM
 end
 
 function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
-    return maaDDM(promote(ν, α, z, θ, ϕ, ω, σ, Δ, τ)...)
+    _, α, z, θ, ϕ, ω, σ, Δ, τ = promote(ν[1], α, z, θ, ϕ, ω, σ, Δ, τ)
+    ν = convert(Array{typeof(z),2}, ν)
+    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 end
 
 function maaDDM(; 
@@ -121,8 +123,10 @@ end
 
 get_pdf_type(d::maaDDM) = Approximate
 
+n_options(d::maaDDM) = size(d.ν, 1)
+
 """
-    update(rng, dist::maaDDM, location)
+    increment(rng, dist::maaDDM, location)
 
 Returns the change evidence for a single iteration. 
 
@@ -131,7 +135,7 @@ Returns the change evidence for a single iteration.
 - `dist::maaDDM`: a model object for the multiattribute attentional drift diffusion model
 - `location`: an index for fixation location 
 """
-function update(rng, dist::maaDDM, location)
+function increment(rng, dist::maaDDM, location)
     (;ν,θ,ϕ,ω,Δ,σ) = dist
     # option 1, attribute 1
     if location == 1

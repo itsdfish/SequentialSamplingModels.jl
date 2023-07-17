@@ -16,9 +16,11 @@ Sub-types of `SSM1D` output a vector of reaction times.
 """
 abstract type SSM1D <: ContinuousUnivariateDistribution end 
 
-abstract type AbstractWald <: SSM1D end
-
 abstract type AbstractaDDM <: SSM2D end
+
+abstract type AbstractLBA <: SSM2D end 
+
+abstract type AbstractWald <: SSM1D end
 
 abstract type PDFType end
 

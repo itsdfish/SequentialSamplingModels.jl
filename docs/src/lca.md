@@ -6,7 +6,7 @@ The Leaky Competing Accumulator (LCA; Usher & McClelland, 2001) is a sequential 
 In this example, we will demonstrate how to use the LBA in a generic two alternative forced choice task. 
 ```@setup lca
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = [2.5,2.0]
@@ -19,22 +19,6 @@ using Random
 
 dist = LCA(; ν, α, β, λ, τ, σ, Δt)
 choices,rts = rand(dist, 500)
-
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
 ```
 
 ## Load Packages
@@ -42,7 +26,7 @@ The first step is to load the required packages.
 
 ```@example lca
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)
@@ -108,21 +92,7 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 ## Plot Simulation
 The code below plots a histogram for each option.
  ```@example lca 
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,2), ylims=(0,1.75))
-histogram!(rts1, subplot=1, color=:grey, bins = 50, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 50, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
+histogram(dist)
 ```
 # References
 

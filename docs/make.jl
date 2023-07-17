@@ -27,9 +27,10 @@ makedocs(
             "Wald Mixture Model" => "wald_mixture.md"
         ],
         "Parameter Estimation" => [
-            #"Simple Bayesian" => "turing_simple.md",
-            #"Advanced Bayesian" => "turing_advanced.md",
+            "Simple Bayesian" => "turing_simple.md",
+            "Advanced Bayesian" => "turing_advanced.md",
         ],
+        "Plotting" => "plotting.md",
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md"
     ]

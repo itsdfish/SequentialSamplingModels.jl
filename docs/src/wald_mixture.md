@@ -6,7 +6,7 @@ The Wald mixture model is a sequential sampling model for single choice decision
 In this example, we will demonstrate how to use the Wald mixture model in a generic single choice decision task. 
 ```@setup wald_mixture
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = 3.0
@@ -17,13 +17,6 @@ using Random
 dist = WaldMixture(ν, σ, α, τ)
 
 rts = rand(dist, 10_000)
-t_range = range(τ, 1, length=100)
-pdf1 = pdf.(dist, t_range)
-# histogram of retrieval times
-hist = histogram(rts, leg=false, grid=false, norm=true,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist
 ```
 
 ## Load Packages
@@ -31,7 +24,7 @@ The first step is to load the required packages.
 
 ```@example wald_mixture_mixture
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)
@@ -107,14 +100,8 @@ logpdf.(dist, rts)
 ## Plot Simulation
 The code below overlays the PDF on reaction time histogram.
  ```@example wald_mixture 
-rts = rand(dist, 10_000)
-t_range = range(τ, 1, length=100)
-pdf1 = pdf.(dist, t_range)
-# histogram of retrieval times
-hist = histogram(rts, leg=false, grid=false, norm=true, color=:grey,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist
+histogram(dist)
+plot!(dist; t_range=range(.130, 1, length=100))
 ```
 # References
 

@@ -266,4 +266,25 @@
         test_val4 = pdf(DDM(;ν=.8, α=.5, z=.3, τ=.2), 2, .35)
         @test test_val4 ≈ 0.4450956 atol = 1e-5
     end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random 
+
+        Random.seed!(8477)
+        α = .80
+        dist = DDM(;α, ν=3)
+
+        time_steps,evidence = simulate(dist; Δt = .0001)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == length(evidence)
+        @test evidence[end] ≈ α atol = .010
+
+        dist = DDM(;α, ν=-3)
+        time_steps,evidence = simulate(dist; Δt = .0001)
+        @test evidence[end] ≈ 0.0 atol = .010
+    end
+
 end

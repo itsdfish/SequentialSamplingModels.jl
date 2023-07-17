@@ -19,6 +19,40 @@ An object for the attentional diffusion model.
 
     aDDM(;ν=[5.0,4.0], α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004, τ=0.0)
 
+# Example 
+
+```julia 
+using SequentialSamplingModels
+using StatsBase
+
+mutable struct Transition
+    state::Int 
+    n::Int
+    mat::Array{Float64,2} 
+ end
+
+ function Transition(mat)
+    n = size(mat,1)
+    state = rand(1:n)
+    return Transition(state, n, mat)
+ end
+ 
+ function attend(transition)
+     (;mat,n,state) = transition
+     w = mat[state,:]
+     next_state = sample(1:n, Weights(w))
+     transition.state = next_state
+     return next_state
+ end
+
+ model = aDDM()
+ 
+ tmat = Transition([.98 .015 .005;
+                    .015 .98 .005;
+                    .45 .45 .1])
+
+ choices,rts = rand(model, 100, attend, tmat)
+```
 # References 
 
 Krajbich, I., Armel, C., & Rangel, A. (2010). Visual fixations and the computation and comparison of 
@@ -35,7 +69,7 @@ struct aDDM{T<:Real} <: AbstractaDDM
 end
 
 function aDDM(ν, α, z, θ, σ, Δ, τ)
-    _, α, z, θ, σ, Δ, τ = prompte(ν[1], α, z, θ, σ, Δ)
+    _, α, z, θ, σ, Δ, τ = promote(ν[1], α, z, θ, σ, Δ, τ)
     ν = convert(Vector{typeof(z)}, ν)
     return aDDM(ν, α, z, θ, σ, Δ, τ)
 end
@@ -62,7 +96,7 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 - `args...`: optional positional arguments for the `fixation` function
 
 # Keywords
-
+`rand_state! = _rand_state!`: initialize first state with equal probability 
 - `kwargs...`: optional keyword arguments for the `fixation` function
 """
 function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation, args...; rand_state! = _rand_state!, kwargs...)
@@ -74,6 +108,8 @@ function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation, args..
     end
     return (;choice,rt)
 end
+
+_rand_state!(tmat) = _rand_state!(Random.default_rng(), tmat)
 
 function _rand_state!(rng, tmat)
     tmat.state = rand(rng, 1:tmat.n)
@@ -111,14 +147,16 @@ function _rand(rng::AbstractRNG, dist::AbstractaDDM, fixation)
     while abs(v) < α
         t += Δt
         location = fixation()
-        v += update(rng, dist, location)
+        v += increment(rng, dist, location)
     end
     choice = (v < α) + 1
     return (;choice,rt=t)
 end
 
+increment(dist::AbstractaDDM, location) = increment(Random.default_rng(), dist, location)
+
 """
-    update(rng::AbstractRNG, dist::aDDM, location)
+    increment(rng::AbstractRNG, dist::aDDM, location)
 
 Returns the change evidence for a single iteration. 
 
@@ -128,7 +166,7 @@ Returns the change evidence for a single iteration.
 - `dist::aDDM`: a model object for the attentional drift diffusion model
 - `location`: an index for fixation location 
 """
-function update(rng::AbstractRNG, dist::aDDM, location)
+function increment(rng::AbstractRNG, dist::aDDM, location)
     (;σ,ν,θ,Δ) = dist
     # option 1
     if location == 1
@@ -142,6 +180,40 @@ function update(rng::AbstractRNG, dist::aDDM, location)
     return -100.0
 end 
 
-update(dist::AbstractaDDM, location) = update(Random.default_rng(), dist, location)
-
 noise(rng, σ) = rand(rng, Normal(0, σ))
+
+"""
+    simulate(model::AbstractaDDM; fixation, m_args=(), m_kwargs=())
+
+Returns a matrix containing evidence samples from a subtype of an attentional drift diffusion model decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::AbstractaDDM`: an drift diffusion  model object
+
+# Keywords
+- `attend`: a function of the visual fixation process which returns 1 for alternative 
+    and 2 for alternative 2
+- `args=()`: a set of optional positional arguments for the `attend` function 
+- `kwargs=()`: a set of optional keyword arguments for the `attend` function 
+`rand_state! = _rand_state!`: initialize first state with equal probability 
+"""
+function simulate(model::AbstractaDDM; attend, args=(), kwargs=(), rand_state! = _rand_state!)
+    (;α,z) = model
+    fixation = () -> attend(args...; kwargs...)
+    rand_state!(args...)
+    t = 0.0
+    Δt = .001
+    x = z
+    evidence = [x]
+    time_steps = [t]
+    while abs(x) < α
+        t += Δt
+        location = fixation()
+        x += increment(model, location)
+        push!(evidence, x)
+        push!(time_steps, t)
+    end
+    return time_steps,evidence
+end

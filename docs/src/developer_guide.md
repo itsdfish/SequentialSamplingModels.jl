@@ -61,6 +61,7 @@ To ensure consistency across models, please use the following variable names:
 1. use `ν` for drift rates
 2. use `α` for decision boundaries
 3. use `Δt` for a discrete time step
-4. use `σ` for within trial noise   
+4. use `σ` for within-trial noise of drift rate  
 5. use `τ` for non-decision time
 6. use `z` for evidence starting point
+7. use `η` for across-trial noise of drift rate

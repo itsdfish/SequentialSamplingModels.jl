@@ -821,3 +821,48 @@ n_options(d::DDM) = 2
 #     end
 #     return r
 # end
+
+"""
+    simulate(model::DDM; Δt=.001)
+
+Returns a matrix containing evidence samples of the drift diffusion model decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::DDM`: an drift diffusion  model object
+
+# Keywords
+
+- `Δt=.001`: size of time step of decision process in seconds
+"""
+function simulate(model::DDM; Δt=.001)
+    (;ν,α,z) = model
+    x = α * z
+    t = 0.0
+    evidence = [x]
+    time_steps = [t]
+    while (x < α) && (x > 0)
+        t += Δt
+        x += ν * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
+        push!(evidence, x)
+        push!(time_steps, t)
+    end
+    return time_steps,evidence
+end
+
+# function rand(dist::DDM)
+#     (;ν,α,z,σ,τ, Δt,η,st,sz) = dist
+#     t = 0.0
+#     srΔt = √Δt
+#     x = rand(Uniform(z - sz / 2, z + sz / 2))
+#     ν′ = rand(Normal(ν, η))
+#     while (x < α) && (x > 0)
+#         ϵ = rand(Normal(0, σ))
+#         x += ν′* Δt + ϵ * srΔt
+#         t += Δt
+#     end
+#     choice = (x < α) + 1
+#     t += rand(Uniform(τ - st / 2, τ + st / 2))
+#     return choice,t
+# end

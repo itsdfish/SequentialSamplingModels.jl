@@ -24,7 +24,7 @@ loglike = logpdf.(dist, data)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct WaldA{T<:Real} <: ContinuousUnivariateDistribution
+struct WaldA{T<:Real} <: SSM1D
     ν::T
     k::T
     A::T
@@ -88,9 +88,9 @@ An object for the racing diffusion model.
 
 # Constructors
 
-    RDM(;ν, k, A, τ)
-
     RDM(ν, k, A, τ)
+
+    RDM(;ν=[1,2], k=.3, A=.7, τ=.2)
 
 # Parameters
 
@@ -130,12 +130,10 @@ function params(d::RDM)
     (d.ν, d.k, d.A, d.τ)    
 end
 
-RDM(;ν, k, A, τ) = RDM(ν, k, A, τ)
+RDM(;ν=[1,2], k=.3, A=.7, τ=.2) = RDM(ν, k, A, τ)
 
 function rand(rng::AbstractRNG, dist::RDM)
     (;ν, A, k, τ) = dist
-    z = rand(rng, Uniform(0, A))
-    α = k + A - z 
     x = @. rand(rng, WaldA(ν, k, A, τ))
     rt,choice = findmin(x)
     return (;choice,rt)
@@ -165,4 +163,44 @@ function pdf(d::RDM, r::Int, rt::Float64)
         end
     end
     return like
+end
+
+
+"""
+    simulate(model::RDM)
+
+Returns a matrix containing evidence samples of the racing diffusion model decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::RDM`: an racing diffusion model object
+
+# Keywords
+
+- `Δt=.001`: size of time step of decision process in seconds
+"""
+function simulate(model::RDM; Δt=.001)
+    (;ν,A,k) = model
+    n = length(model.ν)
+    t = 0.0
+    z = rand(Uniform(0, A), n)
+    α = k + A
+    x = z
+    ϵ = fill(0.0, n)
+    evidence = [deepcopy(x)]
+    time_steps = [t]
+    while all(x .< α)
+        t += Δt
+        increment!(model, x, ϵ, ν, Δt)
+        push!(evidence, deepcopy(x))
+        push!(time_steps, t)
+    end
+    return time_steps,reduce(vcat, transpose.(evidence))
+end
+
+function increment!(model::RDM, x, ϵ, ν, Δt)
+    ϵ .= rand(Normal(0.0, 0.10), length(ν))
+    x .+= ν * Δt + ϵ * √(Δt)
+    return nothing 
 end

@@ -126,4 +126,23 @@
         loglike = loglikelihood(dist, (;choice, rt))
         @test sum_logpdf ≈ loglike 
     end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random 
+
+        Random.seed!(8477)
+        A = .80
+        k = .20
+        α = A + k
+        dist = RDM(;A, k, ν=[2,1])
+
+        time_steps,evidence = simulate(dist; Δt = .0001)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == size(evidence, 1)
+        @test size(evidence, 2) == 2
+        @test maximum(evidence[end,:]) ≈ α atol = .005
+    end
 end
