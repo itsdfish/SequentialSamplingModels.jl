@@ -60,6 +60,6 @@
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == length(evidence)
-        @test evidence[end] ≈ α atol = .005
+        @test evidence[end] ≈ α atol = .02
     end
 end

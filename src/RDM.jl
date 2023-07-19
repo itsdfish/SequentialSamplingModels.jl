@@ -200,7 +200,7 @@ function simulate(model::RDM; Δt=.001)
 end
 
 function increment!(model::RDM, x, ϵ, ν, Δt)
-    ϵ .= rand(Normal(0.0, 0.10), length(ν))
+    ϵ .= rand(Normal(0.0, 1.0), length(ν))
     x .+= ν * Δt + ϵ * √(Δt)
     return nothing 
 end
