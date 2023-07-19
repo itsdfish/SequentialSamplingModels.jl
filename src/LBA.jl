@@ -1,5 +1,5 @@
 """
-    LBA{T<:Real} <: SSM2D
+    LBA{T<:Real} <: AbstractLBA
 
 A model object for the linear ballistic accumulator.
 
@@ -31,7 +31,7 @@ loglike = logpdf.(dist, choice, rt)
 
 Brown, S. D., & Heathcote, A. (2008). The simplest complete model of choice response time: Linear ballistic accumulation. Cognitive psychology, 57(3), 153-178.
 """
-mutable struct LBA{T<:Real} <: SSM2D
+mutable struct LBA{T<:Real} <: AbstractLBA
     ν::Vector{T}
     A::T
     k::T
@@ -66,6 +66,8 @@ function select_winner(dt)
     return mi,mv
 end
 
+sample_drift_rates(ν, σ) = sample_drift_rates(Random.default_rng(), ν, σ)
+
 function sample_drift_rates(rng::AbstractRNG, ν, σ)
     negative = true
     v = similar(ν)
@@ -76,7 +78,7 @@ function sample_drift_rates(rng::AbstractRNG, ν, σ)
     return v
 end
 
-function rand(rng::AbstractRNG, d::LBA)
+function rand(rng::AbstractRNG, d::AbstractLBA)
     (;τ,A,k,ν,σ) = d
     b = A + k
     N = length(ν)
@@ -88,9 +90,9 @@ function rand(rng::AbstractRNG, d::LBA)
     return (;choice,rt)
 end
 
-logpdf(d::LBA, choice, rt) = log(pdf(d, choice, rt))
+logpdf(d::AbstractLBA, choice, rt) = log(pdf(d, choice, rt))
 
-function pdf(d::LBA, c, rt)
+function pdf(d::AbstractLBA, c, rt)
     (;τ,A,k,ν,σ) = d
     b = A + k; den = 1.0
     rt < τ ? (return 1e-10) : nothing
@@ -107,7 +109,7 @@ function pdf(d::LBA, c, rt)
     isnan(den) ? (return 0.0) : (return den)
 end
 
-function dens(d::LBA, v, rt)
+function dens(d::AbstractLBA, v, rt)
     (;τ,A,k,ν,σ) = d
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
@@ -117,7 +119,7 @@ function dens(d::LBA, v, rt)
     return dens
 end
 
-function cummulative(d::LBA, v, rt)
+function cummulative(d::AbstractLBA, v, rt)
     (;τ,A,k,ν,σ) = d
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
@@ -128,11 +130,38 @@ function cummulative(d::LBA, v, rt)
     return cm
 end
 
-function pnegative(d::LBA)
+function pnegative(d::AbstractLBA)
     (;ν,σ) = d
     p = 1.0
     for v in ν
         p *= cdf(Normal(0, 1), -v / σ)
     end
     return p
+end
+
+"""
+    simulate(model::AbstractLBA; n_steps=100)
+
+Returns a matrix containing evidence samples of the LBA decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::AbstractLBA`: a subtype of AbstractLBA
+
+# Keywords 
+
+- `n_steps=100`: number of time steps at which evidence is recorded
+"""
+function simulate(model::AbstractLBA; n_steps=100)
+    (;τ,A,k,ν,σ) = model
+    b = A + k
+    n = length(ν)
+    νs = sample_drift_rates(ν, σ)
+    a = rand(Uniform(0, A), n)
+    dt = @. (b - a) / νs
+    choice,t = select_winner(dt)
+    evidence = collect.(range.(a, a + νs * t, length=100))
+    time_steps = range(0, t, length=n_steps)
+    return time_steps,hcat(evidence...)
 end

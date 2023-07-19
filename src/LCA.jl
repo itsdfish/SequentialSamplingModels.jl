@@ -75,6 +75,8 @@ function params(d::LCA)
     (d.ν, d.α, d.β, d.λ, d.τ, d.σ, d.Δt)    
 end
 
+get_pdf_type(d::LCA) = Approximate
+
 """
     rand(dist::LCA)
 
@@ -165,4 +167,32 @@ function inhibit(x, i)
         v += j ≠ i ? x[j] : 0.0
     end
     return v
+end
+
+"""
+    simulate(model::LCA; _...)
+
+Returns a matrix containing evidence samples of the LCA decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::LCA`: an LCA model object
+"""
+function simulate(model::LCA; _...)
+    (;Δt,α) = model 
+    n = length(model.ν)
+    x = fill(0.0, n)
+    μΔ = fill(0.0, n)
+    ϵ = fill(0.0, n)
+    t = 0.0
+    evidence = [fill(0.0, n)]
+    time_steps = [t]
+    while all(x .< α)
+        t += Δt
+        increment!(model, x, μΔ, ϵ)
+        push!(evidence, copy(x))
+        push!(time_steps, t)
+    end
+    return time_steps,reduce(vcat, transpose.(evidence))
 end

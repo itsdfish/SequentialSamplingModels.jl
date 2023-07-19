@@ -30,6 +30,7 @@ makedocs(
             "Simple Bayesian" => "turing_simple.md",
             "Advanced Bayesian" => "turing_advanced.md",
         ],
+        "Plotting" => "plotting.md",
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md"
     ]

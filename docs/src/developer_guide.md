@@ -55,3 +55,13 @@ Only export (make public) types and methods that are intended for users. Other m
 
 Provide unit tests for most (if not all) methods. When possible, programatically test a method over a wide range of inputs. If you find a bug, write a unit test for the bug to prevent regressions. When possible, compare methods to those defined in established and trusted packages in other languages.  
 
+# Parameter Naming Conventions
+To ensure consistency across models, please use the following variable names:
+
+1. use `ν` for drift rates
+2. use `α` for decision boundaries
+3. use `Δt` for a discrete time step
+4. use `σ` for within-trial noise of drift rate  
+5. use `τ` for non-decision time
+6. use `z` for evidence starting point
+7. use `η` for across-trial noise of drift rate

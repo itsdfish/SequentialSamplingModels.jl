@@ -5,14 +5,13 @@
         include("KDE.jl")
         Random.seed!(741)
 
-        dist = WaldA(ν=.5, k=.3, A=.7, θ=.2)
+        dist = WaldA(ν=.5, k=.3, A=.7, τ=.2)
         rts = map(_ -> rand(dist), 1:10^6)
         approx_pdf = kernel(rts)
         x = .201:.01:2.5
         y′ = pdf(approx_pdf, x)
         y = pdf.(dist, x)
         @test mean(abs.(y .- y′)) < .02
-        #@test std(abs.(y .- y′)) < .04
 
         p′ = quadgk(x -> pdf(dist, x), .2, Inf)[1]
         @test p′ ≈ 1 rtol = .001
@@ -33,14 +32,13 @@
         @test p ≈ mean((rts .< .6 ).& (rts .> .3)) rtol = .01
 
 
-        dist = WaldA(ν=1.0, k=.3, A=1.0, θ=.2)
+        dist = WaldA(ν=1.0, k=.3, A=1.0, τ=.2)
         rts = map(_->rand(dist), 1:10^6)
         approx_pdf = kernel(rts)
         x = .201:.01:2.5
         y′ = pdf(approx_pdf, x)
         y = pdf.(dist, x)
         @test mean(abs.(y .- y′)) < .02
-    # @test std(abs.(y .- y′)) < .04
 
         p′ = quadgk(x -> pdf(dist, x), .2, Inf)[1]
         @test p′ ≈ 1 rtol = .001
@@ -65,7 +63,7 @@
         @test p′ ≈ p rtol = .001
         @test p ≈ mean((rts .< 1.5).& (rts .> 1.4)) rtol = .02
 
-        dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2)
+        dist = RDM(;ν=[1.0,.5], k=0.5, A=1.0, τ=.2)
         choice,rts = rand(dist, 10^6)
         rt1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
@@ -121,11 +119,30 @@
         using Random
         Random.seed!(655)
 
-        dist = DiffusionRace(;ν=[1.0,.5], k=0.5, A=1.0, θ=.2)
+        dist = RDM(;ν=[1.0,.5], k=0.5, A=1.0, τ=.2)
         choice,rt = rand(dist, 10)
 
         sum_logpdf = logpdf.(dist, choice, rt) |> sum 
         loglike = loglikelihood(dist, (;choice, rt))
         @test sum_logpdf ≈ loglike 
+    end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random 
+
+        Random.seed!(8477)
+        A = .80
+        k = .20
+        α = A + k
+        dist = RDM(;A, k, ν=[2,1])
+
+        time_steps,evidence = simulate(dist; Δt = .0001)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == size(evidence, 1)
+        @test size(evidence, 2) == 2
+        @test maximum(evidence[end,:]) ≈ α atol = .005
     end
 end

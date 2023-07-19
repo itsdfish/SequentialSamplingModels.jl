@@ -6,39 +6,16 @@ The Lognormal Race model (LNR) assumes evidence for each option races independen
 In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task.
 ```@setup lnr
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
-μ = [-1,-1.5]
+ν = [-1,-1.5]
 σ = 0.50
-ϕ = 0.30
+τ = 0.30
 
-dist = LNR(μ, σ, ϕ)
+dist = LNR(ν, σ, τ)
 
 choices,rts = rand(dist, 1000)
-
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-t_range = range(.31, 1, length=100)
-# pdf for choice 1
-pdf1 = pdf.(dist, (1,), t_range)
-# pdf for choice 2
-pdf2 = pdf.(dist, (2,), t_range)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
 ```
 
 ## Load Packages
@@ -46,7 +23,7 @@ The first step is to load the required packages.
 
 ```@example lnr
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)
@@ -56,10 +33,10 @@ In the code below, we will define parameters for the LBA and create a model obje
 
 ### Mean Log Time
 
-The parameter $\mu$ represents the mean processing time of each accumulator in log space.
+The parameter $\nu$ represents the mean processing time of each accumulator in log space.
 
 ```@example lnr
-μ = [-1,-1.5]
+ν = [-1,-1.5]
 ```
 
 ### Log Standard Deviation
@@ -72,14 +49,14 @@ The parameter $\sigma$ represents the standard deviation of processing time in l
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time.
 ```@example lnr
-ϕ = 0.30
+τ = 0.30
 ```
 ### LNR Constructor
 
 Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
 
 ```@example lnr
-dist = LNR(μ, σ, ϕ)
+dist = LNR(ν, σ, τ)
 ```
 ## Simulate Model
 
@@ -104,28 +81,8 @@ logpdf.(dist, choices, rts)
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
  ```@example lnr
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-t_range = range(.31, 1, length=100)
-# pdf for choice 1
-pdf1 = pdf.(dist, (1,), t_range)
-# pdf for choice 2
-pdf2 = pdf.(dist, (2,), t_range)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
+histogram(dist)
+plot!(dist; t_range=range(.301, 1, length=100))
 ```
 # References
 

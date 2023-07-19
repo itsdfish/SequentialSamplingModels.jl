@@ -7,7 +7,7 @@ The attentional drift diffusion model (ADDM; Krajbich, Armel, & Rangel, 2010) de
 ```@setup aDDM
 using SequentialSamplingModels
 using StatsBase
-using Plots
+using SSMPlots
 using Random
 
 Random.seed!(5487)
@@ -32,37 +32,20 @@ mutable struct Transition
      return next_state
  end
 
-ν1 = 6.0
-ν2 = 5.0
+ν =[6.0,5.0]
 α = 1.0
 z = 0.0
 θ = 0.30
 σ = 0.02
 Δ = 0.0004  
 
- model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
+ model = aDDM(; ν, α, z, θ, σ, Δ)
  
  tmat = Transition([.98 .015 .005;
                     .015 .98 .005;
                     .45 .45 .1])
 
  choices,rts = rand(model, 100, attend, tmat)
-
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
 ```
 
 In this example, we will develope a ADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 
@@ -72,7 +55,7 @@ The first step is to load the required packages.
 ```@example aDDM
 using SequentialSamplingModels
 using StatsBase
-using Plots
+using SSMPlots
 
 Random.seed!(5487)
 ```
@@ -147,8 +130,7 @@ The code snippets assign values to parameters of the ADDM and create a model obj
 ### Drift Rate Components
 The ADDM has two drift rates components corresponding to the utlity of each option. To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
 ```@example aDDM 
-ν1 = 6.0
-ν2 = 5.0
+ν = [6.0,5.0]
 ```
 ### Threshold
 The threshold hold represents the amount of evidence required to make a decision. This parameter is typically fixed at $\alpha = 1$.
@@ -179,7 +161,7 @@ The drift rate scalar controls how quickly evidence accumulates for each option.
 ### Model Object
 Finally, we pass the parameters to the `aDDM` constructor to initialize the model.
  ```@example aDDM 
- model = aDDM(; ν1, ν2, α, z, θ, σ, Δ)
+ model = aDDM(; ν, α, z, θ, σ, Δ)
 ```
 ## Simulate Model
 
@@ -191,21 +173,9 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 ## Plot Simulation
 Finally, we can generate histograms of the reaction times for each decision option. 
  ```@example aDDM 
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
+m_args = (attend,tmat)
+histogram(model; m_args)
+plot!(model; m_args, t_range=range(0.0, 5, length=100), xlims=(0,5))
 ```
 # References
 

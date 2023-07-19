@@ -129,5 +129,23 @@
         @test mean(evidence, dims=1) ≈ true_means atol = 5e-4
         @test std(evidence, dims=1) ≈ fill(true_std, 1, 2) atol = 5e-4
     end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random 
+
+        Random.seed!(843)
+        α = .80
+        Δt = .0005
+        dist = LCA(;α, ν=[2,1], Δt)
+
+        time_steps,evidence = simulate(dist)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == size(evidence, 1)
+        @test size(evidence, 2) == 2
+        @test maximum(evidence[end,:]) ≈ α atol = .005
+    end
 end
 

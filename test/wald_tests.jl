@@ -6,14 +6,15 @@
         d = Wald(2, 1, .1)
         @test mean(d) ≈ (1/2) + .1 atol = 1e-5
 
-        function simulate(υ, α, θ)
+
+        function simulate(υ, α, τ)
             noise = 1.0
             #Time Step
             Δt = .0005
             #Evidence step
             Δe = noise * sqrt(Δt)
             e = 0.0
-            t = θ
+            t = τ
             p = .5 * (1 + υ * sqrt(Δt) / noise)
             while (e < α)
                 t += Δt
@@ -43,5 +44,22 @@
         sum_logpdf = logpdf.(dist, rt) |> sum 
         loglike = loglikelihood(dist, rt)
         @test sum_logpdf ≈ loglike 
+    end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random 
+
+        Random.seed!(8433)
+        α = .80
+       
+        dist = Wald(;α)
+
+        time_steps,evidence = simulate(dist; Δt = .0005)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == length(evidence)
+        @test evidence[end] ≈ α atol = .02
     end
 end

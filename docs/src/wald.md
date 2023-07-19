@@ -6,23 +6,16 @@ The Wald model, also known as the inverse Gaussian, a sequential sampling model 
 In this example, we will demonstrate how to use the Wald model in a generic single choice decision task. 
 ```@setup wald
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 ν = 3.0
 α = 0.50
-θ = 0.130
+τ = 0.130
 
-dist = Wald(ν, α, θ)
+dist = Wald(ν, α, τ)
 
 rts = rand(dist, 10_000)
-t_range = range(θ, 1, length=100)
-pdf1 = pdf.(dist, t_range)
-# histogram of retrieval times
-hist = histogram(rts, leg=false, grid=false, norm=true,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist
 ```
 
 ## Load Packages
@@ -30,7 +23,7 @@ The first step is to load the required packages.
 
 ```@example wald
 using SequentialSamplingModels
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(8741)
@@ -55,14 +48,14 @@ The parameter $\alpha$ the amount of evidence required to make a decision.
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time. 
 ```@example wald 
-θ = 0.130
+τ = 0.130
 ```
 ### Wald Constructor 
 
 Now that values have been asigned to the parameters, we will pass them to `Wald` to generate the model object.
 
 ```@example wald 
-dist = Wald(ν, α, θ)
+dist = Wald(ν, α, τ)
 ```
 ## Simulate Model
 
@@ -89,14 +82,8 @@ logpdf.(dist, rts)
 ## Plot Simulation
 The code below overlays the PDF on reaction time histogram.
  ```@example wald 
-rts = rand(dist, 10_000)
-t_range = range(θ, 1, length=100)
-pdf1 = pdf.(dist, t_range)
-# histogram of retrieval times
-hist = histogram(rts, leg=false, grid=false, norm=true, color=:grey,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,1))
-plot!(t_range, pdf1, subplot=1, color=:darkorange, linewidth=2)
-hist
+histogram(dist)
+plot!(dist; t_range=range(.130, 1, length=100))
 ```
 # References
 

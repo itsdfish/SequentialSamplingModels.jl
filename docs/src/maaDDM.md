@@ -7,7 +7,7 @@ The multi-attribute attentional drift diffusion model (MAADDM; Yang & Krajbich, 
 ```@setup maaDDM
 using SequentialSamplingModels
 using StatsBase
-using Plots
+using SSMPlots 
 using Random
 
 Random.seed!(5487)
@@ -32,10 +32,7 @@ mutable struct Transition
      return next_state
  end
 
-ν₁₁ = 4.0 
-ν₁₂ = 5.0 
-ν₂₁ = 5.0 
-ν₂₂ = 4.0
+ν = [4.0 5.0; 5.0 4.0]
 α = 1.0 
 z = 0.0
 θ = .3
@@ -44,7 +41,9 @@ z = 0.0
 σ = .02
 Δ = .0004
 
-dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
+
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
 
 tmat = Transition([.98 .015 .0025 .0025;
                 .015 .98 .0025 .0025;
@@ -52,22 +51,6 @@ tmat = Transition([.98 .015 .0025 .0025;
                 .0025 .0025 .015 .98])
 
  choices,rts = rand(dist, 100, attend, tmat)
-
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
 ```
 
 In this example, we will develope a MAADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 
@@ -77,7 +60,7 @@ The first step is to load the required packages.
 ```@example maaDDM
 using SequentialSamplingModels
 using StatsBase
-using Plots
+using SSMPlots 
 
 Random.seed!(9854)
 ```
@@ -155,10 +138,7 @@ The code snippets assign values to parameters of the MAADDM and create a model o
 ### Drift Rate Components
 In the decision making task, there are two alternatives with two attributes each. This leads to four components of the drift rates: $\nu_{1,1}, \nu_{1,2},\nu_{2,1},\nu_{2,2}$ where the first index corresponds to alternative and the second index corresponds to attribute.  To form the drift rate, each component is weighted by non-attention bias and then a difference is computed.
 ```@example maaDDM
-ν₁₁ = 4.0 
-ν₁₂ = 5.0 
-ν₂₁ = 5.0 
-ν₂₂ = 4.0
+ν = [4.0 5.0; 5.0 4.0]
 ```
 
 ### Threshold
@@ -207,7 +187,7 @@ The drift rate scalar controls how quickly evidence accumulates for each option.
 ### Model Object
 Finally, we pass the parameters to the `maaDDM` constructor to initialize the model.
  ```@example maaDDM
-dist = maaDDM(; ν₁₁, ν₁₂, ν₂₁, ν₂₂, α, z, θ, ϕ, ω, σ, Δ)
+dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
 ```
 ## Simulate Model
 
@@ -219,21 +199,9 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 ## Plot Simulation
 Finally, we can generate histograms of the reaction times for each decision option. 
  ```@example maaDDM
-# rts for option 1
-rts1 = rts[choices .== 1]
-# rts for option 2 
-rts2 = rts[choices .== 2]
-# probability of choosing 1
-p1 = length(rts1) / length(rts)
-# histogram of retrieval times
-hist = histogram(layout=(2,1), leg=false, grid=false,
-     xlabel="Reaction Time", ylabel="Density", xlims = (0,5), ylims=(0,.5))
-histogram!(rts1, subplot=1, color=:grey, bins = 100, norm=true, title="Choice 1")
-histogram!(rts2, subplot=2, color=:grey, bins = 100, norm=true, title="Choice 2")
-# weight histogram according to choice probability
-hist[1][1][:y] *= p1
-hist[2][1][:y] *= (1 - p1)
-hist
+m_args = (attend,tmat)
+histogram(dist; m_args)
+plot!(dist; m_args, t_range=range(.130, 5, length=100), xlims=(0,7))
 ```
 # References
 

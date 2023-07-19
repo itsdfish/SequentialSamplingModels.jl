@@ -16,9 +16,30 @@ Sub-types of `SSM1D` output a vector of reaction times.
 """
 abstract type SSM1D <: ContinuousUnivariateDistribution end 
 
+abstract type AbstractaDDM <: SSM2D end
+
+abstract type AbstractLBA <: SSM2D end 
+
 abstract type AbstractWald <: SSM1D end
 
-abstract type AbstractaDDM <: SSM2D end
+abstract type PDFType end
+
+"""
+    Exact <: PDFType
+
+Has closed-form PDF. 
+"""
+struct Exact <: PDFType end 
+
+"""
+    Approximate <: PDFType
+
+Has approximate PDF based on kernel density estimator. 
+"""
+struct Approximate <: PDFType end 
+
+get_pdf_type(d::SSM1D) = Exact
+get_pdf_type(d::SSM2D) = Exact
 
 minimum(d::SSM1D) = 0.0
 maximum(d::SSM1D) = Inf
@@ -94,6 +115,28 @@ function rand(rng::AbstractRNG, d::SSM2D, N::Int)
     end
     return (;choice,rt)
 end
+
+"""
+    n_options(dist::SSM2D)
+
+Returns the number of choice options based on the length of the drift rate vector `ν`.
+
+# Arguments
+
+- `d::SSM2D`: a sub-type of `SSM2D`
+"""
+n_options(d::SSM2D) = length(d.ν)
+
+"""
+    n_options(dist::SSM1D)
+
+Returns 1 for the number of choice options
+
+# Arguments
+
+- `d::SSM1D`: a sub-type of `SSM1D`
+"""
+n_options(d::SSM1D) = 1
 
 function Base.show(io::IO, ::MIME"text/plain", model::SSM1D)
     values = [getfield(model, f) for f in fieldnames(typeof(model))]
