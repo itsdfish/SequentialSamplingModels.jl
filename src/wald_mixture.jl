@@ -96,7 +96,7 @@ function simulate(model::WaldMixture; Δt=.001)
     ν′ = rand(truncated(Normal(ν, η), 0, Inf))
     while x .< α
         t += Δt
-        x += ν′ * Δt + rand(Normal(0.0, 0.10)) * √(Δt)
+        x += ν′ * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end
