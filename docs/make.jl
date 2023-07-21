@@ -19,10 +19,10 @@ makedocs(
             "Drift Diffusion Model (DDM)" => "DDM.md",
             "Linear Ballistic Accumulator (LBA)" => "lba.md",
             "Lognormal Race Model (LNR)" => "lnr.md",
-            "Attentional Drift Diffusion" => "aDDM.md",
-            "Leaky Competing Accumulator" => "lca.md",
+            "Racing Diffusion Model (RDM)" => "rdm.md",
+            "Leaky Competing Accumulator (LCA)" => "lca.md",
+            "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
             "Muti-attribute attentional drift diffusion Model" => "maaDDM.md",
-            "Racing Diffusion Model" => "rdm.md",
             "Wald Model" => "wald.md",
             "Wald Mixture Model" => "wald_mixture.md"
         ],
