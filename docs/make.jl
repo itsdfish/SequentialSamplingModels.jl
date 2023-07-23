@@ -29,6 +29,7 @@ makedocs(
         "Parameter Estimation" => [
             "Simple Bayesian" => "turing_simple.md",
             "Advanced Bayesian" => "turing_advanced.md",
+            "Hierarchical Models" => "turing_hierarchical.md",
         ],
         "Plotting" => "plotting.md",
         "API" => "api.md",
