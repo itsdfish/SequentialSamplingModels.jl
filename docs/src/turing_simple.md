@@ -21,6 +21,9 @@ using SequentialSamplingModels
 using Random
 using LinearAlgebra
 using StatsPlots
+using Random
+
+Random.seed!(45461)
 ```
 
 ## Generate Data
