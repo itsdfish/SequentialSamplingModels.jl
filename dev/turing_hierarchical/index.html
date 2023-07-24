@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Hierarchical Models · SequentialSamplingModels</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="SequentialSamplingModels logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">SequentialSamplingModels</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><input class="collapse-toggle" id="menuitem-2" type="checkbox"/><label class="tocitem" for="menuitem-2"><span class="docs-label">Models</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../DDM/">Drift Diffusion Model (DDM)</a></li><li><a class="tocitem" href="../lba/">Linear Ballistic Accumulator (LBA)</a></li><li><a class="tocitem" href="../lnr/">Lognormal Race Model (LNR)</a></li><li><a class="tocitem" href="../rdm/">Racing Diffusion Model (RDM)</a></li><li><a class="tocitem" href="../lca/">Leaky Competing Accumulator (LCA)</a></li><li><a class="tocitem" href="../aDDM/">Attentional Drift Diffusion (aDDM)</a></li><li><a class="tocitem" href="../maaDDM/">Muti-attribute attentional drift diffusion Model</a></li><li><a class="tocitem" href="../wald/">Wald Model</a></li><li><a class="tocitem" href="../wald_mixture/">Wald Mixture Model</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-3" type="checkbox" checked/><label class="tocitem" for="menuitem-3"><span class="docs-label">Parameter Estimation</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../turing_simple/">Simple Bayesian</a></li><li><a class="tocitem" href="../turing_advanced/">Advanced Bayesian</a></li><li class="is-active"><a class="tocitem" href>Hierarchical Models</a><ul class="internal"><li><a class="tocitem" href="#Generate-Data"><span>Generate Data</span></a></li><li><a class="tocitem" href="#Model-Specification"><span>Model Specification</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../plotting/">Plotting</a></li><li><a class="tocitem" href="../api/">API</a></li><li><a class="tocitem" href="../developer_guide/">Developer Guide</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Parameter Estimation</a></li><li class="is-active"><a href>Hierarchical Models</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Hierarchical Models</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/itsdfish/SequentialSamplingModels.jl/blob/master/docs/src/turing_hierarchical.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Hierarchical-Models"><a class="docs-heading-anchor" href="#Hierarchical-Models">Hierarchical Models</a><a id="Hierarchical-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Hierarchical-Models" title="Permalink"></a></h1><p>In this example, we will fit a model with random factors and estimate individual parameters. This tutorial will build on the previous ones, so make sure you have followed them first. Let&#39;s start by loading all the packages and setting a reproducible seed.</p><pre><code class="language- hljs">using Turing
+using SequentialSamplingModels
+using Random
+using LinearAlgebra
+using Distributions
+using DataFrames
+using StatsPlots
+using StatsModels
+using CSV
+using Optim
+
+Random.seed!(6)</code></pre><h2 id="Generate-Data"><a class="docs-heading-anchor" href="#Generate-Data">Generate Data</a><a id="Generate-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-Data" title="Permalink"></a></h2><p>We will use the <a href="https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lba/">LBA</a> distribution to simulate data for 10 participants in two conditions with 100 trials per condition (repeated measures design). The drift rates for condition A are sampled from normal distributions, and the drift rates for condition B are set by sampling a departure from (i.e., the difference with) condition A. In other words, each participant has different drift rates for condition A (the <em>intercept</em>, i.e., the baseline condition) and a different &quot;effect&quot; magnitude of condition B (the offset from condition A to condition B).</p><pre><code class="language- hljs"># Generate data with different drifts for two conditions A vs. B
+df = DataFrame()
+params = DataFrame()
+for participant in 1:10
+    # Intercept (condition A)
+    drifts = [rand(Normal(1.5, 0.2)), rand(Normal(0.5, 0.1))]
+    param = join(round.(drifts, digits=2), &quot;, &quot;)  # Format and save params
+    df1 = DataFrame(rand(LBA(ν=drifts, A=0.5, k=0.5, τ=0.3), 100))
+    df1[!, :condition] = repeat([&quot;A&quot;], nrow(df1))
+    df1[!, :participant] = repeat([participant], nrow(df1))
+
+    # Effect of condition B
+    drifts2 = [rand(Normal(0.5, 0.15)), rand(Normal(0.5, 0.05))]
+    param = [param, join(round.(drifts2, digits=2), &quot;, &quot;)]
+    df2 = DataFrame(rand(LBA(ν=drifts .+ drifts2, A=0.5, k=0.5, τ=0.3), 100))
+    df2[!, :condition] = repeat([&quot;B&quot;], nrow(df2))
+    df2[!, :participant] = repeat([participant], nrow(df1))
+
+    # Assemble and store parameters (to compare with estimation)
+    df = vcat(df, df1, df2)
+    params = vcat(params, DataFrame(permutedims(param), [:drift_intercept, :drift_condition]))
+end</code></pre><p>We can visualize the individual distributions for the two type of responses and for the conditions (condition A in red and B in blue).</p><pre><code class="language- hljs">density(layout=(2, 1), ylims=(0, 5), xlims=(0, 3), legend=false)
+for p in unique(df.participant)
+    for (i, cond) in enumerate([&quot;A&quot;, &quot;B&quot;])
+        density!(df.rt[(df.choice.==1).&amp;(df.condition.==cond).&amp;(df.participant.==p)],
+            subplot=1, color=[:blue, :red][i], title=&quot;Choice = 1&quot;)
+        density!(df.rt[(df.choice.==2).&amp;(df.condition.==cond).&amp;(df.participant.==p)],
+            subplot=2, color=[:blue, :red][i], title=&quot;Choice = 2&quot;, xlabel=&quot;Reaction Time (s)&quot;)
+    end
+end
+plot!()</code></pre><h2 id="Model-Specification"><a class="docs-heading-anchor" href="#Model-Specification">Model Specification</a><a id="Model-Specification-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Specification" title="Permalink"></a></h2><p>First, we will transform our predictor data into an model matrix. This essentially transform our favor column with &quot;A&quot; and &quot;B&quot; to a binary vector.</p><p>We will also transform our outcome data (RTs and choice) into a list of tuples (see <a href="https://itsdfish.github.io/SequentialSamplingModels.jl/dev/turing_advanced/">this example for more explanation</a>).</p><pre><code class="language- hljs"># Format input data
+f = @formula(rt ~ 1 + condition)
+f = apply_schema(f, schema(f, df))
+_, predictors = coefnames(f)
+X = modelmatrix(f, df)
+
+# Format the data to match the input type
+data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]</code></pre><p>Now, the model is a bit more complex:</p><pre><code class="language-julia hljs">@model function model_lba(data; min_rt=0.2, condition=nothing, participant=nothing)
+
+    # Priors for auxiliary parameters
+    A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
+    k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
+    tau ~ Uniform(0.0, min_rt)
+
+    # Priors for population-level coefficients
+    drift_intercept_1 ~ Normal(0, 1)
+    drift_intercept_2 ~ Normal(0, 1)
+    drift_condition_1 ~ Normal(0, 1)
+    drift_condition_2 ~ Normal(0, 1)
+
+    # Prior for random intercepts (requires thoughtful specification)
+    # Group-level intercepts&#39; SD
+    drift_intercept_random_sd ~ truncated(Cauchy(0, 0.1), 0.0, Inf)
+    # Group-level intercepts
+    drift_intercept_random_1 ~ filldist(
+        Normal(0, drift_intercept_random_sd),
+        length(unique(participant))
+    )
+    drift_intercept_random_2 ~ filldist(
+        Normal(0, drift_intercept_random_sd),
+        length(unique(participant))
+    )
+
+    for i in 1:length(data)
+        # Formula for intercept
+        drifts_intercept_1 = drift_intercept_1 .+ drift_intercept_random_1[participant[i]]
+        drifts_intercept_2 = drift_intercept_2 .+ drift_intercept_random_2[participant[i]]
+
+        # Combine with condition
+        drifts_1 = drift_intercept_1 + drift_condition_1 * condition[i]
+        drifts_2 = drift_intercept_2 + drift_condition_2 * condition[i]
+        data[i] ~ LBA(; τ=tau, A=A, k=k, ν=[drifts_1, drifts_2])
+    end
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">model_lba (generic function with 2 methods)</code></pre><p>Note that for now, these types of model are <em>very</em> slow to run in Turing.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../turing_advanced/">« Advanced Bayesian</a><a class="docs-footer-nextpage" href="../plotting/">Plotting »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Monday 24 July 2023 20:56">Monday 24 July 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
