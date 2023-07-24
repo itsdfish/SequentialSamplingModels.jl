@@ -4,19 +4,24 @@ It is possible to use [Turing.jl](https://turinglang.org/stable/) to perform Bay
 
 Note that you can easily swap the LBA model from this example for other [SSM models](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/api/) simply by changing the names of the parameters.
 
+```@setup turing_mle
+using Random
 
+Random.seed!(45461)
+```
 
 ## Load Packages
 
 The first step is to load the required packages. You will need to install each package in your local
 environment in order to run the code locally. We will also set a random number generator so that the results are reproducible.
 
-```@setup turing_simple
+```@example turing_simple
 using Turing
 using SequentialSamplingModels
 using Random
 using LinearAlgebra
 using StatsPlots
+using Random
 
 Random.seed!(45461)
 ```
@@ -40,7 +45,7 @@ a vector of choices and a vector of reaction times. The sampling statements defi
 
 ```@example turing_simple
 # Specify LBA model
-@model function model_lba(data; min_rt = minimum(data[2]))
+@model function model_lba(data; min_rt = minimum(data.rt))
     # Priors
     ν ~ MvNormal(zeros(2), I * 2)
     A ~ truncated(Normal(.8, .4), 0.0, Inf)
