@@ -28,6 +28,11 @@ module SequentialSamplingModels
     import StatsAPI: params
 
     export AbstractaDDM
+    export AbstractLBA
+    export AbstractLCA
+    export AbstractLNR
+    export AbstractRDM 
+    export AbstractWald
     export aDDM
     export DDM
     export RDM
@@ -54,6 +59,7 @@ module SequentialSamplingModels
     export std
     export vectorize
 
+    include("type_system.jl")
     include("utilities.jl")
     include("LogNormalRace.jl")
     include("Wald.jl")
