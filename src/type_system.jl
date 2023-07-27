@@ -106,7 +106,7 @@ Computes the likelihood for a 2D sequential sampling model.
 - `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
 """
 logpdf(d::SSM2D, data::NamedTuple) = logpdf.(d, data.choice, data.rt)
-logpdf(d::SSM2D, data::Vector{Real}) = logpdf(d, Int(data[1]), data[2]) 
+logpdf(d::SSM2D, data::AbstractVector{<:Real}) = logpdf(d, Int(data[1]), data[2]) 
 
 """
     loglikelihood(d::SSM2D, data::NamedTuple) 
@@ -120,7 +120,7 @@ Computes the summed log likelihood for a 2D sequential sampling model.
 """
 loglikelihood(d::SSM2D, data::NamedTuple) = sum(logpdf.(d, data...))
 
-loglikelihood(d::SSM2D, data::Vector{Real}) = sum(logpdf.(d, data[:,1], data[:,2]))
+loglikelihood(d::SSM2D, data::AbstractArray{<:Real,2}) = sum(logpdf.(d, Int.(data[:,1]), data[:,2]))
 
 """
     pdf(d::SSM2D, data::NamedTuple) 
@@ -134,7 +134,7 @@ Computes the probability density for a 2D sequential sampling model.
 """
 pdf(d::SSM2D, data::NamedTuple) = pdf.(d, data.choice, data.rt)
 
-pdf(d::SSM2D, data::Vector{Real}) = pdf.(d, data[:,1], data[:,2])
+pdf(d::SSM2D, data::AbstractArray{Real,2}) = pdf(d, Int(data[1]), data[2])
 
 """
     rand(rng::AbstractRNG, d::SSM2D, N::Int)
