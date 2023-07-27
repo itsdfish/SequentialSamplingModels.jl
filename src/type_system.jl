@@ -45,11 +45,11 @@ An abstract type for the lognormal race model
 abstract type AbstractLNR <: SSM2D end
 
 """
-    AbstrctLCA <: SSM2D
+    AbstractLCA <: SSM2D
 
 An abstract type for the leaky competing accumulator model
 """
-abstract type AbstrctLCA <: SSM2D end
+abstract type AbstractLCA <: SSM2D end
 
 """
     AbstractRDM <: SSM2D
