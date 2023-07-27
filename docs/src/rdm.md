@@ -8,14 +8,6 @@ In this example, we will demonstrate how to use the RDM in a generic two alterna
 using SequentialSamplingModels
 using SSMPlots
 using Random
-
-ν = [1.0,0.50]
-k = 0.50
-A = 1.0
-τ = 0.30
-
-dist = RDM(;ν, k, A, τ)
-choices,rts = rand(dist, 1000)
 ```
 
 ## Load Packages

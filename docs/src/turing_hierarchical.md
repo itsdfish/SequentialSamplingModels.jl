@@ -1,14 +1,9 @@
 # Hierarchical Models
 
-```@setup turing_mixed
-using Random
-
-Random.seed!(6)
-```
 
 In this example, we will fit a model with random factors and estimate individual parameters. This tutorial will build on the previous ones, so make sure you have followed them first. Let's start by loading all the packages and setting a reproducible seed.
 
-```@example turing_mixed
+```julia
 using Turing
 using SequentialSamplingModels
 using Random
@@ -27,7 +22,7 @@ Random.seed!(6)
 
 We will use the [LBA](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lba/) distribution to simulate data for 10 participants in two conditions with 100 trials per condition (repeated measures design). The drift rates for condition A are sampled from normal distributions, and the drift rates for condition B are set by sampling a departure from (i.e., the difference with) condition A. In other words, each participant has different drift rates for condition A (the *intercept*, i.e., the baseline condition) and a different "effect" magnitude of condition B (the offset from condition A to condition B).
 
-```@example turing_mixed
+```julia
 # Generate data with different drifts for two conditions A vs. B
 df = DataFrame()
 params = DataFrame()
@@ -54,7 +49,7 @@ end
 
 We can visualize the individual distributions for the two type of responses and for the conditions (condition A in red and B in blue).
 
-```@example turing_mixed
+```julia
 density(layout=(2, 1), ylims=(0, 5), xlims=(0, 3), legend=false)
 for p in unique(df.participant)
     for (i, cond) in enumerate(["A", "B"])
@@ -73,7 +68,7 @@ First, we will transform our predictor data into an model matrix. This essential
 
 We will also transform our outcome data (RTs and choice) into a list of tuples (see [this example for more explanation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/turing_advanced/)).
 
-```@example turing_mixed
+```julia
 # Format input data
 f = @formula(rt ~ 1 + condition)
 f = apply_schema(f, schema(f, df))
@@ -87,7 +82,7 @@ data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
 Now, the model is a bit more complex:
 
 
-```@example turing_mixed
+```julia
 @model function model_lba(data; min_rt=0.2, condition=nothing, participant=nothing)
 
     # Priors for auxiliary parameters

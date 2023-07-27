@@ -8,16 +8,6 @@ In this example, we will demonstrate how to use the LBA in a generic two alterna
 using SequentialSamplingModels
 using SSMPlots 
 using Random
-
-ν=[2.75,1.75]
-A = .8
-k = .5
-τ = .3
-
-dist = LBA(;ν, A, k, τ) 
-choices,rts = rand(dist, 100)
-plot(dist)
-histogram!(dist)
 ```
 
 ## Load Packages
