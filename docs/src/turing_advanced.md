@@ -84,7 +84,7 @@ Next, we need to specify these parameters as the result of a (linear) equation. 
 - Since we're computing parameters as the results of an equation, we need to use a `for` loop that loops through all the observations.
 - Because the priors for the drift is a `filldist` (i.e., a vector of distributions), we need to broadcast the addition (`.+` instead of `+`).
 
-```@example turing_advanced
+```julia
 @model function model_lba(data; min_rt=0.2, condition=nothing)
     # Priors for auxiliary parameters
     A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
@@ -104,7 +104,7 @@ end
 
 Importantly, although we have the data as a dataframe, we will need to convert to a tuple, as it is the shape that the `LBA()` distribution expects. However, since we're iterating on each observation, we need to come up with an indexable version of the data: a **vector of tuples**.
 
-```@example turing_advanced
+```julia
 # Format the data to match the input type
 data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
 ```
@@ -115,7 +115,7 @@ data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
 
 Before we fit the model, we want to inspect our priors to make sure that they are okay. To do that, we sample the model parameters from priors only. Note that `condition` is supplied as the 2nd column of the model matrix.
 
-```@example turing_advanced
+```julia
 chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(), 1000)
 plot(chain; size=(800, 1200))
 ```
@@ -127,7 +127,7 @@ The next step is to generate predictions from this model (i.e., from the priors)
 We can then use the `predict()` method to generate predictions from this model. However, because the most of `SequentialSamplingModels` distributions return a tuple (choice and RT), the predicted output has the two types of variables mixed together. We can delineate the two by taking every 2nd values to get the predicted choice and RTs, respectively.
 
 
-```@example turing_advanced
+```julia
 datamissing = [(missing) for i in 1:nrow(df)]
 
 pred = predict(model_lba(datamissing; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
@@ -140,7 +140,7 @@ These objects have arrays of size 10,000 x 1000 : with 10,000 draws for each of 
 
 We can plot the predicted distributions by looping through a number of draws (e.g., 100), and then plotting the density for each condition and each choice.
 
-```@example turing_advanced
+```julia
 plot(layout=(2, 1), xlabel="Reaction Time", xlims = (0, 3), ylim=(0, 5), legend = false)
 for i in 1:100
     choice = priorpred_choice[i, :]
@@ -159,13 +159,13 @@ We can see that the bulk of the predicted RTs fall within 0 - 1.5 seconds, which
 
 ## Parameters Estimation
 
-```@example turing_advanced
+```julia
 chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), NUTS(), 1000)
 
 summarystats(chain)
 ```
 
-```@example turing_advanced
+```julia
 plot(chain; size = (800,1200))
 ```
 
@@ -174,7 +174,7 @@ plot(chain; size = (800,1200))
 Next, we will run a posterior predictive check by first sampling from the posteriors. For that, we will re-use the code for the prior predictive check, including the `datamissing` empty data.
 
 
-```@example turing_advanced
+```julia
 # Sample from posteriors
 pred = predict(model_lba(datamissing; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
 pred_choice = Array(pred)[:, 1:2:end]
@@ -183,7 +183,7 @@ pred_rt = Array(pred)[:, 2:2:end]
 
 Next, we will plot the predicted distributions on top of the observed distribution of data (the thick black lines).
 
-```@example turing_advanced
+```julia
 # Observed density
 plot(layout=(2, 1), xlabel="Reaction Time", xlims=(0, 2.5), legend=false)
 for cond in ["A", "B"]
