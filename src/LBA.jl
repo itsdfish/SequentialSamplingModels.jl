@@ -8,14 +8,14 @@ A model object for the linear ballistic accumulator.
 - `ν`: a vector of drift rates
 - `A`: max start point
 - `k`: A + k = b, where b is the decision threshold
-- `σ=1`: drift rate standard deviation
+- `σ=fill(1.0, length(ν))`: drift rate standard deviation
 - `τ`: a encoding-response offset
 
 # Constructors 
 
     LBA(ν, A, k, τ, σ)
     
-    LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=1.0)
+    LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=[1.0,1.0])
 
 # Example 
 
@@ -36,12 +36,13 @@ mutable struct LBA{T<:Real} <: AbstractLBA
     A::T
     k::T
     τ::T
-    σ::T
+    σ::Vector{T}
 end
 
 function LBA(ν, A, k, τ, σ)
-    _, A, k, τ, σ = promote(ν[1], A, k, τ, σ)
+    _, A, k, τ, _ = promote(ν[1], A, k, τ, σ[1])
     ν = convert(Vector{typeof(k)}, ν)
+    σ = convert(Vector{typeof(k)}, σ)
     return LBA(ν, A, k, τ, σ)
 end
 
@@ -49,7 +50,7 @@ function params(d::LBA)
     return (d.ν,d.A,d.k,d.τ,d.σ)    
 end
 
-LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=1.0) = LBA(ν, A, k, τ, σ)
+LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=fill(1.0, length(ν))) = LBA(ν, A, k, τ, σ)
 
 function select_winner(dt)
     if any(x -> x > 0, dt)
@@ -71,8 +72,9 @@ sample_drift_rates(ν, σ) = sample_drift_rates(Random.default_rng(), ν, σ)
 function sample_drift_rates(rng::AbstractRNG, ν, σ)
     negative = true
     v = similar(ν)
+    n_options = length(ν)
     while negative
-        v = [rand(rng, Normal(d, σ)) for d in ν]
+        v = [rand(rng, Normal(ν[i], σ[i])) for i ∈ 1:n_options]
         negative = any(x -> x > 0, v) ? false : true
     end
     return v
@@ -96,11 +98,11 @@ function pdf(d::AbstractLBA, c, rt)
     (;τ,A,k,ν,σ) = d
     b = A + k; den = 1.0
     rt < τ ? (return 1e-10) : nothing
-    for (i,v) in enumerate(ν)
+    for i ∈ 1:length(ν)
         if c == i
-            den *= dens(d, v, rt)
+            den *= dens(d, ν[i], σ[i], rt)
         else
-            den *= (1 - cummulative(d, v, rt))
+            den *= (1 - cummulative(d, ν[i], σ[i], rt))
         end
     end
     pneg = pnegative(d)
@@ -109,8 +111,8 @@ function pdf(d::AbstractLBA, c, rt)
     isnan(den) ? (return 0.0) : (return den)
 end
 
-function dens(d::AbstractLBA, v, rt)
-    (;τ,A,k,ν,σ) = d
+function dens(d::AbstractLBA, v, σ, rt)
+    (;τ,A,k) = d
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
@@ -119,8 +121,8 @@ function dens(d::AbstractLBA, v, rt)
     return dens
 end
 
-function cummulative(d::AbstractLBA, v, rt)
-    (;τ,A,k,ν,σ) = d
+function cummulative(d::AbstractLBA, v, σ, rt)
+    (;τ,A,k) = d
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
@@ -133,8 +135,8 @@ end
 function pnegative(d::AbstractLBA)
     (;ν,σ) = d
     p = 1.0
-    for v in ν
-        p *= cdf(Normal(0, 1), -v / σ)
+    for i ∈ 1:length(ν)
+        p *= cdf(Normal(0, 1), -ν[i] / σ[i])
     end
     return p
 end
