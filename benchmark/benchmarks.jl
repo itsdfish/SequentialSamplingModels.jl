@@ -59,20 +59,16 @@ end
 ####################################################################################################
 #                                       simulate
 ####################################################################################################
-dists = (DDM,LBA,LCA,LNR,RDM,Wald,WaldMixture)
-ns = [10,100]
+dists = (DDM,LBA,LCA,RDM,Wald,WaldMixture)
 SUITE[:simulate] = BenchmarkGroup()
 
 for dist ∈ dists
     dist_name = Symbol(dist)
-    SUITE[:simulate][dist_name] = BenchmarkGroup()
-    for n ∈ ns
-        SUITE[:simulate][dist_name][n] = @benchmarkable(
-            simulate($dist()),
-            evals=10,
-            samples=1000,
-        )
-    end
+    SUITE[:simulate][dist_name] = @benchmarkable(
+        simulate($dist()),
+        evals=10,
+        samples=1000,
+    )
 end
 # use this to test locally
 # results = run(SUITE)
