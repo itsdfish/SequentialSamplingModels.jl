@@ -6,7 +6,7 @@ This advanced example illustrates how to estimate the effect of an experimental 
 
 In this example, we will get closer to real use-cases by starting with the data stored in a `DataFrame`. This dataframe will be a combination of data generated from two different distributions with different parameters, corresponding to two experimental conditions (e.g., Speed vs. Accuracy).
 
-```julia
+```@example turing_advanced
 using Turing
 using SequentialSamplingModels
 using Random
@@ -19,11 +19,12 @@ using KernelDensity
 
 # Generate data with different drifts for two conditions A vs. B
 Random.seed!(6)
+
 n_obs = 50
 df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df2 = DataFrame(rand(LBA(ν=[2.5, 1.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df = vcat(df1, df2)
-df.condition = repeat(["A","B"], inner=n_obs)
+df.condition = repeat(["A", "B"], inner=n_obs)
 ```
 
 These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.5, 1.5]`). In other words, the *effect* of condition *B* over condition *A* (the baseline condition, i.e., the *intercept*) is `[1, 1]` (because both drift rates increase by 1 between condition *A* and *B*).
@@ -32,19 +33,22 @@ These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2
 
 Next, we are going to remove outliers, i.e., implausible RTs (RTs that likely do not reflect the processes of interest). In our case, we consider that RTs shorter than 0.2 seconds are too short for the cognitive process of interest to unfold, and that RTs longer than 3 seconds are too long to carry meaningful information.
 
-```julia
+```@example turing_advanced
 # Remove outliers
-df = df[(df.rt.>0.2).&(df.rt.<3), :]
+df = df[(df.rt .> 0.2).&(df.rt .< 3), :]
 first(df)
 ```
 
 Note that standard outlier detection methods, such as *z*-scores (mean +- SD), are not necessarily appropriate for RTs, given the skewed nature of their distribution. Their asymmetric distribution is in fact accounted for by the models that we use. The outlier exclusion done here is more theory-driven (i.e., excluding extreme trials that likely do not reflect well the cognitive processes of interest) than data-driven (to better fit the model). That said, outlier exclusion should always be explicitly documented and justified.
 
+!!! note
+    For users coming from other languages, note the usage of the [vectorization dot](https://julialang.org/blog/2017/01/moredots/) `.` in front of the `<` and `>` symbols. This means that we want to apply the logical test for all individual elements of the `rt` vector.
+
 ## Visualize Data
 
 We can visualize the RT distribution for each response choice by looping through the conditions.
 
-```julia
+```@example turing_advanced
 # Make histogram
 histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 2), legend=false)
 for (i, cond) in enumerate(["A", "B"])
@@ -58,7 +62,7 @@ plot!()
 
 One additional step that we need to do here is to transform the dataframe into an input suited for modelling with Turing. For that, we will leverage the features of `StatsModels` to build an input matrix based on a formula.
 
-```julia
+```@example turing_advanced
 # Format input data
 f = @formula(rt ~ 1 + condition)
 f = apply_schema(f, schema(f, df))
@@ -73,7 +77,7 @@ In this case, the model matrix is pretty simple: the key part is the second colu
 
 In this model, the priors for the parameters that we want to vary between conditions are split, with one prior for their intercept (condition A) and another for the effect of condition B (relative to the intercept).
 
-Because the *drift* parameters is a vector of length 2, the priors for both the intercet and condition effect drifts have themselves to be a vector of 2 distributions, which is done via `filldist(prior_distribution, 2)`.
+Because the *drift* parameters is a vector of length 2, the priors for both the intercept and condition effect drifts have themselves to be a vector of 2 distributions, which is done via `filldist(prior_distribution, 2)`.
 
 Next, we need to specify these parameters as the result of a (linear) equation. Note that:
 - We have added a keyword argument, `condition`, to let the user pass the condition data vector.
@@ -156,7 +160,7 @@ We can see that the bulk of the predicted RTs fall within 0 - 1.5 seconds, which
 ## Parameters Estimation
 
 ```julia
-chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), NUTS(), 2000)
+chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), NUTS(), 1000)
 
 summarystats(chain)
 ```
