@@ -13,7 +13,7 @@ A lognormal race model object.
 
     LNR(ν, σ, τ)
 
-    LNR(;ν, σ, τ)
+    LNR(;ν=[-1,-2], σ=1, τ=.20) 
 
 # Example
 
@@ -46,7 +46,7 @@ function params(d::AbstractLNR)
     return (d.ν, d.σ, d.τ)    
 end
 
-LNR(;ν, σ, τ) = LNR(ν, σ, τ)
+LNR(;ν=[-1,-2], σ=1, τ=.20) = LNR(ν, σ, τ)
 
 function rand(rng::AbstractRNG, dist::AbstractLNR)
     (;ν,σ,τ) = dist
