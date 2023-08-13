@@ -62,11 +62,3 @@ jobs:
                 echo '### Benchmark Plots' >> body.md
                 echo 'A plot of the benchmark results have been uploaded as an artifact to the workflow run for this PR.' >> body.md
                 echo 'Go to "Actions"->"Benchmark a pull request"->[the most recent run]->"Artifacts" (at the bottom).' >> body.md
-
-            - name: Comment on PR
-              uses: peter-evans/create-or-update-comment@v3
-              with:
-                comment-id: ${{ steps.fcbenchmark.outputs.comment-id }}
-                issue-number: ${{ github.event.pull_request.number }}
-                body-path: body.md
-                edit-mode: replace
