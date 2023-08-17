@@ -92,7 +92,24 @@ function rand(rng::AbstractRNG, d::AbstractLBA)
     return (;choice,rt)
 end
 
-logpdf(d::AbstractLBA, choice, rt) = log(pdf(d, choice, rt))
+# logpdf(d::AbstractLBA, choice, rt) = log(pdf(d, choice, rt))
+
+function logpdf(d::AbstractLBA, c, rt)
+    (;τ,A,k,ν,σ) = d
+    b = A + k; den = 0.0
+    rt < τ ? (return -23.0) : nothing
+    for i ∈ 1:length(ν)
+        if c == i
+            den += log_dens(d, ν[i], σ[i], rt)
+        else
+            den += log(1 - cummulative(d, ν[i], σ[i], rt))
+        end
+    end
+    pneg = pnegative(d)
+    den = den - log((1 - pneg))
+    #den = max(den, 1e-10)
+    isnan(den) ? (return -Inf) : (return den)
+end
 
 function pdf(d::AbstractLBA, c, rt)
     (;τ,A,k,ν,σ) = d
@@ -118,6 +135,16 @@ function dens(d::AbstractLBA, v, σ, rt)
     n2 = (b - dt * v) / (dt * σ)
     dens = (1 / A) * (-v * cdf(Normal(0, 1), n1) + σ * pdf(Normal(0,1), n1) +
         v * cdf(Normal(0,1), n2) - σ * pdf(Normal(0,1) ,n2))
+    return max(dens, 0.0)
+end
+
+function log_dens(d::AbstractLBA, v, σ, rt)
+    (;τ,A,k) = d
+    dt = rt - τ; b = A + k
+    n1 = (b - A - dt * v) / (dt * σ)
+    n2 = (b - dt * v) / (dt * σ)
+    dens = -log(A) + log(max(0.0, -v * cdf(Normal(0, 1), n1) + σ * pdf(Normal(0,1), n1) +
+        v * cdf(Normal(0,1), n2) - σ * pdf(Normal(0,1) ,n2)))
     return dens
 end
 
