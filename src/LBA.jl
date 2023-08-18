@@ -92,12 +92,10 @@ function rand(rng::AbstractRNG, d::AbstractLBA)
     return (;choice,rt)
 end
 
-# logpdf(d::AbstractLBA, choice, rt) = log(pdf(d, choice, rt))
-
 function logpdf(d::AbstractLBA, c, rt)
     (;τ,A,k,ν,σ) = d
     b = A + k; den = 0.0
-    rt < τ ? (return -23.0) : nothing
+    rt < τ ? (return -Inf) : nothing
     for i ∈ 1:length(ν)
         if c == i
             den += log_dens(d, ν[i], σ[i], rt)
@@ -106,9 +104,8 @@ function logpdf(d::AbstractLBA, c, rt)
         end
     end
     pneg = pnegative(d)
-    den = den - log((1 - pneg))
-    #den = max(den, 1e-10)
-    isnan(den) ? (return -Inf) : (return den)
+    den = den - log(1 - pneg)
+    return max(den, -1000.0)
 end
 
 function pdf(d::AbstractLBA, c, rt)
