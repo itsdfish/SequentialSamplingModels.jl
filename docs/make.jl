@@ -31,6 +31,7 @@ makedocs(
             "Advanced Model Specification" => "turing_advanced.md",
             "Hierarchical Models" => "turing_hierarchical.md",
         ],
+        "Model Comparison" => "bayes_factor.md",
         "Plotting" => "plotting.md",
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md"
