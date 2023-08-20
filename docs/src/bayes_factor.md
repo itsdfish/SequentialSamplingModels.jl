@@ -2,7 +2,7 @@
 
 ## Overview
 
-In this tutorial, we will use the Bayes Factor to compare the evidence for one model relative to another reference model. Computing the Bayes Factor is challenging because it requires integrating the log likelihood over the model parameters. One method for approximating this complex integral is non-reversible parallel tempering (Bouchard-Côté et al., 2022) using 
+In this tutorial, we will use the Bayes factor to compare the evidence for one model relative to another reference model. Computing the Bayes factor is challenging because it requires integrating the log likelihood over the model parameters. One method for approximating this complex integral is non-reversible parallel tempering (Bouchard-Côté et al., 2022) using 
 [Pigeons.jl](https://julia-tempering.github.io/Pigeons.jl/dev/). 
 
 In the tutorial below, we will compare two models which differ only in terms of assumptions about drift rate variability: the LBA and the RDM. The LBA assumes that the drift rate varies across trials and is otherwise deterministic, whereas the RDM assumes the drift rate varies within a trial as Gaussian noise, but not across trials. The difference between the models can be visualized with SSMPlots.jl:
@@ -58,7 +58,7 @@ data = rand(dist, 100)
 ## Define Models 
 The following code blocks define the models along with their prior distributions using [Turing.jl](https://turinglang.org/stable/). Notice that the models are identical except for the log likelihood function.
 
-### LBA
+### RDM
 
 ```julia
 # Specify LBA model
@@ -73,7 +73,7 @@ The following code blocks define the models along with their prior distributions
 end
 ```
 
-## RDM 
+## LBA 
 
 ```julia
 @model function rdm(data; min_rt=minimum(data.rt))
@@ -136,7 +136,7 @@ mll_rdm = stepping_stone(pt_rdm)
 ```
 
 ## Compute the Bayes Factor
-The bayes factor is obtained by exponentiating the difference is marginal log likelihoods. The value of `1.21` indicates that the LBA is `1.20` times more likely to have generated the data. 
+The bayes factor is obtained by exponentiating the difference between marginal log likelihoods. The value of `1.21` indicates that the LBA is `1.21` times more likely to have generated the data. 
 ```julia
 bf = exp(mll_lba - mll_rdm)
 ```
