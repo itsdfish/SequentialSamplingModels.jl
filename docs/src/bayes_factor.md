@@ -61,14 +61,11 @@ The following code blocks define the models along with their prior distributions
 ### RDM
 
 ```julia
-# Specify LBA model
-@model function lba(data; min_rt=minimum(data.rt))
-    # Priors
+@model function rdm(data; min_rt=minimum(data.rt))
     ν ~ MvNormal(fill(2.0, 2), I * 3)
     A ~ truncated(Normal(0.8, 0.8), 0.0, Inf)
     k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
     τ ~ Uniform(0.0, min_rt)
-    # Likelihood
     data ~ RDM(; ν, A, k, τ)
 end
 ```
@@ -76,13 +73,11 @@ end
 ## LBA 
 
 ```julia
-@model function rdm(data; min_rt=minimum(data.rt))
-    # Priors
+@model function lba(data; min_rt=minimum(data.rt))
     ν ~ MvNormal(fill(2.0, 2), I * 3)
     A ~ truncated(Normal(0.8, 0.8), 0.0, Inf)
     k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
     τ ~ Uniform(0.0, min_rt)
-    # Likelihood
     data ~ LBA(; ν, A, k, τ)
 end
 ```
