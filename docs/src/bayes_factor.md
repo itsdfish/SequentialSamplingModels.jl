@@ -83,7 +83,7 @@ end
     k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
     τ ~ Uniform(0.0, min_rt)
     # Likelihood
-    data ~ RDM(; ν, A, k, τ)
+    data ~ LBA(; ν, A, k, τ)
 end
 ```
 ## Estimate Marginal Log Likelihood
