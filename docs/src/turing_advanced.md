@@ -126,7 +126,6 @@ The next step is to generate predictions from this model (i.e., from the priors)
 
 We can then use the `predict()` method to generate predictions from this model. However, because the most of `SequentialSamplingModels` distributions return a tuple (choice and RT), the predicted output has the two types of variables mixed together. We can delineate the two by taking every 2nd values to get the predicted choice and RTs, respectively.
 
-
 ```julia
 datamissing = [(missing) for i in 1:nrow(df)]
 
