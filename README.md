@@ -4,7 +4,7 @@
 
 # SequentialSamplingModels
 
-This package provides a unified interface for sequential sampling models (such as DDM, LBA, LNR, LCA, etc.) in Julia, based on the Distributions.jl API, that can be used within [**Turing**](https://turing.ml/) framework for Bayesian estimation.
+This package provides a unified interface for sequential sampling models (such as DDM, LBA, LNR, LCA, ...) in Julia, based on the Distributions.jl API, that can be used within [**Turing**](https://turing.ml/) framework for Bayesian estimation.
 
 Please see the [documentation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) for more information.
 
