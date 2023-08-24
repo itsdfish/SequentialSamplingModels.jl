@@ -88,6 +88,8 @@ insupport(d::SSM2D, data) = data.rt ≥ minimum(d) && data.rt ≤ maximum(d)
 Base.broadcastable(x::SSM1D) = Ref(x)
 Base.broadcastable(x::SSM2D) = Ref(x)
 
+vectorize(d::SSM2D, r::NamedTuple) = [r...]
+
 Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D) = rand(Random.default_rng(), d)

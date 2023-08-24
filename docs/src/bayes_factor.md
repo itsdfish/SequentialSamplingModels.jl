@@ -7,7 +7,7 @@ In this tutorial, we will use the Bayes factor to compare the evidence for one m
 
 In the tutorial below, we will compare two models which differ only in terms of assumptions about drift rate variability: the LBA and the RDM. The LBA assumes that the drift rate varies across trials and is otherwise deterministic, whereas the RDM assumes the drift rate varies within a trial as Gaussian noise, but not across trials. The difference between the models can be visualized with SSMPlots.jl:
 
-### LBA
+### RDM
 ```@setup bayes_factor
 using Random
 using SequentialSamplingModels
@@ -24,7 +24,7 @@ dist = RDM()
 density_kwargs=(;t_range=range(.20, 1.0, length=100),)
 plot_model(dist; n_sim=1, density_kwargs, xlims=(0,1.0))
 ```
-### RDM
+### LBA
 ```@example bayes_factor 
 using SequentialSamplingModels
 using SSMPlots
@@ -61,14 +61,11 @@ The following code blocks define the models along with their prior distributions
 ### RDM
 
 ```julia
-# Specify LBA model
-@model function lba(data; min_rt=minimum(data.rt))
-    # Priors
+@model function rdm(data; min_rt=minimum(data.rt))
     ν ~ MvNormal(fill(2.0, 2), I * 3)
     A ~ truncated(Normal(0.8, 0.8), 0.0, Inf)
     k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
     τ ~ Uniform(0.0, min_rt)
-    # Likelihood
     data ~ RDM(; ν, A, k, τ)
 end
 ```
@@ -76,13 +73,11 @@ end
 ## LBA 
 
 ```julia
-@model function rdm(data; min_rt=minimum(data.rt))
-    # Priors
+@model function lba(data; min_rt=minimum(data.rt))
     ν ~ MvNormal(fill(2.0, 2), I * 3)
     A ~ truncated(Normal(0.8, 0.8), 0.0, Inf)
     k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
     τ ~ Uniform(0.0, min_rt)
-    # Likelihood
     data ~ LBA(; ν, A, k, τ)
 end
 ```

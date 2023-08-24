@@ -6,6 +6,7 @@ https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
     using Distributions
+    using DynamicPPL
     using PrettyTables
     using Random
 
@@ -23,6 +24,7 @@ module SequentialSamplingModels
     import Distributions: pdf
     import Distributions: rand
     import Distributions: std
+    import DynamicPPL: vectorize
     import StatsAPI: params
 
     export AbstractaDDM
