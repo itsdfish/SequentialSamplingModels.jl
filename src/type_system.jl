@@ -89,6 +89,7 @@ Base.broadcastable(x::SSM1D) = Ref(x)
 Base.broadcastable(x::SSM2D) = Ref(x)
 
 vectorize(d::SSM2D, r::NamedTuple) = [r...]
+reconstruct(d::SSM2D, v::AbstractVector) = deepcopy(v)
 
 Base.length(d::SSM2D) = 2
 

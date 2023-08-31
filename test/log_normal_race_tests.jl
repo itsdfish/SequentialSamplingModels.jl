@@ -3,20 +3,20 @@
         using SequentialSamplingModels, Test, Random, Distributions
         include("KDE.jl")
         Random.seed!(54154)
-        d1 = LNR(;ν=[1.0], σ=1.0, τ=.1)
+        d1 = LNR(;ν=[1.0], σ=[1.0], τ=.1)
         v1 = .3
         p1 = pdf(d1, 1, v1)
         p2 = pdf(LogNormal(1, 1), v1-.1)
         @test p1 ≈ p2
-        d2 = LNR(;ν=[1.0,0.0],σ=1.0,τ=.1)
-        d3 = LNR(;ν=[1.0,0.0,0.0], σ=1.0, τ=.1)
+        d2 = LNR(;ν=[1.0,0.0],σ=[1.0,1.0],τ=.1)
+        d3 = LNR(;ν=[1.0,0.0,0.0], σ=[1.0,1.0,1.0], τ=.1)
         p1 = pdf(d2, 1, v1)
         p2 = pdf(d3, 1 ,v1)
         @test p1 > p2
         @test p1 ≈ pdf(LogNormal(1, 1), v1-.1)*(1-cdf(LogNormal(0, 1), v1-.1)) 
 
         m1,m2=-2,-1
-        σ = .9
+        σ = fill(.9, 2)
         τ = 0.0
         d = LNR(ν=[m1,m2], σ=σ, τ=τ)
         choice,rts = rand(d, 10^4)
@@ -46,13 +46,13 @@
         y2 = log.(pdf.(d, choice, rts))
         @test y1 ≈ y2 atol = .00001
 
-        d = LNR(ν=[1.,.5], σ=.4, τ=.5)
+        d = LNR(ν=[1.,.5], σ=[.4,.4], τ=.5)
         choice,rts  = rand(d, 10^4)
         y1 = logpdf.(d, choice, rts)
         y2 = log.(pdf.(d, choice, rts))
         @test y1 ≈ y2 atol = .00001
 
-        dist = LNR(ν=[-1.5,-.9], σ=.5, τ=.3) 
+        dist = LNR(ν=[-1.5,-.9], σ=[.5,.5], τ=.3) 
         choice,rts = rand(dist, 10^5)
         rts1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
@@ -77,7 +77,7 @@
         using Random
         Random.seed!(8521)
 
-        dist = LNR(;ν=[1.0,.5], σ=1.0, τ=.1)
+        dist = LNR(;ν=[1.0,.5], σ=[1.0,1.0], τ=.1)
         choice,rt = rand(dist, 10)
 
         sum_logpdf = logpdf.(dist, choice, rt) |> sum 

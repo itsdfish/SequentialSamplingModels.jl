@@ -36,7 +36,7 @@ The parameter $\nu$ represents the mean processing time of each accumulator in l
 The parameter $\sigma$ represents the standard deviation of processing time in log space.
 
 ```@example lnr
-σ = 0.50
+σ = [0.50,0.50]
 ```
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time.

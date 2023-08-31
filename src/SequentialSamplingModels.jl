@@ -24,6 +24,7 @@ module SequentialSamplingModels
     import Distributions: pdf
     import Distributions: rand
     import Distributions: std
+    import DynamicPPL: reconstruct
     import DynamicPPL: vectorize
     import StatsAPI: params
 
@@ -55,13 +56,14 @@ module SequentialSamplingModels
     export params
     export pdf 
     export rand 
+    export reconstruct
     export simulate
     export std
     export vectorize
 
     include("type_system.jl")
     include("utilities.jl")
-    include("LogNormalRace.jl")
+    include("LNR.jl")
     include("Wald.jl")
     include("wald_mixture.jl")
     include("LBA.jl")
