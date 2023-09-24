@@ -8,7 +8,7 @@ A model object for the linear ballistic accumulator.
 - `ν`: a vector of drift rates
 - `A`: max start point
 - `k`: A + k = b, where b is the decision threshold
-- `σ=fill(1.0, length(ν))`: drift rate standard deviation
+- `σ`: a vector of drift rate standard deviation
 - `τ`: a encoding-response offset
 
 # Constructors 

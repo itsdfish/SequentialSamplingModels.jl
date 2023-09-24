@@ -6,11 +6,11 @@ A circular drift diffusion model (CDDM) for continous responding. CCDM is typica
 working memory tasks. Currently supports the 2D case. 
 
 # Parameters 
-
+ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100
 - `ν`: a vector drift rates. ν₁ is the mean drift rate along the x-axis; ν₂ is the mean drift rate along the y-axis.
 - `η`: a vector across-trial standard deviations of  drift rates. η₁ is the standard deviation of drift rate along the x-axis; 
     ν₂ is the standard deviation of drift rate along the y-axis
-- `σ=1`: intra-trial drift rate variability 
+- `σ`: intra-trial drift rate variability 
 - `α`: response boundary as measured by the radious of a circle 
 - `τ`: mean non-decision time 
 - `zτ`: range of non-decision time 
@@ -19,13 +19,13 @@ working memory tasks. Currently supports the 2D case.
 
     CDDM(ν, η, σ, α, τ, zτ)
 
-    CDDM(;ν=[-1,-2], σ=[1.0,1.0], τ=.20) 
+    CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) 
 
 # Example
 
 ```julia
 using SequentialSamplingModels
-dist = CDDM(ν=[-2,-3], σ=[1.0,1.0], τ=.3)
+dist = CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100)
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
@@ -58,7 +58,7 @@ function params(d::AbstractCDDM)
     return (d.ν, d.η, d.σ, d.α, d.τ, d.zτ)    
 end
 
-CDDM(;ν, η, σ, α, τ, zτ) = CDDM(ν, η, σ, α, τ, zτ)
+CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) = CDDM(ν, η, σ, α, τ, zτ)
 
 function rand(rng::AbstractRNG, dist::AbstractCDDM)
     (;ν,η,σ,α,τ,zτ) = dist
@@ -142,7 +142,7 @@ function logpdf(d::AbstractCDDM, r::Int, t::Float64)
     (;ν,η,σ,α,τ,zτ) = d
 end
 
-function pdf_rt_hm(d::AbstractCDDM, rt ;k_max = 50)
+function bassel_hm(d::AbstractCDDM, rt ;k_max = 50)
     rt == 0 ? (return 0.0) : nothing 
     (;σ,α) = d
     x = 0.0
@@ -155,4 +155,19 @@ function pdf_rt_hm(d::AbstractCDDM, rt ;k_max = 50)
         x +=  (j0[k] / besselj(1, j0[k])) * exp(-((j0[k]^2 * σ²) / (2 * α²)) * rt)
     end
     return s * x
+end
+
+function bassel_s(d::AbstractCDDM, rt; h = 2.5 / 300, v = 0, ϵ = 1e-12)
+    rt == 0 ? (return 0.0) : nothing 
+    (;σ,α) = d
+    x = 0.0
+    j0 = solve_zeros(0, 1)
+    s = (α / σ)^2
+    t = round(rt / h) * (h / s)
+    # println("t $t")
+    x1 = ((1 - ϵ) * (1 + t)^(v + 2)) / ((ϵ + t)^(v + 0.5) * t^(3/2))
+    x2 = exp(-((1 - ϵ)^2) / (2 * t) - .50 * j0[1]^2 * t)
+    # println("x1 $x1")
+    # println("x2 $x2")
+    return x1 * x2 / s
 end

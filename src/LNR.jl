@@ -4,7 +4,7 @@
 # Parameters 
 
 - `ν`: a vector of means in log-space
-- `σ=fill(1.0, length(ν))`: a standard deviation parameter in log-space
+- `σ`: a vector of standard deviation parameter in log-space
 - `τ`: a encoding-response offset
 
 # Constructors

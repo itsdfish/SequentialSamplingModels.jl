@@ -5,13 +5,13 @@ A model type for the Leaky Competing Accumulator.
     
 # Parameters 
 
-- `ν = [2.5,2.0]`: drift rates 
-- `α = 1.5`: evidence threshold 
-- `β = .20`: lateral inhabition 
-- `λ = .10`: leak rate
-- `τ = .30`: non-decision time 
-- `σ = 1.0`: diffusion noise 
-- `Δt = .001`: time step 
+- `ν`: drift rates 
+- `α`: evidence threshold 
+- `β`: lateral inhabition 
+- `λ`: leak rate
+- `τ`: non-decision time 
+- `σ`: diffusion noise 
+- `Δt`: time step 
 
 # Constructors 
 

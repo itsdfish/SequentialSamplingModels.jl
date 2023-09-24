@@ -28,15 +28,15 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 ```
 
 # Keywords 
-- `ν = [4.0 5.0; 5.0 4.0]`: drift rates where rows are alternatives and columns are attributes
-- `α=1.0`: evidence threshold 
-- `z=0.0`: initial evidence 
-- `θ=.3`: bias away from unattended alternative (lower indicates more bias)
-- `ϕ=.50`: bias away from unattended attribute 
-- `ω=.70`: attribute weight
-- `σ=.02`: standard deviation of noise in evidence accumulation
-- `Δ=.0004`: constant of evidence accumulation speed (evidence per ms)
-- `τ=0.0`: non-decision time
+- `ν`: drift rates where rows are alternatives and columns are attributes
+- `α`: evidence threshold 
+- `z`: initial evidence 
+- `θ`: bias away from unattended alternative (lower indicates more bias)
+- `ϕ`: bias away from unattended attribute 
+- `ω`: attribute weight
+- `σ`: standard deviation of noise in evidence accumulation
+- `Δ`: constant of evidence accumulation speed (evidence per ms)
+- `τ`: non-decision time
 
 # Example 
 
