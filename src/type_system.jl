@@ -8,6 +8,8 @@ Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and
 """
 const SSM2D = Distribution{Multivariate, Mixed}
 
+abstract type ContinuousSSM2D <: ContinuousMultivariateDistribution end
+
 """
     SSM1D <: ContinuousUnivariateDistribution
 

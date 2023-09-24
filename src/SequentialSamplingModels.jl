@@ -9,6 +9,7 @@ module SequentialSamplingModels
     using DynamicPPL
     using PrettyTables
     using Random
+    using SpecialFunctions
 
     import Base: length
     import Distributions: AbstractRNG
@@ -35,6 +36,7 @@ module SequentialSamplingModels
     export AbstractRDM 
     export AbstractWald
     export aDDM
+    export CDDM
     export DDM
     export RDM
     export LBA 
@@ -72,4 +74,5 @@ module SequentialSamplingModels
     include("maaDDM.jl")
     include("LCA.jl")
     include("DDM.jl")
+    include("CircularDDM.jl")
 end
