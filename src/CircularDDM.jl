@@ -81,12 +81,12 @@ end
 """
     solve_zeros(order, n_zeros; ϵ = 1e-12, max_iter = 100)
 
-Finds the input of a bassel function which evaluate to zero. Assumes the 
-bassel function is of the first kind.
+Finds the input of a bessel function which evaluate to zero. Assumes the 
+bessel function is of the first kind.
 
 # Arguments 
 
-- `order`: order of the bassel function  
+- `order`: order of the bessel function  
 - `n_zeros`: number of solutions to return 
 
 # Keywords 
@@ -142,7 +142,35 @@ function logpdf(d::AbstractCDDM, r::Int, t::Float64)
     (;ν,η,σ,α,τ,zτ) = d
 end
 
-function bassel_hm(d::AbstractCDDM, rt ;k_max = 50)
+function rand(d::AbstractCDDM; scale=.15)
+    (;ν,η,σ,α,τ) = d
+    μ = atan(ν[2], ν[1])
+    κ = √(sum(ν.^2)) / σ
+    x,y,r = zeros(3)
+    iter = 0
+    dist = VonMises(μ, κ)
+    while abs(r) < α
+        θstep = rand(dist)
+        x += cos(θstep)
+        y += sin(θstep)
+        r = √(x^2 + y^2)
+        iter += 1
+    end
+    θpos = atan(y, x)
+    rt = rand(Gamma(iter, scale)) + τ
+    θ = mod(θpos + 2π, 2π)
+    return [θ,rt]
+end
+
+function rand(d::AbstractCDDM, n::Int; scale = .15)
+    sim_data = zeros(n, 2)
+    for r ∈ 1:n 
+        sim_data[r,:] = rand(d; scale)
+    end 
+    return sim_data 
+end
+
+function bessel_hm(d::AbstractCDDM, rt ;k_max = 50)
     rt == 0 ? (return 0.0) : nothing 
     (;σ,α) = d
     x = 0.0
@@ -157,7 +185,7 @@ function bassel_hm(d::AbstractCDDM, rt ;k_max = 50)
     return s * x
 end
 
-function bassel_s(d::AbstractCDDM, rt; h = 2.5 / 300, v = 0, ϵ = 1e-12)
+function bessel_s(d::AbstractCDDM, rt; h = 2.5 / 300, v = 0, ϵ = 1e-12)
     rt == 0 ? (return 0.0) : nothing 
     (;σ,α) = d
     x = 0.0
@@ -170,4 +198,21 @@ function bassel_s(d::AbstractCDDM, rt; h = 2.5 / 300, v = 0, ϵ = 1e-12)
     # println("x1 $x1")
     # println("x2 $x2")
     return x1 * x2 / s
+end
+
+function pdf_angle(d::AbstractCDDM, θ, rt)
+    (;ν,η,σ,α,τ,zτ) = d
+    t = rt - τ
+    σ² = σ^2
+    η₁²,η₂² = η.^2
+    ν₁²,ν₂² = ν.^2
+    G11 = (ν[1] * σ² + α * η₁² * cos(θ))^2
+    G21 = (ν[2] * σ² + α * η₂² * sin(θ))^2
+      
+    Multiplier = σ²/(√(σ² + η₁² * t) * √(σ²+ η₂² * t))
+    G12 = 2 * (η₁² * σ²) * (σ² + η₁² * t)
+    G22 = 2 * (η₂² * σ²) * (σ² + η₂² * t)
+    Girs1 = exp(G11 / G12 - ν[1]^2/(2 * η₁²))
+    Girs2 = exp(G21 / G22 - ν[2]^2/(2 * η₂²))
+    return Multiplier * Girs1 * Girs2
 end

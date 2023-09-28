@@ -15,9 +15,8 @@ SUITE[:logpdf] = BenchmarkGroup()
 
 for dist ∈ dists2D
     dist_name = Symbol(dist)
-    SUITE[:logpdf][dist_name] = BenchmarkGroup()
     for n ∈ ns
-        SUITE[:logpdf][dist_name][n] = @benchmarkable(
+        SUITE[:logpdf][dist_name,n] = @benchmarkable(
             logpdf($dist(), data),
             evals=10,
             samples=1000,
@@ -28,9 +27,8 @@ end
 
 for dist ∈ dists1D
     dist_name = Symbol(dist)
-    SUITE[:logpdf][dist_name] = BenchmarkGroup()
     for n ∈ ns
-        SUITE[:logpdf][dist_name][n] = @benchmarkable(
+        SUITE[:logpdf][dist_name,n] = @benchmarkable(
             logpdf.($dist(), data),
             evals=10,
             samples=1000,
@@ -47,9 +45,8 @@ SUITE[:rand] = BenchmarkGroup()
 
 for dist ∈ dists
     dist_name = Symbol(dist)
-    SUITE[:rand][dist_name] = BenchmarkGroup()
     for n ∈ ns
-        SUITE[:rand][dist_name][n] = @benchmarkable(
+        SUITE[:rand][dist_name,n] = @benchmarkable(
             rand($dist(), $n),
             evals=10,
             samples=1000,
