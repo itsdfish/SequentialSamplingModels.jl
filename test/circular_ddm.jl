@@ -9,7 +9,7 @@
             η = [1,1],
             σ = 1.0,
             α = 1.5,
-            τ = .300,
+            τ = 0.0,
             zτ = .100)
 
         rts = [0:.1:1;]
@@ -30,7 +30,7 @@
             η = [1,1],
             σ = 1.0,
             α = 1.5,
-            τ = .300,
+            τ = 0.0,
             zτ = .100)
 
         rts = [0:.1:1;]
@@ -44,62 +44,127 @@
     @safetestset "rand" begin 
         @safetestset "rand 1" begin 
             using Test 
+            using Distributions
             using Random
             using SequentialSamplingModels
             using Statistics 
+            include("KDE.jl")
 
             Random.seed!(5)
 
             model = CDDM(;
                 ν = [1.5,1],
-                η = [0,0],
+                η = [0.0,0.0],
                 σ = 1.0,
                 α = 1.5,
                 τ = .300,
                 zτ = .100)
 
-            n_sim = 100_000
-            probs = .1:.1:.9
+            data = rand(model, 100_000)
+            approx_pdf = kernel(data[:,1])
 
-            sim_data = rand(model, n_sim)
-            rt_ground_truth = [0.3928865, 0.4444666, 0.4931019, 0.5430096, 0.5972292, 0.6595818, 0.7356822, 0.8383617, 1.0057995]
-            qs_rt = quantile(sim_data[:,2], probs)
-            @test qs_rt ≈ rt_ground_truth atol = .005
+            x = range(-π, π, length = 100)
 
-            θ_ground_truth = [0.2097635, 0.3756054, 0.5224047, 0.6652165, 0.8135603, 0.9811396, 1.1971366, 1.5990255, 5.9120380] 
-            qs_θ = quantile(sim_data[:,1], probs)
-            @test qs_θ ≈ θ_ground_truth rtol = .005
+            μ = atan(model.ν[2], model.ν[1])
+            κ = model.α * √(sum(model.ν.^2)) / model.σ^2
+            y_true = pdf.(VonMises(μ, κ), x)
+            y = pdf(approx_pdf, x)
+            @test y ≈ y_true rtol = .015
+            @test maximum(abs.(y_true .- y)) < .02
         end
 
         @safetestset "rand 2" begin 
             using Test 
+            using Distributions
             using Random
             using SequentialSamplingModels
             using Statistics 
+            include("KDE.jl")
+
+            Random.seed!(145)
+
+            model = CDDM(;
+                ν = [1.5,-1],
+                η = [0.0,0.0],
+                σ = .5,
+                α = 2.5,
+                τ = .400,
+                zτ = .100)
+
+            data = rand(model, 100_000)
+            approx_pdf = kernel(data[:,1])
+
+            x = range(-π, π, length = 200)
+
+            μ = atan(model.ν[2], model.ν[1])
+            κ = model.α * √(sum(model.ν.^2)) / model.σ^2
+            y_true = pdf.(VonMises(μ, κ), x)
+            y = pdf(approx_pdf, x)
+            @test y ≈ y_true rtol = .015
+            @test maximum(abs.(y_true .- y)) < .02
+        end
+    end
+
+    @safetestset "pdf_rt" begin 
+        @safetestset "pdf_rt 1" begin 
+            using Test 
+            using Distributions
+            using Random
+            using SequentialSamplingModels
+            using SequentialSamplingModels: pdf_rt 
+            using Statistics 
+            include("KDE.jl")
     
-            Random.seed!(9385)
+            Random.seed!(1345)
     
             model = CDDM(;
-                ν = [.6,-.5],
-                η = [0,0],
-                σ = .5,
-                α = .5,
-                τ = .200,
-                zτ = .100)
+                ν=[1.75,1.0],
+                η = [.50,.50],
+                σ = .50,
+                α = 2.5,
+                τ = .20,
+                zτ = .10)
+
+            rts = range(model.τ, 3.5, length=200)
+            dens = map(rt -> pdf_rt(model, rt), rts)
+            data = rand(model, 100_000)
+
+            approx_pdf = kernel(data[:,2])
+            true_dens = pdf(approx_pdf, rts)
+
+            @test dens ≈ true_dens rtol = .05
+            @test maximum(abs.(true_dens .- dens)) < .07
+        end
+
+        @safetestset "pdf_rt 2" begin 
+            using Test 
+            using Distributions
+            using Random
+            using SequentialSamplingModels
+            using SequentialSamplingModels: pdf_rt 
+            using Statistics 
+            include("KDE.jl")
     
-            n_sim = 100_000
-            probs = .1:.1:.9
+            Random.seed!(6541)
     
-            sim_data = rand(model, n_sim)
-            rt_ground_truth = [0.2158301, 0.2335248, 0.2535496, 0.2766709, 0.3039753, 0.3375892, 0.3806297, 0.4414586, 0.5451512]
-            qs_rt = quantile(sim_data[:,2], probs)
-            @test qs_rt ≈ rt_ground_truth atol = .005
-    
-            θ_ground_truth = [0.4052218, 1.4416240, 4.1459015, 4.7103539, 5.0401302, 5.2995585, 5.5305477, 5.7569943, 5.9982289] 
-            qs_θ = quantile(sim_data[:,1], probs)
-            @test qs_θ ≈ θ_ground_truth rtol = .005
+            model = CDDM(;
+                ν=[1.75,2.0],
+                η = [.50,.50],
+                σ = .50,
+                α = 1.0,
+                τ = .30,
+                zτ = .10)
+
+            rts = range(model.τ, 1.5, length=200)
+            dens = map(rt -> pdf_rt(model, rt), rts)
+            data = rand(model, 100_000)
+
+            approx_pdf = kernel(data[:,2])
+            true_dens = pdf(approx_pdf, rts)
+
+            @test dens ≈ true_dens rtol = .05
+            @test maximum(abs.(true_dens .- dens)) < .15
         end
     end
 end
-
 

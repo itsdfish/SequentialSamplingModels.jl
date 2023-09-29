@@ -48,7 +48,7 @@ struct CDDM{T<:Real} <: AbstractCDDM
 end
 
 function CDDM(ν, η, σ, α, τ, zτ)
-    _, _, τ = promote(ν[1], η[1], τ)
+    _, _, σ, α, τ, zτ = promote(ν[1], η[1], σ, α, τ, zτ)
     ν = convert(Vector{typeof(τ)}, ν)
     η = convert(Vector{typeof(τ)}, η)
     return CDDM(ν, η, σ, α, τ, zτ)
@@ -58,62 +58,22 @@ function params(d::AbstractCDDM)
     return (d.ν, d.η, d.σ, d.α, d.τ, d.zτ)    
 end
 
-CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) = CDDM(ν, η, σ, α, τ, zτ)
-
-function rand(rng::AbstractRNG, d::AbstractCDDM; scale=.15)
-    (;ν,η,σ,α,τ) = d
-    ν₁ = rand(rng, Normal(ν[1], η[1]))
-    ν₂ = rand(rng, Normal(ν[2], η[2]))
-    μ = atan(ν₂, ν₁)
-    κ = √(sum(ν.^2)) / σ
-    x,y,r = zeros(3)
-    iter = 0
-    dist = VonMises(μ, κ)
-    while r < α
-        θstep = rand(rng, dist)
-        x += cos(θstep)
-        y += sin(θstep)
-        r = √(x^2 + y^2)
-        iter += 1
-    end
-    θpos = atan(y, x)
-    rt = rand(rng, Gamma(iter, scale)) + τ
-    θ = mod(θpos + 2π, 2π)
-    return [θ,rt]
+function CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) 
+    return CDDM(ν, η, σ, α, τ, zτ)
 end
 
-function rand(rng::AbstractRNG, d::AbstractCDDM, n::Int; scale = .15)
-    sim_data = zeros(n, 2)
-    for r ∈ 1:n 
-        sim_data[r,:] = rand(rng, d; scale)
-    end 
-    return sim_data 
-end
-
-function rand1(d::AbstractCDDM, n::Int; Δt=.001)
-    sim_data = zeros(n, 2)
-    for r ∈ 1:n 
-        sim_data[r,:] = rand1(d; Δt=.001)
-    end 
-    return sim_data 
-end
-
-function rand1(model::AbstractCDDM; Δt=.001)
+function rand(model::AbstractCDDM; Δt=.001)
     (;ν,η,σ,α,τ,zτ) = model
-    # ν mean drift rate (x, y)
-    # σ: diffusion parameter 
-    # α: theshold (i.e., radius of circular threshold)
-    # τ: non-decision time 
-
     # start position, distance, and time at 0
     x,y,r,t = zeros(4)
+    _ν = @. rand(Normal(ν, η))
     𝒩 = Normal(0, σ)
     sqΔt = √(Δt)
     while r < α
         #step in x direction 
-        x += ν[1] * Δt + rand(𝒩) * sqΔt
+        x += _ν[1] * Δt + rand(𝒩) * sqΔt
         # step in y direction 
-        y += ν[2] * Δt + rand(𝒩) * sqΔt
+        y += _ν[2] * Δt + rand(𝒩) * sqΔt
         # distiance from starting point
         r = √(x^2 + y^2)
         # increment time 
@@ -123,16 +83,57 @@ function rand1(model::AbstractCDDM; Δt=.001)
     return [θ,t + τ]
 end
 
+function rand(d::AbstractCDDM, n::Int; Δt=.001)
+    sim_data = zeros(n, 2)
+    for r ∈ 1:n 
+        sim_data[r,:] = rand(d; Δt=.001)
+    end 
+    return sim_data 
+end
+
 function logpdf(d::AbstractCDDM, r::Int, t::Float64)
     (;ν,η,σ,α,τ,zτ) = d
 
     return LL
 end
 
-function pdf(d::AbstractCDDM, r::Int, t::Float64)
-    (;ν,η,σ,τ,zτ) = d
+function pdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
+    θ,rt = data 
+    return max(0.0, pdf_term1(d, θ, rt) * pdf_term2(d, rt; k_max))
+end
 
-    return density
+function pdf_term1(d::AbstractCDDM, θ::Real, rt::Real)
+    (;ν,η,σ,α,τ,zτ) = d
+    pos = (α * cos(θ), α * sin(θ))
+    val = 1.0
+    t = rt - τ
+    _η = similar(η)
+    for i ∈ 1:length(η)
+        _η[i] = η[i] == 0 ? .01 : η[i]
+    end
+    for i ∈ 1:length(ν)
+        x0 = (_η[i] / σ)^2 
+        x1 = 1 / √(t * x0 + 1)
+        x2 = (-ν[i]^2) / (2 * _η[i]^2)
+        x3 = (pos[i] * x0 + ν[i])^2
+        x4 = (2 * _η[i]^2) * (x0 * t + 1)
+        #println("x1 $x1 x2 $x2 x3 $x3 x4 $x4")
+        val *= x1 * exp(x2 + x3 / x4)
+    end
+    return val
+end
+
+function pdf_term2(d::AbstractCDDM, rt::Real; k_max = 50)
+    return bessel_hm(d, rt; k_max)
+end
+
+function pdf_rt(d::AbstractCDDM, rt::Real; n_steps = 50, kwargs...)
+    Δθ = 2π / n_steps
+    val = 0.0 
+    for θ ∈ range(-2π, 2π, length=n_steps)
+        val += pdf(d, [θ, rt]; kwargs...)
+    end
+    return val * Δθ
 end
 
 """
@@ -155,10 +156,11 @@ function simulate(model::AbstractCDDM; Δt=.001)
     evidence = [zeros(2)]
     time_steps = [t]
     𝒩 = Normal(0, σ)
+    _ν = @. rand(Normal(ν, η))
     sqΔt = √(Δt)
     while r < α
-        x += ν[1] * Δt + rand(𝒩) * sqΔt
-        y += ν[2] * Δt + rand(𝒩) * sqΔt
+        x += _ν[1] * Δt + rand(𝒩) * sqΔt
+        y += _ν[2] * Δt + rand(𝒩) * sqΔt
         r = √(x^2 + y^2)
         t += Δt
         push!(time_steps, t)
@@ -179,15 +181,16 @@ end
 
 function bessel_hm(d::AbstractCDDM, rt ;k_max = 50)
     rt == 0 ? (return 0.0) : nothing 
-    (;σ,α) = d
+    (;σ,α,τ) = d
     x = 0.0
+    t = rt - τ
     α² = α^2
     σ² = σ^2
     s = σ² / (2 * π * α²)
 
     for k ∈ 1:k_max
         j0k = besselj_zero(0, k)
-        x += (j0k / besselj(1, j0k)) * exp(-((j0k^2 * σ²) / (2 * α²)) * rt)
+        x += (j0k / besselj(1, j0k)) * exp(-((j0k^2 * σ²) / (2 * α²)) * t)
     end
     return s * x
 end
@@ -196,27 +199,11 @@ function bessel_s(d::AbstractCDDM, rt; h = 2.5 / 300, v = 0, ϵ = 1e-12)
     rt == 0 ? (return 0.0) : nothing 
     (;σ,α) = d
     x = 0.0
+    #  t = rt - τ
     j0 = besselj_zero(0, 1)
     s = (α / σ)^2
     t = round(rt / h) * (h / s)
     x1 = ((1 - ϵ) * (1 + t)^(v + 2)) / ((ϵ + t)^(v + 0.5) * t^(3/2))
     x2 = exp(-((1 - ϵ)^2) / (2 * t) - .50 * j0[1]^2 * t)
     return x1 * x2 / s
-end
-
-function pdf_angle(d::AbstractCDDM, θ, rt)
-    (;ν,η,σ,α,τ,zτ) = d
-    t = rt - τ
-    σ² = σ^2
-    η₁²,η₂² = η.^2
-    ν₁²,ν₂² = ν.^2
-    G11 = (ν[1] * σ² + α * η₁² * cos(θ))^2
-    G21 = (ν[2] * σ² + α * η₂² * sin(θ))^2
-      
-    Multiplier = σ²/(√(σ² + η₁² * t) * √(σ²+ η₂² * t))
-    G12 = 2 * (η₁² * σ²) * (σ² + η₁² * t)
-    G22 = 2 * (η₂² * σ²) * (σ² + η₂² * t)
-    Girs1 = exp(G11 / G12 - ν[1]^2/(2 * η₁²))
-    Girs2 = exp(G21 / G22 - ν[2]^2/(2 * η₂²))
-    return Multiplier * Girs1 * Girs2
 end

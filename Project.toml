@@ -16,10 +16,12 @@ StatsAPI = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
 [compat]
 Distributions = "v0.24.6, 0.25"
 DynamicPPL = "0.22.0,0.23.0"
+FunctionZeros = "0.2.0"
 Interpolations = "0.14.0"
 KernelDensity = "0.6.5"
 PrettyTables = "1.1.0, 2"
 SafeTestsets = "v0.0.1,0.1.0"
+SpecialFunctions = "1,2"
 StatsAPI = "1.0.0"
 julia = "1"
 
