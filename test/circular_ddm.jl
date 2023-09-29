@@ -220,5 +220,100 @@
             @test maximum(abs.(true_dens .- dens)) < .07
         end
     end
+
+    @safetestset "logpdf_term1" begin 
+        using Test 
+        using Distributions
+        using SequentialSamplingModels
+        using SequentialSamplingModels: logpdf_term1 
+        using SequentialSamplingModels: pdf_term1 
+
+        model = CDDM(;
+            ν=[1.75,2.0],
+            η = [.50,.50],
+            σ = .50,
+            α = 1.0,
+            τ = .30)
+
+        for θ ∈ range(-2π, 2π, length=20), t ∈ range(.3, 2, length=20)
+            @test logpdf_term1(model, θ, t) ≈ log(pdf_term1(model, θ, t))
+        end
+    end
+
+    @safetestset "logpdf_term2" begin 
+        using Test 
+        using Distributions
+        using SequentialSamplingModels
+        using SequentialSamplingModels: logpdf_term2
+        using SequentialSamplingModels: pdf_term2
+
+        model = CDDM(;
+            ν=[1.75,2.0],
+            η = [.50,.50],
+            σ = .50,
+            α = 1.0,
+            τ = .30)
+
+        for t ∈ range(.3, 2, length=20)
+            @test logpdf_term2(model, t) ≈ log(pdf_term2(model, t))
+        end
+    end
+
+    @safetestset "logpdf" begin 
+        using Test 
+        using Distributions
+        using SequentialSamplingModels
+        using Random 
+
+        Random.seed!(58447)
+
+        function sum_logpdf(model, data)
+            return mapreduce(i -> logpdf(model, data[i,:]), +, 1:size(data,1))
+        end
+        
+        parms = (ν=[1.75,1.0],
+            η = [.50,.50],
+            σ = 1.0,
+            α = 3.5,
+            τ = .30)
+        
+        model = CDDM(;parms...)
+        data = rand(model, 1_500) 
+        
+        τs = range(parms.τ * .5, parms.τ, length = 50)
+        LLs = map(τ -> sum_logpdf(CDDM(;parms..., τ), data),τs)
+        _,max_idx = findmax(LLs)
+        @test parms.τ ≈ τs[max_idx] rtol = .05
+        
+        αs = range(parms.α * .8, parms.α * 1.2, length = 50)
+        LLs = map(α -> sum_logpdf(CDDM(;parms..., α), data), αs)
+        _,max_idx = findmax(LLs)
+        @test parms.α ≈ αs[max_idx] rtol = .05
+
+        σs = range(parms.σ * .8, parms.σ * 1.2, length = 50)
+        LLs = map(σ -> sum_logpdf(CDDM(;parms..., σ), data), σs)
+        _,max_idx = findmax(LLs)
+        @test parms.σ ≈ σs[max_idx] rtol = .05
+
+        ν1s = range(parms.ν[1] * .8, parms.ν[1] * 1.2, length = 50)
+        LLs = map(ν1 -> sum_logpdf(CDDM(;parms..., ν=[ν1, parms.ν[2]]), data), ν1s)
+        _,max_idx = findmax(LLs)
+        @test parms.ν[1] ≈ ν1s[max_idx] rtol = .05
+
+        ν2s = range(parms.ν[2] * .8, parms.ν[2] * 1.2, length = 50)
+        LLs = map(ν2 -> sum_logpdf(CDDM(;parms..., ν=[parms.ν[1],ν2]), data), ν2s)
+        _,max_idx = findmax(LLs)
+        @test parms.ν[2] ≈ ν2s[max_idx] rtol = .05
+
+        η1s = range(parms.η[1] * .8, parms.η[1] * 1.2, length = 50)
+        LLs = map(η1 -> sum_logpdf(CDDM(;parms..., η=[η1, parms.η[2]]), data), η1s)
+        _,max_idx = findmax(LLs)
+        @test parms.η[1] ≈ η1s[max_idx] rtol = .05
+
+        η2s = range(parms.η[2] * .8, parms.η[2] * 1.2, length = 50)
+        LLs = map(η2 -> sum_logpdf(CDDM(;parms..., η=[parms.η[1],η2]), data), η2s)
+        _,max_idx = findmax(LLs)
+        @test parms.η[2] ≈ η2s[max_idx] atol = .05
+    end
 end
 

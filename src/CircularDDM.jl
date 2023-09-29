@@ -17,7 +17,7 @@ working memory tasks. Currently supports the 2D case.
 
     CDDM(ν, η, σ, α, τ)
 
-    CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300) 
+    CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30) 
 
 # Example
 
@@ -55,7 +55,7 @@ function params(d::AbstractCDDM)
     return (d.ν, d.η, d.σ, d.α, d.τ)    
 end
 
-function CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300) 
+function CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30) 
     return CDDM(ν, η, σ, α, τ)
 end
 
@@ -88,10 +88,9 @@ function rand(d::AbstractCDDM, n::Int; Δt=.001)
     return sim_data 
 end
 
-function logpdf(d::AbstractCDDM, r::Int, t::Float64)
-    (;ν,η,σ,α,τ) = d
-
-    return LL
+function logpdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
+    θ,rt = data 
+    return logpdf_term1(d, θ, rt) + logpdf_term2(d, rt; k_max)
 end
 
 function pdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
@@ -116,6 +115,23 @@ function pdf_term1(d::AbstractCDDM, θ::Real, rt::Real)
     return val
 end
 
+function logpdf_term1(d::AbstractCDDM, θ::Real, rt::Real)
+    (;ν,η,σ,α,τ) = d
+    pos = (α * cos(θ), α * sin(θ))
+    val = 0.0
+    t = rt - τ
+    _η = set_min(η)
+    for i ∈ 1:length(ν)
+        x0 = (_η[i] / σ)^2 
+        x1 = -log(√(t * x0 + 1))
+        x2 = (-ν[i]^2) / (2 * _η[i]^2)
+        x3 = (pos[i] * x0 + ν[i])^2
+        x4 = (2 * _η[i]^2) * (x0 * t + 1)
+        val += x1 + x2 + x3 / x4
+    end
+    return val
+end
+
 function set_min(η)
     _η = similar(η)
     for i ∈ 1:length(η)
@@ -125,7 +141,11 @@ function set_min(η)
 end
 
 function pdf_term2(d::AbstractCDDM, rt::Real; k_max = 50)
-    return bessel_hm(d, rt; k_max)
+    return max(bessel_hm(d, rt; k_max), 0.0)
+end
+
+function logpdf_term2(d::AbstractCDDM, rt::Real; k_max = 50)
+    return log(max(bessel_hm(d, rt; k_max), 0.0))
 end
 
 function pdf_rt(d::AbstractCDDM, rt::Real; n_steps = 50, kwargs...)
