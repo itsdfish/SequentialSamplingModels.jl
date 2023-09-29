@@ -97,6 +97,8 @@ Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D) = rand(Random.default_rng(), d)
 rand(d::SSM2D, n::Int) = rand(Random.default_rng(), d, n)
+rand(d::ContinuousSSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
+rand(d::ContinuousSSM2D, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
 
 """
     logpdf(d::SSM2D, data::NamedTuple) 

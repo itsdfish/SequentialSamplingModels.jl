@@ -60,10 +60,67 @@ end
 
 CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) = CDDM(ν, η, σ, α, τ, zτ)
 
-function rand(rng::AbstractRNG, dist::AbstractCDDM)
-    (;ν,η,σ,α,τ,zτ) = dist
+function rand(rng::AbstractRNG, d::AbstractCDDM; scale=.15)
+    (;ν,η,σ,α,τ) = d
+    ν₁ = rand(rng, Normal(ν[1], η[1]))
+    ν₂ = rand(rng, Normal(ν[2], η[2]))
+    μ = atan(ν₂, ν₁)
+    κ = √(sum(ν.^2)) / σ
+    x,y,r = zeros(3)
+    iter = 0
+    dist = VonMises(μ, κ)
+    while r < α
+        θstep = rand(rng, dist)
+        x += cos(θstep)
+        y += sin(θstep)
+        r = √(x^2 + y^2)
+        iter += 1
+    end
+    θpos = atan(y, x)
+    rt = rand(rng, Gamma(iter, scale)) + τ
+    θ = mod(θpos + 2π, 2π)
+    return [θ,rt]
+end
 
-    return (;choice,rt)
+function rand(rng::AbstractRNG, d::AbstractCDDM, n::Int; scale = .15)
+    sim_data = zeros(n, 2)
+    for r ∈ 1:n 
+        sim_data[r,:] = rand(rng, d; scale)
+    end 
+    return sim_data 
+end
+
+function rand1(d::AbstractCDDM, n::Int; Δt=.001)
+    sim_data = zeros(n, 2)
+    for r ∈ 1:n 
+        sim_data[r,:] = rand1(d; Δt=.001)
+    end 
+    return sim_data 
+end
+
+function rand1(model::AbstractCDDM; Δt=.001)
+    (;ν,η,σ,α,τ,zτ) = model
+    # ν mean drift rate (x, y)
+    # σ: diffusion parameter 
+    # α: theshold (i.e., radius of circular threshold)
+    # τ: non-decision time 
+
+    # start position, distance, and time at 0
+    x,y,r,t = zeros(4)
+    𝒩 = Normal(0, σ)
+    sqΔt = √(Δt)
+    while r < α
+        #step in x direction 
+        x += ν[1] * Δt + rand(𝒩) * sqΔt
+        # step in y direction 
+        y += ν[2] * Δt + rand(𝒩) * sqΔt
+        # distiance from starting point
+        r = √(x^2 + y^2)
+        # increment time 
+        t += Δt
+    end
+    θ = atan(y, x)
+    return [θ,t + τ]
 end
 
 function logpdf(d::AbstractCDDM, r::Int, t::Float64)
@@ -79,108 +136,58 @@ function pdf(d::AbstractCDDM, r::Int, t::Float64)
 end
 
 """
-    solve_zeros(order, n_zeros; ϵ = 1e-12, max_iter = 100)
+    simulate(model::AbstractCDDM; Δt=.001)
 
-Finds the input of a bessel function which evaluate to zero. Assumes the 
-bessel function is of the first kind.
+Returns a matrix containing evidence samples of the racing diffusion model decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
 
-# Arguments 
+# Arguments
 
-- `order`: order of the bessel function  
-- `n_zeros`: number of solutions to return 
+- `model::AbstractCDDM;`: a circular drift diffusion model object
 
-# Keywords 
+# Keywords
 
-- `ϵ = 1e-12`: error tolerance 
-- `max_iter`: maximum iterations for finding solution 
+- `Δt=.001`: size of time step of decision process in seconds
 """
-function solve_zeros(order, n_zeros; ϵ = 1e-12, max_iter = 100)
-    k3 = n_zeros * 3
-    solutions = fill(0.0, k3)
-    for j ∈ 1:k3
-        x0 = 1 + √(2) + (j-1) * π + order + order^0.4
-        solutions[j] = find_zero(order, x0; ϵ, max_iter)
-    end 
-    sort!(solutions)
-    diffs = pushfirst!(succ_diffs(solutions), 1.0)
-    solutions = solutions[diffs .> 1e-8]
-    return solutions[1:n_zeros]
-end
-
-
-function find_zero(n, x0; ϵ = 1e-12, max_iter=100)
-    n1 = n + 1
-    n2 = n^2
-    
-    err = 1.0
-    i = 1
-    x = 0.0
-
-    while (abs(err) > ϵ) && (i < max_iter)
-        a = besselj(n, x0)
-        b = besselj(n1, x0)
-        x02 = x0^2
-        err = 2 * a * x0 * (n * a - b * x0) / 
-            (2 * b^2 * x02 - a * b * x0 * (4 * n + 1) + (n * n1 + x02) * a^2)
-        x = x0 - err
-        x0 = x
-        i += 1
+function simulate(model::AbstractCDDM; Δt=.001)
+    (;ν,η,σ,α,τ,zτ) = model
+    x,y,r,t = zeros(4)
+    evidence = [zeros(2)]
+    time_steps = [t]
+    𝒩 = Normal(0, σ)
+    sqΔt = √(Δt)
+    while r < α
+        x += ν[1] * Δt + rand(𝒩) * sqΔt
+        y += ν[2] * Δt + rand(𝒩) * sqΔt
+        r = √(x^2 + y^2)
+        t += Δt
+        push!(time_steps, t)
+        push!(evidence, [x,y])
     end
-    return x
+    return time_steps,reduce(vcat, transpose.(evidence))
 end
 
-function succ_diffs(x)
-    n = length(x)
-    y = zeros(n-1)
-    for i ∈ 2:n
-        y[i-1] = x[i] - x[i-1]
-    end
-    return y
-end
+# function increment!(model::AbstractRDM, x, ϵ, ν, Δt)
+#     ϵ .= rand(Normal(0.0, 1.0), length(ν))
+#     x .+= ν * Δt + ϵ * √(Δt)
+#     return nothing 
+# end
 
 function logpdf(d::AbstractCDDM, r::Int, t::Float64)
     (;ν,η,σ,α,τ,zτ) = d
-end
-
-function rand(d::AbstractCDDM; scale=.15)
-    (;ν,η,σ,α,τ) = d
-    μ = atan(ν[2], ν[1])
-    κ = √(sum(ν.^2)) / σ
-    x,y,r = zeros(3)
-    iter = 0
-    dist = VonMises(μ, κ)
-    while abs(r) < α
-        θstep = rand(dist)
-        x += cos(θstep)
-        y += sin(θstep)
-        r = √(x^2 + y^2)
-        iter += 1
-    end
-    θpos = atan(y, x)
-    rt = rand(Gamma(iter, scale)) + τ
-    θ = mod(θpos + 2π, 2π)
-    return [θ,rt]
-end
-
-function rand(d::AbstractCDDM, n::Int; scale = .15)
-    sim_data = zeros(n, 2)
-    for r ∈ 1:n 
-        sim_data[r,:] = rand(d; scale)
-    end 
-    return sim_data 
 end
 
 function bessel_hm(d::AbstractCDDM, rt ;k_max = 50)
     rt == 0 ? (return 0.0) : nothing 
     (;σ,α) = d
     x = 0.0
-    j0 = solve_zeros(0, k_max)
     α² = α^2
     σ² = σ^2
     s = σ² / (2 * π * α²)
 
     for k ∈ 1:k_max
-        x +=  (j0[k] / besselj(1, j0[k])) * exp(-((j0[k]^2 * σ²) / (2 * α²)) * rt)
+        j0k = besselj_zero(0, k)
+        x += (j0k / besselj(1, j0k)) * exp(-((j0k^2 * σ²) / (2 * α²)) * rt)
     end
     return s * x
 end
@@ -189,14 +196,11 @@ function bessel_s(d::AbstractCDDM, rt; h = 2.5 / 300, v = 0, ϵ = 1e-12)
     rt == 0 ? (return 0.0) : nothing 
     (;σ,α) = d
     x = 0.0
-    j0 = solve_zeros(0, 1)
+    j0 = besselj_zero(0, 1)
     s = (α / σ)^2
     t = round(rt / h) * (h / s)
-    # println("t $t")
     x1 = ((1 - ϵ) * (1 + t)^(v + 2)) / ((ϵ + t)^(v + 0.5) * t^(3/2))
     x2 = exp(-((1 - ϵ)^2) / (2 * t) - .50 * j0[1]^2 * t)
-    # println("x1 $x1")
-    # println("x2 $x2")
     return x1 * x2 / s
 end
 

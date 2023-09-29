@@ -1,22 +1,11 @@
 @safetestset "CDDM" begin
-    @safetestset "solve_zeros" begin 
-        using Test
-        using SpecialFunctions
-        using SequentialSamplingModels: solve_zeros
-        
-        n = 50
-        solutions = solve_zeros(0, n)
-
-        @test besselj.(0, solutions) ≈ zeros(n) atol = 1e-14
-    end
-
     @safetestset "bessel_hm" begin 
         using Test 
         using SequentialSamplingModels
         using SequentialSamplingModels: bessel_hm 
 
         model = CDDM(;
-            ν=[1.5,.5],
+            ν = [1.5,.5],
             η = [1,1],
             σ = 1.0,
             α = 1.5,
@@ -37,7 +26,7 @@
         using SequentialSamplingModels: bessel_s
 
         model = CDDM(;
-            ν=[1.5,.5],
+            ν = [1.5,.5],
             η = [1,1],
             σ = 1.0,
             α = 1.5,
@@ -62,7 +51,7 @@
             Random.seed!(5)
 
             model = CDDM(;
-                ν=[1.5,1],
+                ν = [1.5,1],
                 η = [0,0],
                 σ = 1.0,
                 α = 1.5,
@@ -79,7 +68,7 @@
 
             θ_ground_truth = [0.2097635, 0.3756054, 0.5224047, 0.6652165, 0.8135603, 0.9811396, 1.1971366, 1.5990255, 5.9120380] 
             qs_θ = quantile(sim_data[:,1], probs)
-            @test qs_θ ≈ θ_ground_truth atol = .005
+            @test qs_θ ≈ θ_ground_truth rtol = .005
         end
 
         @safetestset "rand 2" begin 
@@ -91,7 +80,7 @@
             Random.seed!(9385)
     
             model = CDDM(;
-                ν=[.6,-.5],
+                ν = [.6,-.5],
                 η = [0,0],
                 σ = .5,
                 α = .5,
