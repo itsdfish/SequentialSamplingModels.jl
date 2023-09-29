@@ -6,26 +6,24 @@ A circular drift diffusion model (CDDM) for continous responding. CCDM is typica
 working memory tasks. Currently supports the 2D case. 
 
 # Parameters 
-ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100
 - `ν`: a vector drift rates. ν₁ is the mean drift rate along the x-axis; ν₂ is the mean drift rate along the y-axis.
 - `η`: a vector across-trial standard deviations of  drift rates. η₁ is the standard deviation of drift rate along the x-axis; 
     ν₂ is the standard deviation of drift rate along the y-axis
 - `σ`: intra-trial drift rate variability 
 - `α`: response boundary as measured by the radious of a circle 
 - `τ`: mean non-decision time 
-- `zτ`: range of non-decision time 
 
 # Constructors
 
-    CDDM(ν, η, σ, α, τ, zτ)
+    CDDM(ν, η, σ, α, τ)
 
-    CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) 
+    CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300) 
 
 # Example
 
 ```julia
 using SequentialSamplingModels
-dist = CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100)
+dist = CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30)
 choice,rt = rand(dist, 10)
 like = pdf.(dist, choice, rt)
 loglike = logpdf.(dist, choice, rt)
@@ -44,26 +42,25 @@ struct CDDM{T<:Real} <: AbstractCDDM
     σ::T
     α::T
     τ::T
-    zτ::T
 end
 
-function CDDM(ν, η, σ, α, τ, zτ)
-    _, _, σ, α, τ, zτ = promote(ν[1], η[1], σ, α, τ, zτ)
+function CDDM(ν, η, σ, α, τ)
+    _, _, σ, α, τ = promote(ν[1], η[1], σ, α, τ)
     ν = convert(Vector{typeof(τ)}, ν)
     η = convert(Vector{typeof(τ)}, η)
-    return CDDM(ν, η, σ, α, τ, zτ)
+    return CDDM(ν, η, σ, α, τ)
 end
 
 function params(d::AbstractCDDM)
-    return (d.ν, d.η, d.σ, d.α, d.τ, d.zτ)    
+    return (d.ν, d.η, d.σ, d.α, d.τ)    
 end
 
-function CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300, zτ=0.100) 
-    return CDDM(ν, η, σ, α, τ, zτ)
+function CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.300) 
+    return CDDM(ν, η, σ, α, τ)
 end
 
 function rand(model::AbstractCDDM; Δt=.001)
-    (;ν,η,σ,α,τ,zτ) = model
+    (;ν,η,σ,α,τ) = model
     # start position, distance, and time at 0
     x,y,r,t = zeros(4)
     _ν = @. rand(Normal(ν, η))
@@ -92,7 +89,7 @@ function rand(d::AbstractCDDM, n::Int; Δt=.001)
 end
 
 function logpdf(d::AbstractCDDM, r::Int, t::Float64)
-    (;ν,η,σ,α,τ,zτ) = d
+    (;ν,η,σ,α,τ) = d
 
     return LL
 end
@@ -103,24 +100,28 @@ function pdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
 end
 
 function pdf_term1(d::AbstractCDDM, θ::Real, rt::Real)
-    (;ν,η,σ,α,τ,zτ) = d
+    (;ν,η,σ,α,τ) = d
     pos = (α * cos(θ), α * sin(θ))
     val = 1.0
     t = rt - τ
-    _η = similar(η)
-    for i ∈ 1:length(η)
-        _η[i] = η[i] == 0 ? .01 : η[i]
-    end
+    _η = set_min(η)
     for i ∈ 1:length(ν)
         x0 = (_η[i] / σ)^2 
         x1 = 1 / √(t * x0 + 1)
         x2 = (-ν[i]^2) / (2 * _η[i]^2)
         x3 = (pos[i] * x0 + ν[i])^2
         x4 = (2 * _η[i]^2) * (x0 * t + 1)
-        #println("x1 $x1 x2 $x2 x3 $x3 x4 $x4")
         val *= x1 * exp(x2 + x3 / x4)
     end
     return val
+end
+
+function set_min(η)
+    _η = similar(η)
+    for i ∈ 1:length(η)
+        _η[i] = η[i] == 0 ? .01 : η[i]
+    end
+    return _η
 end
 
 function pdf_term2(d::AbstractCDDM, rt::Real; k_max = 50)
@@ -134,6 +135,15 @@ function pdf_rt(d::AbstractCDDM, rt::Real; n_steps = 50, kwargs...)
         val += pdf(d, [θ, rt]; kwargs...)
     end
     return val * Δθ
+end
+
+function pdf_angle(d::AbstractCDDM, θ::Real; n_steps = 50, kwargs...)
+    Δt = (3 - d.τ) / n_steps
+    val = 0.0 
+    for t ∈ range(d.τ, 3, length=n_steps)
+        val += pdf(d, [θ, t]; kwargs...)
+    end
+    return val * Δt
 end
 
 """
@@ -151,7 +161,7 @@ represent samples of evidence per time step and columns represent different accu
 - `Δt=.001`: size of time step of decision process in seconds
 """
 function simulate(model::AbstractCDDM; Δt=.001)
-    (;ν,η,σ,α,τ,zτ) = model
+    (;ν,η,σ,α,τ) = model
     x,y,r,t = zeros(4)
     evidence = [zeros(2)]
     time_steps = [t]
@@ -176,7 +186,7 @@ end
 # end
 
 function logpdf(d::AbstractCDDM, r::Int, t::Float64)
-    (;ν,η,σ,α,τ,zτ) = d
+    (;ν,η,σ,α,τ) = d
 end
 
 function bessel_hm(d::AbstractCDDM, rt ;k_max = 50)
