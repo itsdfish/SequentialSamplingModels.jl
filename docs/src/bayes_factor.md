@@ -8,13 +8,8 @@ In this tutorial, we will use the Bayes factor to compare the evidence for one m
 In the tutorial below, we will compare two models which differ only in terms of assumptions about drift rate variability: the LBA and the RDM. The LBA assumes that the drift rate varies across trials and is otherwise deterministic, whereas the RDM assumes the drift rate varies within a trial as Gaussian noise, but not across trials. The difference between the models can be visualized with SSMPlots.jl:
 
 ### RDM
-```@setup bayes_factor
-using Random
-using SequentialSamplingModels
-using SSMPlots
-```
 
-```@example bayes_factor 
+```julia
 using SequentialSamplingModels
 using SSMPlots
 using Random
@@ -25,7 +20,7 @@ density_kwargs=(;t_range=range(.20, 1.0, length=100),)
 plot_model(dist; n_sim=1, density_kwargs, xlims=(0,1.0))
 ```
 ### LBA
-```@example bayes_factor 
+```julia
 using SequentialSamplingModels
 using SSMPlots
 using Random
