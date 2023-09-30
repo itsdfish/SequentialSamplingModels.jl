@@ -3,6 +3,7 @@
         using Test 
         using SequentialSamplingModels
         using SequentialSamplingModels: bessel_hm 
+        using SequentialSamplingModels: precompute_bessel
 
         model = CDDM(;
             ν = [1.5,.5],
@@ -16,6 +17,10 @@
             0.84213747, 0.82883946, 0.7744823 , 0.7043917 , 0.63131337, 0.56121361]
 
         densities = map(rt -> bessel_hm(model, rt), rts) * (2 * π)
+        @test densities ≈ ground_truth 
+
+        j0, j01, j02 = precompute_bessel()
+        densities = map(rt -> bessel_hm(model, rt, j0, j01, j02), rts) * (2 * π)
         @test densities ≈ ground_truth 
     end
 
