@@ -24,9 +24,9 @@ working memory tasks. Currently supports the 2D case.
 ```julia
 using SequentialSamplingModels
 dist = CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30)
-choice,rt = rand(dist, 10)
-like = pdf.(dist, choice, rt)
-loglike = logpdf.(dist, choice, rt)
+data = rand(dist, 10)
+like = pdf(dist, data)
+loglike = logpdf(dist, data)
 ```
 
 # References
@@ -93,9 +93,36 @@ function logpdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
     return logpdf_term1(d, θ, rt) + logpdf_term2(d, rt; k_max)
 end
 
+function logpdf(d::AbstractCDDM, data::Array{<:Real,2}; k_max = 50)
+    n_obs = size(data, 1)
+    LLs = zeros(n_obs)
+    j0, j01, j02 = precompute_bessel(;k_max)
+    for r ∈ 1:n_obs
+        LLs[r] = logpdf_term1(d, data[r,1], data[r,2]) +
+             logpdf_term2(d, data[r,2], j0, j01, j02; k_max)
+    end
+    return LLs
+end
+
 function pdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
     θ,rt = data 
     return max(0.0, pdf_term1(d, θ, rt) * pdf_term2(d, rt; k_max))
+end
+
+function pdf(d::AbstractCDDM, data::Vector{<:Real}, j0, j01, j02; k_max = 50)
+    θ,rt = data 
+    return max(0.0, pdf_term1(d, θ, rt) * pdf_term2(d, rt, j0, j01, j02; k_max))
+end
+
+function pdf(d::AbstractCDDM, data::Array{<:Real,2}; k_max = 50)
+    n_obs = size(data, 1)
+    LLs = zeros(n_obs)
+    j0, j01, j02 = precompute_bessel(;k_max)
+    for r ∈ 1:n_obs
+        LLs[r] = max(0.0, pdf_term1(d, data[r,1], data[r,2]) * 
+            pdf_term2(d, data[r,2], j0, j01, j02; k_max))
+    end
+    return LLs
 end
 
 function pdf_term1(d::AbstractCDDM, θ::Real, rt::Real)
@@ -144,24 +171,67 @@ function pdf_term2(d::AbstractCDDM, rt::Real; k_max = 50)
     return max(bessel_hm(d, rt; k_max), 0.0)
 end
 
+function pdf_term2(d::AbstractCDDM, rt::Real, j0, j01, j02; k_max = 50)
+    return max(bessel_hm(d, rt, j0, j01, j02; k_max), 0.0)
+end
+
 function logpdf_term2(d::AbstractCDDM, rt::Real; k_max = 50)
     return log(max(bessel_hm(d, rt; k_max), 0.0))
 end
 
-function pdf_rt(d::AbstractCDDM, rt::Real; n_steps = 50, kwargs...)
+function logpdf_term2(d::AbstractCDDM, rt::Real, j0, j01, j02; k_max = 50)
+    return log(max(bessel_hm(d, rt, j0, j01, j02; k_max), 0.0))
+end
+
+"""
+    pdf_rt(d::AbstractCDDM, rt::Real; n_steps = 50, kwargs...)
+
+Computes the marginal pdf for a given rt. 
+
+# Arguments
+
+- `d::AbstractCDDM`: an abstract circular drift diffuion model 
+- `rt::real`: a reaction time 
+
+# Keywords
+
+- `k_max = 50`: the number of terms summed for the first passage time
+- `n_steps=50`: number of angular steps for convolution 
+- `kwargs...`: optional keyword arguments
+"""
+function pdf_rt(d::AbstractCDDM, rt::Real; k_max = 50, n_steps = 50, kwargs...)
     Δθ = 2π / n_steps
     val = 0.0 
+    j0, j01, j02 = precompute_bessel(;k_max)
     for θ ∈ range(-2π, 2π, length=n_steps)
-        val += pdf(d, [θ, rt]; kwargs...)
+        val += pdf(d, [θ, rt], j0, j01, j02; kwargs...)
     end
     return val * Δθ
 end
 
-function pdf_angle(d::AbstractCDDM, θ::Real; n_steps = 50, kwargs...)
+
+"""
+    pdf_angle(d::AbstractCDDM, θ::Real; k_max = 50, n_steps = 50, kwargs...)
+
+Computes the marginal pdf for a given angle. 
+
+# Arguments
+
+- `d::AbstractCDDM`: an abstract circular drift diffuion model 
+- `rt::real`: a reaction time 
+
+# Keywords
+
+- `k_max = 50`: the number of terms summed for the first passage time
+- `n_steps=50`: number of angular steps for convolution 
+- `kwargs...`: optional keyword arguments
+"""
+function pdf_angle(d::AbstractCDDM, θ::Real; k_max = 50, n_steps = 50, kwargs...)
     Δt = (3 - d.τ) / n_steps
     val = 0.0 
+    j0, j01, j02 = precompute_bessel(;k_max)
     for t ∈ range(d.τ, 3, length=n_steps)
-        val += pdf(d, [θ, t]; kwargs...)
+        val += pdf(d, [θ, t], j0, j01, j02; kwargs...)
     end
     return val * Δt
 end
@@ -205,22 +275,55 @@ end
 #     return nothing 
 # end
 
-function logpdf(d::AbstractCDDM, r::Int, t::Float64)
-    (;ν,η,σ,α,τ) = d
-end
-
-function bessel_hm(d::AbstractCDDM, rt ;k_max = 50)
-    rt == 0 ? (return 0.0) : nothing 
+function bessel_hm(d::AbstractCDDM, rt ; k_max = 50)
     (;σ,α,τ) = d
-    x = 0.0
     t = rt - τ
+    t == 0 ? (return 0.0) : nothing 
+    x = 0.0
     α² = α^2
     σ² = σ^2
     s = σ² / (2 * π * α²)
 
     for k ∈ 1:k_max
-        j0k = besselj_zero(0, k)
+        j0k = besselj_zero(0, k)::Float64
         x += (j0k / besselj(1, j0k)) * exp(-((j0k^2 * σ²) / (2 * α²)) * t)
+    end
+    return s * x
+end
+
+"""
+    precompute_bessel(; k_max = 50)
+
+Precomputes bessel terms used in the density for first passage time. 
+
+# Keywords
+
+- `k_max = 50`: the number of terms summed for the first passage time
+"""
+function precompute_bessel(; k_max = 50)
+    j0 = zeros(k_max)
+    j01 = zeros(k_max)
+    j02 = zeros(k_max)
+     
+    for k ∈ 1:k_max
+        j0[k] = besselj_zero(0, k)
+        j02[k] = j0[k]^2
+        j01[k] = besselj(1, j0[k])
+    end
+    return j0, j01, j02
+end
+
+function bessel_hm(d::AbstractCDDM, rt, j0, j01, j02; k_max = 50)
+    (;σ,α,τ) = d
+    t = rt - τ
+    t == 0 ? (return 0.0) : nothing 
+    x = 0.0
+    α² = α^2
+    σ² = σ^2
+    s = σ² / (2 * π * α²)
+
+    for k ∈ 1:k_max
+        x += (j0[k] / j01[k]) * exp(-((j02[k] * σ²) / (2 * α²)) * t)
     end
     return s * x
 end

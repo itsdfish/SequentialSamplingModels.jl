@@ -267,9 +267,7 @@
 
         Random.seed!(58447)
 
-        function sum_logpdf(model, data)
-            return mapreduce(i -> logpdf(model, data[i,:]), +, 1:size(data,1))
-        end
+        sum_logpdf(model, data) = sum(logpdf(model, data))
         
         parms = (ν=[1.75,1.0],
             η = [.50,.50],
