@@ -8,7 +8,12 @@ Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and
 """
 const SSM2D = Distribution{Multivariate, Mixed}
 
-abstract type ContinuousSSM2D <: ContinuousMultivariateDistribution end
+"""
+    ContinuousMultivariateSSM <: ContinuousMultivariateDistribution
+
+An abstract type for continuous multivariate sequential sampling models e.g., a circular drift diffusion model.
+"""
+abstract type ContinuousMultivariateSSM <: ContinuousMultivariateDistribution end
 
 """
     SSM1D <: ContinuousUnivariateDistribution
@@ -97,8 +102,8 @@ Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D) = rand(Random.default_rng(), d)
 rand(d::SSM2D, n::Int) = rand(Random.default_rng(), d, n)
-rand(d::ContinuousSSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
-rand(d::ContinuousSSM2D, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
+rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
+rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
 
 """
     logpdf(d::SSM2D, data::NamedTuple) 

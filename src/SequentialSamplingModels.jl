@@ -46,6 +46,7 @@ module SequentialSamplingModels
     export maaDDM
     export SSM1D
     export SSM2D
+    export ContinuousMultivariateSSM
     export Wald
     export WaldMixture 
 

@@ -1,4 +1,4 @@
-abstract type AbstractCDDM <: ContinuousSSM2D end 
+abstract type AbstractCDDM <: ContinuousMultivariateSSM end 
 """
     CDDM{T<:Real} <: AbstractCDDM
 
