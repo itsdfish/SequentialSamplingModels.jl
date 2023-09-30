@@ -83,6 +83,7 @@ struct Approximate <: PDFType end
 
 get_pdf_type(d::SSM1D) = Exact
 get_pdf_type(d::SSM2D) = Exact
+get_pdf_type(d::ContinuousMultivariateSSM) = Exact
 
 minimum(d::SSM1D) = 0.0
 maximum(d::SSM1D) = Inf
@@ -94,6 +95,7 @@ insupport(d::SSM2D, data) = data.rt ≥ minimum(d) && data.rt ≤ maximum(d)
 
 Base.broadcastable(x::SSM1D) = Ref(x)
 Base.broadcastable(x::SSM2D) = Ref(x)
+Base.broadcastable(x::ContinuousMultivariateSSM) = Ref(x)
 
 vectorize(d::SSM2D, r::NamedTuple) = [r...]
 reconstruct(d::SSM2D, v::NamedTuple) = deepcopy(v)
@@ -186,3 +188,5 @@ Returns 1 for the number of choice options
 - `d::SSM1D`: a sub-type of `SSM1D`
 """
 n_options(d::SSM1D) = 1
+
+n_options(d::ContinuousMultivariateSSM) = length(d.ν)

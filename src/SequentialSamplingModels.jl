@@ -31,6 +31,7 @@ module SequentialSamplingModels
     import StatsAPI: params
 
     export AbstractaDDM
+    export AbstractCDDM
     export AbstractLBA
     export AbstractLCA
     export AbstractLNR
