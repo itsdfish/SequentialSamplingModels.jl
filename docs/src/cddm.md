@@ -97,11 +97,10 @@ logpdf(dist, data)
 ```
 
 ## Plot Simulation
-The code below overlays the PDF on reaction time histograms for each option.
+The code below overlays the PDF on the marginal histograms for angle and reaction time.
  ```@example CDDM 
 #histogram(dist)
-#plot!(dist; t_range=range(.3,2.5, length=100), xlims=(0, 2.5))
-
+#plot!(dist)
 ```
 # References
 

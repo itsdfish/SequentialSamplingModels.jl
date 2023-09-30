@@ -17,26 +17,26 @@ makedocs(
     pages=[
         "Home" => "index.md",
         "Models" => [
-            #"Attentional Drift Diffusion (aDDM)" => "aDDM.md",
+            "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
             "Circular Drift Diffusion Model (CDDM)" => "cddm.md",
-            #"Drift Diffusion Model (DDM)" => "DDM.md",
-            #"Linear Ballistic Accumulator (LBA)" => "lba.md",
-            #"Lognormal Race Model (LNR)" => "lnr.md",
-            #"Racing Diffusion Model (RDM)" => "rdm.md",
-            #"Leaky Competing Accumulator (LCA)" => "lca.md",
-            #"Muti-attribute attentional drift diffusion Model" => "maaDDM.md",
-            #"Wald Model" => "wald.md",
-            #"Wald Mixture Model" => "wald_mixture.md"
+            "Drift Diffusion Model (DDM)" => "DDM.md",
+            "Linear Ballistic Accumulator (LBA)" => "lba.md",
+            "Lognormal Race Model (LNR)" => "lnr.md",
+            "Racing Diffusion Model (RDM)" => "rdm.md",
+            "Leaky Competing Accumulator (LCA)" => "lca.md",
+            "Muti-attribute attentional drift diffusion Model" => "maaDDM.md",
+            "Wald Model" => "wald.md",
+            "Wald Mixture Model" => "wald_mixture.md"
         ],
-        # "Parameter Estimation" => [
-        #     "Simple Bayesian Model" => "turing_simple.md",
-        #     "Advanced Model Specification" => "turing_advanced.md",
-        #     "Hierarchical Models" => "turing_hierarchical.md",
-        # ],
-        #"Model Comparison" => "bayes_factor.md",
-        #"Plotting" => "plotting.md",
-        #"API" => "api.md",
-        #"Developer Guide" => "developer_guide.md"
+        "Parameter Estimation" => [
+            "Simple Bayesian Model" => "turing_simple.md",
+            "Advanced Model Specification" => "turing_advanced.md",
+            "Hierarchical Models" => "turing_hierarchical.md",
+        ],
+        "Model Comparison" => "bayes_factor.md",
+        "Plotting" => "plotting.md",
+        "API" => "api.md",
+        "Developer Guide" => "developer_guide.md"
     ]
 )
 
