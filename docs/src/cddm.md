@@ -1,16 +1,32 @@
-# Circular Drift Diffusion Model
-
-The Circular Drift Diffusion Model (CDDM; Brown & Heathcote, 2008) is a sequential sampling model for continuous responding on a circular domain. The CDDM is often used to model visual working memory. In these visual working memory tasks, subjects are briefly presented with a variable number of squares of different colors. After the stimuli are removed, subjects are prompted to use a color wheel to judge the color of a randomly selected square. Currently, the model is restricted to a 2D disk, but future versions may support modeling diffusion processes in hyperspheres. 
-
-# Example
-In this example, we will demonstrate how to use the CDDM in a generic two alternative forced choice task. 
 ```@setup CDDM
 using LinearAlgebra
+using Plots
 using SequentialSamplingModels
 using SSMPlots 
 using Random
 using Revise
+
+model = CDDM(;
+    ν=[5,5.0],
+    η = [.50,.50],
+    σ = 1.0,
+    α = 4.0,
+    τ = .30)
+
+Random.seed!(5874)
+
+plot_model(model)
+savefig("cddm_plot.png")
 ```
+# Circular Drift Diffusion Model
+
+The Circular Drift Diffusion Model (CDDM; Brown & Heathcote, 2008) is a sequential sampling model for continuous responding on a circular domain. The CDDM is often used to model visual working memory. In these visual working memory tasks, subjects are briefly presented with a variable number of squares of different colors. After the stimuli are removed, subjects are prompted to use a color wheel to judge the color of a randomly selected square. Currently, the model is restricted to a 2D disk, but future versions may support modeling diffusion processes in hyperspheres. 
+
+The figure below illustrates the evidence accumulation process of the CDDM. At the begining of the trial, the evidence accumulation process starts at the center of the circle. As time progresses, the state of the system moves towards the the decision threshold depicted by the circle. Each step is perturbed with some degree of randomness. Once the system reaches the decision threshold, a response based on the position on the circle is given.  
+![](cddm_plot.png)
+
+# Example
+In this example, we will demonstrate how to use the CDDM in a generic two alternative forced choice task. 
 
 ## Load Packages
 The first step is to load the required packages.
@@ -31,7 +47,7 @@ In the code below, we will define parameters for the CDDM and create a model obj
 The mean drift rates $\boldsymbol{\nu}$ control the speed with which information accumulates in the x and y direction.
 
 ```@example CDDM
-ν = [1.5,1.0]
+ν = [5.5,5.0]
 ```
 The magnitude of the mean drift rate vector $||\boldsymbol{\nu}||$ is interpreted as the mean accumulation rate.
 
@@ -54,7 +70,7 @@ The standard deviation of the drift rate $\boldsymbol{\eta}$ is inteprpreted as 
 
 Evidence starts at the center of a circle $(0,0)$ and terminates at a threshold defined by the circumference of the circle. The distance between the starting point and any point on the circumference is given by the radius $\alpha$:
 ```@example CDDM 
-α = 1.50
+α = 4.0
 ```
 ### Diffusion
 
@@ -99,8 +115,8 @@ logpdf(dist, data)
 ## Plot Simulation
 The code below overlays the PDF on the marginal histograms for angle and reaction time.
  ```@example CDDM 
-#histogram(dist)
-#plot!(dist)
+histogram(dist)
+plot!(dist)
 ```
 # References
 
