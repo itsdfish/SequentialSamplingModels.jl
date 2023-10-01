@@ -4,13 +4,41 @@
 
 # SequentialSamplingModels
 
-This package provides a unified interface for sequential sampling models (such as DDM, LBA, LNR, LCA, ...) in Julia, based on the Distributions.jl API, that can be used within [**Turing**](https://turing.ml/) framework for Bayesian estimation.
+This package provides a unified interface for simulating and evaluating sequential sampling models (SSMs) in Julia. SSMs describe decision making as a stochastic and dynamic evidence accumulation process in which a decision is triggered by the option whose evidence hits a decision treshold first. 
 
-Please see the [documentation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) for more information.
+# Feature Overview
 
-- [**Bayesian Modeling: Usage with Turing**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/turing_simple/)
-- [**Developer Guide**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/developer_guide/)
-- [**List of Supported Models**](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/)
+A summary of the core features is provided below. Please see the [documentation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) for more information.
+
+## Supported Models
+The following SSMs are supported :
+
+- [Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/aDDM/)
+- [Circular Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/cddm/) 
+- [Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/DDM/)
+- [Leaking Competing Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lca/)
+- [Linear Ballistic Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lba/) 
+- [Log Normal Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lnr/) 
+- [Multi-attribute Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/maaDDM/)
+- [Racing Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/rdm/) 
+- [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
+- [Wald Mixture](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald_mixture/)
+
+## API
+
+The core API consists of the following 
+
+- rand: generate simulated data 
+- pdf: evaluate the probability density of the data
+- logpdf: evaluate the log probability density of the data
+- simulate: generate samples from the internal evidence accumulation process
+## Ecosystem Integration
+
+SSMs work with the following packages (and possibly more):
+
+- [Turing.jl](https://turinglang.org/dev/docs/using-turing/get-started): Bayesian parameter estimation
+- [Pigeons.jl](http://pigeons.run/dev/): Bayesian parameter estimation and Bayes factors
+- [SSMPlots.jl](https://itsdfish.github.io/SSMPlots.jl/dev/): plotting tools for SSMs
 
 ## Installation
 

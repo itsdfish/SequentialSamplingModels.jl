@@ -67,5 +67,3 @@ for dist ∈ dists
         samples=1000,
     )
 end
-# use this to test locally
-# results = run(SUITE)
