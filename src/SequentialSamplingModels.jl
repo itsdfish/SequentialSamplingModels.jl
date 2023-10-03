@@ -60,6 +60,7 @@ module SequentialSamplingModels
     export n_options
     export params
     export pdf 
+    export predict_posterior
     export rand 
     export reconstruct
     export simulate
@@ -78,4 +79,5 @@ module SequentialSamplingModels
     include("LCA.jl")
     include("DDM.jl")
     include("CircularDDM.jl")
+    include("ext_exports.jl")
 end
