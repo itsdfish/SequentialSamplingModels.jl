@@ -1,4 +1,5 @@
-```@setup
+```@setup pred_dist
+using Distributions
 using Plots
 using Random
 using SequentialSamplingModels
@@ -17,7 +18,12 @@ end
 
 model = wald_model(rts)
 
-chain = sample(model, NUTS(1000, .85), 1000)
+prior_chain = sample(model, Prior(), 1000)
+pred_model = predict_distribution(Wald; model, func=mean, n_samples)
+prior_preds = generated_quantities(pred_model, prior_chain)
+post_chain = sample(model, NUTS(1000, .85), 1000)
+post_preds = generated_quantities(pred_model, post_chain)
+
 ```
 # Prior and Posterior Predictive Distributions
 
@@ -27,6 +33,7 @@ This tutorial explains the steps required for constructing and plotting prior an
 The first step is to load the required packages and set the seed for the random number generator.
 
 ```@example pred_dist 
+using Distributions
 using Plots
 using Random
 using SequentialSamplingModels
@@ -74,7 +81,7 @@ predict_distribution(dist, args...; model, func, n_samples, kwargs...)
 As a simple illustration, we will compute the prior predictive mean by calling the following two functions. The first function creates a new function to sample from the predictive distribution and the second function `generated_quantities` performs the sampling.
 
 ```@example pred_dist 
-pred_model = predict_distribution(Wald; model, func=mean, n_samples=20)
+pred_model = predict_distribution(Wald; model, func=mean, n_samples)
 prior_preds = generated_quantities(pred_model, prior_chain)
 ```
 
