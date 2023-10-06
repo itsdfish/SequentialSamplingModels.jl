@@ -1,7 +1,7 @@
 name = "SequentialSamplingModels"
 uuid = "0e71a2a6-2b30-4447-8742-d083a85e82d1"
 authors = ["itsdfish"]
-version = "0.7.2"
+version = "0.7.3"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
