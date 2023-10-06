@@ -34,9 +34,10 @@ makedocs(
             "Hierarchical Models" => "turing_hierarchical.md",
         ],
         "Model Comparison" => "bayes_factor.md",
+        "Predictive Distributions" => "predictive_distributions.md",
         "Plotting" => "plotting.md",
         "API" => "api.md",
-        "Developer Guide" => "developer_guide.md"
+        "Developer Guide" => "developer_guide.md",
     ]
 )
 

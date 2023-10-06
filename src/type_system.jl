@@ -97,9 +97,6 @@ Base.broadcastable(x::SSM1D) = Ref(x)
 Base.broadcastable(x::SSM2D) = Ref(x)
 Base.broadcastable(x::ContinuousMultivariateSSM) = Ref(x)
 
-vectorize(d::SSM2D, r::NamedTuple) = [r...]
-reconstruct(d::SSM2D, v::NamedTuple) = deepcopy(v)
-
 Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D) = rand(Random.default_rng(), d)

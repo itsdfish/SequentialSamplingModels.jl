@@ -47,25 +47,28 @@ using SequentialSamplingModels
 
 # Quick Example
 
-The package implements sequential sampling models as distributions, that we can use you estimate the likelihood, or generate data from. In the example below, we instantiate a Linear Ballistic Accumulator (LBA) model, and generate data from it.
+The example belows shows how to perform three common tasks:
+
+1. generate simulated data
+2. evaluate the log likelihood of data
+3. plot the predictions of the model
 
 ```@example quick_example
 using SequentialSamplingModels
-using StatsPlots
+using SSMPlots
 using Random
 
 Random.seed!(2054)
 
 # Create LBA distribution with known parameters
 dist = LBA(; ν=[2.75,1.75], A=0.8, k=0.5, τ=0.25)
-# Sample 10,000 random data points from this distribution
-choice, rt = rand(dist, 10_000)
-
+# Sample 10,000 simulated data from the LBA
+sim_data = rand(dist, 10_000)
+# compute log likelihood of simulated data 
+logpdf(dist, sim_data)
 # Plot the RT distribution for each choice
-histogram(layout=(2, 1), xlabel="Reaction Time", ylabel="Frequency", xlims = (0,1),
-    grid=false, ylims = (0, 650))
-histogram!(rt[choice.==1], subplot=1, color=:grey, leg=false, bins=200)
-histogram!(rt[choice.==2], subplot=2, color=:grey, leg=false, bins=200)
+histogram(dist)
+plot!(dist; t_range=range(.3,2.5, length=100), xlims=(0, 2.5))
 ```
 
 # References

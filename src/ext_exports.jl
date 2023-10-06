@@ -1,1 +1,0 @@
-function predict_posterior end 

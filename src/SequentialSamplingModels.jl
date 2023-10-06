@@ -26,8 +26,6 @@ module SequentialSamplingModels
     import Distributions: pdf
     import Distributions: rand
     import Distributions: std
-    import DynamicPPL: reconstruct
-    import DynamicPPL: vectorize
     import StatsAPI: params
 
     export AbstractaDDM
@@ -52,6 +50,8 @@ module SequentialSamplingModels
     export WaldMixture 
 
     export cdf 
+    export compute_choice_probs
+    export compute_quantiles
     export loglikelihood 
     export logpdf
     export maximum
@@ -60,12 +60,10 @@ module SequentialSamplingModels
     export n_options
     export params
     export pdf 
-    export predict_posterior
+    export predict_distribution
     export rand 
-    export reconstruct
     export simulate
     export std
-    export vectorize
 
     include("type_system.jl")
     include("utilities.jl")
@@ -79,5 +77,5 @@ module SequentialSamplingModels
     include("LCA.jl")
     include("DDM.jl")
     include("CircularDDM.jl")
-    include("ext_exports.jl")
+    include("ext_functions.jl")
 end

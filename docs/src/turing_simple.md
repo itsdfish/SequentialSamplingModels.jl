@@ -86,31 +86,3 @@ It is important to verify that the chains converged. We see that the chains conv
 ```@example turing_simple
 plot(chain)
 ```
-
-## Posterior Predictive Distribution
-
-The next step is to generate predictions from the posterior distributions. For this, we need to pass a dataset with empty (`missing`) values (so that Turing knows what to predict).
-
-We can then use the `predict()` method to generate predictions from this model. However, because the most of `SequentialSamplingModels` distributions return a tuple (choice and RT), the predicted output has the two types of variables mixed together. We can delineate the two by taking every 2nd values to get the predicted choice and RTs, respectively.
-
-
-```@example turing_simple
-predictions = predict(model_lba(missing; min_rt = minimum(data.rt)), chain)
-
-pred_choice = Array(predictions)[:, 1:2:end]
-pred_rt = Array(predictions)[:, 2:2:end]
-```
-
-In the following code block, we plot the predictive distributions for each choice.
-
-```@example turing_simple
-# Get RTs for option 1 and 2
-rts1 = pred_rt[pred_choice .== 1]
-rts2 = pred_rt[pred_choice .== 2]
-
-# Specify plot layout
-histogram(layout=(2, 1), xlabel="RT", ylabel="Density", legend=false, xlims=(0, 1), ylim=(0, 150))
-# Add data
-histogram!(rts1, subplot=1, color=:grey, norm=false, title="Choice 1", bins=0:0.01:1)
-histogram!(rts2, subplot=2, color=:grey, norm=false, title="Choice 2", bins=0:0.01:1)
-```
