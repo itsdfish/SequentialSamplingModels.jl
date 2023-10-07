@@ -6,7 +6,6 @@ https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
     using Distributions
-    using DynamicPPL
     using FunctionZeros
     using PrettyTables
     using Random
