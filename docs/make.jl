@@ -15,9 +15,10 @@ makedocs(
         ],
         collapselevel=1,
     ),
-    modules=[SequentialSamplingModels, 
-        isdefined(Base, :get_extension) ? Base.get_extension(SequentialSamplingModels, :TuringExt) : SequentialSamplingModels.TuringExt,
-        isdefined(Base, :get_extension) ? Base.get_extension(SequentialSamplingModels, :PlotsExt) : SequentialSamplingModels.PlotsExt
+    modules=[
+        SequentialSamplingModels, 
+        Base.get_extension(SequentialSamplingModels, :TuringExt),  
+        Base.get_extension(SequentialSamplingModels, :PlotsExt) 
     ],
     pages=[
         "Home" => "index.md",
