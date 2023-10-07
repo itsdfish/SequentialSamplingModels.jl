@@ -1,5 +1,7 @@
 using Documenter
 using SequentialSamplingModels
+using Turing 
+using Plots
 
 makedocs(
     warnonly = true,
@@ -13,7 +15,10 @@ makedocs(
         ],
         collapselevel=1,
     ),
-    modules=[SequentialSamplingModels],
+    modules=[SequentialSamplingModels, 
+        isdefined(Base, :get_extension) ? Base.get_extension(SequentialSamplingModels, :TuringExt) : SequentialSamplingModels.TuringExt,
+        isdefined(Base, :get_extension) ? Base.get_extension(SequentialSamplingModels, :PlotsExt) : SequentialSamplingModels.PlotsExt
+    ],
     pages=[
         "Home" => "index.md",
         "Models" => [
