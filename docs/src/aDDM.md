@@ -7,7 +7,7 @@ The attentional drift diffusion model (ADDM; Krajbich, Armel, & Rangel, 2010) de
 ```@setup aDDM
 using SequentialSamplingModels
 using StatsBase
-using SSMPlots
+using Plots
 using Random
 ```
 
@@ -18,7 +18,7 @@ The first step is to load the required packages.
 ```@example aDDM
 using SequentialSamplingModels
 using StatsBase
-using SSMPlots
+using Plots
 
 Random.seed!(5487)
 ```

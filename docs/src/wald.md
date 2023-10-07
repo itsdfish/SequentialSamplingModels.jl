@@ -1,12 +1,12 @@
 # Wald Model
 
-The Wald model, also known as the inverse Gaussian, a sequential sampling model for single choice decisions. It is formally equivalent to a drift diffusion model with one decision threshold and no starting point or across trial drift rate variability.
+The Wald model, also known as the inverse Gaussian, a sequential sampling model for single choice decisions. It is formally equivalent to a drift diffusion model with one decision threshold and no starting point or across Plots drift rate variability.
 
 # Example
 In this example, we will demonstrate how to use the Wald model in a generic single choice decision task. 
 ```@setup wald
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 ```
 
@@ -15,7 +15,7 @@ The first step is to load the required packages.
 
 ```@example wald
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 
 Random.seed!(8741)
@@ -83,5 +83,5 @@ Anders, R., Alario, F., & Van Maanen, L. (2016). The shifted Wald distribution f
 
 Folks, J. L., & Chhikara, R. S. (1978). The inverse Gaussian distribution and its statistical application—a review. Journal of the Royal Statistical Society: Series B (Methodological), 40(3), 263-275.
 
-Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2021). Modeling across-trial variability in the Wald drift rate parameter. Behavior Research Methods, 53, 1060-1076.
+Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2021). Modeling across-Plots variability in the Wald drift rate parameter. Behavior Research Methods, 53, 1060-1076.
 

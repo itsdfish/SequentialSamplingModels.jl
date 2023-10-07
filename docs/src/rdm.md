@@ -6,7 +6,7 @@ The Racing Diffusion Model (RDM; Tillman, [Van Zandt, & Logan, 2020](https://lin
 In this example, we will demonstrate how to use the RDM in a generic two alternative forced choice task.
 ```@setup rdm
 using SequentialSamplingModels
-using SSMPlots
+using Plots
 using Random
 ```
 
@@ -15,7 +15,7 @@ The first step is to load the required packages.
 
 ```@example rdm
 using SequentialSamplingModels
-using SSMPlots
+using Plots
 using Random
 
 Random.seed!(8741)

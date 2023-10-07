@@ -2,7 +2,7 @@
 using LinearAlgebra
 using Plots
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 using Revise
 
@@ -34,7 +34,7 @@ The first step is to load the required packages.
 ```@example CDDM
 using LinearAlgebra
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 
 Random.seed!(5874)

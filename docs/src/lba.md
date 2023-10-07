@@ -6,7 +6,7 @@ The Linear Ballistic Accumulator (LBA; Brown & Heathcote, 2008) is a sequential 
 In this example, we will demonstrate how to use the LBA in a generic two alternative forced choice task. 
 ```@setup lba
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 ```
 
@@ -15,7 +15,7 @@ The first step is to load the required packages.
 
 ```@example lba
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 
 Random.seed!(8741)

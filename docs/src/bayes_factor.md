@@ -5,18 +5,18 @@
 In this tutorial, we will use the Bayes factor to compare the evidence for one model relative to another reference model. Computing the Bayes factor is challenging because it requires integrating the log likelihood over the model parameters. One method for approximating this complex integral is non-reversible parallel tempering (Bouchard-Côté et al., 2022) using 
 [Pigeons.jl](https://julia-tempering.github.io/Pigeons.jl/dev/). 
 
-In the tutorial below, we will compare two models which differ only in terms of assumptions about drift rate variability: the LBA and the RDM. The LBA assumes that the drift rate varies across trials and is otherwise deterministic, whereas the RDM assumes the drift rate varies within a trial as Gaussian noise, but not across trials. The difference between the models can be visualized with SSMPlots.jl:
+In the tutorial below, we will compare two models which differ only in terms of assumptions about drift rate variability: the LBA and the RDM. The LBA assumes that the drift rate varies across trials and is otherwise deterministic, whereas the RDM assumes the drift rate varies within a trial as Gaussian noise, but not across trials. The difference between the models can be visualized with Plots.jl:
 
 ### RDM
 ```@setup bayes_factor
 using Random
 using SequentialSamplingModels
-using SSMPlots
+using Plots
 ```
 
 ```@example bayes_factor 
 using SequentialSamplingModels
-using SSMPlots
+using Plots
 using Random
 Random.seed!(77)
 
@@ -27,7 +27,7 @@ plot_model(dist; n_sim=1, density_kwargs, xlims=(0,1.0))
 ### LBA
 ```@example bayes_factor 
 using SequentialSamplingModels
-using SSMPlots
+using Plots
 using Random
 
 dist = LBA()

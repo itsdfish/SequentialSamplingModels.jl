@@ -14,13 +14,13 @@ The first step is to load the required packages.
 
 ```@setup DDM
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 ```
 
 ```@example DDM
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 
 Random.seed!(8741)

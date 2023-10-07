@@ -9,7 +9,7 @@ This package provides a unified interface for simulating and evaluating popular 
 - [Turing.jl](https://turinglang.org/dev/docs/using-turing/get-started): Bayesian parameter estimation
 
 ## Background
-SSMs, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process (see the references below for a broad overview).An example of the evidence accumulation process is illustrated below for the Leaking Competing Accumulator (LCA):
+SSMs, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. An example of the evidence accumulation process is illustrated below for the Leaking Competing Accumulator (LCA):
 
 ```@setup accumulation
 using Plots
@@ -38,7 +38,7 @@ savefig("lca_plot.png")
 ![](lca_plot.png)
 # Installation
 
-You can install a stable version of *SequentialSamplingModels* by running the following in the Julia REPL:
+You can install a stable version of `SequentialSamplingModels` by running the following in the Julia REPL:
 
 ```julia
 ] add SequentialSamplingModels
@@ -60,7 +60,7 @@ The example belows shows how to perform three common tasks:
 
 ```@example quick_example
 using SequentialSamplingModels
-using SSMPlots
+using Plots
 using Random
 
 Random.seed!(2054)

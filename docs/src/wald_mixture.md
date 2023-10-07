@@ -6,7 +6,7 @@ The Wald mixture model is a sequential sampling model for single choice decision
 In this example, we will demonstrate how to use the Wald mixture model in a generic single choice decision task. 
 ```@setup wald_mixture
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 ```
 
@@ -15,7 +15,7 @@ The first step is to load the required packages.
 
 ```@example wald_mixture_mixture
 using SequentialSamplingModels
-using SSMPlots 
+using Plots 
 using Random
 
 Random.seed!(8741)

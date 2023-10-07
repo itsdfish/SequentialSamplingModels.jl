@@ -5,6 +5,7 @@ See documentation at:
 https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
+
     using Distributions
     using FunctionZeros
     using PrettyTables
@@ -59,6 +60,7 @@ module SequentialSamplingModels
     export n_options
     export params
     export pdf 
+    export plot_model
     export predict_distribution
     export rand 
     export simulate
