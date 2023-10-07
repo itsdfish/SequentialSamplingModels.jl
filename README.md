@@ -38,7 +38,7 @@ SSMs work with the following packages (and possibly more):
 
 - [Distributions.jl](https://github.com/JuliaStats/Distributions.jl): functions for probability distributions
 - [Pigeons.jl](http://pigeons.run/dev/): Bayesian parameter estimation and Bayes factors
-- [SSMPlots.jl](https://itsdfish.github.io/SSMPlots.jl/dev/): plotting tools for SSMs
+- [Plots.jl](https://github.com/JuliaPlots/Plots.jl): extended plotting tools for SSMs
 - [Turing.jl](https://turinglang.org/dev/docs/using-turing/get-started): Bayesian parameter estimation
 
 ## Installation

@@ -1,6 +1,6 @@
 # Basic Example 
 
-This package provides plotting functionality for sequential sampling models. The code block below provides an example:
+SequentialSamplingModels.jl automatically loads plotting functionality for SSMs when `Plots` is active in your Julia session . As a simple starting point, the code block below illustrates some basic functionality:
 
 ```@example basic_example 
 using SequentialSamplingModels

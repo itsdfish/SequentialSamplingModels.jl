@@ -1,6 +1,6 @@
 # Changing the Layout 
 
-As the example below demonstrates, the Plots.jl panels density plots by choice:
+As the example below demonstrates, densities are paneled according choice by default:
 
 
 ```@example layout 

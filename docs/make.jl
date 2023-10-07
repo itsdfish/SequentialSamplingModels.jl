@@ -36,7 +36,7 @@ makedocs(
         "Model Comparison" => "bayes_factor.md",
         "Predictive Distributions" => "predictive_distributions.md",
         "Plotting" => [
-            "Basic Example" => "basic_example.md",
+            "Basic Example" => "basic_plot_example.md",
             "Changing the Layout" => "layout.md",
             "Plot Model Process" => "plot_model.md"
         ],
