@@ -4,7 +4,11 @@ module PlotsExt
     import Plots: histogram!
     import Plots: plot
     import Plots: plot!
+    import SequentialSamplingModels as SSMs
     import SequentialSamplingModels: plot_model 
+    import SequentialSamplingModels: plot_model!
+    import SequentialSamplingModels: plot_quantiles
+    import SequentialSamplingModels: plot_quantiles!  
 
     using Interpolations
     using KernelDensity
@@ -15,12 +19,11 @@ module PlotsExt
     using SequentialSamplingModels: Approximate
     using SequentialSamplingModels: Exact
     using SequentialSamplingModels: get_pdf_type
-    using SequentialSamplingModels: simulate
-
-    const SSMs = SequentialSamplingModels
-
+    using Statistics
+    
     include("Plots/plot.jl")
     include("Plots/histogram.jl")
     include("Plots/plot_model.jl")
+    include("Plots/plot_quantiles.jl")
     include("Plots/kde.jl")
 end

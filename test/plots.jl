@@ -77,3 +77,37 @@
     dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
     plot_model(dist; lims=(-5,5))
 end
+
+@safetestset "plot_quantiles" begin 
+    @safetestset "1D" begin 
+        using Distributions
+        using Plots 
+        using SequentialSamplingModels
+        using Test 
+
+        dist = Normal(0, 1)
+        x = rand(dist, 100)
+        preds = [rand(dist, 100) for _ ∈ 1:1000]
+
+        q_preds = compute_quantiles.(preds)
+        q_data = compute_quantiles(x) 
+        plot_quantiles(q_data, q_preds)
+        @test true
+    end
+
+    @safetestset "2D" begin 
+        using Distributions
+        using Plots 
+        using SequentialSamplingModels
+        using Test 
+
+        dist = Normal(0, 1)
+        x = rand(dist, 100)
+        f(dist) = [compute_quantiles(rand(dist, 100)), compute_quantiles(rand(dist, 100))]
+        q_preds = [f(dist) for _ ∈ 1:1000, _ ∈ 1:1]
+
+        q_data = [compute_quantiles(x), compute_quantiles(x)] 
+        plot_quantiles(q_data, q_preds)
+        @test true
+    end
+end

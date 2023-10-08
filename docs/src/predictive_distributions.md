@@ -84,13 +84,8 @@ One goal of SSMs is to accurately characterize the distribution of reaction time
 ```julia 
 pred_quantiles = predict_distribution(Wald; model, func=compute_quantiles, n_samples=20)
 post_quantile_preds = generated_quantities(pred_quantiles, post_chain)
-q_preds = reduce(vcat, transpose.(post_quantile_preds))
-lb = map(c -> quantile(q_preds[:,c], .025), 1:size(q_preds,2))
-ub = map(c -> quantile(q_preds[:,c], .975), 1:size(q_preds,2))
 q_data = compute_quantiles(rts)
-plot(q_data, q_data, leg=false, grid=false, yerror=(q_data .- lb, ub .- q_data),
-    xlabel="Quantile Data", ylabel="Quantile Model")
-plot!(.0:.1:2, .0:.1:2, color=:black, linestyle=:dash)
+plot_quantiles(q_data, post_quantile_preds)
 ```
 ![](assets/wald_predictive_qq_plots.png)
 

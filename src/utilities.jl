@@ -64,7 +64,7 @@ function compute_quantiles(data::NamedTuple; choice_set=unique(data.choice), per
     quantiles = Vector{typeof(rt)}(undef,n_choices)
     for c ∈ 1:n_choices
         temp_rts = rt[choice .== choice_set[c]]
-        isempty(temp_rts) ? (continue) : nothing 
+        isempty(temp_rts) ? (quantiles[c] = temp_rts; continue) : nothing 
         quantiles[c] = quantile(temp_rts, percentiles)
     end
     return quantiles

@@ -11,8 +11,8 @@
         
         qs = compute_quantiles(data; percentiles, choice_set=[:a,:b])
         @test length(qs) == 2
-        @test_throws UndefRefError qs[1]
-        @test_throws UndefRefError qs[2]
+        @test isempty(qs[1])
+        @test isempty(qs[2])
     end
 
     @safetestset "ContinuousMultivariateSSM" begin 

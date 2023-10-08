@@ -61,6 +61,9 @@ module SequentialSamplingModels
     export params
     export pdf 
     export plot_model
+    export plot_model!
+    export plot_quantiles
+    export plot_quantiles!
     export predict_distribution
     export rand 
     export simulate
