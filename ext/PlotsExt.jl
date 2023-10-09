@@ -9,6 +9,8 @@ module PlotsExt
     import SequentialSamplingModels: plot_model!
     import SequentialSamplingModels: plot_quantiles
     import SequentialSamplingModels: plot_quantiles!  
+    import SequentialSamplingModels: plot_choices
+    import SequentialSamplingModels: plot_choices!
 
     using Interpolations
     using KernelDensity
@@ -21,9 +23,10 @@ module PlotsExt
     using SequentialSamplingModels: get_pdf_type
     using Statistics
     
-    include("Plots/plot.jl")
-    include("Plots/histogram.jl")
-    include("Plots/plot_model.jl")
-    include("Plots/plot_quantiles.jl")
-    include("Plots/kde.jl")
+    include("plots/plot.jl")
+    include("plots/histogram.jl")
+    include("plots/plot_model.jl")
+    include("plots/plot_quantiles.jl")
+    include("plots/plot_choices.jl")
+    include("plots/kde.jl")
 end

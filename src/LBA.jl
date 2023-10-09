@@ -100,7 +100,7 @@ function logpdf(d::AbstractLBA, c, rt)
         if c == i
             den += log_dens(d, ν[i], σ[i], rt)
         else
-            den += log(1 - cummulative(d, ν[i], σ[i], rt))
+            den += log(max(0.0, 1 - cummulative(d, ν[i], σ[i], rt)))
         end
     end
     pneg = pnegative(d)

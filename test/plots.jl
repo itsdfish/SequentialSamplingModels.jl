@@ -76,6 +76,7 @@
 
     dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
     plot_model(dist; lims=(-5,5))
+    @test true
 end
 
 @safetestset "plot_quantiles" begin 
@@ -110,4 +111,18 @@ end
         plot_quantiles(q_data, q_preds)
         @test true
     end
+end
+
+@safetestset "plot_choices" begin 
+    using Distributions
+    using Plots 
+    using SequentialSamplingModels
+    using Test 
+
+    θ = fill(10, 3)
+    preds = [rand(Dirichlet( θ)) for _ ∈ 1:1000]
+
+    data = rand(Dirichlet(θ)) 
+    plot_choices(data, preds)
+    @test true
 end

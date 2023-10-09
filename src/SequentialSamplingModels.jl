@@ -60,6 +60,8 @@ module SequentialSamplingModels
     export n_options
     export params
     export pdf 
+    export plot_choices
+    export plot_choices!
     export plot_model
     export plot_model!
     export plot_quantiles
