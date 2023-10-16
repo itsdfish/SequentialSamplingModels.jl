@@ -20,7 +20,7 @@ savefig("cddm_plot.png")
 ```
 # Circular Drift Diffusion Model
 
-The Circular Drift Diffusion Model (CDDM; Brown & Heathcote, 2008) is a sequential sampling model for continuous responding on a circular domain. The CDDM is often used to model visual working memory. In these visual working memory tasks, subjects are briefly presented with a variable number of squares of different colors. After the stimuli are removed, subjects are prompted to use a color wheel to judge the color of a randomly selected square. Currently, the model is restricted to a 2D disk, but future versions may support modeling diffusion processes in hyperspheres. 
+The Circular Drift Diffusion Model (CDDM; Smith, 2016) is a sequential sampling model for continuous responding on a circular domain. The CDDM is often used to model visual working memory. In these visual working memory tasks, subjects are briefly presented with a variable number of squares of different colors. After the stimuli are removed, subjects are prompted to use a color wheel to judge the color of a randomly selected square. Currently, the model is restricted to a 2D disk, but future versions may support modeling diffusion processes in hyperspheres. 
 
 The figure below illustrates the evidence accumulation process of the CDDM. At the begining of the trial, the evidence accumulation process starts at the center of the circle. As time progresses, the state of the system moves towards the the decision threshold depicted by the circle. Each step is perturbed with some degree of randomness. Once the system reaches the decision threshold, a response based on the position on the circle is given.  
 ![](cddm_plot.png)

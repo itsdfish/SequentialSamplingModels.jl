@@ -179,7 +179,7 @@ end
 
 function get_y_max(hist, n_options)
     dens = mapreduce(i -> hist[i][1][:y], vcat, 1:n_options)
-    filter!(!isnan, dens)
+    dens = filter(!isnan, dens)
     return maximum(dens)
 end
 

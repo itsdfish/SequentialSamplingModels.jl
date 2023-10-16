@@ -23,12 +23,20 @@ Random.seed!(8741)
 ## Create Model Object
 In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
 
-### Drift Rates
+### Mean Drift Rates
 
-The drift rates control the speed with which information accumulates. Typically, there is one drift rate per option. 
+The drift rates control the speed with which evidence accumulates for each option. In the standard LBA, drift rates vary across trials according to a normal distribution with mean $\nu$:
 
 ```@example lba
-ν=[2.75,1.75]
+ν = [2.75,1.75]
+```
+
+### Standard Deviation of Drift Rates
+
+The standard deviation of the drift rate distribution is given by $\sigma$, which is commonly fixed to 1 for each accumulator.
+
+```@example lba
+σ = [1.0,1.0]
 ```
 
 ### Maximum Starting Point

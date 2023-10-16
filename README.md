@@ -16,7 +16,7 @@ The following SSMs are supported :
 - [Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/aDDM/)
 - [Circular Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/cddm/) 
 - [Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/DDM/)
-- [Leaking Competing Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lca/)
+- [Leaky Competing Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lca/)
 - [Linear Ballistic Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lba/) 
 - [Log Normal Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lnr/) 
 - [Multi-attribute Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/maaDDM/)
@@ -32,6 +32,7 @@ The core API consists of the following
 - pdf: evaluate the probability density of the data
 - logpdf: evaluate the log probability density of the data
 - simulate: generate samples from the internal evidence accumulation process
+
 ## Ecosystem Integration
 
 SSMs work with the following packages (and possibly more):
