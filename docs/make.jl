@@ -26,6 +26,7 @@ makedocs(
             "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
             "Circular Drift Diffusion Model (CDDM)" => "cddm.md",
             "Drift Diffusion Model (DDM)" => "DDM.md",
+            "Ex-Gaussian Distrbituion" => "ex_gaussian.md",
             "Leaky Competing Accumulator (LCA)" => "lca.md",
             "Linear Ballistic Accumulator (LBA)" => "lba.md",
             "Lognormal Race Model (LNR)" => "lnr.md",

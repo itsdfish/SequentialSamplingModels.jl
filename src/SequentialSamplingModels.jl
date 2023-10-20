@@ -38,6 +38,7 @@ module SequentialSamplingModels
     export aDDM
     export CDDM
     export DDM
+    export ExGaussian
     export RDM
     export LBA 
     export LCA
@@ -84,4 +85,5 @@ module SequentialSamplingModels
     include("DDM.jl")
     include("CircularDDM.jl")
     include("ext_functions.jl")
+    include("ex_gaussian.jl")
 end

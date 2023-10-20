@@ -108,3 +108,6 @@ function compute_choice_probs(data::NamedTuple; choice_set)
     end
     return probs
 end
+
+Φ(x) = cdf(Normal(0, 1), x)
+ϕ(x) = pdf(Normal(0, 1), x)

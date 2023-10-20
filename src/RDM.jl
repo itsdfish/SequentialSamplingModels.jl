@@ -43,9 +43,6 @@ end
 
 WaldA(;ν, k, A, τ) = WaldA(ν, k, A, τ)
 
-Φ(x) = cdf(Normal(0, 1), x)
-ϕ(x) = pdf(Normal(0, 1), x)
-
 function pdf(d::WaldA, rt::Float64)
     (;ν, k, A, τ) = d
     t = rt - τ

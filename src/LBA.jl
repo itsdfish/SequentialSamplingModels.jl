@@ -130,9 +130,8 @@ function dens(d::AbstractLBA, v, σ, rt)
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    𝒩 = Normal(0, 1)
-    dens = (1 / A) * (-v * cdf(𝒩, n1) + σ * pdf(𝒩, n1) +
-        v * cdf(𝒩, n2) - σ * pdf(𝒩, n2))
+    dens = (1 / A) * (-v * Φ(n1) + σ * ϕ(n1) +
+        v * Φ(n2) - σ * ϕ(n2))
     return max(dens, 0.0)
 end
 
@@ -141,9 +140,8 @@ function log_dens(d::AbstractLBA, v, σ, rt)
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    𝒩 = Normal(0, 1)
-    dens = -log(A) + log(max(0.0, -v * cdf(𝒩, n1) + σ * pdf(𝒩, n1) +
-        v * cdf(𝒩, n2) - σ * pdf(𝒩, n2)))
+    dens = -log(A) + log(max(0.0, -v * Φ(n1) + σ * ϕ(n1) +
+        v * Φ(n2) - σ * ϕ(n2)))
     return dens
 end
 
@@ -152,19 +150,17 @@ function cummulative(d::AbstractLBA, v, σ, rt)
     dt = rt - τ; b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    𝒩 = Normal(0, 1)
-    cm = 1 + ((b - A -dt * v) / A) * cdf(𝒩, n1) -
-        ((b - dt * v) / A) * cdf(𝒩, n2) + ((dt * σ) / A) * pdf(𝒩, n1) -
-        ((dt * σ) / A) * pdf(𝒩, n2)
+    cm = 1 + ((b - A -dt * v) / A) * Φ(n1) -
+        ((b - dt * v) / A) * Φ(n2) + ((dt * σ) / A) * ϕ(n1) -
+        ((dt * σ) / A) * ϕ(n2)
     return cm
 end
 
 function pnegative(d::AbstractLBA)
     (;ν,σ) = d
     p = 1.0
-    𝒩 = Normal(0, 1)
     for i ∈ 1:length(ν)
-        p *= cdf(𝒩, -ν[i] / σ[i])
+        p *= Φ(-ν[i] / σ[i])
     end
     return p
 end
