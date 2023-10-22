@@ -9,48 +9,6 @@ using SequentialSamplingModels
 using StatsBase
 using SSMPlots 
 using Random
-
-Random.seed!(5487)
-
-mutable struct Transition
-    state::Int 
-    n::Int
-    mat::Array{Float64,2} 
- end
-
- function Transition(mat)
-    n = size(mat,1)
-    state = rand(1:n)
-    return Transition(state, n, mat)
- end
- 
- function attend(transition)
-     (;mat,n,state) = transition
-     w = mat[state,:]
-     next_state = sample(1:n, Weights(w))
-     transition.state = next_state
-     return next_state
- end
-
-ν = [4.0 5.0; 5.0 4.0]
-α = 1.0 
-z = 0.0
-θ = .3
-ϕ = .50
-ω = .70
-σ = .02
-Δ = .0004
-
-dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
-
-dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
-
-tmat = Transition([.98 .015 .0025 .0025;
-                .015 .98 .0025 .0025;
-                .0025 .0025 .98 .015;
-                .0025 .0025 .015 .98])
-
- choices,rts = rand(dist, 100, attend, tmat)
 ```
 
 In this example, we will develope a MAADDM for binary choice and generate its predictions. Unlike many other sequential sampling models, it is necessary to specify the attentional process, or supply fixation patterns from eye tracking data. 

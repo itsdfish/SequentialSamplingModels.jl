@@ -1,5 +1,5 @@
 """
-    LNR{T<:Real} <: SSM2D
+    LNR{T<:Real} <: AbstractLNR
 
 A lognormal race model object. 
 
@@ -13,7 +13,7 @@ A lognormal race model object.
 
     LNR(ν, σ, τ)
 
-    LNR(;ν, σ, τ)
+    LNR(;ν=[-1,-2], σ=1, τ=.20) 
 
 # Example
 
@@ -30,7 +30,7 @@ Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015).
 The lognormal race: A cognitive-process model of choice and latency with desirable 
 psychometric properties. Psychometrika, 80(2), 491-513.
 """
-struct LNR{T<:Real} <: SSM2D
+struct LNR{T<:Real} <: AbstractLNR
     ν::Vector{T}
     σ::T
     τ::T
@@ -42,20 +42,20 @@ function LNR(ν, σ, τ)
     return LNR(ν, σ, τ)
 end
 
-function params(d::LNR)
+function params(d::AbstractLNR)
     return (d.ν, d.σ, d.τ)    
 end
 
-LNR(;ν, σ, τ) = LNR(ν, σ, τ)
+LNR(;ν=[-1,-2], σ=1, τ=.20) = LNR(ν, σ, τ)
 
-function rand(rng::AbstractRNG, dist::LNR)
+function rand(rng::AbstractRNG, dist::AbstractLNR)
     (;ν,σ,τ) = dist
     x = @. rand(rng, LogNormal(ν, σ)) + τ
     rt,choice = findmin(x)
     return (;choice,rt)
 end
 
-function logpdf(d::LNR, r::Int, t::Float64)
+function logpdf(d::AbstractLNR, r::Int, t::Float64)
     (;ν,σ,τ) = d
     LL = 0.0
     for (i,m) in enumerate(ν)
@@ -68,7 +68,7 @@ function logpdf(d::LNR, r::Int, t::Float64)
     return LL
 end
 
-function pdf(d::LNR, r::Int, t::Float64)
+function pdf(d::AbstractLNR, r::Int, t::Float64)
     (;ν,σ,τ) = d
     density = 1.0
     for (i,m) in enumerate(ν)

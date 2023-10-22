@@ -8,15 +8,6 @@ In this example, we will demonstrate how to use the Wald mixture model in a gene
 using SequentialSamplingModels
 using SSMPlots 
 using Random
-
-ν = 3.0
-σ = 0.20
-α = 0.50
-τ = 0.130
-
-dist = WaldMixture(ν, σ, α, τ)
-
-rts = rand(dist, 10_000)
 ```
 
 ## Load Packages

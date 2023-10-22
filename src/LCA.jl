@@ -1,5 +1,5 @@
 """
-    LCA{T<:Real} <: SSM2D
+    LCA{T<:Real} <: AbstractLCA
 
 A model type for the Leaky Competing Accumulator. 
     
@@ -44,7 +44,7 @@ choices,rts = rand(dist, 500)
 
 Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The leaky, competing accumulator model. Psychological Review, 108 3, 550–592. https://doi.org/10.1037/0033-295X.108.3.550
 """
-mutable struct LCA{T<:Real} <: SSM2D
+mutable struct LCA{T<:Real} <: AbstractLCA
     ν::Vector{T}
     α::T
     β::T
@@ -71,21 +71,21 @@ function LCA(;ν = [2.5,2.0],
     return LCA(ν, α, β, λ, τ, σ, Δt)
 end
 
-function params(d::LCA)
+function params(d::AbstractLCA)
     (d.ν, d.α, d.β, d.λ, d.τ, d.σ, d.Δt)    
 end
 
-get_pdf_type(d::LCA) = Approximate
+get_pdf_type(d::AbstractLCA) = Approximate
 
 """
-    rand(dist::LCA)
+    rand(dist::AbstractLCA)
 
 Generate a random choice-rt pair for the Leaky Competing Accumulator.
 
 # Arguments
 - `dist`: model object for the Leaky Competing Accumulator. 
 """
-function rand(rng::AbstractRNG, dist::LCA)
+function rand(rng::AbstractRNG, dist::AbstractLCA)
     # number of trials 
     n = length(dist.ν)
     # evidence for each alternative
@@ -98,7 +98,7 @@ function rand(rng::AbstractRNG, dist::LCA)
 end
 
 """
-    rand(dist::LCA, n_sim::Int)
+    rand(dist::AbstractLCA, n_sim::Int)
 
 Generate `n_sim` random choice-rt pairs for the Leaky Competing Accumulator.
 
@@ -106,7 +106,7 @@ Generate `n_sim` random choice-rt pairs for the Leaky Competing Accumulator.
 - `dist`: model object for the Leaky Competing Accumulator.
 - `n_sim::Int`: the number of simulated choice-rt pairs  
 """
-function rand(rng::AbstractRNG, dist::LCA, n_sim::Int)
+function rand(rng::AbstractRNG, dist::AbstractLCA, n_sim::Int)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
@@ -170,16 +170,16 @@ function inhibit(x, i)
 end
 
 """
-    simulate(model::LCA; _...)
+    simulate(model::AbstractLCA; _...)
 
 Returns a matrix containing evidence samples of the LCA decision process. In the matrix, rows 
 represent samples of evidence per time step and columns represent different accumulators.
 
 # Arguments
 
-- `model::LCA`: an LCA model object
+- `model::AbstrctLCA`: an LCA model object
 """
-function simulate(model::LCA; _...)
+function simulate(model::AbstractLCA; _...)
     (;Δt,α) = model 
     n = length(model.ν)
     x = fill(0.0, n)

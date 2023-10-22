@@ -16,6 +16,12 @@ In this example, we will demonstrate how to use the DDM in a generic two alterna
 ## Load Packages
 The first step is to load the required packages.
 
+```@setup DDM
+using SequentialSamplingModels
+using SSMPlots 
+using Random
+```
+
 ```@example DDM
 using SequentialSamplingModels
 using SSMPlots 

@@ -1,77 +1,6 @@
-```@setup temp 
-#```@example turing_advanced
-# using Optim
-
-# mle = optimize(model_lba(data), MLE())
-#```
-
-#*TODO: replace with `coeftable` once [this](https://github.com/TuringLang/Turing.jl/) is #merged*
-
-```
-
-```@setup turing_advanced 
-
-using Turing
-using SequentialSamplingModels
-using Random
-using LinearAlgebra
-using Distributions
-using DataFrames
-using StatsPlots
-using StatsModels
-using KernelDensity
-
-
-# Generate data with different drifts for two conditions A vs. B
-Random.seed!(6)
-df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.5, τ=0.3), 50))
-df1[!, :condition] = repeat(["A"], nrow(df1))
-df2 = DataFrame(rand(LBA(ν=[2.0, 1.0], A=0.5, k=0.5, τ=0.3), 50))
-df2[!, :condition] = repeat(["B"], nrow(df2))
-
-df = vcat(df1, df2)
-
-
-histogram(layout=(2, 1), xlabel="Reaction Time", ylims=(0, 60), xlims=(0, 3), legend=false)
-for (i, cond) in enumerate(["A", "B"])
-    histogram!(df.rt[(df.choice.==1).&(df.condition.==cond)], subplot=1, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=50))
-    histogram!(df.rt[(df.choice.==2).&(df.condition.==cond)], subplot=2, color=[:blue, :red][i], alpha=0.5, bins=range(0, 3, length=50))
-end
-plot!()
-
-# Format input data
-f = @formula(rt ~ 1 + condition)
-f = apply_schema(f, schema(f, df))
-
-_, predictors = coefnames(f)
-X = modelmatrix(f, df)
-
-
-@model function model_lba(data; min_rt=0.2, condition=nothing)
-    # Priors for auxiliary parameters
-    A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
-    k ~ truncated(Normal(0.2, 0.2), 0.0, Inf)
-    tau ~ Uniform(0.0, min_rt)
-
-    # Priors for coefficients
-    drift_intercept ~ filldist(Normal(0, 1), 2)
-    drift_condition ~ filldist(Normal(0, 1), 2)
-
-    for i in 1:length(data)
-        drifts = drift_intercept .+ drift_condition * condition[i]
-        data[i] ~ LBA(; τ=tau, A=A, k=k, ν=drifts)
-    end
-end
-
-# Format the data to match the input type
-data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
-
-chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(), 100)
-```
-
 # Estimate Effect on Drift Rate
 
-This advanced example illustrates how to estimate the effect of an experimental condition on the drift rate parameter. The drift rate could be manipulated in various ways. For example, the drift rate could be manipulated by varying the simularity of visual stimuli.
+This advanced example illustrates how to estimate the effect of an experimental condition on the drift rate parameter. The drift rate could be manipulated in various ways. For example, the drift rate could be manipulated by varying the similarity of visual stimuli, or emphasizing speed or accuracy in task instructions.
 
 ## Generate Data
 
@@ -90,27 +19,30 @@ using KernelDensity
 
 # Generate data with different drifts for two conditions A vs. B
 Random.seed!(6)
+
 n_obs = 50
 df1 = DataFrame(rand(LBA(ν=[1.5, 0.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df2 = DataFrame(rand(LBA(ν=[2.5, 1.5], A=0.5, k=0.2, τ=0.3), n_obs))
 df = vcat(df1, df2)
-df.condition = repeat(["A","B"], inner=n_obs)
-first(df)
+df.condition = repeat(["A", "B"], inner=n_obs)
 ```
 
-These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.5, 1.5]`).
+These 2 conditions *A* and *B* differ on their drift rates (`[1.5, 0.5]` vs. `[2.5, 1.5]`). In other words, the *effect* of condition *B* over condition *A* (the baseline condition, i.e., the *intercept*) is `[1, 1]` (because both drift rates increase by 1 between condition *A* and *B*).
 
 ## Exclude Outliers
 
-Next, we are going to remove outliers, i.e., implausible RTs (RTs that likely do not reflect the processes of interest). In our case, we consider that RTs shorter than 0.2 seconds are too short for the cognitive process of interest to unfold, and that RTs longer than 3 seconds are too long to be of interest.
+Next, we are going to remove outliers, i.e., implausible RTs (RTs that likely do not reflect the processes of interest). In our case, we consider that RTs shorter than 0.2 seconds are too short for the cognitive process of interest to unfold, and that RTs longer than 3 seconds are too long to carry meaningful information.
 
 ```@example turing_advanced
 # Remove outliers
-df = df[(df.rt.>0.2).&(df.rt.<3), :]
+df = df[(df.rt .> 0.2).&(df.rt .< 3), :]
 first(df)
 ```
 
 Note that standard outlier detection methods, such as *z*-scores (mean +- SD), are not necessarily appropriate for RTs, given the skewed nature of their distribution. Their asymmetric distribution is in fact accounted for by the models that we use. The outlier exclusion done here is more theory-driven (i.e., excluding extreme trials that likely do not reflect well the cognitive processes of interest) than data-driven (to better fit the model). That said, outlier exclusion should always be explicitly documented and justified.
+
+!!! note
+    For users coming from other languages, note the usage of the [vectorization dot](https://julialang.org/blog/2017/01/moredots/) `.` in front of the `<` and `>` symbols. This means that we want to apply the logical test for all individual elements of the `rt` vector.
 
 ## Visualize Data
 
@@ -145,14 +77,14 @@ In this case, the model matrix is pretty simple: the key part is the second colu
 
 In this model, the priors for the parameters that we want to vary between conditions are split, with one prior for their intercept (condition A) and another for the effect of condition B (relative to the intercept).
 
-Because the *drift* parameters is a vector of length 2, the priors for both the intercet and condition effect drifts have themselves to be a vector of 2 distributions, which is done via `filldist(prior_distribution, 2)`.
+Because the *drift* parameters is a vector of length 2, the priors for both the intercept and condition effect drifts have themselves to be a vector of 2 distributions, which is done via `filldist(prior_distribution, 2)`.
 
 Next, we need to specify these parameters as the result of a (linear) equation. Note that:
 - We have added a keyword argument, `condition`, to let the user pass the condition data vector.
 - Since we're computing parameters as the results of an equation, we need to use a `for` loop that loops through all the observations.
 - Because the priors for the drift is a `filldist` (i.e., a vector of distributions), we need to broadcast the addition (`.+` instead of `+`).
 
-```@example turing_advanced
+```julia
 @model function model_lba(data; min_rt=0.2, condition=nothing)
     # Priors for auxiliary parameters
     A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
@@ -172,7 +104,7 @@ end
 
 Importantly, although we have the data as a dataframe, we will need to convert to a tuple, as it is the shape that the `LBA()` distribution expects. However, since we're iterating on each observation, we need to come up with an indexable version of the data: a **vector of tuples**.
 
-```@example turing_advanced
+```julia
 # Format the data to match the input type
 data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
 ```
@@ -183,7 +115,7 @@ data = [(choice=df.choice[i], rt=df.rt[i]) for i in 1:nrow(df)]
 
 Before we fit the model, we want to inspect our priors to make sure that they are okay. To do that, we sample the model parameters from priors only. Note that `condition` is supplied as the 2nd column of the model matrix.
 
-```@example turing_advanced
+```julia
 chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), Prior(), 1000)
 plot(chain; size=(800, 1200))
 ```
@@ -194,8 +126,7 @@ The next step is to generate predictions from this model (i.e., from the priors)
 
 We can then use the `predict()` method to generate predictions from this model. However, because the most of `SequentialSamplingModels` distributions return a tuple (choice and RT), the predicted output has the two types of variables mixed together. We can delineate the two by taking every 2nd values to get the predicted choice and RTs, respectively.
 
-
-```@example turing_advanced
+```julia
 datamissing = [(missing) for i in 1:nrow(df)]
 
 pred = predict(model_lba(datamissing; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
@@ -208,7 +139,7 @@ These objects have arrays of size 10,000 x 1000 : with 10,000 draws for each of 
 
 We can plot the predicted distributions by looping through a number of draws (e.g., 100), and then plotting the density for each condition and each choice.
 
-```@example turing_advanced
+```julia
 plot(layout=(2, 1), xlabel="Reaction Time", xlims = (0, 3), ylim=(0, 5), legend = false)
 for i in 1:100
     choice = priorpred_choice[i, :]
@@ -227,13 +158,13 @@ We can see that the bulk of the predicted RTs fall within 0 - 1.5 seconds, which
 
 ## Parameters Estimation
 
-```@example turing_advanced
-chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), NUTS(), 2000)
+```julia
+chain = sample(model_lba(data; min_rt=minimum(df.rt), condition=X[:, 2]), NUTS(), 1000)
 
 summarystats(chain)
 ```
 
-```@example turing_advanced
+```julia
 plot(chain; size = (800,1200))
 ```
 
@@ -242,7 +173,7 @@ plot(chain; size = (800,1200))
 Next, we will run a posterior predictive check by first sampling from the posteriors. For that, we will re-use the code for the prior predictive check, including the `datamissing` empty data.
 
 
-```@example turing_advanced
+```julia
 # Sample from posteriors
 pred = predict(model_lba(datamissing; min_rt=minimum(df.rt), condition=X[:, 2]), chain)
 pred_choice = Array(pred)[:, 1:2:end]
@@ -251,7 +182,7 @@ pred_rt = Array(pred)[:, 2:2:end]
 
 Next, we will plot the predicted distributions on top of the observed distribution of data (the thick black lines).
 
-```@example turing_advanced
+```julia
 # Observed density
 plot(layout=(2, 1), xlabel="Reaction Time", xlims=(0, 2.5), legend=false)
 for cond in ["A", "B"]

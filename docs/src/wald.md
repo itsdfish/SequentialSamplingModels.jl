@@ -8,14 +8,6 @@ In this example, we will demonstrate how to use the Wald model in a generic sing
 using SequentialSamplingModels
 using SSMPlots 
 using Random
-
-ν = 3.0
-α = 0.50
-τ = 0.130
-
-dist = Wald(ν, α, τ)
-
-rts = rand(dist, 10_000)
 ```
 
 ## Load Packages

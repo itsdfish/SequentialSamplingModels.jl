@@ -8,14 +8,6 @@ In this example, we will demonstrate how to use the LNR in a generic two alterna
 using SequentialSamplingModels
 using SSMPlots 
 using Random
-
-ν = [-1,-1.5]
-σ = 0.50
-τ = 0.30
-
-dist = LNR(ν, σ, τ)
-
-choices,rts = rand(dist, 1000)
 ```
 
 ## Load Packages

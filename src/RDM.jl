@@ -82,7 +82,7 @@ function rand(rng::AbstractRNG, d::WaldA)
 end
 
 """
-    RDM{T<:Real} <: SSM2D
+    RDM{T<:Real} <: AbstractRDM
 
 An object for the racing diffusion model.
 
@@ -113,7 +113,7 @@ loglike = logpdf.(dist, choice, rt)
 Tillman, G., Van Zandt, T., & Logan, G. D. (2020). Sequential sampling models without random between-trial variability: 
 The racing diffusion model of speeded decision making. Psychonomic Bulletin & Review, 27, 911-936.
 """
-struct RDM{T<:Real} <: SSM2D
+struct RDM{T<:Real} <: AbstractRDM
     ν::Vector{T}
     k::T
     A::T
@@ -126,20 +126,20 @@ function RDM(ν, k, A, τ)
     return RDM(ν, k, A, τ)
 end
 
-function params(d::RDM)
+function params(d::AbstractRDM)
     (d.ν, d.k, d.A, d.τ)    
 end
 
 RDM(;ν=[1,2], k=.3, A=.7, τ=.2) = RDM(ν, k, A, τ)
 
-function rand(rng::AbstractRNG, dist::RDM)
+function rand(rng::AbstractRNG, dist::AbstractRDM)
     (;ν, A, k, τ) = dist
     x = @. rand(rng, WaldA(ν, k, A, τ))
     rt,choice = findmin(x)
     return (;choice,rt)
 end
 
-function logpdf(d::RDM, r::Int, rt::Float64)
+function logpdf(d::AbstractRDM, r::Int, rt::Float64)
     (;ν, k, A, τ) = d
     LL = 0.0
     for (i,m) in enumerate(ν)
@@ -152,7 +152,7 @@ function logpdf(d::RDM, r::Int, rt::Float64)
     return LL
 end
 
-function pdf(d::RDM, r::Int, rt::Float64)
+function pdf(d::AbstractRDM, r::Int, rt::Float64)
     (;ν, k, A, τ) = d
     like = 1.0
     for (i,m) in enumerate(ν)
@@ -167,20 +167,20 @@ end
 
 
 """
-    simulate(model::RDM)
+    simulate(model::AbstractRDM)
 
 Returns a matrix containing evidence samples of the racing diffusion model decision process. In the matrix, rows 
 represent samples of evidence per time step and columns represent different accumulators.
 
 # Arguments
 
-- `model::RDM`: an racing diffusion model object
+- `model::AbstractRDM`: an racing diffusion model object
 
 # Keywords
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(model::RDM; Δt=.001)
+function simulate(model::AbstractRDM; Δt=.001)
     (;ν,A,k) = model
     n = length(model.ν)
     t = 0.0
@@ -199,7 +199,7 @@ function simulate(model::RDM; Δt=.001)
     return time_steps,reduce(vcat, transpose.(evidence))
 end
 
-function increment!(model::RDM, x, ϵ, ν, Δt)
+function increment!(model::AbstractRDM, x, ϵ, ν, Δt)
     ϵ .= rand(Normal(0.0, 1.0), length(ν))
     x .+= ν * Δt + ϵ * √(Δt)
     return nothing 
