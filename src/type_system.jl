@@ -59,6 +59,13 @@ An abstract type for the leaky competing accumulator model
 abstract type AbstractLCA <: SSM2D end
 
 """
+    AbstractPoissonRace <: SSM2D
+
+An abstract type for the Poisson race model.
+"""
+abstract type AbstractPoissonRace <:SSM2D end
+
+"""
     AbstractRDM <: SSM2D
 
 An abstract type for the racing diffusion model.

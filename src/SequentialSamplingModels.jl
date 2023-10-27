@@ -44,6 +44,7 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
+    export PoissonRace
     export SSM1D
     export SSM2D
     export ContinuousMultivariateSSM
@@ -86,4 +87,5 @@ module SequentialSamplingModels
     include("CircularDDM.jl")
     include("ext_functions.jl")
     include("ex_gaussian.jl")
+    include("poisson_race.jl")
 end
