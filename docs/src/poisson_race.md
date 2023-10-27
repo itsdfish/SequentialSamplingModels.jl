@@ -1,9 +1,9 @@
 # Poisson Race
 
-The Lognormal Race model (LNR) assumes evidence for each option races independently and that the first passage time for each option is lognormally distributed. One way in which the LNR has been used is to provide a likelihood function for the ACT-R cognitive architecture. An example of such an application can be found in [ACTRModels.jl](https://itsdfish.github.io/ACTRModels.jl/dev/example2/). We will present a simplified version below.
+The Poisson race model is one of the first sequential sampling models, with origins dating back to 1962. In this model, evidence accumulates in discrete steps until the first accumulator reaches a threshold. The time between increments follows an exponential distribution. The first passage time follows a gamma distribution because it is the sum of exponential random variables.  
 
 # Example
-In this example, we will demonstrate how to use the LNR in a generic two alternative forced choice task.
+In this example, we will demonstrate how to use the Poisson race model in a generic two alternative forced choice task.
 ```@setup poisson_race
 using SequentialSamplingModels
 using Plots 
@@ -43,7 +43,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 ```@example poisson_race
 τ = 0.30
 ```
-### LNR Constructor
+### Poisson race Constructor
 
 Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
 

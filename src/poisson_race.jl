@@ -76,3 +76,41 @@ function pdf(d::AbstractPoissonRace, r::Int, t::Float64)
     end
     return density
 end
+
+"""
+    simulate(model::AbstractPoissonRace; _...)
+
+Returns a matrix containing evidence samples of the LBA decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::AbstractLBA`: a subtype of AbstractLBA
+
+# Keywords 
+
+- `n_steps=100`: number of time steps at which evidence is recorded
+"""
+function simulate(model::AbstractPoissonRace; Δt=.001)
+    (;ν,α,τ) = model
+    n = n_options(model)
+    counts = fill(0, n)
+    evidence = [fill(0.0, n)]
+    time_steps = [0.0]
+    t = 0.0
+    count_times = @. rand(Exponential(ν))
+
+    while all(counts .< α)
+        t += Δt 
+        for i ∈ 1:n 
+            if t > count_times[i]
+                count_times[i] += rand(Exponential(ν[i]))
+                counts[i] += 1
+            end
+        end
+        push!(evidence, counts)
+        push!(time_steps, t)
+    end
+    return time_steps,reduce(vcat, transpose.(evidence))
+end
+

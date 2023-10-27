@@ -33,6 +33,7 @@ module SequentialSamplingModels
     export AbstractLBA
     export AbstractLCA
     export AbstractLNR
+    export AbstractPoissonRace
     export AbstractRDM 
     export AbstractWald
     export aDDM

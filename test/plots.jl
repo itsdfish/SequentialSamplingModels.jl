@@ -76,6 +76,21 @@
 
     dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
     plot_model(dist; lims=(-5,5))
+
+    dist = PoissonRace(;ν=[.04,.045], α=[4,3], τ=0.20)
+    h = histogram(dist)
+    plot!(h, dist)
+    
+    histogram(dist)
+    plot!(dist)
+    
+    plot(dist)
+    histogram!(dist)
+    
+    p = plot(dist)
+    histogram!(p, dist)
+
+    plot_model(dist; lims=(0,1))
     @test true
 end
 

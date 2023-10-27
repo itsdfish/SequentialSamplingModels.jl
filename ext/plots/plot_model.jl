@@ -33,7 +33,7 @@ function plot_model(model;
     for i ∈ 1:n_sim
         time_range,evidence = simulate(model)
         plot!(model_plot, time_range .+ model.τ, evidence; 
-            ylims=(0, α), defaults..., kwargs...)
+            ylims=(0, maximum(α)), defaults..., kwargs...)
         zs[i] = evidence[1,:][:] 
     end
     add_threashold!(model, model_plot)
@@ -44,7 +44,7 @@ function plot_model(model;
     if add_density 
         plot!(model_plot, model; 
             density_scale,
-            density_offset = α  + .05,
+            density_offset = α  .+ .05,
             xlabel = "",
             ylabel = "", 
             xticks = nothing,
@@ -211,50 +211,16 @@ Adds a horizonal line reprenting the decision threshold.
 - `kwargs...`: optional keyword arguments for configuring the plot 
 """
 function add_threashold!(model, model_plot; kwargs...)
-    hline!(model_plot, fill(model.α, 1, n_options(model)), 
+    α = compute_threshold(model)
+    hline!(model_plot, fill(α, 1, n_options(model)), 
         linestyle=:dash, color=:black;  kwargs...)
     return nothing
 end
 
-"""
-    add_threashold!(model::AbstractLBA, model_plot; kwargs...)
-
-Adds a horizonal line reprenting the decision threshold. 
-
-# Arguments
-
-- `model::AbstractLBA`: an object representing the linear ballistic accumulator model 
-- `model_plot`: a plot object 
-
-# Keywords 
-
-- `kwargs...`: optional keyword arguments for configuring the plot 
-"""
-function add_threashold!(model::AbstractLBA, model_plot; kwargs...)
+function add_threashold!(model::AbstractPoissonRace, model_plot; kwargs...)
     α = compute_threshold(model)
-    hline!(model_plot, fill(α, 1, n_options(model)), linestyle=:dash,
-         color=:black;  kwargs...)
-    return nothing
-end
-
-"""
-    add_threashold!(model::AbstractRDM, model_plot; kwargs...)
-
-Adds a horizonal line reprenting the decision threshold. 
-
-# Arguments
-
-- `model::AbstractRDM`: an object representing the racing diffusion model 
-- `model_plot`: a plot object 
-
-# Keywords 
-
-- `kwargs...`: optional keyword arguments for configuring the plot 
-"""
-function add_threashold!(model::AbstractRDM, model_plot; kwargs...)
-    α = compute_threshold(model)
-    hline!(model_plot, fill(α, 1, n_options(model)), linestyle=:dash,
-         color=:black;  kwargs...)
+    hline!(model_plot, α', 
+        linestyle=:dash, color=:black;  kwargs...)
     return nothing
 end
 
@@ -290,7 +256,6 @@ Returns default plot options
 # Arguments
 
 - `d::AbstractLCA`: an object for the leaky competing accumulator
-- `n_subplots`: the number of subplots (i.e., choices)
 """
 function get_model_plot_defaults(d::AbstractLCA)
     n_subplots = n_options(d)
@@ -307,7 +272,6 @@ Returns default plot options
 # Arguments
 
 - `d::AbstractWald`: an object for the Wald model
-- `n_subplots`: the number of subplots (i.e., choices)
 """
 function get_model_plot_defaults(d::AbstractWald)
     n_subplots = n_options(d)
@@ -324,7 +288,6 @@ Returns default plot options
 # Arguments
 
 - `d::AbstractRDM`: an object for the racing diffusion model
-- `n_subplots`: the number of subplots (i.e., choices)
 """
 function get_model_plot_defaults(d::AbstractRDM)
     n_subplots = n_options(d)
@@ -358,7 +321,6 @@ Returns default plot options
 # Arguments
 
 - `d::AbstractCDDM`: an object for the linear ballistic accumulator
-- `n_subplots`: the number of subplots (i.e., choices)
 """
 function get_model_plot_defaults(d::AbstractCDDM)
     return (xaxis=nothing, yaxis=nothing, xticks=nothing, yticks=nothing, grid=false, 
@@ -366,6 +328,21 @@ function get_model_plot_defaults(d::AbstractCDDM)
         framestyle=:box)
 end
 
+"""
+    get_model_plot_defaults(d::AbstractPoissonRace)
+
+Returns default plot options 
+
+# Arguments
+
+- `d::AbstractPoissonRace`: an object for the linear ballistic accumulator
+"""
+function get_model_plot_defaults(d::AbstractPoissonRace)
+    n_subplots = n_options(d)
+    title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
+    return (xaxis=nothing, yaxis=nothing, xticks=nothing, yticks=nothing, grid=false, 
+        linewidth = .75, color = :black, leg=false, title, layout=(n_subplots,1), arrow=:closed)
+end
 
 # function add_mean_drift_rate(model, cur_plot, zs)
 #     z = mean(zs)

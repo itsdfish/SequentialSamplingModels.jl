@@ -160,7 +160,11 @@ function ssm_plot!(::Type{<:Exact}, d, cur_plot;
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots)
     scale_density!(pds, density_scale)
-    map!(x -> x .+ density_offset, pds, pds)
+    if length(density_offset) > 1
+        map!((x,i) -> x .+ density_offset[i], pds, pds, 1:n_subplots)
+    else 
+        map!(x -> x .+ density_offset, pds, pds)
+    end
     ymax = maximum(vcat(pds...)) * 1.2
     defaults = get_plot_defaults(d)
     return plot!(cur_plot, t_range, pds; 
@@ -259,3 +263,5 @@ function scale_density!(pds, scalar::Number)
     pds .*= scalar / max_dens
     return nothing
 end
+
+scale_density!(pds, scalar::Vector) = scale_density!(pds, maximum(scalar))
