@@ -107,7 +107,6 @@ Base.broadcastable(x::ContinuousMultivariateSSM) = Ref(x)
 Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D) = rand(Random.default_rng(), d)
-rand(d::SSM2D, n::Int) = rand(Random.default_rng(), d, n)
 rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
 
@@ -172,6 +171,63 @@ function rand(rng::AbstractRNG, d::SSM2D, N::Int)
 end
 
 """
+    cdf(d::SSM2D, choice::Int, ub=10)
+
+Computes the cumulative density for a given choice. The cumulative density is based on 
+an analytic formula, a numeric integration of `pdf`, or Monte Carlo simulation, depending on which is 
+available for a given model. 
+
+# Arguments
+- `d::SSM2D`: a 2D sequential sampling model.
+- `choice::Int`: the number of simulated choices and rts  
+- `ub=10`: upper bound of integration
+"""
+function cdf(d::SSM2D, choice::Int, ub=10)
+    return cdf(get_pdf_type(d), d, choice, ub)
+end
+
+function cdf(::Type{<:Exact}, d::SSM2D, choice::Int, ub=10)
+    return hcubature(t -> pdf(d, choice, t[1]), [d.τ], [ub])[1]::Float64
+end
+
+function cdf(::Type{<:Approximate}, d::SSM2D, choice::Int, ub=10; n_sim=10_000)
+    c,rt = rand(d, n_sim)
+    return mean(c .== choice .&&  rt .≤ ub)
+end
+
+function survivor(d::SSM2D, choice::Int, ub=10)
+    return 1 - cdf(d, choice, ub)
+end
+
+"""
+    cdf(d::SSM1D, choice::Int, ub=10)
+
+Computes the cumulative density for a given choice. The cumulative density is based on 
+an analytic formula, a numeric integration of `pdf`, or Monte Carlo simulation, depending on which is 
+available for a given model. 
+
+# Arguments
+- `d::SSM1D`: a 1D sequential sampling model.
+- `ub`: upper bound of integration
+"""
+function cdf(d::SSM1D, ub)
+    return cdf(get_pdf_type(d), d, ub)
+end
+
+function cdf(::Type{<:Exact}, d::SSM1D, ub)
+    return hcubature(t -> pdf(d, t[1]), [d.τ], [ub])[1]::Float64
+end
+
+function cdf(::Type{<:Approximate}, d::SSM1D, ub; n_sim=10_000)
+    rt = rand(d, n_sim)
+    return mean(rt .≤ ub)
+end
+
+function survivor(d::SSM1D, ub)
+    return 1 - cdf(d, ub)
+end
+
+"""
     n_options(dist::SSM2D)
 
 Returns the number of choice options based on the length of the drift rate vector `ν`.
@@ -194,3 +250,6 @@ Returns 1 for the number of choice options
 n_options(d::SSM1D) = 1
 
 n_options(d::ContinuousMultivariateSSM) = length(d.ν)
+
+
+simulate(model::SSM2D; kwargs...) = simulate(Random.default_rng(), model::SSM2D; kwargs...)

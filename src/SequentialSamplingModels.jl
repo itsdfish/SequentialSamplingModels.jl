@@ -11,6 +11,7 @@ module SequentialSamplingModels
     using PrettyTables
     using Random
     using SpecialFunctions
+    using HCubature: hcubature
 
     import Base: length
     import Distributions: AbstractRNG
@@ -73,6 +74,7 @@ module SequentialSamplingModels
     export rand 
     export simulate
     export std
+    export survivor
 
     include("type_system.jl")
     include("utilities.jl")

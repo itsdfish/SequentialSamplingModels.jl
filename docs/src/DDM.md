@@ -90,6 +90,14 @@ Similarly, the log PDF for each observation can be computed as follows:
 logpdf.(dist, choices, rts)
 ```
 
+## Compute Choice Probability
+The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
+
+ ```@example DDM 
+cdf(dist, 1)
+```
+To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
+
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
 

@@ -63,6 +63,7 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 
  ```@example rdm
  choices,rts = rand(dist, 10_000)
+ 
 ```
 ## Compute PDF
 The PDF for each observation can be computed as follows:
@@ -76,6 +77,14 @@ Similarly, the log PDF for each observation can be computed as follows:
  ```@example rdm
 logpdf.(dist, choices, rts)
 ```
+
+## Compute Choice Probability
+The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
+
+ ```@example rdm 
+cdf(dist, 1)
+```
+To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
 
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.

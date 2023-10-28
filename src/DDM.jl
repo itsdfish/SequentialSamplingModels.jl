@@ -147,17 +147,17 @@ logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 # Blurton, Kesselmeier, & Gondan (2012) #
 #########################################
  
-function cdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
+function cdf(d::DDM, choice::Int, rt::Real=10; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return cdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
+        return _cdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
     end
 
-    return cdf(d, rt; ϵ)
+    return _cdf(d, rt; ϵ)
 end
 
 # cumulative density function over the lower boundary
-function cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     if d.τ ≥ t
         return T(NaN)
     end
@@ -376,7 +376,7 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(model::DDM; Δt=.001)
+function simulate(rng::AbstractRNG, model::DDM; Δt=.001)
     (;ν,α,z) = model
     x = α * z
     t = 0.0
@@ -384,7 +384,7 @@ function simulate(model::DDM; Δt=.001)
     time_steps = [t]
     while (x < α) && (x > 0)
         t += Δt
-        x += ν * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
+        x += ν * Δt + rand(rng, Normal(0.0, 1.0)) * √(Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end

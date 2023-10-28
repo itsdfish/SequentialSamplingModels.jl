@@ -47,4 +47,44 @@
         @test length(time_steps) == length(evidence)
         @test evidence[end] ≈ α atol = .02
     end
+
+    @safetestset "CDF" begin 
+        @safetestset "1" begin 
+            using Random 
+            using SequentialSamplingModels
+            using StatsBase
+            using Test 
+            
+            Random.seed!(95)
+            n_sim = 10_000
+
+            dist = WaldMixture(;ν=3.0, η=.2, α=.5, τ=.130)
+            rt = rand(dist, n_sim)
+            ul,ub = quantile(rt, [.05,.95])
+            for t ∈ range(ul, ub, length=10)
+                sim_x = mean(rt .≤ t)
+                x = cdf(dist, t)
+                @test sim_x ≈ x atol = 1e-2
+            end
+        end
+
+        @safetestset "2" begin 
+            using Random 
+            using SequentialSamplingModels
+            using StatsBase
+            using Test 
+            
+            Random.seed!(145)
+            n_sim = 10_000
+
+            dist = WaldMixture(;ν=2.0, η=.2, α=.8, τ=.130)
+            rt = rand(dist, n_sim)
+            ul,ub = quantile(rt, [.05,.95])
+            for t ∈ range(ul, ub, length=10)
+                sim_x = mean(rt .≤ t)
+                x = cdf(dist, t)
+                @test sim_x ≈ x atol = 1e-2
+            end
+        end
+    end
 end

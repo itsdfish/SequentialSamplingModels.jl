@@ -177,11 +177,11 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(model::AbstractRDM; Δt=.001)
+function simulate(rng::AbstractRNG, model::AbstractRDM; Δt=.001)
     (;ν,A,k) = model
     n = length(model.ν)
     t = 0.0
-    z = rand(Uniform(0, A), n)
+    z = rand(rng, Uniform(0, A), n)
     α = k + A
     x = z
     ϵ = fill(0.0, n)
@@ -189,15 +189,15 @@ function simulate(model::AbstractRDM; Δt=.001)
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(model, x, ϵ, ν, Δt)
+        increment!(rng, model, x, ϵ, ν, Δt)
         push!(evidence, deepcopy(x))
         push!(time_steps, t)
     end
     return time_steps,reduce(vcat, transpose.(evidence))
 end
 
-function increment!(model::AbstractRDM, x, ϵ, ν, Δt)
-    ϵ .= rand(Normal(0.0, 1.0), length(ν))
+function increment!(rng::AbstractRNG, model::AbstractRDM, x, ϵ, ν, Δt)
+    ϵ .= rand(rng, Normal(0.0, 1.0), length(ν))
     x .+= ν * Δt + ϵ * √(Δt)
     return nothing 
 end

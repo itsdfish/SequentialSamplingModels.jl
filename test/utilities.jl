@@ -47,3 +47,23 @@ end
 
     @test choice_probs == [2/3, 1/3]
 end
+
+@safetestset "Survivor" begin 
+    using Random 
+    using SequentialSamplingModels
+    using StatsBase
+    using Test 
+    
+    Random.seed!(65)
+    n_sim = 20_000
+    dist = LNR(ν=[-2,-3], σ=[1.0,1.0], τ=.3)
+    choice,rt = rand(dist, n_sim)
+
+    ul,ub = quantile(rt, [.05,.95])
+    for t ∈ range(ul, ub, length=10) 
+        sim_x = 1 - mean(choice .== 1 .&& rt .≤ t)
+        x = survivor(dist, 1, t)
+        @test sim_x ≈ x atol = 1e-2
+    end
+end
+

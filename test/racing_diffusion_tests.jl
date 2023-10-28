@@ -145,4 +145,42 @@
         @test size(evidence, 2) == 2
         @test maximum(evidence[end,:]) ≈ α atol = .005
     end
+
+    @safetestset "CDF" begin 
+        @safetestset "1" begin 
+            using Random 
+            using SequentialSamplingModels
+            using StatsBase
+            using Test 
+            
+            Random.seed!(602)
+            n_sim = 20_000
+            dist = RDM(;ν=[1,2], k=.3, A=.7, τ=.2)
+            choice,rt = rand(dist, n_sim)
+            ul,ub = quantile(rt, [.05,.95])
+            for t ∈ range(ul, ub, length=10) 
+                sim_x = mean(choice .== 1 .&& rt .≤ t)
+                x = cdf(dist, 1, t)
+                @test sim_x ≈ x atol = 1e-2
+            end
+        end
+
+        @safetestset "2" begin 
+            using Random 
+            using SequentialSamplingModels
+            using StatsBase
+            using Test 
+            
+            Random.seed!(111)
+            n_sim = 20_000
+            dist = RDM(;ν=[.3,.4], k=.1, A=.3, τ=.2)
+            choice,rt = rand(dist, n_sim)
+            ul,ub = quantile(rt, [.05,.95])
+            for t ∈ range(ul, ub, length=10) 
+                sim_x = mean(choice .== 1 .&& rt .≤ t)
+                x = cdf(dist, 1, t)
+                @test sim_x ≈ x atol = 1e-2
+            end
+        end
+    end
 end

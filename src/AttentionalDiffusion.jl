@@ -80,7 +80,6 @@ end
 
 get_pdf_type(d::aDDM) = Approximate
 
-
 """
     rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation, args...; rand_state! = _rand_state!, kwargs...)
 
@@ -99,7 +98,7 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 `rand_state! = _rand_state!`: initialize first state with equal probability 
 - `kwargs...`: optional keyword arguments for the `fixation` function
 """
-function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation, args...; rand_state! = _rand_state!, kwargs...)
+function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation::Function, args...; rand_state! = _rand_state!, kwargs...)
     choice = fill(0, n_sim)
     rt = fill(0.0, n_sim)
     for sim in 1:n_sim 
@@ -133,11 +132,18 @@ Generate a single simulated trial from the attention diffusion model.
 
 - `kwargs...`: optional keyword arguments for the `fixation` function
 """
-function rand(rng::AbstractRNG, dist::AbstractaDDM, fixation, args...; kwargs...)
+function rand(rng::AbstractRNG, dist::AbstractaDDM, fixation::Function, args...; rand_state! = _rand_state!, kwargs...)
+    rand_state!(rng, args...; kwargs...)
     return _rand(rng, dist, () -> fixation(args...; kwargs...))
 end
 
-rand(dist::AbstractaDDM, fixation, args...; kwargs...) = rand(Random.default_rng(), dist, fixation, args...; kwargs...)
+function rand(dist::AbstractaDDM, fixation::Function, args...; kwargs...)
+    return rand(Random.default_rng(), dist::AbstractaDDM, fixation::Function, args...; kwargs...)
+end
+
+function rand(dist::AbstractaDDM, n_sim::Int, fixation::Function, args...; kwargs...) 
+    return rand(Random.default_rng(), dist, n_sim, fixation, args...; kwargs...)
+end
 
 function _rand(rng::AbstractRNG, dist::AbstractaDDM, fixation)
     (;α,z,τ) = dist
@@ -151,6 +157,43 @@ function _rand(rng::AbstractRNG, dist::AbstractaDDM, fixation)
     end
     choice = (v < α) + 1
     return (;choice,rt=t)
+end
+
+"""
+    cdf(d::AbstractaDDM, choice::Int, fixation::Function, ub, args...; n_sim=10_000, kwargs...)
+
+Computes the approximate cumulative probability density of `AbstractaDDM` using Monte Carlo simulation.
+
+# Arguments
+
+- `dist`: an attentional diffusion model object
+- `choice`: the choice on which the cumulative density is computed
+- `fixation`: a function of the visual fixation process which returns 1 for alternative 
+    and 2 for alternative 2
+- `ub::Int`: the upper bound of the integral
+- `args...`: optional positional arguments for the `fixation` function
+
+# Keywords
+
+- `n_sim::Int`=10_000: the number of simulated trials
+`rand_state! = _rand_state!`: initialize first state with equal probability 
+- `kwargs...`: optional keyword arguments for the `fixation` function
+"""
+ function cdf(rng::AbstractRNG, d::AbstractaDDM, choice::Int, fixation::Function, ub, args...; n_sim=10_000, kwargs...)
+    c,rt = rand(rng, d, n_sim, fixation, args...; kwargs...)
+    return mean(c .== choice .&&  rt .≤ ub)
+ end
+
+ function cdf(d::AbstractaDDM, choice::Int, fixation::Function, ub::Real, args...; kwargs...) 
+    return cdf(Random.default_rng(), d, choice, fixation, ub, args...; kwargs...)
+end
+
+function survivor(rng::AbstractRNG, d::AbstractaDDM, choice::Int, fixation::Function, ub, args...; n_sim=10_000, kwargs...)
+    return 1 - cdf(rng, d, choice, fixation, ub, args...; kwargs...)
+ end
+
+ function survivor(d::AbstractaDDM, choice::Int, fixation::Function, ub::Real, args...; kwargs...) 
+    return survivor(Random.default_rng(), d, choice, fixation, ub, args...; kwargs...)
 end
 
 increment(dist::AbstractaDDM, location) = increment(Random.default_rng(), dist, location)
@@ -199,7 +242,7 @@ represent samples of evidence per time step and columns represent different accu
 - `kwargs=()`: a set of optional keyword arguments for the `attend` function 
 `rand_state! = _rand_state!`: initialize first state with equal probability 
 """
-function simulate(model::AbstractaDDM; attend, args=(), kwargs=(), rand_state! = _rand_state!)
+function simulate(rng::AbstractRNG, model::AbstractaDDM; attend, args=(), kwargs=(), rand_state! = _rand_state!)
     (;α,z) = model
     fixation = () -> attend(args...; kwargs...)
     rand_state!(args...)

@@ -74,7 +74,7 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 rts = rand(dist, 1000)
 ```
 
-## Compute  PDF
+## Compute PDF
 Similarly, the log PDF for each observation can be computed as follows:
 
  ```@example wald_mixture 
@@ -86,6 +86,12 @@ Similarly, the log PDF for each observation can be computed as follows:
 
  ```@example wald_mixture 
 logpdf.(dist, rts)
+```
+## Compute CDF
+The cumulative probability density $\Pr(T \leq t)$ is computed by passing the model and a value $t$ to `cdf`.
+
+ ```@example wald_mixture 
+cdf(dist, .4)
 ```
 
 ## Plot Simulation
