@@ -37,6 +37,7 @@ Plots = "1.0.0"
 PrettyTables = "1.1.0, 2"
 SafeTestsets = "v0.0.1,0.1.0"
 SpecialFunctions = "1,2"
+Statistics = "1"
 StatsAPI = "1.0.0"
 julia = "1"
 
