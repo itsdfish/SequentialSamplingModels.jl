@@ -21,15 +21,7 @@ using Random
 Random.seed!(8741)
 ```
 ## Create Model Object
-In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
-
-### Drift Rate
-
-The parameter $\nu$ represents the evidence accumulation rate.
-
-```@example wald_mixture
-ν = 3.0
-```
+In the code below, we will define parameters for the WaldMixture and create a model object to store the parameter values. 
 
 ### Drift Rate
 

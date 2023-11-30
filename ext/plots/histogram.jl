@@ -72,6 +72,8 @@ end
 function ssm_histogram(d::SSM1D; m_args=(), norm, n_sim, kwargs...)
     n_subplots = n_options(d)
     rts = rand(d, n_sim, m_args...)
+    # write a function that filters based on quantiles, e.g, .99
+    filter!(x -> x < 2, rts)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
     hist = histogram(rts; norm, defaults..., kwargs...)
