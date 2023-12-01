@@ -1,7 +1,7 @@
 name = "SequentialSamplingModels"
 uuid = "0e71a2a6-2b30-4447-8742-d083a85e82d1"
 authors = ["itsdfish"]
-version = "0.8.5"
+version = "0.8.6"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -35,7 +35,7 @@ Interpolations = "0.14.0,0.15.0"
 KernelDensity = "0.6.5"
 LinearAlgebra = "1"
 Plots = "1.0.0"
-PrettyTables = "1.1.0, 2"
+PrettyTables = "2.0"
 Random = "1"
 SafeTestsets = "v0.0.1,0.1.0"
 SpecialFunctions = "1,2"
