@@ -42,14 +42,7 @@ function plot_model(model;
         annotate!(labels, subplot=s)
     end
     if add_density 
-        plot!(model_plot, model; 
-            density_scale,
-            density_offset = α  .+ .05,
-            xlabel = "",
-            ylabel = "", 
-            xticks = nothing,
-            yticks = nothing, 
-            density_kwargs...)
+        add_density!(model, model_plot; density_scale, density_kwargs...)
     end
     return model_plot
 end
@@ -249,6 +242,30 @@ function circle(h, k, r)
 end
 
 """
+    add_threashold!(model, model_plot; kwargs...)
+
+Adds a horizonal line reprenting the decision threshold. 
+
+# Arguments
+
+- `model`: an object representing either a `SSM1D` or `SSM2D` model
+- `model_plot`: a plot object 
+
+# Keywords 
+
+- `kwargs...`: optional keyword arguments for configuring the plot 
+"""
+function add_threashold!(model::DDM, model_plot; kwargs...)
+    α = compute_threshold(model)
+    hline!(model_plot, fill(α, 1, n_options(model)), 
+        linestyle=:dash, color=:black;  kwargs...)
+
+    hline!(model_plot, fill(0, 1, n_options(model)), 
+        linestyle=:dash, color=:black;  kwargs...)
+    return nothing
+end
+
+"""
     get_model_plot_defaults(d::AbstractLCA)
 
 Returns default plot options 
@@ -342,6 +359,90 @@ function get_model_plot_defaults(d::AbstractPoissonRace)
     title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
     return (xaxis=nothing, yaxis=nothing, xticks=nothing, yticks=nothing, grid=false, 
         linewidth = .75, color = :black, leg=false, title, layout=(n_subplots,1), arrow=:closed)
+end
+
+"""
+    get_model_plot_defaults(d::DDM)
+
+Returns default plot options 
+
+# Arguments
+
+- `d::DDM`: an object for the diffusion model
+"""
+function get_model_plot_defaults(d::DDM)
+    return (xaxis=nothing, yaxis=nothing, xticks=nothing, yticks=nothing, 
+        linewidth = .75, color = :black, leg=false, framestyle=:none)
+end
+
+function add_density!(model, model_plot; density_scale, kwargs...)
+    α = compute_threshold(model) 
+
+    plot!(model_plot, model; 
+        density_scale,
+        density_offset = α  .+ .05,
+        xlabel = "",
+        ylabel = "", 
+        xticks = nothing,
+        yticks = nothing, 
+        kwargs...)
+    return nothing 
+end
+
+function add_density!(model::DDM, model_plot; density_scale, kwargs...)
+    α = compute_threshold(model)
+    τ = model.τ 
+
+    plot_top_density!(model, model_plot; 
+        density_scale,
+        density_offset = α  .+ .05,
+        xlabel = "",
+        ylabel = "", 
+        xticks = nothing,
+        yticks = nothing, 
+        title = "",
+        kwargs...)
+
+    plot_bottom_density!(model, model_plot; 
+        density_scale,
+        density_offset = 0  .+ .05,
+        xlabel = "",
+        ylabel = "", 
+        xticks = nothing,
+        yticks = nothing, 
+        title = "",
+        kwargs...)
+
+        plot!(model_plot, [0,0], [0,α], color=:black,)
+        plot!(model_plot, [τ,τ], [0,α], color=:black,)
+    return nothing 
+end
+
+function plot_top_density!(d::DDM, cur_plot; 
+    density_offset = 0, t_range=default_range(d), density_scale = nothing, kwargs...)
+    n_subplots = n_options(d)
+    pds = gen_pds(d, t_range, n_subplots)
+    scale_density!(pds, density_scale)
+    map!(x -> x .+ density_offset, pds, pds)
+    ymin = minimum(vcat(pds...)) * -1.2
+    ymax = maximum(vcat(pds...)) * 1.2
+    defaults = get_plot_defaults(d)
+    return plot!(cur_plot, t_range, pds[1]; 
+        ylims = (ymin,ymax), defaults..., kwargs...)
+end
+
+function plot_bottom_density!(d::DDM, cur_plot; 
+    density_offset = 0, t_range=default_range(d), density_scale = nothing, kwargs...)
+    n_subplots = n_options(d)
+    pds = gen_pds(d, t_range, n_subplots)
+    scale_density!(pds, density_scale)
+    map!(x -> x .+ density_offset, pds, pds)
+    ymin = minimum(vcat(pds...)) * -1.2
+    ymax = maximum(vcat(pds...)) * 1.2
+    defaults = get_plot_defaults(d)
+    dens = -1 * pds[2] 
+    return plot!(cur_plot, t_range, dens; 
+        ylims = (ymin,ymax), defaults..., kwargs...)
 end
 
 # function add_mean_drift_rate(model, cur_plot, zs)

@@ -91,4 +91,5 @@ module SequentialSamplingModels
     include("ext_functions.jl")
     include("ex_gaussian.jl")
     include("poisson_race.jl")
+    include("RatcliffDDM.jl")
 end

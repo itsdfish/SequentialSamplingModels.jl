@@ -1,97 +1,190 @@
 @safetestset "run plots" begin
-    using Plots 
-    using SequentialSamplingModels
-    using Test
-    dist = RDM(;ν=[1,2,3], k=.30, A=.70, τ=.20)
-    h = histogram(dist)
-    plot!(h, dist)
+    @safetestset "DDM" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
     
-    histogram(dist)
-    plot!(dist)
-    
-    plot(dist)
-    histogram!(dist)
-    
-    p = plot(dist)
-    histogram!(p, dist)
-    
-    dist = LCA()
-    p = plot(dist; t_range=range(.3, 1.2, length=100))
-    histogram!(p, dist)
-    
-    plot(dist; t_range=range(.3, 1.2, length=100))
-    histogram!(dist)
-    
-    h = histogram(dist)
-    plot!(h, dist; t_range=range(.3, 1.2, length=100))
-    
-    histogram(dist)
-    plot!(dist; t_range=range(.3, 1.2, length=100))
-    
-    dist = Wald(ν=3.0, α=.5, τ=.130)
-    h = histogram(dist)
-    plot!(h, dist; t_range=range(.130, 1.0, length=100))
-    
-    histogram(dist)
-    plot!(dist; t_range=range(.130, 1.0, length=100))
-    
-    p = plot(dist; t_range=range(.130, 1.0, length=100))
-    histogram!(p, dist)
-    
-    plot(dist; t_range=range(.130, 1.0, length=100))
-    histogram!(dist)
+        dist = DDM()
 
-    dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
-    h = histogram(dist)
-    plot!(h, dist)
-    
-    histogram(dist)
-    plot!(dist)
-    
-    p = plot(dist)
-    histogram!(p, dist)
-    
-    plot(dist)
-    histogram!(dist)
+        h = histogram(dist)
+        plot!(h, dist)
+        
+        histogram(dist)
+        plot!(dist)
+        
+        plot(dist)
+        histogram!(dist)
+        
+        p = plot(dist)
+        histogram!(p, dist)
 
-    dist = LBA()
-    density_kwargs=(;t_range=range(.3,1.2, length=100),)
-    plot_model(dist; add_density=true, n_sim=2, density_kwargs, xlims=(0,1.2))
+        plot_model(dist; 
+            n_sim=2, 
+            add_density=true, 
+            density_kwargs=(;t_range=range(.3, 1, length=200),))
 
-    dist = LCA()
-    density_kwargs=(;t_range=range(.20, 1.50, length=100),)
-    plot_model(dist; n_sim=10, add_density=true, density_kwargs, xlims=(0,1.50))
-    
-    dist = RDM()
-    density_kwargs=(;t_range=range(.20, 0.80, length=100),)
-    plot_model(dist; n_sim=10, add_density=true, density_kwargs, xlims=(0,0.80))
-    
-    dist = Wald()
-    density_kwargs=(;t_range=range(.2,1.2, length=100),)
-    plot_model(dist; add_density=true, n_sim=2, density_kwargs, xlims=(0,1.2))
+    end
 
-    dist = WaldMixture()
-    density_kwargs=(;t_range=range(.13,.60, length=100),)
-    plot_model(dist; add_density=true, n_sim=2, density_kwargs, xlims=(0,.60))
+    @safetestset "RDM" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
 
-    dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
-    plot_model(dist; lims=(-5,5))
+        dist = RDM(;ν=[1,2,3], k=.30, A=.70, τ=.20)
+        h = histogram(dist)
+        plot!(h, dist)
+        
+        histogram(dist)
+        plot!(dist)
+        
+        plot(dist)
+        histogram!(dist)
+        
+        p = plot(dist)
+        histogram!(p, dist)
 
-    dist = PoissonRace(;ν=[.04,.045], α=[4,3], τ=0.20)
-    h = histogram(dist)
-    plot!(h, dist)
-    
-    histogram(dist)
-    plot!(dist)
-    
-    plot(dist)
-    histogram!(dist)
-    
-    p = plot(dist)
-    histogram!(p, dist)
+        dist = RDM()
+        density_kwargs=(;t_range=range(.20, 0.80, length=100),)
+        plot_model(dist; n_sim=10, add_density=true, density_kwargs, xlims=(0,0.80))
+        
+    end
+  
+    @safetestset "LCA" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
 
-    plot_model(dist; lims=(0,1))
-    @test true
+        dist = LCA()
+        p = plot(dist; t_range=range(.3, 1.2, length=100))
+        histogram!(p, dist)
+        
+        plot(dist; t_range=range(.3, 1.2, length=100))
+        histogram!(dist)
+        
+        h = histogram(dist)
+        plot!(h, dist; t_range=range(.3, 1.2, length=100))
+        
+        histogram(dist)
+        plot!(dist; t_range=range(.3, 1.2, length=100))
+
+        density_kwargs=(;t_range=range(.20, 1.50, length=100),)
+        plot_model(dist; n_sim=10, add_density=true, density_kwargs, xlims=(0,1.50))
+    end
+
+    @safetestset "Wald" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
+
+        dist = Wald(ν=3.0, α=.5, τ=.130)
+        h = histogram(dist)
+        plot!(h, dist; t_range=range(.130, 1.0, length=100))
+        
+        histogram(dist)
+        plot!(dist; t_range=range(.130, 1.0, length=100))
+        
+        p = plot(dist; t_range=range(.130, 1.0, length=100))
+        histogram!(p, dist)
+        
+        plot(dist; t_range=range(.130, 1.0, length=100))
+        histogram!(dist)
+
+
+        dist = Wald()
+        density_kwargs=(;t_range=range(.2,1.2, length=100),)
+        plot_model(dist; add_density=true, n_sim=2, density_kwargs, xlims=(0,1.2))
+    end
+
+    @safetestset "CDDM" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
+
+        dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
+        h = histogram(dist)
+        plot!(h, dist)
+        
+        histogram(dist)
+        plot!(dist)
+        
+        p = plot(dist)
+        histogram!(p, dist)
+        
+        plot(dist)
+        histogram!(dist)
+
+        dist = CDDM(;ν=[1.5,1.5], η=[1,1], σ=1, α=2.5, τ=0.30)
+        plot_model(dist; lims=(-5,5))    
+    end
+
+    @safetestset "LBA" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
+
+        dist = LBA()
+
+        h = histogram(dist)
+        plot!(h, dist)
+        
+        histogram(dist)
+        plot!(dist)
+        
+        p = plot(dist)
+        histogram!(p, dist)
+        
+        plot(dist)
+        histogram!(dist)
+
+        density_kwargs=(;t_range=range(.3,1.2, length=100),)
+        plot_model(dist; add_density=true, n_sim=2, density_kwargs, xlims=(0,1.2))
+
+    end
+    
+    @safetestset "WaldMixture" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
+
+        dist = WaldMixture()
+
+        h = histogram(dist)
+        plot!(h, dist)
+        
+        histogram(dist)
+        plot!(dist)
+        
+        p = plot(dist)
+        histogram!(p, dist)
+        
+        plot(dist)
+        histogram!(dist)
+
+        density_kwargs=(;t_range=range(.13,.60, length=100),)
+        plot_model(dist; add_density=true, n_sim=2, density_kwargs, xlims=(0,.60))
+    end
+
+    @safetestset "PoissonRace" begin
+        using Plots 
+        using SequentialSamplingModels
+        using Test
+
+        dist = PoissonRace(;ν=[.04,.045], α=[4,3], τ=0.20)
+        h = histogram(dist)
+        plot!(h, dist)
+        
+        histogram(dist)
+        plot!(dist)
+        
+        plot(dist)
+        histogram!(dist)
+        
+        p = plot(dist)
+        histogram!(p, dist)
+
+        plot_model(dist; lims=(0,1))
+        @test true
+    end
 end
 
 @safetestset "plot_quantiles" begin 

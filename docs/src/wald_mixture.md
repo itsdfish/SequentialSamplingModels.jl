@@ -33,10 +33,10 @@ The parameter $\nu$ represents the evidence accumulation rate.
 
 ### Drift Rate Variability
 
-The parameter $\sigma$ represents the standard deviation of the evidence accumulation rate across trials.
+The parameter $\eta$ represents the standard deviation of the evidence accumulation rate across trials.
 
 ```@example wald_mixture
-σ = 0.20
+η = 0.20
 ```
 
 ### Threshold
@@ -56,7 +56,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 Now that values have been asigned to the parameters, we will pass them to `WaldMixture` to generate the model object.
 
 ```@example wald_mixture 
-dist = WaldMixture(ν, σ, α, τ)
+dist = WaldMixture(ν, η, α, τ)
 ```
 ## Simulate Model
 
