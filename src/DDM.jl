@@ -712,11 +712,11 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(model::DDM; Δt=.001)
+function simulate(rng::AbstractRNG, model::DDM; Δt=.001)
     (;ν, α, τ, z, η, sz, st, σ) = model
 
     start_point = (z - sz/2) + ((z + sz/2) - (z - sz/2)) * rand()
-    drift = rand(Distributions.Normal(ν, η))
+    drift = rand(rng, Distributions.Normal(ν, η))
 
     x = α * start_point
     t = 0.0
@@ -725,7 +725,7 @@ function simulate(model::DDM; Δt=.001)
     time_steps = [t]
     while (x < α) && (x > 0)
         t += Δt
-        x += drift * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
+        x += drift * Δt + rand(rng, Distributions.Normal(0.0, 1.0)) * √(Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end
