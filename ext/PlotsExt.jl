@@ -5,6 +5,8 @@ module PlotsExt
     import Plots: plot
     import Plots: plot!
     import SequentialSamplingModels as SSMs
+    import SequentialSamplingModels: get_plot_defaults
+    import SequentialSamplingModels: get_model_plot_defaults
     import SequentialSamplingModels: plot_model 
     import SequentialSamplingModels: plot_model!
     import SequentialSamplingModels: plot_quantiles

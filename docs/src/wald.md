@@ -71,6 +71,13 @@ Similarly, the log PDF for each observation can be computed as follows:
 logpdf.(dist, rts)
 ```
 
+## Compute CDF
+The cumulative probability density $\Pr(T \leq t)$ is computed by passing the model and a value $t$ to `cdf`.
+
+ ```@example wald 
+cdf(dist, .4)
+```
+
 ## Plot Simulation
 The code below overlays the PDF on reaction time histogram.
  ```@example wald 

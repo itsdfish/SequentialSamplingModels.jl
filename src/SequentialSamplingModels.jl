@@ -11,6 +11,7 @@ module SequentialSamplingModels
     using PrettyTables
     using Random
     using SpecialFunctions
+    using HCubature: hcubature
 
     import Base: length
     import Distributions: AbstractRNG
@@ -33,6 +34,7 @@ module SequentialSamplingModels
     export AbstractLBA
     export AbstractLCA
     export AbstractLNR
+    export AbstractPoissonRace
     export AbstractRDM 
     export AbstractWald
     export aDDM
@@ -44,7 +46,7 @@ module SequentialSamplingModels
     export LCA
     export LNR 
     export maaDDM
-    export MixedMultivariateDistribution
+    export PoissonRace
     export SSM1D
     export SSM2D
     export ContinuousMultivariateSSM
@@ -73,6 +75,7 @@ module SequentialSamplingModels
     export rand 
     export simulate
     export std
+    export survivor
 
     include("type_system.jl")
     include("utilities.jl")
@@ -88,4 +91,6 @@ module SequentialSamplingModels
     include("CircularDDM.jl")
     include("ext_functions.jl")
     include("ex_gaussian.jl")
+    include("poisson_race.jl")
+    include("RatcliffDDM.jl")
 end

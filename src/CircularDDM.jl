@@ -59,18 +59,18 @@ function CDDM(;ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30)
     return CDDM(ν, η, σ, α, τ)
 end
 
-function rand(model::AbstractCDDM; Δt=.001)
+function rand(rng::AbstractRNG, model::AbstractCDDM; Δt=.001)
     (;ν,η,σ,α,τ) = model
     # start position, distance, and time at 0
     x,y,r,t = zeros(4)
-    _ν = @. rand(Normal(ν, η))
+    _ν = @. rand(rng, Normal(ν, η))
     𝒩 = Normal(0, σ)
     sqΔt = √(Δt)
     while r < α
         #step in x direction 
-        x += _ν[1] * Δt + rand(𝒩) * sqΔt
+        x += _ν[1] * Δt + rand(rng, 𝒩) * sqΔt
         # step in y direction 
-        y += _ν[2] * Δt + rand(𝒩) * sqΔt
+        y += _ν[2] * Δt + rand(rng, 𝒩) * sqΔt
         # distiance from starting point
         r = √(x^2 + y^2)
         # increment time 
@@ -80,10 +80,10 @@ function rand(model::AbstractCDDM; Δt=.001)
     return [θ,t + τ]
 end
 
-function rand(d::AbstractCDDM, n::Int; Δt=.001)
+function rand(rng::AbstractRNG, d::AbstractCDDM, n::Int; Δt=.001)
     sim_data = zeros(n, 2)
     for r ∈ 1:n 
-        sim_data[r,:] = rand(d; Δt=.001)
+        sim_data[r,:] = rand(rng, d; Δt=.001)
     end 
     return sim_data 
 end

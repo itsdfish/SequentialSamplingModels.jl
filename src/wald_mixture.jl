@@ -47,16 +47,16 @@ end
 
 function pdf(d::WaldMixture, t::AbstractFloat)
     (;ν, η, α ,τ) = d
-    c1 = α / √(2 * π * (t - τ)^3)
-    c2 = 1 / cdf(Normal(0,1), ν / η)
+    c1 = α / √((2 * π * (t - τ)^3)  * ((t - τ) * η^2 + 1))
+    c2 = 1 / Φ(ν / η)
     c3 = exp(-(ν * (t - τ) - α)^2 / (2 * (t - τ) * ((t - τ) * η^2 + 1)))
     c4 = (α * η^2 + ν) / √(η^2 * ((t - τ)*η^2 + 1))
-    return c1 * c2 * c3 * cdf(Normal(0,1), c4)
+    return c1 * c2 * c3 * Φ(c4)
 end
 
 function logpdf(d::WaldMixture, t::AbstractFloat)
     (;ν, η, α ,τ) = d
-    c1 = log(α) - log(√(2 * π * (t - τ)^3))
+    c1 = log(α) - log(√((2 * π * (t - τ)^3)  * ((t - τ) * η^2 + 1)))
     c2 = log(1) - logcdf(Normal(0,1), ν / η)
     c3 = -(ν * (t - τ) - α)^2 / (2*(t - τ)*((t - τ)*η^2 + 1))
     c4 = (α * η^2 + ν) / √(η^2 * ((t - τ) * η^2 + 1))

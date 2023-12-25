@@ -78,6 +78,14 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
  ```@example lca 
  choices,rts = rand(dist, 10_000)
 ```
+## Compute Choice Probability
+The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
+
+ ```@example lca 
+cdf(dist, 1)
+```
+To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
+
 ## Plot Simulation
 The code below plots a histogram for each option.
  ```@example lca 

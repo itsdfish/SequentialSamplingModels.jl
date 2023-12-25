@@ -21,15 +21,7 @@ using Random
 Random.seed!(8741)
 ```
 ## Create Model Object
-In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
-
-### Drift Rate
-
-The parameter $\nu$ represents the evidence accumulation rate.
-
-```@example wald_mixture
-ν = 3.0
-```
+In the code below, we will define parameters for the WaldMixture and create a model object to store the parameter values. 
 
 ### Drift Rate
 
@@ -41,10 +33,10 @@ The parameter $\nu$ represents the evidence accumulation rate.
 
 ### Drift Rate Variability
 
-The parameter $\sigma$ represents the standard deviation of the evidence accumulation rate across trials.
+The parameter $\eta$ represents the standard deviation of the evidence accumulation rate across trials.
 
 ```@example wald_mixture
-σ = 0.20
+η = 0.20
 ```
 
 ### Threshold
@@ -64,7 +56,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 Now that values have been asigned to the parameters, we will pass them to `WaldMixture` to generate the model object.
 
 ```@example wald_mixture 
-dist = WaldMixture(ν, σ, α, τ)
+dist = WaldMixture(ν, η, α, τ)
 ```
 ## Simulate Model
 
@@ -74,7 +66,7 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
 rts = rand(dist, 1000)
 ```
 
-## Compute  PDF
+## Compute PDF
 Similarly, the log PDF for each observation can be computed as follows:
 
  ```@example wald_mixture 
@@ -86,6 +78,12 @@ Similarly, the log PDF for each observation can be computed as follows:
 
  ```@example wald_mixture 
 logpdf.(dist, rts)
+```
+## Compute CDF
+The cumulative probability density $\Pr(T \leq t)$ is computed by passing the model and a value $t$ to `cdf`.
+
+ ```@example wald_mixture 
+cdf(dist, .4)
 ```
 
 ## Plot Simulation

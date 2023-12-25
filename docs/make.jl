@@ -31,6 +31,7 @@ makedocs(
             "Linear Ballistic Accumulator (LBA)" => "lba.md",
             "Lognormal Race Model (LNR)" => "lnr.md",
             "Muti-attribute attentional drift diffusion Model" => "maaDDM.md",
+            "Poisson Race" => "poisson_race.md",
             "Racing Diffusion Model (RDM)" => "rdm.md",
             "Wald Model" => "wald.md",
             "Wald Mixture Model" => "wald_mixture.md"
