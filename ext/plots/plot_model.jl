@@ -424,8 +424,10 @@ function plot_top_density!(d::DDM, cur_plot;
     pds = gen_pds(d, t_range, n_subplots)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
-    ymin = minimum(vcat(pds...)) * -1.2
-    ymax = maximum(vcat(pds...)) * 1.2
+    pds_vec = vcat(pds...)
+    filter!(!isnan, pds_vec)
+    ymin = minimum(pds_vec) * -1.05
+    ymax = maximum(pds_vec) * 1.05
     defaults = get_plot_defaults(d)
     return plot!(cur_plot, t_range, pds[1]; 
         ylims = (ymin,ymax), defaults..., kwargs...)
@@ -437,12 +439,14 @@ function plot_bottom_density!(d::DDM, cur_plot;
     pds = gen_pds(d, t_range, n_subplots)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
-    ymin = minimum(vcat(pds...)) * -1.2
-    ymax = maximum(vcat(pds...)) * 1.2
+    pds_vec = vcat(pds...)
+    filter!(!isnan, pds_vec)
+    ymin = minimum(pds_vec) * -1.05
+    ymax = maximum(pds_vec) * 1.05
     defaults = get_plot_defaults(d)
     dens = -1 * pds[2] 
     return plot!(cur_plot, t_range, dens; 
-        ylims = (ymin,ymax), defaults..., kwargs...)
+         defaults..., kwargs...)
 end
 
 # function add_mean_drift_rate(model, cur_plot, zs)
