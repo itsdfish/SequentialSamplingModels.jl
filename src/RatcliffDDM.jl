@@ -464,37 +464,34 @@ function rand(rng::AbstractRNG, d::RatcliffDDM)
 end
 
 function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
+    (;ν, α, τ, z, η, sz, st, σ) = d
 
-    if η == 0
-        η = 1e-16
-    end
+    η = η == 0 ? eps() : η
 
     # Initialize output vectors
     result = zeros(N)
     T = zeros(N)
-    XX = zeros(N)
+    XX = fill(0, N)
 
     # Called sigma in 2001 paper
     D = σ^2 / 2
 
     # Program specifications
     ϵ = eps()  # precision from 1.0 to next double-precision number
-    Δ = ϵ
 
     for n in 1:N
         r1 = randn()
         μ = ν + r1 * η
         bb = z - sz / 2 + sz * rand()
         zz = bb * α
-        finish = 0
-        totaltime = 0
-        startpos = 0
+        finish = false
+        totaltime = 0.0
+        startpos = 0.0
         Aupper = α - zz
         Alower = -zz
         radius = min(abs(Aupper), abs(Alower))
 
-        while finish == 0
+        while !finish
             λ = 0.25 * μ^2 / D + 0.25 * D * π^2 / radius^2
             # eq. formula (13) in 2001 paper with D = sigma^2/2 and radius = Alpha/2
             F = D * π / (radius * μ)
@@ -503,14 +500,14 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
             prob = exp(radius * μ / D)
             prob = prob / (1 + prob)
             dir_ = 2 * (rand() < prob) - 1
-            l = -1
-            s2 = 0
-            s1 = 0
+            l = -1.0
+            s2 = 0.0
+            s1 = 0.0
             while s2 > l
                 s2 = rand()
                 s1 = rand()
-                tnew = 0
-                told = 0
+                tnew = 0.0
+                told = 0.0
                 uu = 0
                 while abs(tnew - told) > ϵ || uu == 0
                     told = tnew
@@ -526,14 +523,14 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
             totaltime += t
             dir_ = startpos + dir_ * radius
             ndt = τ - st / 2 + st * rand()
-            if (dir_ + Δ) > Aupper
+            if (dir_ + ϵ) > Aupper
                 T[n] = ndt + totaltime
                 XX[n] = 1
-                finish = 1
-            elseif (dir_ - Δ) < Alower
+                finish = true
+            elseif (dir_ - ϵ) < Alower
                 T[n] = ndt + totaltime
                 XX[n] = 2
-                finish = 1
+                finish = true
             else
                 startpos = dir_
                 radius = minimum(abs.([Aupper, Alower] .- startpos))
@@ -544,42 +541,48 @@ function _rand_rejection(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1)
 end
 
 function _rand_stochastic(rng::AbstractRNG, d::RatcliffDDM; N::Int = 1, nsteps::Int=300, step_length::Int=0.01)
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
+    (;ν, α, τ, z, η, sz, st, σ) = d
 
-    if η == 0
-        η = 1e-16
-    end
+    η = η == 0 ? eps() : η
 
     # Initialize output vectors
     choice = fill(0, N)
     rt = fill(0.0, N)
 
+    # compute these once outside of the loops
+    start_point_dist = Uniform(z - sz/2, z + sz/2)
+    ndt_dist = Uniform(τ - st/2, τ + st/2)
     for n in 1:N
         random_walk = Array{Float64}(undef, nsteps)
-        start_point = (z - sz/2) + ((z + sz/2) - (z - sz/2)) * rand()
-        ndt = (τ - st/2) + ((τ + st/2) - (τ - st/2)) * rand()
-        drift = rand(Distributions.Normal(ν, η))
+        start_point = rand(start_point_dist)
+        drift = rand(Normal(ν, η))
+        diffusion_dist = Normal(drift * step_length, σ * sqrt(step_length))
         random_walk[1] = start_point * α
         for s in 2:nsteps
-            random_walk[s] = random_walk[s-1] + rand(Distributions.Normal(drift * step_length, σ * sqrt(step_length)))
+            random_walk[s] = random_walk[s-1] + rand(diffusion_dist)
             if random_walk[s] >= α
-                random_walk[s:end] .= α
-                rts[n] = s * step_length + ndt
+                # after break, the line below is overwritten in the outer loop
+                # when random_walk is re-initialized. I think this is  not necesary
+                # random_walk[s:end] .= α
+                rts[n] = s * step_length + rand(ndt_dist)
                 choice[n] = 1
                 break
             elseif random_walk[s] <= 0
-                random_walk[s:end] .= 0
-                rts[n] = s * step_length + ndt
+                # after break, the line below is overwritten in the outer loop
+                # when random_walk is re-initialized. I think this is  not necesary
+                # random_walk[s:end] .= 0
+                rts[n] = s * step_length + rand(ndt_dist)
                 choice[n] = 2
                 break
             elseif s == nsteps
                 rts[n] = NaN
-                choice[n] = NaN
+                # NaN is a Float64, use negative integer instead
+                choice[n] = -100
                 break
             end
         end
     end   
-    return  (choice=choice,rt=rts)
+    return (choice=choice,rt=rts)
 end
 
 """

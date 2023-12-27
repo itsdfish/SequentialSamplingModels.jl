@@ -12,7 +12,7 @@ Plot the evidence accumulation process of a generic SSM.
 
 - `add_density=false`: add density plot above threshold line if true 
 - `density_kwargs=()`: pass optional keyword arguments to density plot 
-- `labels = default_labels(model)`: a vector of parameter label options 
+- `labels = get_default_labels(model)`: a vector of parameter label options 
 - `density_scale = compute_threshold(model)`: scale the maximum height of the density
 - `n_sim=1`: the number of simulated decision processes per option
 - `kwargs...`: optional keyword arguments for configuring plot options
@@ -20,7 +20,7 @@ Plot the evidence accumulation process of a generic SSM.
 function plot_model(model; 
             add_density = false, 
             density_kwargs = (), 
-            labels = default_labels(model), 
+            labels = get_default_labels(model), 
             density_scale = compute_threshold(model),
             n_sim = 1, 
             kwargs...)
@@ -61,14 +61,14 @@ Plot the evidence accumulation process of a continous multivariate sequential sa
 
 - `add_density=false`: add density plot above threshold line if true 
 - `density_kwargs=()`: pass optional keyword arguments to density plot 
-- `labels = default_labels(model)`: a vector of parameter label options 
+- `labels = get_default_labels(model)`: a vector of parameter label options 
 - `n_sim=1`: the number of simulated decision processes per option
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
 function plot_model(model::ContinuousMultivariateSSM;
     add_density = false, 
     density_kwargs = (), 
-    labels = default_labels(model), 
+    labels = get_default_labels(model), 
     n_sim = 1, 
     kwargs...)
 
@@ -85,7 +85,7 @@ compute_threshold(model::AbstractLBA) = model.A + model.k
 compute_threshold(model::AbstractRDM) = model.A + model.k
 
 """
-    default_labels(model::AbstractRDM)
+    get_default_labels(model::AbstractRDM)
 
 Generates default parameter labels and locations for threshold and non-decision time 
 
@@ -93,16 +93,16 @@ Generates default parameter labels and locations for threshold and non-decision 
 
 - `model`: a generic model object
 """
-function default_labels(model)
+function get_default_labels(model)
     (;τ,α) = model
     return [
-        (0,α,text("α", 10, :right)),
+        (0,α,text("α", 10, :bottom)),
         (τ/2,0,text("τ",10, :bottom)),
     ]
 end
 
 """
-    default_labels(model::AbstractLBA)
+    get_default_labels(model::AbstractLBA)
 
 Generates default parameter labels and locations 
 
@@ -110,7 +110,7 @@ Generates default parameter labels and locations
 
 - `model::AbstractLBA`: an object for the linear ballistic accumulator
 """
-function default_labels(model::AbstractLBA)
+function get_default_labels(model::AbstractLBA)
     (;τ,A,k) = model
     α = A + k
     return [
@@ -121,7 +121,7 @@ function default_labels(model::AbstractLBA)
 end
 
 """
-    default_labels(model::AbstractRDM)
+    get_default_labels(model::AbstractRDM)
 
 Generates default parameter labels and locations 
 
@@ -129,7 +129,7 @@ Generates default parameter labels and locations
 
 - `model::AbstractRDM`: an object for the racing diffusion model
 """
-function default_labels(model::AbstractRDM)
+function get_default_labels(model::AbstractRDM)
     (;τ,A,k) = model
     α = compute_threshold(model)
     return [

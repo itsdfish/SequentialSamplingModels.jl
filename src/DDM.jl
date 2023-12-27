@@ -390,19 +390,3 @@ function simulate(rng::AbstractRNG, model::DDM; Δt=.001)
     end
     return time_steps,evidence
 end
-
-# function rand(dist::DDM)
-#     (;ν,α,z,σ,τ, Δt,η,st,sz) = dist
-#     t = 0.0
-#     srΔt = √Δt
-#     x = rand(Uniform(z - sz / 2, z + sz / 2))
-#     ν′ = rand(Normal(ν, η))
-#     while (x < α) && (x > 0)
-#         ϵ = rand(Normal(0, σ))
-#         x += ν′* Δt + ϵ * srΔt
-#         t += Δt
-#     end
-#     choice = (x < α) + 1
-#     t += rand(Uniform(τ - st / 2, τ + st / 2))
-#     return choice,t
-# end
