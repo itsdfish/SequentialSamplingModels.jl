@@ -72,6 +72,13 @@ An abstract type for the racing diffusion model.
 """
 abstract type AbstractRDM <: SSM2D end
 
+"""
+    AbstractDDM <: SSM2D
+
+An abstract type for the diffusion decision model.
+"""
+abstract type AbstractDDM <: SSM2D end
+
 abstract type PDFType end
 
 """

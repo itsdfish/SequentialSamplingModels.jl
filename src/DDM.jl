@@ -1,5 +1,5 @@
 """
-    DDM{T<:Real} <: SSM2D
+    DDM{T<:Real} <: AbstractDDM
 
     Model object for the Ratcliff (Full) Diffusion Decision Model.
 
@@ -42,7 +42,7 @@ loglike = logpdf.(dist, choice, rt)
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
 Ratcliff, R. (1978). A theory of memory retrieval. Psychological Review, 85, 59–108. https://doi.org/10.1037/0033-295X.85.2.59
 """
-mutable struct DDM{T<:Real} <: SSM2D
+mutable struct DDM{T<:Real} <: AbstractDDM
     ν::T
     α::T
     τ::T
@@ -344,19 +344,6 @@ end
 
 logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
 
-# function logpdf(d::DDM, data::T) where {T<:NamedTuple}
-#     return sum(logpdf.(d, data...))
-# end
-
-# function logpdf(dist::DDM, data::Array{<:Tuple,1})
-#     LL = 0.0
-#     for d in data
-#         LL += logpdf(dist, d...)
-#     end
-#     return LL
-# end
-
-# logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 
 """
     cdf(d::DDM, choice, rt; ϵ::Real = 1e-7)
@@ -370,7 +357,7 @@ Compute the Cumulative Distribution Function (CDF) for the Ratcliff Diffusion mo
 - `ϵ`: a small constant to avoid division by zero, defaults to 1e-7.
 
 # Returns
-- `y`: an array representing the CDF of the Ratcliff Diffusion model.
+- `y`: an array representing the CDF of the Diffusion Decision model.
 
 # Reference
 Tuerlinckx, F. (2004). The efficient computation of the cumulative distribution and probability density functions in the diffusion model, Behavior Research Methods, Instruments, & Computers, 36 (4), 702-716.
@@ -378,36 +365,36 @@ Tuerlinckx, F. (2004). The efficient computation of the cumulative distribution 
 # See also
 - Converted from cdfdif.c C script by Joachim Vandekerckhove: https://ppw.kuleuven.be/okp/software/dmat/
 """
-function cdf(d::DDM, choice, rt; ϵ::Real = 1e-7)
+# function cdf(d::DDM, choice, rt; ϵ::Real = 1e-7)
 
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
+#     (ν, α, τ, z, η, sz, st, σ) = params(d)
 
-    size = length(rt)
-    y = zeros(Float64, size)
-    epsi = 1e-10
+#     size = length(rt)
+#     y = zeros(Float64, size)
+#     epsi = 1e-10
 
-    #transform parameters
-    α = α/10.
-    τ = τ
-    η = η/10. + epsi
-    z = z*(α/10.)
-    sz = sz*(α/10.) + epsi
-    st = st + epsi
-    ν = ν/10.
+#     #transform parameters
+#     α = α/10.
+#     τ = τ
+#     η = η/10. + epsi
+#     z = z*(α/10.)
+#     sz = sz*(α/10.) + epsi
+#     st = st + epsi
+#     ν = ν/10.
 
-    p_boundary = 0.0
+#     p_boundary = 0.0
 
-    for i in 1:size
-        y[i] = _cdf(d,rt[i],choice[i],p_boundary; ϵ)     
-        y[i] = (1 - p_boundary) + rt[i]*y[i]
-    end
+#     for i in 1:size
+#         y[i] = _cdf(d,rt[i],choice[i],p_boundary; ϵ)     
+#         y[i] = (1 - p_boundary) + rt[i]*y[i]
+#     end
 
-    return y
-end
+#     return y
+# end
 """
     _cdf(d::DDM{T}, choice, rt, prob; ϵ::Real = 1e-7) where {T<:Real}
 
-A helper function to compute the Cumulative Distribution Function (CDF) for the Full Diffusion model.
+A helper function to compute the Cumulative Distribution Function (CDF) for the Diffusion Decision model.
 
 # Arguments
 - `d`: an instance of DDM Constructor
@@ -420,166 +407,167 @@ A helper function to compute the Cumulative Distribution Function (CDF) for the 
 - `Fnew`: the computed CDF for the given parameters.
 
 """
-function _cdf(d::DDM, choice, rt, prob; ϵ::Real = 1e-7)
+# function _cdf(d::DDM, choice, rt, prob; ϵ::Real = 1e-7)
     
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
-    #Explcit recode of the choice from 2(lower) & 1(upper) to 0(lower) and 1(upper)
-    #note we need to make sure this is consistent in the all the relative bound models
-    if choice == 2 #lower
-        choice = 0
-    elseif choice == 1 #upper
-        choice = 1
-    end
+#     (ν, α, τ, z, η, sz, st, σ) = params(d)
+#     #Explcit recode of the choice from 2(lower) & 1(upper) to 0(lower) and 1(upper)
+#     #note we need to make sure this is consistent in the all the relative bound models
+#     if choice == 2 #lower
+#         choice = 0
+#     elseif choice == 1 #upper
+#         choice = 1
+#     end
 
-    # Initializing variables
-    a2 = α*α
-    Z_U = (1-choice)*z+choice*(α-z)+sz/2
-    Z_L = (1-choice)*z+choice*(α-z)-sz/2
-    lower_t = τ-st/2
-    upper_t = 0.0
-    Δ = 1e-29
-    min_rt=0.001
-    v_max = 5000 # maximum number of terms in a partial sum approximating infinite series
+#     # Initializing variables
+#     a2 = α*α
+#     Z_U = (1-choice)*z+choice*(α-z)+sz/2
+#     Z_L = (1-choice)*z+choice*(α-z)-sz/2
+#     lower_t = τ-st/2
+#     upper_t = 0.0
+#     Δ = 1e-29
+#     min_rt=0.001
+#     v_max = 5000 # maximum number of terms in a partial sum approximating infinite series
 
-    Fnew = 0.0
-    sum_z=0.0
-    sum_ν=0.0
-    p1 = 0.0
-    p0 = 0.0
-    sum_hist = zeros(3)
-    denom = 0.0
-    sifa = 0.0
-    upp = 0.0
-    low = 0.0
-    fact = 0.0
-    exdif = 0.0
-    su = 0.0
-    sl = 0.0
-    zzz = 0.0
-    ser = 0.0
-    nr_ν = 6
-    nr_z = 6
+#     Fnew = 0.0
+#     sum_z=0.0
+#     sum_ν=0.0
+#     p1 = 0.0
+#     p0 = 0.0
+#     sum_hist = zeros(3)
+#     denom = 0.0
+#     sifa = 0.0
+#     upp = 0.0
+#     low = 0.0
+#     fact = 0.0
+#     exdif = 0.0
+#     su = 0.0
+#     sl = 0.0
+#     zzz = 0.0
+#     ser = 0.0
+#     nr_ν = 6
+#     nr_z = 6
 
-    # Defining Gauss-Hermite abscissae and weights for numerical integration
-    gk = [-2.3506049736744922818,-1.3358490740136970132,-.43607741192761650950,.43607741192761650950,1.3358490740136970132,2.3506049736744922818]
-    w_gh = [.45300099055088421593e-2,.15706732032114842368,.72462959522439207571,.72462959522439207571,.15706732032114842368,.45300099055088421593e-2]
-    gz = [-.93246951420315193904,-.66120938646626381541,-.23861918608319693247,.23861918608319712676,.66120938646626459256,.93246951420315160597]
-    w_g = [.17132449237917049545,.36076157304813916138,.46791393457269092604,.46791393457269092604,.36076157304813843973,.17132449237917132812]
+#     # Defining Gauss-Hermite abscissae and weights for numerical integration
+#     gk = [-2.3506049736744922818,-1.3358490740136970132,-.43607741192761650950,.43607741192761650950,1.3358490740136970132,2.3506049736744922818]
+#     w_gh = [.45300099055088421593e-2,.15706732032114842368,.72462959522439207571,.72462959522439207571,.15706732032114842368,.45300099055088421593e-2]
+#     gz = [-.93246951420315193904,-.66120938646626381541,-.23861918608319693247,.23861918608319712676,.66120938646626459256,.93246951420315160597]
+#     w_g = [.17132449237917049545,.36076157304813916138,.46791393457269092604,.46791393457269092604,.36076157304813843973,.17132449237917132812]
 
-    # Adjusting Gauss-Hermite abscissae and weights
-    for i=1:nr_ν
-        gk[i] = 1.41421356237309505*gk[i]*η+ν
-        w_gh[i] = w_gh[i]/1.772453850905515882
-    end
-    for i=1:nr_z
-        gz[i] = (.5*sz*gz[i])+z
-    end
+#     # Adjusting Gauss-Hermite abscissae and weights
+#     for i=1:nr_ν
+#         gk[i] = 1.41421356237309505*gk[i]*η+ν
+#         w_gh[i] = w_gh[i]/1.772453850905515882
+#     end
+#     for i=1:nr_z
+#         gz[i] = (.5*sz*gz[i])+z
+#     end
 
-    #   numerical integration
-    for i=1:nr_z
-        sum_ν=0.0
-            #   numerical integration 
-        for m=1:nr_ν
-            if abs(gk[m])>ϵ
-                sum_ν+=(exp(-200*gz[i]*gk[m])-1)/(exp(-200*α*gk[m])-1)*w_gh[m]
-            else
-                sum_ν+=gz[i]/α*w_gh[m]
-            end
-        end
-        sum_z+=sum_ν*w_g[i]/2
-    end
-    prob = sum_z
+#     #   numerical integration
+#     for i=1:nr_z
+#         sum_ν=0.0
+#             #   numerical integration 
+#         for m=1:nr_ν
+#             if abs(gk[m])>ϵ
+#                 sum_ν+=(exp(-200*gz[i]*gk[m])-1)/(exp(-200*α*gk[m])-1)*w_gh[m]
+#             else
+#                 sum_ν+=gz[i]/α*w_gh[m]
+#             end
+#         end
+#         sum_z+=sum_ν*w_g[i]/2
+#     end
+#     prob = sum_z
 
-    if (rt-τ+st/2 > min_rt) # is t larger than lower boundary τ distribution?
-        upper_t = min(rt, τ+st/2)
-        p1 = prob*(upper_t-lower_t)/st # integrate probability with respect to t
-        p0 = (1-prob)*(upper_t-lower_t)/st
-        if rt > τ+st/2 # is t larger than upper boundary Ter distribution?
-            sum_hist = zeros(3)
-            for v in 1:v_max # infinite series
-                sum_hist = circshift(sum_hist, 1)
-                sum_ν = 0
-                sifa = π*v/α
-                for m in 1:nr_ν # numerical integration with respect to xi
-                    denom = (100*gk[m]*gk[m] + (π*π)*(v*v)/(100*a2))
-                    upp = exp((2*choice-1)*Z_U*gk[m]*100 - 3*log(denom) + log(w_gh[m]) - 2*log(100))
-                    low = exp((2*choice-1)*Z_L*gk[m]*100 - 3*log(denom) + log(w_gh[m]) - 2*log(100))
-                    fact = upp*((2*choice-1)*gk[m]*sin(sifa*Z_U)*100 - sifa*cos(sifa*Z_U)) - 
-                           low*((2*choice-1)*gk[m]*sin(sifa*Z_L)*100 - sifa*cos(sifa*Z_L))
-                    exdif = exp((-.5*denom*(rt-upper_t)) + log(1-exp(-.5*denom*(upper_t-lower_t))))
-                    sum_ν += fact*exdif
-                end
-                sum_hist[3] = sum_hist[2] + v*sum_ν
-                if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
-                    break
-                end
-            end
+#     if (rt-τ+st/2 > min_rt) # is t larger than lower boundary τ distribution?
+#         upper_t = min(rt, τ+st/2)
+#         p1 = prob*(upper_t-lower_t)/st # integrate probability with respect to t
+#         p0 = (1-prob)*(upper_t-lower_t)/st
+#         if rt > τ+st/2 # is t larger than upper boundary Ter distribution?
+#             sum_hist = zeros(3)
+#             for v in 1:v_max # infinite series
+#                 sum_hist = circshift(sum_hist, 1)
+#                 sum_ν = 0
+#                 sifa = π*v/α
+#                 for m in 1:nr_ν # numerical integration with respect to xi
+#                     denom = (100*gk[m]*gk[m] + (π*π)*(v*v)/(100*a2))
+#                     upp = exp((2*choice-1)*Z_U*gk[m]*100 - 3*log(denom) + log(w_gh[m]) - 2*log(100))
+#                     low = exp((2*choice-1)*Z_L*gk[m]*100 - 3*log(denom) + log(w_gh[m]) - 2*log(100))
+#                     fact = upp*((2*choice-1)*gk[m]*sin(sifa*Z_U)*100 - sifa*cos(sifa*Z_U)) - 
+#                            low*((2*choice-1)*gk[m]*sin(sifa*Z_L)*100 - sifa*cos(sifa*Z_L))
+#                     exdif = exp((-.5*denom*(rt-upper_t)) + log(1-exp(-.5*denom*(upper_t-lower_t))))
+#                     sum_ν += fact*exdif
+#                 end
+#                 sum_hist[3] = sum_hist[2] + v*sum_ν
+#                 if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
+#                     break
+#                 end
+#             end
 
-            Fnew = (p0*(1-choice) + p1*choice) - sum_hist[3]*4*π/(a2*sz*st)
-            # cumulative distribution function for t and x
-        elseif t <= τ+st/2 # is t lower than upper boundary Ter distribution?
-            sum_ν = 0
-            for m in 1:nr_ν
-                if abs(gk[m]) > ϵ
-                    sum_z = 0
-                    for i in 1:nr_z
-                        zzz = (α - gz[i])*choice + gz[i]*(1 - choice)
-                        ser = -((α*a2)/((1 - 2*choice)*gk[m]*π*.01))*sinh(zzz*(1 - 2*x)*gk[m]/.01)/
-                              (sinh((1 - 2*choice)*gk[m]*α/.01)^2) +
-                              (zzz*a2)/((1 - 2*choice)*gk[m]*π*.01)*cosh((α - zzz)*(1 - 2*choice)*gk[m]/.01)/
-                              sinh((1 - 2*choice)*gk[m]*α/.01)
-                        sum_hist = zeros(3)
-                        for v in 1:v_max
-                            sum_hist = circshift(sum_hist, 1)
-                            sifa = π*v/α
-                            denom = (gk[m]*gk[m]*100 + (π*v)*(π*v)/(a2*100))
-                            sum_hist[3] = sum_hist[2] + v*sin(sifa*zzz)*exp(-.5*denom*(rt - lower_t) - 2*log(denom))
-                            if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
-                                break
-                            end
-                        end
-                        sum_z += .5*w_g[i]*(ser - 4*sum_hist[3])*(π/100)/(a2*st)*exp((2*choice - 1)*zzz*gk[m]*100)
-                    end
-                else
-                    sum_hist = zeros(3)
-                    su = -(Z_U*Z_U)/(12*a2) + (Z_U*Z_U*Z_U)/(12*α*a2) - (Z_U*Z_U*Z_U*Z_U)/(48*a2*a2)
-                    sl = -(Z_L*Z_L)/(12*a2) + (Z_L*Z_L*Z_L)/(12*α*a2) - (Z_L*Z_L*Z_L*Z_L)/(48*a2*a2)
-                    for v in 1:v_max
-                        sum_hist = circshift(sum_hist, 1)
-                        sifa = π*v/α
-                        denom = (π*v)*(π*v)/(a2*100)
-                        sum_hist[3] = sum_hist[2] + 1/(π*π*π*π*v*v*v*v)*(cos(sifa*Z_L) - cos(sifa*Z_U))*
-                                      exp(-.5*denom*(rt - lower_t))
-                        if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
-                            break
-                        end
-                    end
-                    sum_z = 400*a2*α*(sl - su - sum_hist[3])/(st*sz)
-                end
-                sum_ν += sum_z*w_gh[m]
-            end
-            Fnew = (p0*(1 - choice) + p1*choice) - sum_ν
-        end
-    elseif rt - τ + st/2 <= min_rt # is t lower than lower boundary Ter distr?
-        Fnew = 0
-    end
+#             Fnew = (p0*(1-choice) + p1*choice) - sum_hist[3]*4*π/(a2*sz*st)
+#             # cumulative distribution function for t and x
+#         elseif t <= τ+st/2 # is t lower than upper boundary Ter distribution?
+#             sum_ν = 0
+#             for m in 1:nr_ν
+#                 if abs(gk[m]) > ϵ
+#                     sum_z = 0
+#                     for i in 1:nr_z
+#                         zzz = (α - gz[i])*choice + gz[i]*(1 - choice)
+#                         ser = -((α*a2)/((1 - 2*choice)*gk[m]*π*.01))*sinh(zzz*(1 - 2*x)*gk[m]/.01)/
+#                               (sinh((1 - 2*choice)*gk[m]*α/.01)^2) +
+#                               (zzz*a2)/((1 - 2*choice)*gk[m]*π*.01)*cosh((α - zzz)*(1 - 2*choice)*gk[m]/.01)/
+#                               sinh((1 - 2*choice)*gk[m]*α/.01)
+#                         sum_hist = zeros(3)
+#                         for v in 1:v_max
+#                             sum_hist = circshift(sum_hist, 1)
+#                             sifa = π*v/α
+#                             denom = (gk[m]*gk[m]*100 + (π*v)*(π*v)/(a2*100))
+#                             sum_hist[3] = sum_hist[2] + v*sin(sifa*zzz)*exp(-.5*denom*(rt - lower_t) - 2*log(denom))
+#                             if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
+#                                 break
+#                             end
+#                         end
+#                         sum_z += .5*w_g[i]*(ser - 4*sum_hist[3])*(π/100)/(a2*st)*exp((2*choice - 1)*zzz*gk[m]*100)
+#                     end
+#                 else
+#                     sum_hist = zeros(3)
+#                     su = -(Z_U*Z_U)/(12*a2) + (Z_U*Z_U*Z_U)/(12*α*a2) - (Z_U*Z_U*Z_U*Z_U)/(48*a2*a2)
+#                     sl = -(Z_L*Z_L)/(12*a2) + (Z_L*Z_L*Z_L)/(12*α*a2) - (Z_L*Z_L*Z_L*Z_L)/(48*a2*a2)
+#                     for v in 1:v_max
+#                         sum_hist = circshift(sum_hist, 1)
+#                         sifa = π*v/α
+#                         denom = (π*v)*(π*v)/(a2*100)
+#                         sum_hist[3] = sum_hist[2] + 1/(π*π*π*π*v*v*v*v)*(cos(sifa*Z_L) - cos(sifa*Z_U))*
+#                                       exp(-.5*denom*(rt - lower_t))
+#                         if abs(sum_hist[1] - sum_hist[2]) < Δ && abs(sum_hist[2] - sum_hist[3]) < Δ && sum_hist[3] > 0
+#                             break
+#                         end
+#                     end
+#                     sum_z = 400*a2*α*(sl - su - sum_hist[3])/(st*sz)
+#                 end
+#                 sum_ν += sum_z*w_gh[m]
+#             end
+#             Fnew = (p0*(1 - choice) + p1*choice) - sum_ν
+#         end
+#     elseif rt - τ + st/2 <= min_rt # is t lower than lower boundary Ter distr?
+#         Fnew = 0
+#     end
     
-    Fnew = Fnew > Δ ? Fnew : 0
+#     Fnew = Fnew > Δ ? Fnew : 0
 
-    return    Fnew
+#     return    Fnew
 
-end
+# end
 
 """
     rand(dist::DDM)
 
-Generate a random choice and rt for the Ratcliff Diffusion Model
+Generate a random choice and rt for the Diffusion Decision Model
 
 # Arguments
-- `dist`: model object for Ratcliff Diffusion Model. 
+- `dist`: model object for Diffusion Decision Model. 
     
 method simulating the diffusion process: 
 _rand_rejection uses Tuerlinckx et al., 2001 rejection-based method for the general wiener process
+_rand_stochastic uses the stochastic Euler method to simulate the stochastic differential equation
 
 # References
 
@@ -592,6 +580,7 @@ _rand_rejection uses Tuerlinckx et al., 2001 rejection-based method for the gene
 """
 function rand(rng::AbstractRNG, d::DDM)
     return _rand_rejection(rng, d)
+    # return _rand_stochastic(rng, d)
 end
 
 function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
@@ -613,9 +602,9 @@ function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
     Δ = ϵ
 
     for n in 1:N
-        r1 = randn()
+        r1 = randn(rng)
         μ = ν + r1 * η
-        bb = z - sz / 2 + sz * rand()
+        bb = z - sz / 2 + sz * rand(rng)
         zz = bb * α
         finish = 0
         totaltime = 0
@@ -632,13 +621,13 @@ function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
             # formula p447 in 2001 paper
             prob = exp(radius * μ / D)
             prob = prob / (1 + prob)
-            dir_ = 2 * (rand() < prob) - 1
+            dir_ = 2 * (rand(rng) < prob) - 1
             l = -1
             s2 = 0
             s1 = 0
             while s2 > l
-                s2 = rand()
-                s1 = rand()
+                s2 = rand(rng)
+                s1 = rand(rng)
                 tnew = 0
                 told = 0
                 uu = 0
@@ -655,7 +644,7 @@ function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
             # is the negative of t* in (14) in BRMIC,2001
             totaltime += t
             dir_ = startpos + dir_ * radius
-            ndt = τ - st / 2 + st * rand()
+            ndt = τ - st / 2 + st * rand(rng)
             if (dir_ + Δ) > Aupper
                 rt[n] = ndt + totaltime
                 choice[n] = 1
@@ -673,10 +662,49 @@ function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
     return (choice=choice,rt=rt)
 end
 
+function _rand_stochastic(rng::AbstractRNG, d::DDM; N::Int = 1, nsteps::Int=300, step_length::Int=0.01)
+    (ν, α, τ, z, η, sz, st, σ) = params(d)
+
+    if η == 0
+        η = 1e-16
+    end
+
+    # Initialize output vectors
+    choice = fill(0, N)
+    rt = fill(0.0, N)
+
+    for n in 1:N
+        random_walk = Array{Float64}(undef, nsteps)
+        start_point = (z - sz/2) + ((z + sz/2) - (z - sz/2)) * rand(rng)
+        ndt = (τ - st/2) + ((τ + st/2) - (τ - st/2)) * rand(rng)
+        drift = rand(rng, Distributions.Normal(ν, η))
+        random_walk[1] = start_point * α
+        for s in 2:nsteps
+            random_walk[s] = random_walk[s-1] + rand(Distributions.Normal(drift * step_length, σ * sqrt(step_length)))
+            if random_walk[s] >= α
+                random_walk[s:end] .= α
+                rts[n] = s * step_length + ndt
+                choice[n] = 1
+                break
+            elseif random_walk[s] <= 0
+                random_walk[s:end] .= 0
+                rts[n] = s * step_length + ndt
+                choice[n] = 2
+                break
+            elseif s == nsteps
+                rts[n] = NaN
+                choice[n] = NaN
+                break
+            end
+        end
+    end   
+    return  (choice=choice,rt=rts)
+end
+
 """
     rand(dist::DDM, n_sim::Int)
 
-Generate `n_sim` random choice-rt pairs for the Ratcliff Diffusion Decision Model.
+Generate `n_sim` random choice-rt pairs for the Diffusion Decision Model.
 
 # Arguments
 - `dist`: model object for the Ratcliff DDM.
@@ -827,7 +855,7 @@ end
 #     end
 #     return 2*F
 # end
-# # Number of terms required for large time representation
+# Number of terms required for large time representation
 # function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
 #     (ν, α, τ, z) = params(d)
 #     x = t-τ
