@@ -4,14 +4,14 @@
     Model object for the Ratcliff (Full) Diffusion Decision Model.
 
 # Parameters
-    - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-    - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-    - `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
-    - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
-    - `η`:  across-trial-variability of drift rate. Typical range: 0 < η < 2. Default is 0.
-    - `sz`: across-trial-variability of starting point. Typical range: 0 < sz < 0.5. Default is 0.
-    - `st`: across-trial-variability of non-decision time. Typical range: 0 < st < 0.2. Default is 0.
-    - `σ`: diffusion noise constant. Default is 1.
+- `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
+- `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
+- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+- `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+- `η`:  across-trial-variability of drift rate. Typical range: 0 < η < 2. Default is 0.
+- `sz`: across-trial-variability of starting point. Typical range: 0 < sz < 0.5. Default is 0.
+- `st`: across-trial-variability of non-decision time. Typical range: 0 < st < 0.2. Default is 0.
+- `σ`: diffusion noise constant. Default is 1.
 
 # Constructors 
 
@@ -40,6 +40,7 @@ loglike = logpdf.(dist, choice, rt)
 # References
         
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
+
 Ratcliff, R. (1978). A theory of memory retrieval. Psychological Review, 85, 59–108. https://doi.org/10.1037/0033-295X.85.2.59
 """
 mutable struct DDM{T<:Real} <: AbstractDDM
@@ -150,7 +151,13 @@ function _pdf_sv(d::DDM, rt; ϵ::Real = 1.0e-12)
         return _pdf(DDM(ν, α, τ, z, 0, 0, 0, σ), rt; ϵ)
     end
 
-    return _pdf(DDM(ν, α, τ, z, 0, 0, 0, σ), rt; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*(rt-τ) ) / (2*(η^2)*(rt-τ)+2)  ) - log(sqrt((η^2)*(rt-τ)+1)) + ν*α*z + (ν^2)*(rt-τ)*0.5
+    # α *= 2.0
+    # return _pdf(DDM(0, α, τ, z, 0, 0, 0, σ), rt; ϵ)  + (  ( (α*z*η)^2 - 2*ν*α*z - (ν^2)*(rt-τ) ) / (2*(η^2)*(rt-τ)+2)  ) - log(sqrt((η^2)*(rt-τ)+1)) + ν*α*z + (ν^2)*(rt-τ)*0.5
+    #based on:https://github.com/AGhaderi/spatial_attenNCM/blob/main/Neuro-Cognitive%20Models/Models/Hier_Model/lambda_modelt.stan
+    XX = (rt - τ) / α^2 #use normalized time
+
+    return _pdf(DDM(ν, α, τ, z, 0, 0, 0, σ), rt; ϵ)  + (  ( (α*(1-z)*η)^2 - 2*ν*α*(1-z) - (ν^2)*XX ) / (2*(η^2)*XX+2)  ) - log(sqrt((η^2)*XX+1)) + ν*α*(1-z) + (ν^2)*XX*0.5
+    # return _pdf(DDM(0, α, τ, z, 0, 0, 0, σ), rt; ϵ)  + ((α * z * η)^2 - 2 * α * ν * z - (ν^2) * (rt-τ) ) ./ (2 * (η^2) * (rt-τ) .+ 2) - 0.5 * sqrt(η^2 * (rt-τ) .+ 1) - 2 * α
 end
 
 """
@@ -251,7 +258,6 @@ Calculate the 1-dimensional Simpson's numerical integration for a drift diffusio
 https://en.wikipedia.org/wiki/Simpson%27s_rule 
 
 """
-# Simpson's Method one dimentional case
 function _simpson_1D(x::Real, ν::Real, η::Real, α::Real, z::Real, τ::Real, ϵ::Real, lb_z::Real, ub_z::Real, n_sz::Int, lb_t::Real, ub_t::Real, n_st::Int)
    
     n = max(n_st, n_sz)
@@ -291,7 +297,7 @@ function _simpson_1D(x::Real, ν::Real, η::Real, α::Real, z::Real, τ::Real, �
     S = S - y  # the last term should be f(b) and not 2*f(b) so we subtract y
     S = S / ((ub_t - lb_t) + (ub_z - lb_z))  # the right function if pdf_sv()/sz or pdf_sv()/st
     
-    return (ht + hz) * S / 3
+    return ((ht + hz) * S / 3)
 
 end
 
@@ -316,7 +322,6 @@ Calculate the 2-dimensional Simpson's numerical integration for a drift diffusio
 - The function calls `_simpson_1D` to perform the 1-dimensional integrations over each dimension.
 
 """
-# Simpson's Method two dimentional case
 function _simpson_2D(x::Real, ν::Real, η::Real, α::Real, z::Real, τ::Real, ϵ::Real, lb_z::Real, ub_z::Real, n_sz::Int, lb_t::Real, ub_t::Real, n_st::Int)
 
     ht = (ub_t-lb_t)/n_st
@@ -338,33 +343,33 @@ function _simpson_2D(x::Real, ν::Real, η::Real, α::Real, z::Real, τ::Real, �
     S = S - y  # the last term should be f(b) and not 2*f(b) so we subtract y
     S = S / (ub_t - lb_t)
 
-    return ht * S / 3
+    return (ht * S / 3)
 
 end
 
 logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
 
 
-"""
-    cdf(d::DDM, choice, rt; ϵ::Real = 1e-7)
+# """
+#     cdf(d::DDM, choice, rt; ϵ::Real = 1e-7)
 
-Compute the Cumulative Distribution Function (CDF) for the Ratcliff Diffusion model. This function uses 6 Gaussian quadrature for numerical integration.
+# Compute the Cumulative Distribution Function (CDF) for the Ratcliff Diffusion model. This function uses 6 Gaussian quadrature for numerical integration.
 
-# Arguments
-- `d`: an instance of DDM Constructor
-- `choice`: an input representing the choice.
-- `rt`: response time.
-- `ϵ`: a small constant to avoid division by zero, defaults to 1e-7.
+# # Arguments
+# - `d`: an instance of DDM Constructor
+# - `choice`: an input representing the choice.
+# - `rt`: response time.
+# - `ϵ`: a small constant to avoid division by zero, defaults to 1e-7.
 
-# Returns
-- `y`: an array representing the CDF of the Diffusion Decision model.
+# # Returns
+# - `y`: an array representing the CDF of the Diffusion Decision model.
 
-# Reference
-Tuerlinckx, F. (2004). The efficient computation of the cumulative distribution and probability density functions in the diffusion model, Behavior Research Methods, Instruments, & Computers, 36 (4), 702-716.
+# # Reference
+# Tuerlinckx, F. (2004). The efficient computation of the cumulative distribution and probability density functions in the diffusion model, Behavior Research Methods, Instruments, & Computers, 36 (4), 702-716.
 
-# See also
-- Converted from cdfdif.c C script by Joachim Vandekerckhove: https://ppw.kuleuven.be/okp/software/dmat/
-"""
+# # See also
+# - Converted from cdfdif.c C script by Joachim Vandekerckhove: https://ppw.kuleuven.be/okp/software/dmat/
+# """
 # function cdf(d::DDM, choice, rt; ϵ::Real = 1e-7)
 
 #     (ν, α, τ, z, η, sz, st, σ) = params(d)
@@ -391,22 +396,22 @@ Tuerlinckx, F. (2004). The efficient computation of the cumulative distribution 
 
 #     return y
 # end
-"""
-    _cdf(d::DDM{T}, choice, rt, prob; ϵ::Real = 1e-7) where {T<:Real}
+# """
+#     _cdf(d::DDM{T}, choice, rt, prob; ϵ::Real = 1e-7) where {T<:Real}
 
-A helper function to compute the Cumulative Distribution Function (CDF) for the Diffusion Decision model.
+# A helper function to compute the Cumulative Distribution Function (CDF) for the Diffusion Decision model.
 
-# Arguments
-- `d`: an instance of DDM Constructor
-- `choice`: an input representing the choice.
-- `rt`: response time.
-- `prob`: a probability value.
-- `ϵ`: a small constant to avoid division by zero, defaults to 1e-7.
+# # Arguments
+# - `d`: an instance of DDM Constructor
+# - `choice`: an input representing the choice.
+# - `rt`: response time.
+# - `prob`: a probability value.
+# - `ϵ`: a small constant to avoid division by zero, defaults to 1e-7.
 
-# Returns
-- `Fnew`: the computed CDF for the given parameters.
+# # Returns
+# - `Fnew`: the computed CDF for the given parameters.
 
-"""
+# """
 # function _cdf(d::DDM, choice, rt, prob; ϵ::Real = 1e-7)
     
 #     (ν, α, τ, z, η, sz, st, σ) = params(d)
@@ -584,36 +589,33 @@ function rand(rng::AbstractRNG, d::DDM)
 end
 
 function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
-    (ν, α, τ, z, η, sz, st, σ) = params(d)
+    (;ν, α, τ, z, η, sz, st, σ) = d
 
-    if η == 0
-        η = 1e-16
-    end
+    η = η == 0 ? eps() : η
 
     # Initialize output vectors
-    choice = fill(0, N)
-    rt = fill(0.0, N)
+    T = zeros(N)  
+    XX = fill(0, N)  
 
     # Called sigma in 2001 paper
     D = σ^2 / 2
 
     # Program specifications
     ϵ = eps()  # precision from 1.0 to next double-precision number
-    Δ = ϵ
 
     for n in 1:N
         r1 = randn(rng)
         μ = ν + r1 * η
         bb = z - sz / 2 + sz * rand(rng)
         zz = bb * α
-        finish = 0
-        totaltime = 0
-        startpos = 0
+        finish = false
+        totaltime = 0.0
+        startpos = 0.0
         Aupper = α - zz
         Alower = -zz
         radius = min(abs(Aupper), abs(Alower))
 
-        while finish == 0
+        while !finish
             λ = 0.25 * μ^2 / D + 0.25 * D * π^2 / radius^2
             # eq. formula (13) in 2001 paper with D = sigma^2/2 and radius = Alpha/2
             F = D * π / (radius * μ)
@@ -622,14 +624,14 @@ function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
             prob = exp(radius * μ / D)
             prob = prob / (1 + prob)
             dir_ = 2 * (rand(rng) < prob) - 1
-            l = -1
-            s2 = 0
-            s1 = 0
+            l = -1.0
+            s2 = 0.0
+            s1 = 0.0
             while s2 > l
                 s2 = rand(rng)
                 s1 = rand(rng)
-                tnew = 0
-                told = 0
+                tnew = 0.0
+                told = 0.0
                 uu = 0
                 while abs(tnew - told) > ϵ || uu == 0
                     told = tnew
@@ -645,21 +647,21 @@ function _rand_rejection(rng::AbstractRNG, d::DDM; N::Int = 1)
             totaltime += t
             dir_ = startpos + dir_ * radius
             ndt = τ - st / 2 + st * rand(rng)
-            if (dir_ + Δ) > Aupper
-                rt[n] = ndt + totaltime
-                choice[n] = 1
-                finish = 1
-            elseif (dir_ - Δ) < Alower
-                rt[n] = ndt + totaltime
-                choice[n] = 2
-                finish = 1
+            if (dir_ + ϵ) > Aupper
+                T[n] = ndt + totaltime
+                XX[n] = 1
+                finish = true
+            elseif (dir_ - ϵ) < Alower
+                T[n] = ndt + totaltime
+                XX[n] = 2
+                finish = true
             else
                 startpos = dir_
                 radius = minimum(abs.([Aupper, Alower] .- startpos))
             end
         end
     end
-    return (choice=choice,rt=rt)
+    return (choice=XX,rt=T)
 end
 
 function _rand_stochastic(rng::AbstractRNG, d::DDM; N::Int = 1, nsteps::Int=300, step_length::Int=0.01)
