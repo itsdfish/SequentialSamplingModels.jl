@@ -39,44 +39,44 @@ Random.seed!(5874)</code></pre><pre class="documenter-example-output"><code clas
  0.911632  1.041
  0.721448  1.006
  0.9324    0.785</code></pre><h2 id="Compute-PDF"><a class="docs-heading-anchor" href="#Compute-PDF">Compute PDF</a><a id="Compute-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PDF" title="Permalink"></a></h2><p>The PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">pdf(dist, data)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
- 3.453803663991895
- 0.4047682288168611
- 0.3340192941441637
- 3.3906839690505457
- 5.736477764598261
- 1.0817569621639382
- 7.4729972084164125
- 0.11321652022360264
- 0.7057354749018021
- 5.06751201956543
+ 3.453803670974771
+ 0.4047682288169383
+ 0.3340192941442327
+ 3.3906839690742383
+ 5.736477768226728
+ 1.0817569643990776
+ 7.472997208840128
+ 0.11321652022361788
+ 0.7057354852474048
+ 5.067512019570837
  ⋮
- 2.6408331587906098
- 8.044623398070392
- 4.96252060738099
- 6.565163938514263
- 4.040002568541011
- 2.6693741739136656
- 0.7177888670503146
- 1.6579685316931942
- 4.99450128458007</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf(dist, data)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
-  1.2394761350260204
- -0.9044406502134326
- -1.0965565207751826
-  1.221031661823261
-  1.7468453921226939
-  0.07858653612150235
-  2.011296151392134
- -2.1784531854899747
- -0.3485147931417316
-  1.622849971233748
+ 2.640833158827574
+ 8.04462339845795
+ 4.962520607400095
+ 6.565163938610061
+ 4.04000257574852
+ 2.6693741774172155
+ 0.7177888670505281
+ 1.657968531693973
+ 4.994501284994349</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf(dist, data)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
+  1.239476137047813
+ -0.9044406502132425
+ -1.0965565207749766
+  1.2210316618302492
+  1.746845392755219
+  0.07858653818771444
+  2.0112961514488337
+ -2.1784531854898397
+ -0.34851477848241075
+  1.6228499712348157
   ⋮
-  0.9710944578210228
-  2.0850039674245053
-  1.6019137986255352
-  1.8817774790369164
-  1.3962453277503357
-  0.9818440531454691
- -0.33157981021014393
-  0.5055930768545807
-  1.60833756418897</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on the marginal histograms for angle and reaction time.</p><pre><code class="language-julia hljs">histogram(dist)
-plot!(dist)</code></pre><img src="dcc6602d.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Smith, P. L. (2016). Diffusion theory of decision making in continuous report. Psychological Review, 123(4), 425.</p><p>Smith, P. L., Garrett, P. M., &amp; Zhou, J. (2023). Obtaining Stable Predicted Distributions of Response Times and Decision Outcomes for the Circular Diffusion Model.  Computational Brain &amp; Behavior, 1-13.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../aDDM/">« Attentional Drift Diffusion (aDDM)</a><a class="docs-footer-nextpage" href="../DDM/">Drift Diffusion Model (DDM) »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Wednesday 27 December 2023 12:06">Wednesday 27 December 2023</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  0.9710944578350187
+  2.085003967472682
+  1.6019137986293863
+  1.8817774790515092
+  1.3962453295343735
+  0.9818440544579694
+ -0.3315798102098473
+  0.5055930768550496
+  1.6083375642719169</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on the marginal histograms for angle and reaction time.</p><pre><code class="language-julia hljs">histogram(dist)
+plot!(dist)</code></pre><img src="45007218.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Smith, P. L. (2016). Diffusion theory of decision making in continuous report. Psychological Review, 123(4), 425.</p><p>Smith, P. L., Garrett, P. M., &amp; Zhou, J. (2023). Obtaining Stable Predicted Distributions of Response Times and Decision Outcomes for the Circular Diffusion Model.  Computational Brain &amp; Behavior, 1-13.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../aDDM/">« Attentional Drift Diffusion (aDDM)</a><a class="docs-footer-nextpage" href="../DDM/">Drift Diffusion Model (DDM) »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Friday 26 January 2024 13:01">Friday 26 January 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
