@@ -66,6 +66,13 @@ An abstract type for the Poisson race model.
 abstract type AbstractPoissonRace <:SSM2D end
 
 """
+    AbstractstDDM <: SSM2D
+
+An abstract type for the starting-time diffusion decision model.
+"""
+abstract type AbstractstDDM <: SSM2D end
+
+"""
     AbstractRDM <: SSM2D
 
 An abstract type for the racing diffusion model.

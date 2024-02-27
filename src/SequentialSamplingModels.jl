@@ -36,6 +36,7 @@ module SequentialSamplingModels
     export AbstractLNR
     export AbstractPoissonRace
     export AbstractRDM 
+    export AbstractstDDM 
     export AbstractWald
     export aDDM
     export CDDM
@@ -49,6 +50,7 @@ module SequentialSamplingModels
     export PoissonRace
     export SSM1D
     export SSM2D
+    export stDDM
     export ContinuousMultivariateSSM
     export Wald
     export WaldMixture 
@@ -92,4 +94,5 @@ module SequentialSamplingModels
     include("ex_gaussian.jl")
     include("poisson_race.jl")
     include("RatcliffDDM.jl")
+    include("stDDM.jl")
 end
