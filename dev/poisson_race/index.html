@@ -17,43 +17,43 @@ Random.seed!(65)</code></pre><pre class="documenter-example-output"><code class=
 └───────────┴──────────────┘
 </span></code></pre><h2 id="Simulate-Model"><a class="docs-heading-anchor" href="#Simulate-Model">Simulate Model</a><a id="Simulate-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Simulate-Model" title="Permalink"></a></h2><p>Now that the model is defined, we will generate <span>$10,000$</span> choices and reaction times using <code>rand</code>.</p><pre><code class="language-julia hljs"> choices,rts = rand(dist, 10_000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(choice = [2, 1, 1, 2, 1, 1, 1, 2, 1, 1  …  2, 2, 2, 2, 1, 1, 1, 1, 2, 1], rt = [0.4559797144683182, 0.3749697591685416, 0.5007783307856986, 0.3893184263316646, 0.4104218262965172, 0.35125354769070133, 0.4843491606953234, 0.36392895777328466, 0.47561893944673495, 0.4805281719975132  …  0.4242886276266836, 0.4061082101636676, 0.4108428594240965, 0.34169826153402333, 0.4574731326007962, 0.3548809891926727, 0.3957452096859603, 0.39505325884732145, 0.37258694097526246, 0.5012963602140261])</code></pre><h2 id="Compute-PDF"><a class="docs-heading-anchor" href="#Compute-PDF">Compute PDF</a><a id="Compute-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PDF" title="Permalink"></a></h2><p>The PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">pdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
  2.0266672914930792
- 3.934066370450476
+ 3.934066370450477
  1.4988000652286813
  2.58811252177243
  4.533911107644525
  2.3838465959607738
  2.019447097207539
- 1.7874940526937417
+ 1.7874940526937415
  2.3338681039986757
  2.1541656901764754
  ⋮
  2.764419836870549
  2.7631629106085747
- 0.8214989108269689
+ 0.821498910826969
  3.0444070174661584
  2.6592798918606695
  4.549956046405041
- 4.54205024141201
- 2.1228825232824517
+ 4.542050241412011
+ 2.122882523282452
  1.484021302292923</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
   0.7063927156124248
-  1.3696735908084066
+  1.3696735908084068
   0.40466483145799836
   0.9509288539672379
   1.511584946168512
   0.8687153998008347
   0.7028237596928365
-  0.5808146684161504
+  0.5808146684161503
   0.8475270215557812
   0.7674034978633449
   ⋮
   1.0168307890415615
   1.016376005697355
- -0.19662466734018022
+ -0.19662466734018
   1.1133061424492254
   0.9780553687974393
   1.5151175727854393
-  1.5133785051395838
-  0.7527748459486417
+  1.5133785051395843
+  0.752774845948642
   0.3947554992869886</code></pre><h2 id="Compute-Choice-Probability"><a class="docs-heading-anchor" href="#Compute-Choice-Probability">Compute Choice Probability</a><a id="Compute-Choice-Probability-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Choice-Probability" title="Permalink"></a></h2><p>The choice probability <span>$\Pr(C=c)$</span> is computed by passing the model and choice index to <code>cdf</code>.</p><pre><code class="language-julia hljs">cdf(dist, 1)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.6200385158256305</code></pre><p>To compute the joint probability of choosing <span>$c$</span> within <span>$t$</span> seconds, i.e., <span>$\Pr(T \leq t \wedge C=c)$</span>, pass a third argument for <span>$t$</span>.</p><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histograms for each option.</p><pre><code class="language-julia hljs">histogram(dist)
-plot!(dist; t_range=range(.301, 1, length=100))</code></pre><img src="d54ec674.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>LaBerge, D. A. (1962). A recruitment model of simple behavior. Psychometrika, 27, 375-395.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../maaDDM/">« Muti-attribute attentional drift diffusion Model</a><a class="docs-footer-nextpage" href="../rdm/">Racing Diffusion Model (RDM) »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Friday 26 January 2024 13:28">Friday 26 January 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+plot!(dist; t_range=range(.301, 1, length=100))</code></pre><img src="92479d32.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>LaBerge, D. A. (1962). A recruitment model of simple behavior. Psychometrika, 27, 375-395.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../maaDDM/">« Muti-attribute attentional drift diffusion Model</a><a class="docs-footer-nextpage" href="../rdm/">Racing Diffusion Model (RDM) »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Thursday 29 February 2024 13:25">Thursday 29 February 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
