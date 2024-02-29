@@ -81,7 +81,7 @@ end
 get_pdf_type(d::aDDM) = Approximate
 
 """
-    rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation, args...; rand_state! = _rand_state!, kwargs...)
+    rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixate, args...; rand_state! = _rand_state!, kwargs...)
 
 Generate `n_sim` simulated trials from the attention diffusion model.
 
@@ -90,20 +90,20 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 - `rng`: a random number generator
 - `dist`: an attentional diffusion model object
 - `n_sim::Int`: the number of simulated trials
-- `fixation`: a function of the visual fixation process which returns 1 for alternative 
+- `fixate`: a function of the visual fixation process which returns 1 for alternative 
     and 2 for alternative 2
-- `args...`: optional positional arguments for the `fixation` function
+- `args...`: optional positional arguments for the `fixate` function
 
 # Keywords
 `rand_state! = _rand_state!`: initialize first state with equal probability 
-- `kwargs...`: optional keyword arguments for the `fixation` function
+- `kwargs...`: optional keyword arguments for the `fixate` function
 """
-function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixation::Function, args...; rand_state! = _rand_state!, kwargs...)
+function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixate::Function, args...; rand_state! = _rand_state!, kwargs...)
     choice = fill(0, n_sim)
     rt = fill(0.0, n_sim)
     for sim in 1:n_sim 
         rand_state!(rng, args...; kwargs...)
-        choice[sim],rt[sim] = _rand(rng, dist, () -> fixation(args...; kwargs...))
+        choice[sim],rt[sim] = rand(rng, dist, () -> fixate(args...; kwargs...))
     end
     return (;choice,rt)
 end
@@ -116,7 +116,7 @@ function _rand_state!(rng, tmat)
  end
  
 """
-    rand(rng::AbstractRNG, dist::AbstractaDDM, fixation, args...; kwargs...)
+    rand(rng::AbstractRNG, dist::AbstractaDDM, fixate, args...; kwargs...)
 
 Generate a single simulated trial from the attention diffusion model.
 
@@ -124,35 +124,35 @@ Generate a single simulated trial from the attention diffusion model.
 
 - `rng`: a random number generator
 - `dist`: an attentional diffusion model object
-- `fixation`: a function of the visual fixation process which returns 1 for alternative 
+- `fixate`: a function of the visual fixation process which returns 1 for alternative 
     and 2 for alternative 2
-- `args...`: optional positional arguments for the `fixation` function
+- `args...`: optional positional arguments for the `fixate` function
 
 # Keywords
 
-- `kwargs...`: optional keyword arguments for the `fixation` function
+- `kwargs...`: optional keyword arguments for the `fixate` function
 """
-function rand(rng::AbstractRNG, dist::AbstractaDDM, fixation::Function, args...; rand_state! = _rand_state!, kwargs...)
+function rand(rng::AbstractRNG, dist::AbstractaDDM, fixate::Function, args...; rand_state! = _rand_state!, kwargs...)
     rand_state!(rng, args...; kwargs...)
-    return _rand(rng, dist, () -> fixation(args...; kwargs...))
+    return rand(rng, dist, () -> fixate(args...; kwargs...))
 end
 
-function rand(dist::AbstractaDDM, fixation::Function, args...; kwargs...)
-    return rand(Random.default_rng(), dist::AbstractaDDM, fixation::Function, args...; kwargs...)
+function rand(dist::AbstractaDDM, fixate::Function, args...; kwargs...)
+    return rand(Random.default_rng(), dist::AbstractaDDM, fixate::Function, args...; kwargs...)
 end
 
-function rand(dist::AbstractaDDM, n_sim::Int, fixation::Function, args...; kwargs...) 
-    return rand(Random.default_rng(), dist, n_sim, fixation, args...; kwargs...)
+function rand(dist::AbstractaDDM, n_sim::Int, fixate::Function, args...; kwargs...) 
+    return rand(Random.default_rng(), dist, n_sim, fixate, args...; kwargs...)
 end
 
-function _rand(rng::AbstractRNG, dist::AbstractaDDM, fixation)
+function rand(rng::AbstractRNG, dist::AbstractaDDM, fixate::Function)
     (;α,z,τ) = dist
     t = τ
     Δt = .001
     v = z
     while abs(v) < α
         t += Δt
-        location = fixation()
+        location = fixate()
         v += increment(rng, dist, location)
     end
     choice = (v < α) + 1
@@ -160,7 +160,7 @@ function _rand(rng::AbstractRNG, dist::AbstractaDDM, fixation)
 end
 
 """
-    cdf(d::AbstractaDDM, choice::Int, fixation::Function, ub, args...; n_sim=10_000, kwargs...)
+    cdf(d::AbstractaDDM, choice::Int, fixate::Function, ub, args...; n_sim=10_000, kwargs...)
 
 Computes the approximate cumulative probability density of `AbstractaDDM` using Monte Carlo simulation.
 
@@ -168,32 +168,32 @@ Computes the approximate cumulative probability density of `AbstractaDDM` using 
 
 - `dist`: an attentional diffusion model object
 - `choice`: the choice on which the cumulative density is computed
-- `fixation`: a function of the visual fixation process which returns 1 for alternative 
+- `fixate`: a function of the visual fixation process which returns 1 for alternative 
     and 2 for alternative 2
 - `ub::Int`: the upper bound of the integral
-- `args...`: optional positional arguments for the `fixation` function
+- `args...`: optional positional arguments for the `fixate` function
 
 # Keywords
 
 - `n_sim::Int`=10_000: the number of simulated trials
 `rand_state! = _rand_state!`: initialize first state with equal probability 
-- `kwargs...`: optional keyword arguments for the `fixation` function
+- `kwargs...`: optional keyword arguments for the `fixate` function
 """
- function cdf(rng::AbstractRNG, d::AbstractaDDM, choice::Int, fixation::Function, ub, args...; n_sim=10_000, kwargs...)
-    c,rt = rand(rng, d, n_sim, fixation, args...; kwargs...)
+ function cdf(rng::AbstractRNG, d::AbstractaDDM, choice::Int, fixate::Function, ub, args...; n_sim=10_000, kwargs...)
+    c,rt = rand(rng, d, n_sim, fixate, args...; kwargs...)
     return mean(c .== choice .&&  rt .≤ ub)
  end
 
- function cdf(d::AbstractaDDM, choice::Int, fixation::Function, ub::Real, args...; kwargs...) 
-    return cdf(Random.default_rng(), d, choice, fixation, ub, args...; kwargs...)
+ function cdf(d::AbstractaDDM, choice::Int, fixate::Function, ub::Real, args...; kwargs...) 
+    return cdf(Random.default_rng(), d, choice, fixate, ub, args...; kwargs...)
 end
 
-function survivor(rng::AbstractRNG, d::AbstractaDDM, choice::Int, fixation::Function, ub, args...; n_sim=10_000, kwargs...)
-    return 1 - cdf(rng, d, choice, fixation, ub, args...; kwargs...)
+function survivor(rng::AbstractRNG, d::AbstractaDDM, choice::Int, fixate::Function, ub, args...; n_sim=10_000, kwargs...)
+    return 1 - cdf(rng, d, choice, fixate, ub, args...; kwargs...)
  end
 
- function survivor(d::AbstractaDDM, choice::Int, fixation::Function, ub::Real, args...; kwargs...) 
-    return survivor(Random.default_rng(), d, choice, fixation, ub, args...; kwargs...)
+ function survivor(d::AbstractaDDM, choice::Int, fixate::Function, ub::Real, args...; kwargs...) 
+    return survivor(Random.default_rng(), d, choice, fixate, ub, args...; kwargs...)
 end
 
 increment(dist::AbstractaDDM, location) = increment(Random.default_rng(), dist, location)
@@ -226,7 +226,7 @@ end
 noise(rng, σ) = rand(rng, Normal(0, σ))
 
 """
-    simulate(model::AbstractaDDM; fixation, m_args=(), m_kwargs=())
+    simulate(model::AbstractaDDM; fixate, m_args=(), m_kwargs=())
 
 Returns a matrix containing evidence samples from a subtype of an attentional drift diffusion model decision process. In the matrix, rows 
 represent samples of evidence per time step and columns represent different accumulators.
@@ -244,7 +244,7 @@ represent samples of evidence per time step and columns represent different accu
 """
 function simulate(rng::AbstractRNG, model::AbstractaDDM; attend, args=(), kwargs=(), rand_state! = _rand_state!)
     (;α,z) = model
-    fixation = () -> attend(args...; kwargs...)
+    fixate = () -> attend(args...; kwargs...)
     rand_state!(args...)
     t = 0.0
     Δt = .001
@@ -253,7 +253,7 @@ function simulate(rng::AbstractRNG, model::AbstractaDDM; attend, args=(), kwargs
     time_steps = [t]
     while abs(x) < α
         t += Δt
-        location = fixation()
+        location = fixate()
         x += increment(model, location)
         push!(evidence, x)
         push!(time_steps, t)

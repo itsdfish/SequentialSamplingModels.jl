@@ -106,9 +106,33 @@ Base.broadcastable(x::ContinuousMultivariateSSM) = Ref(x)
 
 Base.length(d::SSM2D) = 2
 
-rand(d::SSM2D) = rand(Random.default_rng(), d)
+rand(d::SSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
+
+"""
+    rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
+
+Default method for Generating `n_sim` random choice-rt pairs from a sequential sampling model 
+with more than one choice option.
+
+# Arguments
+
+- `d::SSM2D`: a 2D sequential sampling model.
+- `n_sim::Int`: the number of simulated choices and rts  
+
+# Keywords
+
+- `kwargs...`: optional keyword arguments 
+"""
+function rand(rng::AbstractRNG, d::SSM2D, n_sim::Int)
+    choice = fill(0, n_sim)
+    rt = fill(0.0, n_sim)
+    for i in 1:n_sim
+        choice[i],rt[i] = rand(rng, d)
+    end
+    return (;choice,rt)
+end
 
 """
     logpdf(d::SSM2D, data::NamedTuple) 
@@ -150,25 +174,6 @@ Computes the probability density for a 2D sequential sampling model.
 pdf(d::SSM2D, data::NamedTuple) = pdf.(d, data.choice, data.rt)
 
 pdf(d::SSM2D, data::AbstractArray{Real,2}) = pdf(d, Int(data[1]), data[2])
-
-"""
-    rand(rng::AbstractRNG, d::SSM2D, N::Int)
-
-Default method for Generating `n_sim` random choice-rt pairs from a sequential sampling model 
-with more than one choice option.
-
-# Arguments
-- `d::SSM2D`: a 2D sequential sampling model.
-- `n_sim::Int`: the number of simulated choices and rts  
-"""
-function rand(rng::AbstractRNG, d::SSM2D, N::Int)
-    choice = fill(0, N)
-    rt = fill(0.0, N)
-    for i in 1:N
-        choice[i],rt[i] = rand(rng, d)
-    end
-    return (;choice,rt)
-end
 
 """
     cdf(d::SSM2D, choice::Int, ub=10)

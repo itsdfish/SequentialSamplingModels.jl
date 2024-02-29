@@ -5,13 +5,15 @@
         using Random 
         Random.seed!(8414)
 
-        parms = (α = 1.5, 
-            β=0.20,
-             λ=0.10, 
-             ν=[2.5,2.0], 
-             Δt=.001, 
-             τ=.30, 
-             σ=1.0)
+        parms = (
+            α = 1.5, 
+            β = 0.20,
+            λ = 0.10, 
+            ν = [2.5,2.0], 
+            Δt = .001, 
+            τ = .30, 
+            σ = 1.0
+        )
 
         model = LCA(;parms...)
         choice,rt = rand(model, 10_000)
@@ -22,7 +24,7 @@
         @test std(rt[choice .== 1]) ≈ 0.1869 atol = 5e-3
         @test std(rt[choice .== 2]) ≈ 0.18607 atol = 5e-3
     end
-    #import numpy as np
+    # import numpy as np
 
     # def lca_trial(v, a, ndt, la, ka, dt=1e-3, s=1.0, max_iter=1e5):
     #     """Generates a response time and choice from the LCA model given a set of parameters"""
