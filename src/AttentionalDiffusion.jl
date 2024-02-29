@@ -39,7 +39,7 @@ mutable struct Transition
  
  function attend(transition)
      (;mat,n,state) = transition
-     w = mat[state,:]
+     w = @view mat[state,:]
      next_state = sample(1:n, Weights(w))
      transition.state = next_state
      return next_state
@@ -81,7 +81,16 @@ end
 get_pdf_type(d::aDDM) = Approximate
 
 """
-    rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixate, args...; rand_state! = _rand_state!, kwargs...)
+    rand(
+        rng::AbstractRNG,
+        dist::AbstractaDDM,
+        n_sim::Int,
+        fixate::Function, 
+        args...;
+        rand_state! = _rand_state!,
+        Δt = .001,
+        kwargs...
+    )
 
 Generate `n_sim` simulated trials from the attention diffusion model.
 
@@ -97,13 +106,23 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 # Keywords
 `rand_state! = _rand_state!`: initialize first state with equal probability 
 - `kwargs...`: optional keyword arguments for the `fixate` function
+- ` Δt = .001`: time step
 """
-function rand(rng::AbstractRNG, dist::AbstractaDDM, n_sim::Int, fixate::Function, args...; rand_state! = _rand_state!, kwargs...)
+function rand(
+        rng::AbstractRNG,
+        dist::AbstractaDDM,
+        n_sim::Int,
+        fixate::Function, 
+        args...;
+        rand_state! = _rand_state!,
+        Δt = .001,
+        kwargs...
+    )
     choice = fill(0, n_sim)
     rt = fill(0.0, n_sim)
     for sim in 1:n_sim 
         rand_state!(rng, args...; kwargs...)
-        choice[sim],rt[sim] = rand(rng, dist, () -> fixate(args...; kwargs...))
+        choice[sim],rt[sim] = rand(rng, dist, () -> fixate(args...; kwargs...); Δt)
     end
     return (;choice,rt)
 end
@@ -116,7 +135,14 @@ function _rand_state!(rng, tmat)
  end
  
 """
-    rand(rng::AbstractRNG, dist::AbstractaDDM, fixate, args...; kwargs...)
+    rand(
+        rng::AbstractRNG, 
+        dist::AbstractaDDM, 
+        fixate::Function, args...; 
+        rand_state! = _rand_state!, 
+        Δt = .001,
+        kwargs...
+    )
 
 Generate a single simulated trial from the attention diffusion model.
 
@@ -131,24 +157,32 @@ Generate a single simulated trial from the attention diffusion model.
 # Keywords
 
 - `kwargs...`: optional keyword arguments for the `fixate` function
+- `Δt = .001`: time step
 """
-function rand(rng::AbstractRNG, dist::AbstractaDDM, fixate::Function, args...; rand_state! = _rand_state!, kwargs...)
+function rand(
+        rng::AbstractRNG, 
+        dist::AbstractaDDM, 
+        fixate::Function, 
+        args...; 
+        rand_state! = _rand_state!, 
+        Δt = .001,
+        kwargs...
+    )
     rand_state!(rng, args...; kwargs...)
-    return rand(rng, dist, () -> fixate(args...; kwargs...))
+    return rand(rng, dist, () -> fixate(args...; kwargs...); Δt)
 end
 
-function rand(dist::AbstractaDDM, fixate::Function, args...; kwargs...)
-    return rand(Random.default_rng(), dist::AbstractaDDM, fixate::Function, args...; kwargs...)
+function rand(dist::AbstractaDDM, fixate::Function, args...; Δt = .001, kwargs...)
+    return rand(Random.default_rng(), dist::AbstractaDDM, fixate::Function, args...; Δt, kwargs...)
 end
 
-function rand(dist::AbstractaDDM, n_sim::Int, fixate::Function, args...; kwargs...) 
-    return rand(Random.default_rng(), dist, n_sim, fixate, args...; kwargs...)
+function rand(dist::AbstractaDDM, n_sim::Int, fixate::Function, args...; Δt = .001, kwargs...) 
+    return rand(Random.default_rng(), dist, n_sim, fixate, args...; Δt, kwargs...)
 end
 
-function rand(rng::AbstractRNG, dist::AbstractaDDM, fixate::Function)
+function rand(rng::AbstractRNG, dist::AbstractaDDM, fixate::Function; Δt = .001)
     (;α,z,τ) = dist
     t = τ
-    Δt = .001
     v = z
     while abs(v) < α
         t += Δt

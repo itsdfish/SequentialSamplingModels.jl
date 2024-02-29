@@ -58,7 +58,7 @@ mutable struct Transition
  
  function attend(transition)
      (;mat,n,state) = transition
-     w = mat[state,:]
+     w = @view mat[state,:]
      next_state = sample(1:n, Weights(w))
      transition.state = next_state
      return next_state
