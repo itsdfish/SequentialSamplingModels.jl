@@ -10,7 +10,6 @@ Plots the probability density of a multi-alternative sequential sampling model.
 # Keywords 
 
 - `t_range`: the range of time points over which the probability density is plotted 
-- `m_args=()`: optional positional arguments passed to `rand` if applicable
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
 function plot(d::SSM2D; t_range=default_range(d), kwargs...)
@@ -29,7 +28,6 @@ Plots the probability density of a single alternative sequential sampling model.
 # Keywords 
 
 - `t_range`: the range of time points over which the probability density is plotted 
-- `m_args=()`: optional positional arguments passed to `rand` if applicable
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
 function plot(d::SSM1D; t_range=default_range(d), kwargs...)
@@ -48,17 +46,25 @@ Plots the marginal probability density of each N dimensional continuous sequenti
 # Keywords 
 
 - `t_range`: the range of time points over which the probability density is plotted 
-- `m_args=()`: optional positional arguments passed to `rand` if applicable
+- `model_args=()`: optional positional arguments passed to `rand` if applicable
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
 function plot(d::ContinuousMultivariateSSM; t_range=default_range(d), kwargs...)
     return ssm_plot(get_pdf_type(d), d; t_range, kwargs...)
 end
 
-function ssm_plot(::Type{<:Exact}, d::ContinuousMultivariateSSM; 
-    density_offset = 0, density_scale = nothing, t_range, kwargs...)
+function ssm_plot(
+        ::Type{<:Exact}, 
+        d::ContinuousMultivariateSSM; 
+        density_offset = 0, 
+        density_scale = nothing, 
+        model_args = (),
+        model_kwargs = (),
+        t_range, 
+        kwargs...
+    )
     n_subplots = n_options(d)
-    pds = gen_pds(d, t_range, n_subplots) 
+    pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs) 
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     ymax = maximum(vcat(pds...)) * 1.2
@@ -66,10 +72,18 @@ function ssm_plot(::Type{<:Exact}, d::ContinuousMultivariateSSM;
     return plot(t_range, pds; defaults..., kwargs...)
 end
 
-function ssm_plot(::Type{<:Exact}, d; 
-        density_offset = 0, density_scale = nothing, t_range, kwargs...)
+function ssm_plot(
+        ::Type{<:Exact}, 
+        d; 
+        model_args = (),
+        model_kwargs = (),
+        density_offset = 0, 
+        density_scale = nothing, 
+        t_range, 
+        kwargs...
+    )
     n_subplots = n_options(d)
-    pds = gen_pds(d, t_range, n_subplots) 
+    pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs) 
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     ymax = maximum(vcat(pds...)) * 1.2
@@ -77,13 +91,22 @@ function ssm_plot(::Type{<:Exact}, d;
     return plot(t_range, pds; ylims = (0,ymax), defaults..., kwargs...)
 end
 
-function ssm_plot(::Type{<:Approximate}, d;
-        density_offset = 0, m_args = (), n_sim = 2000, density_scale = nothing, t_range, kwargs...)
+function ssm_plot(
+        ::Type{<:Approximate}, 
+        d;
+        density_offset = 0, 
+        model_args = (), 
+        model_kwargs = (),
+        n_sim = 2000, 
+        density_scale = nothing, 
+        t_range, 
+        kwargs...
+    )
     n_subplots = n_options(d)
-    choices, rts = rand(d, n_sim, m_args...)
+    choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
     kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
-    pds = gen_pds(kdes, t_range, choice_probs)
+    pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     ymax = maximum(vcat(pds...)) * 1.2
@@ -110,7 +133,6 @@ Adds the probability density of a single alternative sequential sampling model t
 # Keywords 
 
 - `t_range`: the range of time points over which the probability density is plotted 
-- `m_args=()`: optional positional arguments passed to `rand` if applicable
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
 function plot!(cur_plot::Plots.Plot, d::SSM1D; t_range=default_range(d), kwargs...)
@@ -118,7 +140,14 @@ function plot!(cur_plot::Plots.Plot, d::SSM1D; t_range=default_range(d), kwargs.
 end
 
 """
-    plot!([cur_plot], d::SSM2D; t_range=default_range(d), kwargs...)
+    plot!(
+        cur_plot::Plots.Plot,
+        d::SSM2D; 
+        t_range = default_range(d),
+        model_args = (),
+        model_kwargs = (),
+        kwargs...
+    )
 
 Adds the probability density of a mult-alternative sequential sampling model to an existing plot
 
@@ -129,11 +158,19 @@ Adds the probability density of a mult-alternative sequential sampling model to 
 # Keywords 
 
 - `t_range`: the range of time points over which the probability density is plotted 
-- `m_args=()`: optional positional arguments passed to `rand` if applicable
+- `model_args = ()`: optional positional arguments passed to the `rand` if applicable
+- `model_kwargs = ()`: optional keyword arguments passed to the `rand` if applicable
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
-function plot!(cur_plot::Plots.Plot, d::SSM2D; t_range=default_range(d), kwargs...)
-    return ssm_plot!(get_pdf_type(d), d, cur_plot; t_range, kwargs...)
+function plot!(
+        cur_plot::Plots.Plot,
+        d::SSM2D; 
+        t_range = default_range(d),
+        model_args = (),
+        model_kwargs = (),
+        kwargs...
+    )
+    return ssm_plot!(get_pdf_type(d), d, cur_plot; t_range, model_args, model_kwargs, kwargs...)
 end
 
 """
@@ -148,17 +185,24 @@ Adds the marginal probability density of a multivariate continuous sequential sa
 # Keywords 
 
 - `t_range`: the range of time points over which the probability density is plotted 
-- `m_args=()`: optional positional arguments passed to `rand` if applicable
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
 function plot!(cur_plot::Plots.Plot, d::ContinuousMultivariateSSM; t_range=default_range(d), kwargs...)
     return ssm_plot!(get_pdf_type(d), d, cur_plot; t_range, kwargs...)
 end
 
-function ssm_plot!(::Type{<:Exact}, d, cur_plot; 
-        density_offset = 0, t_range, density_scale = nothing, kwargs...)
+function ssm_plot!(
+        ::Type{<:Exact},
+        d, cur_plot; 
+        model_args = (),
+        model_kwargs = (),
+        density_offset = 0,
+        t_range,
+        density_scale = nothing, 
+        kwargs...
+    )
     n_subplots = n_options(d)
-    pds = gen_pds(d, t_range, n_subplots)
+    pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     if length(density_offset) > 1
         map!((x,i) -> x .+ density_offset[i], pds, pds, 1:n_subplots)
@@ -171,10 +215,19 @@ function ssm_plot!(::Type{<:Exact}, d, cur_plot;
         ylims = (0,ymax), defaults..., kwargs...)
 end
 
-function ssm_plot!(::Type{<:Exact}, d::ContinuousMultivariateSSM, cur_plot; 
-    density_offset = 0, density_scale = nothing, t_range, kwargs...)
+function ssm_plot!(
+        ::Type{<:Exact},
+        d::ContinuousMultivariateSSM,
+        cur_plot; 
+        model_args = (),
+        model_kwargs = (),
+        density_offset = 0, 
+        density_scale = nothing, 
+        t_range, 
+        kwargs...
+    )
     n_subplots = n_options(d)
-    pds = gen_pds(d, t_range, n_subplots) 
+    pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs) 
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     ymax = maximum(vcat(pds...)) * 1.2
@@ -182,13 +235,23 @@ function ssm_plot!(::Type{<:Exact}, d::ContinuousMultivariateSSM, cur_plot;
     return plot!(t_range, pds; defaults..., kwargs...)
 end
 
-function ssm_plot!(::Type{<:Approximate}, d, cur_plot; 
-    density_offset=0, n_sim = 2000, m_args=(), density_scale = nothing, t_range, kwargs...)
+function ssm_plot!(
+        ::Type{<:Approximate},
+        d,
+        cur_plot; 
+        density_offset=0, 
+        n_sim = 2000, 
+        model_args = (),
+        model_kwargs = (),
+        density_scale = nothing, 
+        t_range, 
+        kwargs...
+    )
     n_subplots = n_options(d)
-    choices, rts = rand(d, n_sim, m_args...)
+    choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
     kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
-    pds = gen_pds(kdes, t_range, choice_probs)
+    pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     ymax = maximum(vcat(pds...)) * 1.2
@@ -196,20 +259,20 @@ function ssm_plot!(::Type{<:Approximate}, d, cur_plot;
     return plot!(cur_plot, t_range, pds; ylims = (0,ymax), defaults..., kwargs...)
 end
 
-function gen_pds(d::SSM2D, t_range, n_subplots)
-    return [pdf.(d, (i,), t_range) for i ∈ 1:n_subplots]
+function gen_pds(d::SSM2D, t_range, n_subplots; model_args, model_kwargs)
+    return [pdf.(d, (i,), t_range, model_args...,; model_kwargs...) for i ∈ 1:n_subplots]
 end
 
-function gen_pds(d::SSM1D, t_range, n_subplots)
+function gen_pds(d::SSM1D, t_range, n_subplots; _...)
     return [pdf.(d, t_range) for i ∈ 1:n_subplots]
 end
 
-function gen_pds(d::CDDM, t_range, n_subplots)
+function gen_pds(d::CDDM, t_range, n_subplots; _...)
     pdfs = (SSMs.pdf_angle,SSMs.pdf_rt)
     return [pdfs[i].(d, t_range[i]) for i ∈ 1:n_subplots]
 end
 
-function gen_pds(kdes, t_range, probs)
+function gen_pds(kdes, t_range, probs; _...)
     return [pdf(kdes[i], t_range) .* probs[i] for i ∈ 1:length(kdes)]
 end
 

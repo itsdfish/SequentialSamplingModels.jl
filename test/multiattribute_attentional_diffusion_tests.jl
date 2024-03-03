@@ -154,9 +154,9 @@
             return Transition(state, n, mat)
          end
          
-         function attend(transition)
+         function fixate(transition)
              (;mat,n,state) = transition
-             w = mat[state,:]
+             w = @view mat[state,:]
              next_state = sample(1:n, Weights(w))
              transition.state = next_state
              return next_state
@@ -172,7 +172,7 @@
                         .0025 .0025 .015 .98])
 
 
-        time_steps,evidence = simulate(dist; attend, args=(tmat,))
+        time_steps,evidence = simulate(dist, tmat; fixate)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == length(evidence)
@@ -182,7 +182,7 @@
 
         dist = maaDDM(;ν, ω=.50, ϕ=.2)
 
-        time_steps,evidence = simulate(dist; attend, args=(tmat,))
+        time_steps,evidence = simulate(dist, tmat; fixate)
 
         @test evidence[end] ≈ -1 atol = .040
     end

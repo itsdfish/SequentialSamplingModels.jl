@@ -32,7 +32,7 @@ loglike = logpdf.(dist, choice, rt)
     
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
 """
-mutable struct DDM{T<:Real} <: SSM2D
+mutable struct DDM{T<:Real} <: AbstractDDM
     ν::T
     α::T
     τ::T

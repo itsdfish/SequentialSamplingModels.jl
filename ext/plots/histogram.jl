@@ -10,7 +10,7 @@ Plots the histogram of a multi-alternative sequential sampling model.
 # Keywords 
 
 - `norm=true`: histogram scaled according to density if true 
-- `m_args=()`: optional positional arguments passed to `rand`
+- `model_args=()`: optional positional arguments passed to `rand`
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
@@ -22,9 +22,9 @@ function histogram(d::ContinuousMultivariateSSM; norm=true, n_sim=2000, kwargs..
     return ssm_histogram(d; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram(d::ContinuousMultivariateSSM; norm, m_args=(), n_sim, kwargs...)
+function ssm_histogram(d::ContinuousMultivariateSSM; norm, model_args=(), n_sim, kwargs...)
     n_subplots = n_options(d)
-    data = rand(d, n_sim, m_args...)
+    data = rand(d, n_sim, model_args...)
     data_vecs = map(c -> data[:, c], 1:n_subplots)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
@@ -35,9 +35,9 @@ function ssm_histogram(d::ContinuousMultivariateSSM; norm, m_args=(), n_sim, kwa
     return hist
 end
 
-function ssm_histogram(d::SSM2D; norm, m_args=(), n_sim, kwargs...)
+function ssm_histogram(d::SSM2D; norm, model_args=(), model_kwargs=(), n_sim, kwargs...)
     n_subplots = n_options(d)
-    choices, rts = rand(d, n_sim, m_args...)
+    choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     qq = quantile(rts, .99)
     idx = rts .≤ qq
     choices = choices[idx]
@@ -65,7 +65,7 @@ Plots the histogram of a single alternative sequential sampling model.
 # Keywords 
 
 - `norm=true`: histogram scaled according to density if true 
-- `m_args=()`: optional positional arguments passed to `rand`
+- `model_args=()`: optional positional arguments passed to `rand`
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
@@ -73,9 +73,9 @@ function histogram(d::SSM1D; norm=true, n_sim=2000, kwargs...)
     return ssm_histogram(d; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram(d::SSM1D; m_args=(), norm, n_sim, kwargs...)
+function ssm_histogram(d::SSM1D; model_args=(), norm, n_sim, kwargs...)
     n_subplots = n_options(d)
-    rts = rand(d, n_sim, m_args...)
+    rts = rand(d, n_sim, model_args...)
     qq = quantile(rts, .99)
     filter!(x -> x < qq, rts)
     yaxis = norm ? "density" : "frequency"
@@ -102,7 +102,7 @@ Adds histogram of a multi-alternative sequential sampling model to an existing p
 # Keywords 
 
 - `norm=true`: histogram scaled according to density if true 
-- `m_args=()`: optional positional arguments passed to `rand`
+- `model_args=()`: optional positional arguments passed to `rand`
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
@@ -123,7 +123,7 @@ Adds histogram of a multi-alternative sequential sampling model to an existing p
 # Keywords 
 
 - `norm=true`: histogram scaled according to density if true 
-- `m_args=()`: optional positional arguments passed to `rand`
+- `model_args=()`: optional positional arguments passed to `rand`
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
@@ -131,9 +131,9 @@ function histogram!(cur_plot::Plots.Plot, d::ContinuousMultivariateSSM; norm=tru
     return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram!(d::SSM2D, cur_plot; m_args=(), norm, n_sim, kwargs...)
+function ssm_histogram!(d::SSM2D, cur_plot; model_args=(), model_kwargs=(), norm, n_sim, kwargs...)
     n_subplots = n_options(d)
-    choices, rts = rand(d, n_sim, m_args...)
+    choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     qq = quantile(rts, .99)
     idx = rts .≤ qq
     choices = choices[idx]
@@ -148,9 +148,9 @@ function ssm_histogram!(d::SSM2D, cur_plot; m_args=(), norm, n_sim, kwargs...)
     return hist
 end
 
-function ssm_histogram!(d::ContinuousMultivariateSSM, cur_plot; m_args=(), norm, n_sim, kwargs...)
+function ssm_histogram!(d::ContinuousMultivariateSSM, cur_plot; model_args=(), norm, n_sim, kwargs...)
     n_subplots = n_options(d)
-    data = rand(d, n_sim, m_args...)
+    data = rand(d, n_sim, model_args...)
     data_vecs = map(c -> data[:, c], 1:n_subplots)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
@@ -173,7 +173,7 @@ Adds histogram of a single alternative sequential sampling model to an existing 
 # Keywords 
 
 - `norm=true`: histogram scaled according to density if true 
-- `m_args=()`: optional positional arguments passed to `rand`
+- `model_args=()`: optional positional arguments passed to `rand`
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
@@ -181,9 +181,9 @@ function histogram!(cur_plot::Plots.Plot, d::SSM1D; norm=true, n_sim=2000, kwarg
     return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram!(d::SSM1D, cur_plot; norm, n_sim, m_args=(), kwargs...)
+function ssm_histogram!(d::SSM1D, cur_plot; norm, n_sim, model_args=(), kwargs...)
     n_subplots = n_options(d)
-    rts = rand(d, n_sim, m_args...)
+    rts = rand(d, n_sim, model_args...)
     qq = quantile(rts, .99)
     filter!(x -> x ≤ qq, rts)
     yaxis = norm ? "density" : "frequency"

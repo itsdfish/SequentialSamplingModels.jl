@@ -29,6 +29,7 @@ module SequentialSamplingModels
     import Distributions: std
     import StatsAPI: params
 
+    export AbstractDDM
     export AbstractaDDM
     export AbstractCDDM
     export AbstractLBA

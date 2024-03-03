@@ -24,11 +24,18 @@ Sub-types of `SSM1D` output a vector of reaction times.
 abstract type SSM1D <: ContinuousUnivariateDistribution end 
 
 """
-    AbstractaDDM <: SSM2D
+    AbstractDDM <: SSM2D
 
 An abstract type for the drift diffusion model.  
 """
-abstract type AbstractaDDM <: SSM2D end
+abstract type AbstractDDM <: SSM2D end 
+
+"""
+    AbstractaDDM <: SSM2D
+
+An abstract type for the attentional drift diffusion model.  
+"""
+abstract type AbstractaDDM <: AbstractDDM end
 
 """
     AbstractLBA <: SSM2D
@@ -171,9 +178,9 @@ Computes the probability density for a 2D sequential sampling model.
 - `d::SSM2D`: an object for a 2D sequential sampling model 
 - `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
 """
-pdf(d::SSM2D, data::NamedTuple) = pdf.(d, data.choice, data.rt)
+pdf(d::SSM2D, data::NamedTuple, args...; kwargs...) = pdf.(d, data.choice, data.rt, args...; kwargs...)
 
-pdf(d::SSM2D, data::AbstractArray{Real,2}) = pdf(d, Int(data[1]), data[2])
+pdf(d::SSM2D, data::AbstractArray{Real,2}, args...; kwargs...) = pdf(d, Int(data[1]), data[2], args...; kwargs...)
 
 """
     cdf(d::SSM2D, choice::Int, ub=10)
@@ -257,4 +264,4 @@ n_options(d::SSM1D) = 1
 n_options(d::ContinuousMultivariateSSM) = length(d.ν)
 
 
-simulate(model::SSM2D; kwargs...) = simulate(Random.default_rng(), model::SSM2D; kwargs...)
+simulate(model::SSM2D, args...; kwargs...) = simulate(Random.default_rng(), model::SSM2D, args...; kwargs...)

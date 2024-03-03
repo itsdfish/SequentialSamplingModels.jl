@@ -1,4 +1,61 @@
 @safetestset "run plots" begin
+    @safetestset "aDDM" begin
+        using Plots 
+        using SequentialSamplingModels
+        using StatsBase
+        using Test
+
+        mutable struct Transition
+            state::Int 
+            n::Int
+            mat::Array{Float64,2} 
+        end
+
+        function Transition(mat)
+            n = size(mat,1)
+            state = rand(1:n)
+            return Transition(state, n, mat)
+        end
+        
+        function fixate(transition)
+            (;mat,n,state) = transition
+            w = @view mat[state,:]
+            next_state = sample(1:n, Weights(w))
+            transition.state = next_state
+            return next_state
+        end
+
+        tmat = Transition([.98 .015 .005;
+                            .015 .98 .005;
+                            .45 .45 .1])
+
+        Base.broadcastable(x::Transition) = Ref(x)
+    
+        dist = aDDM()
+
+        h = histogram(dist; model_kwargs=(;fixate), model_args=(;tmat))
+        plot!(h, dist; model_kwargs=(;fixate), model_args=(;tmat))
+        
+        histogram(dist; model_kwargs=(;fixate), model_args=(;tmat))
+        plot!(dist; model_kwargs=(;fixate), model_args=(;tmat))
+        
+        plot(dist; model_kwargs=(;fixate), model_args=(;tmat))
+        histogram!(dist; model_kwargs=(;fixate), model_args=(;tmat))
+        
+        p = plot(dist; model_kwargs=(;fixate), model_args=(;tmat))
+        histogram!(p, dist; model_kwargs=(;fixate), model_args=(;tmat))
+
+        plot_model(
+            dist; 
+            n_sim = 2, 
+            add_density = true, 
+            model_kwargs = (;fixate), 
+            model_args = (;tmat),
+            density_kwargs = (;t_range=range(.0, 4, length=200),),
+        )
+
+    end
+
     @safetestset "DDM" begin
         using Plots 
         using SequentialSamplingModels
@@ -18,10 +75,12 @@
         p = plot(dist)
         histogram!(p, dist)
 
-        plot_model(dist; 
-            n_sim=2, 
-            add_density=true, 
-            density_kwargs=(;t_range=range(.3, 1, length=200),))
+        plot_model(
+            dist; 
+            n_sim = 2, 
+            add_density = true, 
+            density_kwargs=(;t_range=range(.3, 1, length=200),)
+        )
 
     end
 

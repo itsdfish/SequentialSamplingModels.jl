@@ -79,7 +79,7 @@ tmat = Transition([.98 .015 .005;
 The function below generates the next attention location based on the previous location. 
 
 ```@example aDDM 
- function attend(transition)
+ function fixate(transition)
      (;mat,n,state) = transition
      w = @view mat[state,:]
      next_state = sample(1:n, Weights(w))
@@ -128,17 +128,16 @@ Finally, we pass the parameters to the `aDDM` constructor to initialize the mode
 ```
 ## Simulate Model
 
-Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. The `rand` function accepts the model object, the number of simulated trials, the `attend` function, and the transition matrix object. 
+Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. The `rand` function accepts the model object, the number of simulated trials, the `fixate` function, and the transition matrix object. 
 
  ```@example aDDM 
- choices,rts = rand(model, 10_000, attend, tmat)
+ choices,rts = rand(model, 10_000, tmat; fixate)
 ```
 ## Plot Simulation
 Finally, we can generate histograms of the reaction times for each decision option. 
  ```@example aDDM 
-m_args = (attend,tmat)
-histogram(model; m_args)
-plot!(model; m_args, t_range=range(0.0, 5, length=100), xlims=(0,5))
+histogram(model; model_args=(;tmat), model_kwargs=(;fixate))
+plot!(model; model_args=(;tmat), model_kwargs=(;fixate), t_range=range(0.0, 5, length=100), xlims=(0,5))
 ```
 # References
 

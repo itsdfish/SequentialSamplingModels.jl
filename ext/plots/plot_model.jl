@@ -1,6 +1,14 @@
 """
     plot_model(model; 
-        add_density=false, density_kwargs=(), n_sim=1, kwargs...)
+        add_density = false, 
+        density_kwargs = (), 
+        labels = get_default_labels(model), 
+        density_scale = compute_threshold(model),
+        n_sim = 1,
+        model_args = (),
+        model_kwargs = (), 
+        kwargs...
+    )
 
 Plot the evidence accumulation process of a generic SSM.
 
@@ -15,6 +23,8 @@ Plot the evidence accumulation process of a generic SSM.
 - `labels = get_default_labels(model)`: a vector of parameter label options 
 - `density_scale = compute_threshold(model)`: scale the maximum height of the density
 - `n_sim=1`: the number of simulated decision processes per option
+- `model_args = ()`: optional positional arguments passed to the `rand` and `simulate`
+- `model_kwargs = ()`: optional keyword arguments passed to the `rand` and `simulate`
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
 function plot_model(model; 
@@ -22,16 +32,19 @@ function plot_model(model;
             density_kwargs = (), 
             labels = get_default_labels(model), 
             density_scale = compute_threshold(model),
-            n_sim = 1, 
-            kwargs...)
+            n_sim = 1,
+            model_args = (),
+            model_kwargs = (), 
+            kwargs...
+        )
     n_subplots = n_options(model)
     defaults = get_model_plot_defaults(model)
-    model_plot = plot(;defaults..., kwargs...)
+    model_plot = plot(; defaults..., kwargs...)
     add_starting_point!(model, model_plot)
     α = compute_threshold(model) 
     zs = Vector{Vector{Float64}}(undef,n_sim)
     for i ∈ 1:n_sim
-        time_range,evidence = simulate(model)
+        time_range,evidence = simulate(model, model_args...; model_kwargs...)
         plot!(model_plot, time_range .+ model.τ, evidence; 
             ylims=(0, maximum(α)), defaults..., kwargs...)
         zs[i] = evidence[1,:][:] 
@@ -42,7 +55,7 @@ function plot_model(model;
         annotate!(labels, subplot=s)
     end
     if add_density 
-        add_density!(model, model_plot; density_scale, density_kwargs...)
+        add_density!(model, model_plot; model_args, model_kwargs, density_scale, density_kwargs...)
     end
     return model_plot
 end
@@ -206,6 +219,29 @@ Adds a horizonal line reprenting the decision threshold.
 function add_threashold!(model, model_plot; kwargs...)
     α = compute_threshold(model)
     hline!(model_plot, fill(α, 1, n_options(model)), 
+        linestyle=:dash, color=:black;  kwargs...)
+    return nothing
+end
+
+"""
+    add_threashold!(model, model_plot; kwargs...)
+
+Adds a horizonal line reprenting the decision threshold. 
+
+# Arguments
+
+- `model::AbstractaDDM`: a subtype of AbstractaDDM
+- `model_plot`: a plot object 
+
+# Keywords 
+
+- `kwargs...`: optional keyword arguments for configuring the plot 
+"""
+function add_threashold!(model::AbstractaDDM, model_plot; kwargs...)
+    α = compute_threshold(model)
+    hline!(model_plot, fill(α, 1, n_options(model)), 
+        linestyle=:dash, color=:black;  kwargs...)
+    hline!(model_plot, fill(-α, 1, n_options(model)), 
         linestyle=:dash, color=:black;  kwargs...)
     return nothing
 end
@@ -375,10 +411,28 @@ function get_model_plot_defaults(d::DDM)
         linewidth = .75, color = :black, leg=false, framestyle=:none)
 end
 
-function add_density!(model, model_plot; density_scale, kwargs...)
+"""
+    get_model_plot_defaults(d::AbstractaDDM)
+
+Returns default plot options 
+
+# Arguments
+
+- `d::AbstractaDDM`: an object for the diffusion model
+"""
+function get_model_plot_defaults(d::AbstractaDDM)
+    return (xaxis=nothing, yaxis=nothing, xticks=nothing, yticks=nothing, 
+        linewidth = .75, color = :black, leg=false, framestyle=:none)
+end
+
+function add_density!(model, model_plot; model_args, model_kwargs, density_scale, kwargs...)
     α = compute_threshold(model) 
 
-    plot!(model_plot, model; 
+    plot!(
+        model_plot, 
+        model; 
+        model_args,
+        model_kwargs,
         density_scale,
         density_offset = α  .+ .05,
         xlabel = "",
@@ -389,11 +443,15 @@ function add_density!(model, model_plot; density_scale, kwargs...)
     return nothing 
 end
 
-function add_density!(model::DDM, model_plot; density_scale, kwargs...)
+function add_density!(model::AbstractDDM, model_plot; model_args, model_kwargs, density_scale, kwargs...)
     α = compute_threshold(model)
     τ = model.τ 
 
-    plot_top_density!(model, model_plot; 
+    plot_top_density!(
+        model, 
+        model_plot; 
+        model_args,
+        model_kwargs,
         density_scale,
         density_offset = α  .+ .05,
         xlabel = "",
@@ -403,7 +461,11 @@ function add_density!(model::DDM, model_plot; density_scale, kwargs...)
         title = "",
         kwargs...)
 
-    plot_bottom_density!(model, model_plot; 
+    plot_bottom_density!(
+        model, 
+        model_plot;
+        model_args,
+        model_kwargs, 
         density_scale,
         density_offset = 0  .+ .05,
         xlabel = "",
@@ -418,10 +480,59 @@ function add_density!(model::DDM, model_plot; density_scale, kwargs...)
     return nothing 
 end
 
-function plot_top_density!(d::DDM, cur_plot; 
-    density_offset = 0, t_range=default_range(d), density_scale = nothing, kwargs...)
+function add_density!(model::AbstractaDDM, model_plot; model_args, model_kwargs, density_scale, kwargs...)
+    α = compute_threshold(model)
+    τ = model.τ 
+
+    plot_top_density!(
+        model, 
+        model_plot; 
+        model_args,
+        model_kwargs,
+        density_scale,
+        density_offset = α + .05,
+        xlabel = "",
+        ylabel = "", 
+        xticks = nothing,
+        yticks = nothing, 
+        title = "",
+        kwargs...)
+
+    plot_bottom_density!(
+        model, 
+        model_plot;
+        model_args,
+        model_kwargs, 
+        density_scale,
+        density_offset = -α  - .05,
+        xlabel = "",
+        ylabel = "", 
+        xticks = nothing,
+        yticks = nothing, 
+        title = "",
+        kwargs...)
+
+        plot!(model_plot, [0,0], [0,α], color=:black,)
+        plot!(model_plot, [τ,τ], [0,-α], color=:black,)
+    return nothing 
+end
+
+plot_bottom_density!(d::AbstractDDM, cur_plot; kwargs...) = plot_bottom_density!(get_pdf_type(d), d, cur_plot; kwargs...)
+plot_top_density!(d::AbstractDDM, cur_plot; kwargs...) = plot_top_density!(get_pdf_type(d), d, cur_plot; kwargs...)
+
+function plot_top_density!(
+        ::Type{<:Exact},
+        d::AbstractDDM, 
+        cur_plot; 
+        density_offset = 0, 
+        t_range = default_range(d), 
+        model_args = (), 
+        model_kwargs = (),
+        density_scale = nothing,
+        kwargs...
+    )
     n_subplots = n_options(d)
-    pds = gen_pds(d, t_range, n_subplots)
+    pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     pds_vec = vcat(pds...)
@@ -433,21 +544,93 @@ function plot_top_density!(d::DDM, cur_plot;
         ylims = (ymin,ymax), defaults..., kwargs...)
 end
 
-function plot_bottom_density!(d::DDM, cur_plot; 
-    density_offset = 0, t_range=default_range(d), density_scale = nothing, kwargs...)
+function plot_top_density!(
+        ::Type{<:Approximate},
+        d::AbstractDDM, 
+        cur_plot; 
+        n_sim = 2000,
+        density_offset = 0, 
+        t_range = default_range(d), 
+        model_args = (), 
+        model_kwargs = (),
+        density_scale = nothing,
+        kwargs...
+    )
+
     n_subplots = n_options(d)
-    pds = gen_pds(d, t_range, n_subplots)
+    choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
+    choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
+    kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
+    pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
     pds_vec = vcat(pds...)
     filter!(!isnan, pds_vec)
-    ymin = minimum(pds_vec) * -1.05
-    ymax = maximum(pds_vec) * 1.05
+    defaults = get_plot_defaults(d)
+    return plot!(cur_plot, t_range, pds[1]; 
+         defaults..., kwargs...)
+end
+
+function plot_bottom_density!(
+        ::Type{<:Exact},
+        d::AbstractDDM, 
+        cur_plot; 
+        density_offset = 0, 
+        t_range = default_range(d), 
+        model_args = (), 
+        model_kwargs = (),
+        density_scale = nothing,
+        kwargs...
+    )
+    n_subplots = n_options(d)
+    pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
+    scale_density!(pds, density_scale)
+    map!(x -> x .+ density_offset, pds, pds)
+    pds_vec = vcat(pds...)
+    filter!(!isnan, pds_vec)
     defaults = get_plot_defaults(d)
     dens = -1 * pds[2] 
     return plot!(cur_plot, t_range, dens; 
          defaults..., kwargs...)
 end
+
+function plot_bottom_density!(
+        ::Type{<:Approximate},
+        d::AbstractDDM, 
+        cur_plot; 
+        n_sim = 2_000,
+        density_offset = 0, 
+        t_range = default_range(d), 
+        model_args = (), 
+        model_kwargs = (),
+        density_scale = nothing,
+        kwargs...
+    )
+    n_subplots = n_options(d)
+    choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
+    choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
+    kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
+    pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
+    scale_density!(pds, density_scale)
+    pds_vec = vcat(pds...)
+    filter!(!isnan, pds_vec)
+    defaults = get_plot_defaults(d)
+    dens = -pds[2] .+ density_offset
+    ymin = minimum(dens) * 1.05
+    ymax = maximum(pds[1] .+ -1 * density_offset) * 1.05
+    return plot!(cur_plot, t_range, dens; 
+        ylims=(ymin,ymax), defaults..., kwargs...)
+end
+
+# n_subplots = n_options(d)
+# choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
+# choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
+# kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
+# pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
+# scale_density!(pds, density_scale)
+# map!(x -> x .+ density_offset, pds, pds)
+# ymax = maximum(vcat(pds...)) * 1.2
+# defaults = get_plot_defaults(d)
 
 # function add_mean_drift_rate(model, cur_plot, zs)
 #     z = mean(zs)

@@ -76,12 +76,12 @@ The transition matrix above embodies the following assumptions:
 
 ```
 
-## Attend Function 
+## Fixate Function 
 
 The function below generates the next attention location based on the previous location. 
 
 ```@example maaDDM
- function attend(transition)
+ function fixate(transition)
      (;mat,n,state) = transition
      w = @view mat[state,:]
      next_state = sample(1:n, Weights(w))
@@ -149,17 +149,16 @@ dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ)
 ```
 ## Simulate Model
 
-Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. The `rand` function accepts the model object, the number of simulated trials, the `attend` function, and the transition matrix object. 
+Now that the model is defined, we will generate $10,000$ choices and reaction times using `rand`. The `rand` function accepts the model object, the number of simulated trials, the `fixate` function, and the transition matrix object. 
 
  ```@example maaDDM
- choices,rts = rand(dist, 10_000, attend, tmat)
+ choices,rts = rand(dist, 10_000, tmat; fixate)
 ```
 ## Plot Simulation
 Finally, we can generate histograms of the reaction times for each decision option. 
  ```@example maaDDM
-m_args = (attend,tmat)
-histogram(dist; m_args)
-plot!(dist; m_args, t_range=range(.130, 5, length=100), xlims=(0,7))
+histogram(dist; model_args=(;tmat), model_kwargs=(;fixate))
+plot!(dist; model_args=(;tmat), model_kwargs=(;fixate), t_range=range(.130, 5, length=100), xlims=(0,7))
 ```
 # References
 
