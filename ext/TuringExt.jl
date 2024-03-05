@@ -1,4 +1,4 @@
-module TuringExt 
+module TuringExt
 
     import DynamicPPL: reconstruct
     import DynamicPPL: vectorize
@@ -26,7 +26,7 @@ module TuringExt
     """
     @model function predict_distribution(dist, args...; model, func, n_samples, kwargs...)
         @submodel parms = model
-        sim_data = rand(dist(;parms...), n_samples)
+        sim_data = rand(dist(; parms...), n_samples)
         return func(sim_data, args...; kwargs...)
     end
 

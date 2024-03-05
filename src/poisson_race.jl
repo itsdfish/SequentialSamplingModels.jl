@@ -39,20 +39,20 @@ function PoissonRace(ν, α, τ)
 end
 
 function params(d::AbstractPoissonRace)
-    return (d.ν, d.α, d.τ)    
+    return (d.ν, d.α, d.τ)
 end
 
-PoissonRace(;ν=[.05,.06], α=[5,5], τ=.30) = PoissonRace(ν, α, τ)
+PoissonRace(; ν = [0.05, 0.06], α = [5, 5], τ = 0.30) = PoissonRace(ν, α, τ)
 
 function rand(rng::AbstractRNG, dist::AbstractPoissonRace)
-    (;ν,α,τ) = dist
+    (; ν, α, τ) = dist
     x = @. rand(rng, Gamma(α, ν)) + τ
-    rt,choice = findmin(x)
-    return (;choice,rt)
+    rt, choice = findmin(x)
+    return (; choice, rt)
 end
 
 function logpdf(d::AbstractPoissonRace, r::Int, t::Float64)
-    (;ν,α,τ) = d
+    (; ν, α, τ) = d
     LL = 0.0
     for i ∈ 1:length(ν)
         if i == r
@@ -65,7 +65,7 @@ function logpdf(d::AbstractPoissonRace, r::Int, t::Float64)
 end
 
 function pdf(d::AbstractPoissonRace, r::Int, t::Float64)
-    (;ν,α,τ) = d
+    (; ν, α, τ) = d
     density = 1.0
     for i ∈ 1:length(ν)
         if i == r
@@ -91,8 +91,8 @@ represent samples of evidence per time step and columns represent different accu
 
 - `n_steps=100`: number of time steps at which evidence is recorded
 """
-function simulate(model::AbstractPoissonRace; Δt=.001)
-    (;ν,α,τ) = model
+function simulate(model::AbstractPoissonRace; Δt = 0.001)
+    (; ν, α, τ) = model
     n = n_options(model)
     counts = fill(0, n)
     evidence = [fill(0.0, n)]
@@ -101,8 +101,8 @@ function simulate(model::AbstractPoissonRace; Δt=.001)
     count_times = @. rand(Exponential(ν))
 
     while all(counts .< α)
-        t += Δt 
-        for i ∈ 1:n 
+        t += Δt
+        for i ∈ 1:n
             if t > count_times[i]
                 count_times[i] += rand(Exponential(ν[i]))
                 counts[i] += 1
@@ -111,6 +111,5 @@ function simulate(model::AbstractPoissonRace; Δt=.001)
         push!(evidence, counts)
         push!(time_steps, t)
     end
-    return time_steps,reduce(vcat, transpose.(evidence))
+    return time_steps, reduce(vcat, transpose.(evidence))
 end
-

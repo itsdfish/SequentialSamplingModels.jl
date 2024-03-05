@@ -107,16 +107,17 @@ function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
     return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 end
 
-function maaDDM(; 
+function maaDDM(;
     ν = [4.0 5.0; 5.0 4.0],
-    α = 1.0, 
-    z = 0.0, 
-    θ = .3, 
-    ϕ = .50, 
-    ω = .70, 
-    σ = .02, 
-    Δ = .0004,
-    τ = 0.0)
+    α = 1.0,
+    z = 0.0,
+    θ = 0.3,
+    ϕ = 0.50,
+    ω = 0.70,
+    σ = 0.02,
+    Δ = 0.0004,
+    τ = 0.0,
+)
 
     return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
 end
@@ -136,19 +137,23 @@ Returns the change evidence for a single iteration.
 - `location`: an index for fixation location 
 """
 function increment(rng, dist::maaDDM, location)
-    (;ν,θ,ϕ,ω,Δ,σ) = dist
+    (; ν, θ, ϕ, ω, Δ, σ) = dist
     # option 1, attribute 1
     if location == 1
-        return Δ * (ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * ϕ * (ν[1,2] - θ * ν[2,2])) + noise(rng, σ)
-    # option 1, attribute 2
+        return Δ * (ω * (ν[1, 1] - θ * ν[2, 1]) + (1 - ω) * ϕ * (ν[1, 2] - θ * ν[2, 2])) +
+               noise(rng, σ)
+        # option 1, attribute 2
     elseif location == 2
-        return Δ * (ϕ * ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * (ν[1,2] - θ * ν[2,2])) + noise(rng, σ)
-    # option 2, attribute 1
+        return Δ * (ϕ * ω * (ν[1, 1] - θ * ν[2, 1]) + (1 - ω) * (ν[1, 2] - θ * ν[2, 2])) +
+               noise(rng, σ)
+        # option 2, attribute 1
     elseif location == 3
-        return Δ * (ω * (θ * ν[1,1] - ν[2,1]) + (1 - ω) * ϕ * (θ * ν[1,2] - ν[2,2])) + noise(rng, σ)
-    # option 2, attribute 2
+        return Δ * (ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * ϕ * (θ * ν[1, 2] - ν[2, 2])) +
+               noise(rng, σ)
+        # option 2, attribute 2
     else
-        return Δ * (ϕ * ω * (θ * ν[1,1] - ν[2,1]) + (1 - ω) * (θ * ν[1,2] - ν[2,2])) + noise(rng, σ)
+        return Δ * (ϕ * ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * (θ * ν[1, 2] - ν[2, 2])) +
+               noise(rng, σ)
     end
     return -100.0
-end 
+end

@@ -1,4 +1,4 @@
-abstract type Mixed <: ValueSupport end 
+abstract type Mixed <: ValueSupport end
 
 """
     SSM2D = Distribution{Multivariate, Mixed}
@@ -6,7 +6,7 @@ abstract type Mixed <: ValueSupport end
 An abstract type for sequential sampling models characterized by a multivariate choice-reaction time distribution.
 Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and reaction times. 
 """
-const SSM2D = Distribution{Multivariate, Mixed}
+const SSM2D = Distribution{Multivariate,Mixed}
 
 """
     ContinuousMultivariateSSM <: ContinuousMultivariateDistribution
@@ -21,14 +21,14 @@ abstract type ContinuousMultivariateSSM <: ContinuousMultivariateDistribution en
 An abstract type for sequential sampling models characterized by a single choice reaction time distribution.
 Sub-types of `SSM1D` output a vector of reaction times.
 """
-abstract type SSM1D <: ContinuousUnivariateDistribution end 
+abstract type SSM1D <: ContinuousUnivariateDistribution end
 
 """
     AbstractDDM <: SSM2D
 
 An abstract type for the drift diffusion model.  
 """
-abstract type AbstractDDM <: SSM2D end 
+abstract type AbstractDDM <: SSM2D end
 
 """
     AbstractaDDM <: SSM2D
@@ -42,7 +42,7 @@ abstract type AbstractaDDM <: AbstractDDM end
 
 An abstract type for the linear ballistic accumulator model.  
 """
-abstract type AbstractLBA <: SSM2D end 
+abstract type AbstractLBA <: SSM2D end
 
 """
     AbstractWald <: SSM1D
@@ -70,7 +70,7 @@ abstract type AbstractLCA <: SSM2D end
 
 An abstract type for the Poisson race model.
 """
-abstract type AbstractPoissonRace <:SSM2D end
+abstract type AbstractPoissonRace <: SSM2D end
 
 """
     AbstractRDM <: SSM2D
@@ -86,14 +86,14 @@ abstract type PDFType end
 
 Has closed-form PDF. 
 """
-struct Exact <: PDFType end 
+struct Exact <: PDFType end
 
 """
     Approximate <: PDFType
 
 Has approximate PDF based on kernel density estimator. 
 """
-struct Approximate <: PDFType end 
+struct Approximate <: PDFType end
 
 get_pdf_type(d::SSM1D) = Exact
 get_pdf_type(d::SSM2D) = Exact
@@ -115,7 +115,8 @@ Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
-rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
+rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) =
+    rand(Random.default_rng(), d, n; kwargs...)
 
 """
     rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
@@ -135,10 +136,10 @@ with more than one choice option.
 function rand(rng::AbstractRNG, d::SSM2D, n_sim::Int)
     choice = fill(0, n_sim)
     rt = fill(0.0, n_sim)
-    for i in 1:n_sim
-        choice[i],rt[i] = rand(rng, d)
+    for i = 1:n_sim
+        choice[i], rt[i] = rand(rng, d)
     end
-    return (;choice,rt)
+    return (; choice, rt)
 end
 
 """
@@ -152,7 +153,7 @@ Computes the likelihood for a 2D sequential sampling model.
 - `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
 """
 logpdf(d::SSM2D, data::NamedTuple) = logpdf.(d, data.choice, data.rt)
-logpdf(d::SSM2D, data::AbstractVector{<:Real}) = logpdf(d, Int(data[1]), data[2]) 
+logpdf(d::SSM2D, data::AbstractVector{<:Real}) = logpdf(d, Int(data[1]), data[2])
 
 """
     loglikelihood(d::SSM2D, data::NamedTuple) 
@@ -166,7 +167,8 @@ Computes the summed log likelihood for a 2D sequential sampling model.
 """
 loglikelihood(d::SSM2D, data::NamedTuple) = sum(logpdf.(d, data...))
 
-loglikelihood(d::SSM2D, data::AbstractArray{<:Real,2}) = sum(logpdf.(d, Int.(data[:,1]), data[:,2]))
+loglikelihood(d::SSM2D, data::AbstractArray{<:Real,2}) =
+    sum(logpdf.(d, Int.(data[:, 1]), data[:, 2]))
 
 """
     pdf(d::SSM2D, data::NamedTuple) 
@@ -178,9 +180,11 @@ Computes the probability density for a 2D sequential sampling model.
 - `d::SSM2D`: an object for a 2D sequential sampling model 
 - `data::NamedTuple`: a NamedTuple of data containing choice and reaction time 
 """
-pdf(d::SSM2D, data::NamedTuple, args...; kwargs...) = pdf.(d, data.choice, data.rt, args...; kwargs...)
+pdf(d::SSM2D, data::NamedTuple, args...; kwargs...) =
+    pdf.(d, data.choice, data.rt, args...; kwargs...)
 
-pdf(d::SSM2D, data::AbstractArray{Real,2}, args...; kwargs...) = pdf(d, Int(data[1]), data[2], args...; kwargs...)
+pdf(d::SSM2D, data::AbstractArray{Real,2}, args...; kwargs...) =
+    pdf(d, Int(data[1]), data[2], args...; kwargs...)
 
 """
     cdf(d::SSM2D, choice::Int, ub=10)
@@ -194,20 +198,20 @@ available for a given model.
 - `choice::Int`: the number of simulated choices and rts  
 - `ub=10`: upper bound of integration
 """
-function cdf(d::SSM2D, choice::Int, ub=10)
+function cdf(d::SSM2D, choice::Int, ub = 10)
     return cdf(get_pdf_type(d), d, choice, ub)
 end
 
-function cdf(::Type{<:Exact}, d::SSM2D, choice::Int, ub=10)
+function cdf(::Type{<:Exact}, d::SSM2D, choice::Int, ub = 10)
     return hcubature(t -> pdf(d, choice, t[1]), [d.τ], [ub])[1]::Float64
 end
 
-function cdf(::Type{<:Approximate}, d::SSM2D, choice::Int, ub=10; n_sim=10_000)
-    c,rt = rand(d, n_sim)
-    return mean(c .== choice .&&  rt .≤ ub)
+function cdf(::Type{<:Approximate}, d::SSM2D, choice::Int, ub = 10; n_sim = 10_000)
+    c, rt = rand(d, n_sim)
+    return mean(c .== choice .&& rt .≤ ub)
 end
 
-function survivor(d::SSM2D, choice::Int, ub=10)
+function survivor(d::SSM2D, choice::Int, ub = 10)
     return 1 - cdf(d, choice, ub)
 end
 
@@ -222,7 +226,7 @@ available for a given model.
 - `d::SSM1D`: a 1D sequential sampling model.
 - `ub`: upper bound of integration
 """
-function cdf(d::SSM1D, ub)
+function cdf(d::SSM1D, ub::Real)
     return cdf(get_pdf_type(d), d, ub)
 end
 
@@ -230,7 +234,7 @@ function cdf(::Type{<:Exact}, d::SSM1D, ub)
     return hcubature(t -> pdf(d, t[1]), [d.τ], [ub])[1]::Float64
 end
 
-function cdf(::Type{<:Approximate}, d::SSM1D, ub; n_sim=10_000)
+function cdf(::Type{<:Approximate}, d::SSM1D, ub; n_sim = 10_000)
     rt = rand(d, n_sim)
     return mean(rt .≤ ub)
 end
@@ -264,4 +268,5 @@ n_options(d::SSM1D) = 1
 n_options(d::ContinuousMultivariateSSM) = length(d.ν)
 
 
-simulate(model::SSM2D, args...; kwargs...) = simulate(Random.default_rng(), model::SSM2D, args...; kwargs...)
+simulate(model::SSM2D, args...; kwargs...) =
+    simulate(Random.default_rng(), model::SSM2D, args...; kwargs...)

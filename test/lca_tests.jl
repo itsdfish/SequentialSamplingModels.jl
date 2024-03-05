@@ -2,27 +2,19 @@
     @safetestset "LCA predictions" begin
         using SequentialSamplingModels
         using Test
-        using Random 
+        using Random
         Random.seed!(8414)
 
-        parms = (
-            α = 1.5, 
-            β = 0.20,
-            λ = 0.10, 
-            ν = [2.5,2.0], 
-            Δt = .001, 
-            τ = .30, 
-            σ = 1.0
-        )
+        parms = (α = 1.5, β = 0.20, λ = 0.10, ν = [2.5, 2.0], Δt = 0.001, τ = 0.30, σ = 1.0)
 
-        model = LCA(;parms...)
-        choice,rt = rand(model, 10_000)
-        
+        model = LCA(; parms...)
+        choice, rt = rand(model, 10_000)
+
         @test mean(choice .== 1) ≈ 0.60024 atol = 5e-3
-        @test mean(rt[choice .== 1]) ≈ 0.7478 atol = 5e-3
-        @test mean(rt[choice .== 2]) ≈ 0.7555 atol = 5e-3
-        @test std(rt[choice .== 1]) ≈ 0.1869 atol = 5e-3
-        @test std(rt[choice .== 2]) ≈ 0.18607 atol = 5e-3
+        @test mean(rt[choice.==1]) ≈ 0.7478 atol = 5e-3
+        @test mean(rt[choice.==2]) ≈ 0.7555 atol = 5e-3
+        @test std(rt[choice.==1]) ≈ 0.1869 atol = 5e-3
+        @test std(rt[choice.==2]) ≈ 0.18607 atol = 5e-3
     end
     # import numpy as np
 
@@ -65,89 +57,88 @@
     # np.std(rts[resps == 0])
     # np.std(rts[resps == 1])
 
-    @safetestset "compute_mean_evidence!" begin 
+    @safetestset "compute_mean_evidence!" begin
         using SequentialSamplingModels
         using SequentialSamplingModels: compute_mean_evidence!
         using Test
-        
+
         β = 0.20
-        λ = 0.10 
-        ν = [2.5,2.0] 
-        Δμ = [0.0,0.0]
-        x = [1.0,2.0]
+        λ = 0.10
+        ν = [2.5, 2.0]
+        Δμ = [0.0, 0.0]
+        x = [1.0, 2.0]
 
         compute_mean_evidence!(ν, β, λ, x, Δμ)
-        @test Δμ[1] ≈ (2.5 - .1 - .4)
-        @test Δμ[2] ≈ (2.0 - .2 - .2)
+        @test Δμ[1] ≈ (2.5 - 0.1 - 0.4)
+        @test Δμ[2] ≈ (2.0 - 0.2 - 0.2)
 
         β = 0.00
-        λ = 0.00 
-        ν = [2.5,2.0] 
-        Δμ = [0.0,0.0]
-        x = [1.0,2.0]
+        λ = 0.00
+        ν = [2.5, 2.0]
+        Δμ = [0.0, 0.0]
+        x = [1.0, 2.0]
 
         compute_mean_evidence!(ν, β, λ, x, Δμ)
-        @test Δμ[1] ≈ 2.5 
+        @test Δμ[1] ≈ 2.5
         @test Δμ[2] ≈ 2.0
 
         β = 0.20
-        λ = 0.10 
-        ν = [0.0,0.0]
-        Δμ = [0.0,0.0]
-        x = [1.0,2.0]
+        λ = 0.10
+        ν = [0.0, 0.0]
+        Δμ = [0.0, 0.0]
+        x = [1.0, 2.0]
 
         compute_mean_evidence!(ν, β, λ, x, Δμ)
-        @test Δμ[1] ≈ (- .1 - .4)
-        @test Δμ[2] ≈ (- .2 - .2)
+        @test Δμ[1] ≈ (-0.1 - 0.4)
+        @test Δμ[2] ≈ (-0.2 - 0.2)
     end
 
-    @safetestset "increment!" begin 
+    @safetestset "increment!" begin
         using SequentialSamplingModels
         using SequentialSamplingModels: increment!
         using Test
-        using Random 
+        using Random
         Random.seed!(6521)
-        
+
         Δt = 0.001
         β = 0.20
-        λ = 0.10 
+        λ = 0.10
         σ = 0.10
-        ν = [2.5,2.0] 
-        Δμ = [0.0,0.0]
-        x = [0.0,0.0]
-        ϵ = [0.0,0.0]
+        ν = [2.5, 2.0]
+        Δμ = [0.0, 0.0]
+        x = [0.0, 0.0]
+        ϵ = [0.0, 0.0]
 
         n_reps = 1000
         evidence = fill(0.0, n_reps, 2)
         for i ∈ 1:n_reps
-            x .= 1.0 
+            x .= 1.0
             increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ)
-            evidence[i,:] = x 
+            evidence[i, :] = x
         end
 
         true_std = σ * sqrt(Δt)
-        true_means = [(2.5 - .1 - .4) (2.0 - .2 - .2)] * Δt .+ 1.0
+        true_means = [(2.5 - 0.1 - 0.4) (2.0 - 0.2 - 0.2)] * Δt .+ 1.0
 
-        @test mean(evidence, dims=1) ≈ true_means atol = 5e-4
-        @test std(evidence, dims=1) ≈ fill(true_std, 1, 2) atol = 5e-4
+        @test mean(evidence, dims = 1) ≈ true_means atol = 5e-4
+        @test std(evidence, dims = 1) ≈ fill(true_std, 1, 2) atol = 5e-4
     end
 
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random 
+        using Random
 
         Random.seed!(843)
-        α = .80
-        Δt = .0005
-        dist = LCA(;α, ν=[2,1], Δt)
+        α = 0.80
+        Δt = 0.0005
+        dist = LCA(; α, ν = [2, 1], Δt)
 
-        time_steps,evidence = simulate(dist)
+        time_steps, evidence = simulate(dist)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == size(evidence, 1)
         @test size(evidence, 2) == 2
-        @test maximum(evidence[end,:]) ≈ α atol = .005
+        @test maximum(evidence[end, :]) ≈ α atol = 0.005
     end
 end
-

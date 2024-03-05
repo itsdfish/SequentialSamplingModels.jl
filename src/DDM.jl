@@ -44,13 +44,10 @@ function DDM(ν, α, τ, z)
 end
 
 function params(d::DDM)
-    (d.ν, d.α, d.τ, d.z)    
+    (d.ν, d.α, d.τ, d.z)
 end
 
-function DDM(; ν = 1.00,
-    α = 0.80,
-    τ = 0.30,
-    z = 0.50)
+function DDM(; ν = 1.00, α = 0.80, τ = 0.30, z = 0.50)
     return DDM(ν, α, τ, z)
 end
 
@@ -68,7 +65,7 @@ end
 function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return _pdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
+        return _pdf(DDM(-ν, α, τ, 1 - z), rt; ϵ)
     end
     return _pdf(d, rt; ϵ)
 end
@@ -84,21 +81,21 @@ function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     K_s = 2.0
     K_l = 1 / (π * sqrt(u))
     # number of terms needed for large-time expansion
-    if (π*u*ϵ) < 1
-        K_l = max(sqrt((-2*log(π*u*ϵ)) / (π^2 * u)), K_l)
+    if (π * u * ϵ) < 1
+        K_l = max(sqrt((-2 * log(π * u * ϵ)) / (π^2 * u)), K_l)
     end
     # number of terms needed for small-time expansion
-    if (2*sqrt(2*π*u)*ϵ) < 1
-        K_s = max(2 + sqrt(-2u * log(2ϵ*sqrt(2*π*u))), sqrt(u)+1)
+    if (2 * sqrt(2 * π * u) * ϵ) < 1
+        K_s = max(2 + sqrt(-2u * log(2ϵ * sqrt(2 * π * u))), sqrt(u) + 1)
     end
 
-    p = exp((-α*z*ν) - (0.5*(ν^2)*(t-τ))) / (α^2)
+    p = exp((-α * z * ν) - (0.5 * (ν^2) * (t - τ))) / (α^2)
 
     # decision rule for infinite sum algorithm
     if K_s < K_l
         return p * _small_time_pdf(u, z, ceil(Int, K_s))
     end
-    
+
     return p * _large_time_pdf(u, z, ceil(Int, K_l))
 end
 
@@ -106,20 +103,20 @@ end
 function _small_time_pdf(u::T, z::T, K::Int) where {T<:Real}
     inf_sum = zero(T)
 
-    k_series = -floor(Int, 0.5*(K-1)):ceil(Int, 0.5*(K-1))
+    k_series = -floor(Int, 0.5 * (K - 1)):ceil(Int, 0.5 * (K - 1))
     for k in k_series
         inf_sum += ((2k + z) * exp(-((2k + z)^2 / (2u))))
     end
 
-    return inf_sum / sqrt(2π*u^3)
+    return inf_sum / sqrt(2π * u^3)
 end
 
 # large-time expansion
 function _large_time_pdf(u::T, z::T, K::Int) where {T<:Real}
     inf_sum = zero(T)
 
-    for k in 1:K 
-        inf_sum += (k * exp(-0.5*(k^2*π^2*u)) * sin(k*π*z)) 
+    for k = 1:K
+        inf_sum += (k * exp(-0.5 * (k^2 * π^2 * u)) * sin(k * π * z))
     end
 
     return π * inf_sum
@@ -146,11 +143,11 @@ logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 # Cumulative density function           #
 # Blurton, Kesselmeier, & Gondan (2012) #
 #########################################
- 
-function cdf(d::DDM, choice::Int, rt::Real=10; ϵ::Real = 1.0e-12)
+
+function cdf(d::DDM, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12)
     if choice == 1
         (ν, α, τ, z) = params(d)
-        return _cdf(DDM(-ν, α, τ, 1-z), rt; ϵ)
+        return _cdf(DDM(-ν, α, τ, 1 - z), rt; ϵ)
     end
 
     return _cdf(d, rt; ϵ)
@@ -165,7 +162,7 @@ function _cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     K_l = _K_large(d, t; ϵ)
     K_s = _K_small(d, t; ϵ)
 
-    if K_l < 10*K_s
+    if K_l < 10 * K_s
         return _Fl_lower(d, K_l, t)
     end
     return _Fs_lower(d, K_s, t)
@@ -177,11 +174,13 @@ function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     F = zero(T)
     K_series = K:-1:1
     for k in K_series
-        F -= (k/(ν^2 + k^2*π^2/(α^2)) * 
-            exp(-ν*α*z - 0.5*ν^2*(t-τ) - 0.5*k^2*π^2/(α^2)*(t-τ)) *
-            sin(π * k * z))
+        F -= (
+            k / (ν^2 + k^2 * π^2 / (α^2)) *
+            exp(-ν * α * z - 0.5 * ν^2 * (t - τ) - 0.5 * k^2 * π^2 / (α^2) * (t - τ)) *
+            sin(π * k * z)
+        )
     end
-    return _P_upper(ν, α, z) + 2*π/(α^2) * F
+    return _P_upper(ν, α, z) + 2 * π / (α^2) * F
 end
 
 # Small time representation of the upper subdistribution
@@ -191,22 +190,37 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
         return _Fs0_lower(d, K, t)
     end
 
-    sqt = sqrt(t-τ)
+    sqt = sqrt(t - τ)
 
     S1 = zero(T)
     S2 = zero(T)
     K_series = K:-1:1
 
     for k in K_series
-        S1 += (_exp_pnorm(2*ν*α*k, -sign(ν)*(2*α*k+α*z+ν*(t-τ))/sqt) -
-            _exp_pnorm(-2*ν*α*k-2*ν*α*z, sign(ν)*(2*α*k+α*z-ν*(t-τ))/sqt))
+        S1 += (
+            _exp_pnorm(2 * ν * α * k, -sign(ν) * (2 * α * k + α * z + ν * (t - τ)) / sqt) - _exp_pnorm(
+                -2 * ν * α * k - 2 * ν * α * z,
+                sign(ν) * (2 * α * k + α * z - ν * (t - τ)) / sqt,
+            )
+        )
 
-        S2 += (_exp_pnorm(-2*ν*α*k, sign(ν)*(2*α*k-α*z-ν*(t-τ))/sqt) - 
-            _exp_pnorm(2*ν*α*k-2*ν*α*z, -sign(ν)*(2*α*k-α*z+ν*(t-τ))/sqt))
+        S2 += (
+            _exp_pnorm(-2 * ν * α * k, sign(ν) * (2 * α * k - α * z - ν * (t - τ)) / sqt) - _exp_pnorm(
+                2 * ν * α * k - 2 * ν * α * z,
+                -sign(ν) * (2 * α * k - α * z + ν * (t - τ)) / sqt,
+            )
+        )
     end
 
-    return _P_upper(ν, α, z) + sign(ν) * ((cdf(Normal(), -sign(ν) * (α*z+ν*(t-τ))/sqt) -
-             _exp_pnorm(-2*ν*α*z, sign(ν) * (α*z-ν*(t-τ)) / sqt)) + S1 + S2)
+    return _P_upper(ν, α, z) +
+           sign(ν) * (
+        (
+            cdf(Normal(), -sign(ν) * (α * z + ν * (t - τ)) / sqt) -
+            _exp_pnorm(-2 * ν * α * z, sign(ν) * (α * z - ν * (t - τ)) / sqt)
+        ) +
+        S1 +
+        S2
+    )
 end
 
 # Zero drift version
@@ -215,16 +229,25 @@ function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     F = zero(T)
     K_series = K:-1:0
     for k in K_series
-        F -= (cdf(Distributions.Normal(), (-2*k - 2+z) * α / sqrt(t-τ)) + cdf(Distributions.Normal(), (-2*k -z) * α / sqrt(t-τ)))
+        F -= (
+            cdf(Distributions.Normal(), (-2 * k - 2 + z) * α / sqrt(t - τ)) +
+            cdf(Distributions.Normal(), (-2 * k - z) * α / sqrt(t - τ))
+        )
     end
-    return 2*F
+    return 2 * F
 end
 # Number of terms required for large time representation
 function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
-    x = t-τ
-    sqrtL1 = sqrt(1/x) * α/π
-    sqrtL2 = sqrt(max(1, -2/x*α*α/π/π * (log(ϵ*π*x/2 * (ν*ν + π*π/α/α)) + ν*α*z + ν*ν*x/2)))
+    x = t - τ
+    sqrtL1 = sqrt(1 / x) * α / π
+    sqrtL2 = sqrt(
+        max(
+            1,
+            -2 / x * α * α / π / π *
+            (log(ϵ * π * x / 2 * (ν * ν + π * π / α / α)) + ν * α * z + ν * ν * x / 2),
+        ),
+    )
     return ceil(Int, max(sqrtL1, sqrtL2))
 end
 
@@ -232,33 +255,52 @@ end
 function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, τ, z) = params(d)
     if abs(ν) < sqrt(eps(T))
-        return ceil(Int, max(0, z/2 - sqrt(t-τ)/(2*α) * quantile(Normal(), max(0, min(1, ϵ/(2-2*z))))))
+        return ceil(
+            Int,
+            max(
+                0,
+                z / 2 -
+                sqrt(t - τ) / (2 * α) * quantile(Normal(), max(0, min(1, ϵ / (2 - 2 * z)))),
+            ),
+        )
     end
     if ν > 0
-        return _K_small(DDM(-ν, α, τ, z), t; ϵ = exp(-2*α*z*ν)*ϵ)
+        return _K_small(DDM(-ν, α, τ, z), t; ϵ = exp(-2 * α * z * ν) * ϵ)
     end
-    S2 = z - 1 + 1/(2*ν*α) * log(ϵ/2 * (1-exp(2*ν*α)))
-    S3 = (0.535 * sqrt(2*(t-τ)) + ν*(t-τ) + α*z)/(2*α)
-    S4 = z/2 - sqrt(t-τ)/(2*α) * quantile(Normal(), max(0, min(1, ϵ*α/(0.3 * sqrt(2*π*(t-τ))) * exp(ν^2*(t-τ)/2 + ν*α*z) ))) 
+    S2 = z - 1 + 1 / (2 * ν * α) * log(ϵ / 2 * (1 - exp(2 * ν * α)))
+    S3 = (0.535 * sqrt(2 * (t - τ)) + ν * (t - τ) + α * z) / (2 * α)
+    S4 =
+        z / 2 -
+        sqrt(t - τ) / (2 * α) * quantile(
+            Normal(),
+            max(
+                0,
+                min(
+                    1,
+                    ϵ * α / (0.3 * sqrt(2 * π * (t - τ))) *
+                    exp(ν^2 * (t - τ) / 2 + ν * α * z),
+                ),
+            ),
+        )
     return ceil(Int, max(0, S2, S3, S4))
 end
 # Probability for absorption at upper barrier
 function _P_upper(ν::T, α::T, z::T) where {T<:Real}
-    e = exp(-2 * ν * α * (1-z))
+    e = exp(-2 * ν * α * (1 - z))
     if isinf(e)
         return 1.0
     end
-    if abs(e-1) < sqrt(eps(T))
-        return 1-z
+    if abs(e - 1) < sqrt(eps(T))
+        return 1 - z
     end
-    return (1-e)/(exp(2*ν*α*z) - e)
+    return (1 - e) / (exp(2 * ν * α * z) - e)
 end
 
 # Calculates exp(a) * pnorm(b) using an approximation by Kiani et al. (2008)
 function _exp_pnorm(a::T, b::T) where {T<:Real}
     r = exp(a) * cdf(Distributions.Normal(), b)
     if isnan(r) && b < -5.5
-        r = (1/sqrt(2)) * exp(a - b^2/2) * (0.5641882/(b^3) - 1/(b * sqrt(π))) 
+        r = (1 / sqrt(2)) * exp(a - b^2 / 2) * (0.5641882 / (b^3) - 1 / (b * sqrt(π)))
     end
     return r
 end
@@ -279,11 +321,11 @@ end
 # adapted from the RWiener R package, note, here σ = 0.1
 function _rand_rejection(rng::AbstractRNG, d::DDM)
     (ν, α, τ, z) = params(d)
-    
+
     ϵ = 1.0e-15
 
-    D = .005 # = 2*σ^2 => 1/200
-    zn = (z*α) / 10 # absolute bias!
+    D = 0.005 # = 2*σ^2 => 1/200
+    zn = (z * α) / 10 # absolute bias!
     αn = α / 10
     νn = ν / 10
 
@@ -298,15 +340,15 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
 
     while true
         if νn == 0
-            λ = (0.25D*π^2) / (radius^2)
+            λ = (0.25D * π^2) / (radius^2)
             F = 1.0
-            prob = .5            
+            prob = 0.5
         else
-            λ = ((0.25*νn^2)/D) + ((0.25*D*π^2) / (radius^2))
-            F = (D*π) / (radius*νn)
-            F = F^2 / (1+F^2)
-            prob = exp((radius*νn)/D)
-            prob = prob / (1+prob)
+            λ = ((0.25 * νn^2) / D) + ((0.25 * D * π^2) / (radius^2))
+            F = (D * π) / (radius * νn)
+            F = F^2 / (1 + F^2)
+            prob = exp((radius * νn) / D)
+            prob = prob / (1 + prob)
         end
 
         r = rand(rng)
@@ -325,12 +367,12 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
 
             while (abs(tδ) > ϵ) || (uu == 0)
                 uu += 1
-                tt = 2*uu + 1
-                tδ = tt * (uu % 2 == 0 ? 1 : -1) * (s1 ^ (F * tt^2))
-                tnew += tδ                              
+                tt = 2 * uu + 1
+                tδ = tt * (uu % 2 == 0 ? 1 : -1) * (s1^(F * tt^2))
+                tnew += tδ
             end
 
-            l = 1 + (s1^(-F)) * tnew 
+            l = 1 + (s1^(-F)) * tnew
         end
 
         total_time += abs(log(s1)) / λ
@@ -339,11 +381,11 @@ function _rand_rejection(rng::AbstractRNG, d::DDM)
         if (dir + ϵ) > Aupper
             rt = total_time + τ
             choice = 1
-            return (;choice,rt)
+            return (; choice, rt)
         elseif (dir - ϵ) < Alower
             rt = total_time + τ
             choice = 2
-            return (;choice,rt)
+            return (; choice, rt)
         else
             start_pos = dir
             radius = min(abs(Aupper - start_pos), (abs(Alower - start_pos)))
@@ -376,8 +418,8 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(rng::AbstractRNG, model::DDM; Δt=.001)
-    (;ν,α,z) = model
+function simulate(rng::AbstractRNG, model::DDM; Δt = 0.001)
+    (; ν, α, z) = model
     x = α * z
     t = 0.0
     evidence = [x]
@@ -388,5 +430,5 @@ function simulate(rng::AbstractRNG, model::DDM; Δt=.001)
         push!(evidence, x)
         push!(time_steps, t)
     end
-    return time_steps,evidence
+    return time_steps, evidence
 end

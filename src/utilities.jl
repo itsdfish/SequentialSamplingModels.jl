@@ -15,16 +15,17 @@ function _show(io::IO, model)
     values = map(x -> typeof(x) == Bool ? string(x) : x, values)
     T = typeof(model)
     model_name = string(T.name.name)
-    return pretty_table(io,
+    return pretty_table(
+        io,
         values;
-        title=model_name,
-        row_label_column_title="Parameter",
-        compact_printing=false,
-        header=["Value"],
-        row_label_alignment=:l,
-        row_labels=[fieldnames(typeof(model))...],
-        formatters=ft_printf("%5.2f"),
-        alignment=:l,
+        title = model_name,
+        row_label_column_title = "Parameter",
+        compact_printing = false,
+        header = ["Value"],
+        row_label_alignment = :l,
+        row_labels = [fieldnames(typeof(model))...],
+        formatters = ft_printf("%5.2f"),
+        alignment = :l,
     )
 end
 
@@ -38,7 +39,7 @@ Returns the quantiles associated with a vector of reaction times for a single ch
 
 - `percentiles=.1:.1:.90`: percentiles at which to evaluate the quantiles 
 """
-function compute_quantiles(data::Vector{<:Real}; percentiles=.1:.1:.90)
+function compute_quantiles(data::Vector{<:Real}; percentiles = 0.1:0.1:0.90)
     return quantile(data, percentiles)
 end
 
@@ -58,13 +59,17 @@ reaction times in key `rt`
 - `percentiles=.1:.1:.90`: percentiles at which to evaluate the quantiles 
 - `choice_set=unique(choice)`: a vector of possible choices. 
 """
-function compute_quantiles(data::NamedTuple; choice_set=unique(data.choice), percentiles=.1:.1:.90)
-    (;choice, rt) = data
+function compute_quantiles(
+    data::NamedTuple;
+    choice_set = unique(data.choice),
+    percentiles = 0.1:0.1:0.90,
+)
+    (; choice, rt) = data
     n_choices = length(choice_set)
-    quantiles = Vector{typeof(rt)}(undef,n_choices)
+    quantiles = Vector{typeof(rt)}(undef, n_choices)
     for c ∈ 1:n_choices
-        temp_rts = rt[choice .== choice_set[c]]
-        isempty(temp_rts) ? (quantiles[c] = temp_rts; continue) : nothing 
+        temp_rts = rt[choice.==choice_set[c]]
+        isempty(temp_rts) ? (quantiles[c] = temp_rts; continue) : nothing
         quantiles[c] = quantile(temp_rts, percentiles)
     end
     return quantiles
@@ -81,8 +86,8 @@ Returns the marginal quantiles for a continous multivariate SSM.
 
 - `percentiles=.1:.1:.90`: percentiles at which to evaluate the quantiles 
 """
-function compute_quantiles(data::Array{<:Real,2}; percentiles=.1:.1:.90)
-    return map(c -> quantile(data[:,c], percentiles), 1:size(data, 2))
+function compute_quantiles(data::Array{<:Real,2}; percentiles = 0.1:0.1:0.90)
+    return map(c -> quantile(data[:, c], percentiles), 1:size(data, 2))
 end
 
 """
@@ -100,7 +105,7 @@ reaction times in key `rt`
 - `choice_set: a vector of possible choices. 
 """
 function compute_choice_probs(data::NamedTuple; choice_set)
-    (;choice,) = data
+    (; choice,) = data
     n_choices = length(choice_set)
     probs = fill(0.0, n_choices)
     for c ∈ 1:n_choices

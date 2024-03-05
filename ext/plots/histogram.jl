@@ -14,15 +14,21 @@ Plots the histogram of a multi-alternative sequential sampling model.
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
-function histogram(d::SSM2D; norm=true, n_sim=2000, kwargs...)
+function histogram(d::SSM2D; norm = true, n_sim = 2000, kwargs...)
     return ssm_histogram(d; norm, n_sim, kwargs...)
 end
 
-function histogram(d::ContinuousMultivariateSSM; norm=true, n_sim=2000, kwargs...)
+function histogram(d::ContinuousMultivariateSSM; norm = true, n_sim = 2000, kwargs...)
     return ssm_histogram(d; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram(d::ContinuousMultivariateSSM; norm, model_args=(), n_sim, kwargs...)
+function ssm_histogram(
+    d::ContinuousMultivariateSSM;
+    norm,
+    model_args = (),
+    n_sim,
+    kwargs...,
+)
     n_subplots = n_options(d)
     data = rand(d, n_sim, model_args...)
     data_vecs = map(c -> data[:, c], 1:n_subplots)
@@ -35,21 +41,21 @@ function ssm_histogram(d::ContinuousMultivariateSSM; norm, model_args=(), n_sim,
     return hist
 end
 
-function ssm_histogram(d::SSM2D; norm, model_args=(), model_kwargs=(), n_sim, kwargs...)
+function ssm_histogram(d::SSM2D; norm, model_args = (), model_kwargs = (), n_sim, kwargs...)
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
-    qq = quantile(rts, .99)
+    qq = quantile(rts, 0.99)
     idx = rts .≤ qq
     choices = choices[idx]
     rts = rts[idx]
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
+    rt_vecs = map(c -> rts[choices.==c], 1:n_subplots)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
     hist = histogram(rt_vecs; norm, defaults..., kwargs...)
-    ymax = get_y_max(hist, n_subplots) 
-    plot!(hist, ylims=(0, ymax); kwargs...)
-    norm ? scale_density!(hist, choice_probs, 1, n_subplots) : nothing 
+    ymax = get_y_max(hist, n_subplots)
+    plot!(hist, ylims = (0, ymax); kwargs...)
+    norm ? scale_density!(hist, choice_probs, 1, n_subplots) : nothing
     return hist
 end
 
@@ -69,14 +75,14 @@ Plots the histogram of a single alternative sequential sampling model.
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
-function histogram(d::SSM1D; norm=true, n_sim=2000, kwargs...)
+function histogram(d::SSM1D; norm = true, n_sim = 2000, kwargs...)
     return ssm_histogram(d; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram(d::SSM1D; model_args=(), norm, n_sim, kwargs...)
+function ssm_histogram(d::SSM1D; model_args = (), norm, n_sim, kwargs...)
     n_subplots = n_options(d)
     rts = rand(d, n_sim, model_args...)
-    qq = quantile(rts, .99)
+    qq = quantile(rts, 0.99)
     filter!(x -> x < qq, rts)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
@@ -84,11 +90,14 @@ function ssm_histogram(d::SSM1D; model_args=(), norm, n_sim, kwargs...)
     return hist
 end
 
-histogram!(d::SSM2D; norm=true, n_sim=2000, kwargs...) = histogram!(Plots.current(), d; norm, n_sim, kwargs...)
+histogram!(d::SSM2D; norm = true, n_sim = 2000, kwargs...) =
+    histogram!(Plots.current(), d; norm, n_sim, kwargs...)
 
-histogram!(d::SSM1D; norm=true, n_sim=2000, kwargs...) = histogram!(Plots.current(), d; norm, n_sim, kwargs...)
+histogram!(d::SSM1D; norm = true, n_sim = 2000, kwargs...) =
+    histogram!(Plots.current(), d; norm, n_sim, kwargs...)
 
-histogram!(d::ContinuousMultivariateSSM; norm=true, n_sim=2000, kwargs...) = histogram!(Plots.current(), d; norm, n_sim, kwargs...)
+histogram!(d::ContinuousMultivariateSSM; norm = true, n_sim = 2000, kwargs...) =
+    histogram!(Plots.current(), d; norm, n_sim, kwargs...)
 
 """
     histogram!([cur_plot], d::SSM2D;  kwargs...)
@@ -106,7 +115,7 @@ Adds histogram of a multi-alternative sequential sampling model to an existing p
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
-function histogram!(cur_plot::Plots.Plot, d::SSM2D; norm=true, n_sim=2000, kwargs...)
+function histogram!(cur_plot::Plots.Plot, d::SSM2D; norm = true, n_sim = 2000, kwargs...)
     return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
 end
 
@@ -127,28 +136,49 @@ Adds histogram of a multi-alternative sequential sampling model to an existing p
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
-function histogram!(cur_plot::Plots.Plot, d::ContinuousMultivariateSSM; norm=true, n_sim=2000, kwargs...)
+function histogram!(
+    cur_plot::Plots.Plot,
+    d::ContinuousMultivariateSSM;
+    norm = true,
+    n_sim = 2000,
+    kwargs...,
+)
     return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram!(d::SSM2D, cur_plot; model_args=(), model_kwargs=(), norm, n_sim, kwargs...)
+function ssm_histogram!(
+    d::SSM2D,
+    cur_plot;
+    model_args = (),
+    model_kwargs = (),
+    norm,
+    n_sim,
+    kwargs...,
+)
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
-    qq = quantile(rts, .99)
+    qq = quantile(rts, 0.99)
     idx = rts .≤ qq
     choices = choices[idx]
     rts = rts[idx]
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
+    rt_vecs = map(c -> rts[choices.==c], 1:n_subplots)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
     hist = histogram!(cur_plot, rt_vecs; norm, yaxis, defaults..., kwargs...)
-    norm ? scale_density!(hist, choice_probs, 2, n_subplots) : nothing 
+    norm ? scale_density!(hist, choice_probs, 2, n_subplots) : nothing
     histogram!(hist; kwargs...)
     return hist
 end
 
-function ssm_histogram!(d::ContinuousMultivariateSSM, cur_plot; model_args=(), norm, n_sim, kwargs...)
+function ssm_histogram!(
+    d::ContinuousMultivariateSSM,
+    cur_plot;
+    model_args = (),
+    norm,
+    n_sim,
+    kwargs...,
+)
     n_subplots = n_options(d)
     data = rand(d, n_sim, model_args...)
     data_vecs = map(c -> data[:, c], 1:n_subplots)
@@ -177,14 +207,14 @@ Adds histogram of a single alternative sequential sampling model to an existing 
 - `n_sim=2000`: the number of data points used in the histogram
 - `kwargs...`: optional keyword arguments for configuring  plot options
 """
-function histogram!(cur_plot::Plots.Plot, d::SSM1D; norm=true, n_sim=2000, kwargs...)
+function histogram!(cur_plot::Plots.Plot, d::SSM1D; norm = true, n_sim = 2000, kwargs...)
     return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
 end
 
-function ssm_histogram!(d::SSM1D, cur_plot; norm, n_sim, model_args=(), kwargs...)
+function ssm_histogram!(d::SSM1D, cur_plot; norm, n_sim, model_args = (), kwargs...)
     n_subplots = n_options(d)
     rts = rand(d, n_sim, model_args...)
-    qq = quantile(rts, .99)
+    qq = quantile(rts, 0.99)
     filter!(x -> x ≤ qq, rts)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
@@ -206,16 +236,29 @@ end
 
 function get_histogram_defaults(d)
     n_subplots = n_options(d)
-    title = ["choice $i" for _ ∈ 1:1,  i ∈ 1:n_subplots]
-    return (xaxis=("RT [s]"), yaxis = "density", grid=false,
-        color = :grey, leg=false, title, layout=(n_subplots,1))
+    title = ["choice $i" for _ ∈ 1:1, i ∈ 1:n_subplots]
+    return (
+        xaxis = ("RT [s]"),
+        yaxis = "density",
+        grid = false,
+        color = :grey,
+        leg = false,
+        title,
+        layout = (n_subplots, 1),
+    )
 end
 
 function get_histogram_defaults(d::AbstractCDDM)
     n_subplots = n_options(d)
-    xlabel = fill("angle", n_subplots-1)
+    xlabel = fill("angle", n_subplots - 1)
     push!(xlabel, "RT [s]")
     xlabel = reshape(xlabel, 1, n_subplots)
-    return (;xlabel, yaxis = "density", grid=false,
-        color = :grey, leg=false, layout=(n_subplots,1))
+    return (;
+        xlabel,
+        yaxis = "density",
+        grid = false,
+        color = :grey,
+        leg = false,
+        layout = (n_subplots, 1),
+    )
 end

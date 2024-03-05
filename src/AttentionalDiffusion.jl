@@ -74,7 +74,7 @@ function aDDM(ν, α, z, θ, σ, Δ, τ)
     return aDDM(ν, α, z, θ, σ, Δ, τ)
 end
 
-function aDDM(;ν=[5.0,4.0], α=1.0, z=0.0, θ=0.3, σ=.02, Δ=.0004, τ=0.0)
+function aDDM(; ν = [5.0, 4.0], α = 1.0, z = 0.0, θ = 0.3, σ = 0.02, Δ = 0.0004, τ = 0.0)
     return aDDM(ν, α, z, θ, σ, Δ, τ)
 end
 
@@ -109,22 +109,23 @@ Generate `n_sim` simulated trials from the attention diffusion model.
 - ` Δt = .001`: time step
 """
 function rand(
-        rng::AbstractRNG,
-        dist::AbstractaDDM,
-        n_sim::Int,
-        args...;
-        fixate,
-        rand_state! = _rand_state!,
-        Δt = .001,
-        kwargs...
-    )
+    rng::AbstractRNG,
+    dist::AbstractaDDM,
+    n_sim::Int,
+    args...;
+    fixate,
+    rand_state! = _rand_state!,
+    Δt = 0.001,
+    kwargs...,
+)
     choice = fill(0, n_sim)
     rt = fill(0.0, n_sim)
-    for sim in 1:n_sim 
+    for sim = 1:n_sim
         rand_state!(rng, args...; kwargs...)
-        choice[sim],rt[sim] = rand(rng, dist; fixate = () -> fixate(args...; kwargs...), Δt)
+        choice[sim], rt[sim] =
+            rand(rng, dist; fixate = () -> fixate(args...; kwargs...), Δt)
     end
-    return (;choice,rt)
+    return (; choice, rt)
 end
 
 _rand_state!(tmat) = _rand_state!(Random.default_rng(), tmat)
@@ -132,8 +133,8 @@ _rand_state!(tmat) = _rand_state!(Random.default_rng(), tmat)
 function _rand_state!(rng, tmat)
     tmat.state = rand(rng, 1:tmat.n)
     return nothing
- end
- 
+end
+
 """
     rand(
         rng::AbstractRNG, 
@@ -160,28 +161,28 @@ Generate a single simulated trial from the attentional diffusion model.
 - `Δt = .001`: time step
 """
 function rand(
-        rng::AbstractRNG, 
-        dist::AbstractaDDM, 
-        args...; 
-        fixate,
-        rand_state! = _rand_state!, 
-        Δt = .001,
-        kwargs...
-    )
+    rng::AbstractRNG,
+    dist::AbstractaDDM,
+    args...;
+    fixate,
+    rand_state! = _rand_state!,
+    Δt = 0.001,
+    kwargs...,
+)
     rand_state!(rng, args...; kwargs...)
     return rand(rng, dist; fixate = () -> fixate(args...; kwargs...), Δt)
 end
 
-function rand(dist::AbstractaDDM, args...; fixate, Δt = .001, kwargs...)
+function rand(dist::AbstractaDDM, args...; fixate, Δt = 0.001, kwargs...)
     return rand(Random.default_rng(), dist::AbstractaDDM, args...; fixate, Δt, kwargs...)
 end
 
-function rand(dist::AbstractaDDM, n_sim::Int, args...; fixate, Δt = .001, kwargs...) 
+function rand(dist::AbstractaDDM, n_sim::Int, args...; fixate, Δt = 0.001, kwargs...)
     return rand(Random.default_rng(), dist, n_sim, args...; fixate, Δt, kwargs...)
 end
 
-function rand(rng::AbstractRNG, dist::AbstractaDDM; fixate, Δt = .001)
-    (;α,z,τ) = dist
+function rand(rng::AbstractRNG, dist::AbstractaDDM; fixate, Δt = 0.001)
+    (; α, z, τ) = dist
     t = τ
     v = z
     while abs(v) < α
@@ -190,7 +191,7 @@ function rand(rng::AbstractRNG, dist::AbstractaDDM; fixate, Δt = .001)
         v += increment(rng, dist, location)
     end
     choice = (v < α) + 1
-    return (;choice,rt=t)
+    return (; choice, rt = t)
 end
 
 """
@@ -222,38 +223,38 @@ Computes the approximate cumulative probability density of `AbstractaDDM` using 
 `rand_state! = _rand_state!`: initialize first state with equal probability 
 - `kwargs...`: optional keyword arguments for the `fixate` function
 """
- function cdf(
-        rng::AbstractRNG, 
-        d::AbstractaDDM, 
-        choice::Int, 
-        ub, 
-        args...; 
-        fixate,
-        n_sim=10_000, 
-        kwargs...
-    )
-    c,rt = rand(rng, d, n_sim, args...; fixate, kwargs...)
-    return mean(c .== choice .&&  rt .≤ ub)
- end
+function cdf(
+    rng::AbstractRNG,
+    d::AbstractaDDM,
+    choice::Int,
+    ub,
+    args...;
+    fixate,
+    n_sim = 10_000,
+    kwargs...,
+)
+    c, rt = rand(rng, d, n_sim, args...; fixate, kwargs...)
+    return mean(c .== choice .&& rt .≤ ub)
+end
 
- function cdf(d::AbstractaDDM, choice::Int, ub::Real, args...; fixate, kwargs...) 
+function cdf(d::AbstractaDDM, choice::Int, ub::Real, args...; fixate, kwargs...)
     return cdf(Random.default_rng(), d, choice, ub, args...; fixate, kwargs...)
 end
 
 function survivor(
-        rng::AbstractRNG, 
-        d::AbstractaDDM, 
-        choice::Int, 
-        ub, 
-        args...; 
-        fixate::Function, 
-        n_sim=10_000, 
-        kwargs...
-    )
+    rng::AbstractRNG,
+    d::AbstractaDDM,
+    choice::Int,
+    ub,
+    args...;
+    fixate::Function,
+    n_sim = 10_000,
+    kwargs...,
+)
     return 1 - cdf(rng, d, choice, ub, args...; fixate, kwargs...)
- end
+end
 
-function survivor(d::AbstractaDDM, choice::Int, ub::Real, args...; fixate, kwargs...) 
+function survivor(d::AbstractaDDM, choice::Int, ub::Real, args...; fixate, kwargs...)
     return survivor(Random.default_rng(), d, choice, fixate, ub, args...; fixate, kwargs...)
 end
 
@@ -271,18 +272,18 @@ Returns the change evidence for a single iteration.
 - `location`: an index for fixation location 
 """
 function increment(rng::AbstractRNG, dist::aDDM, location)
-    (;σ,ν,θ,Δ) = dist
+    (; σ, ν, θ, Δ) = dist
     # option 1
     if location == 1
         return Δ * (ν[1] - θ * ν[2]) + noise(rng, σ)
-    # option 2
+        # option 2
     elseif location == 2
         return -Δ * (ν[2] - θ * ν[1]) + noise(rng, σ)
     else
         return noise(rng, σ)
     end
     return -100.0
-end 
+end
 
 noise(rng, σ) = rand(rng, Normal(0, σ))
 
@@ -315,15 +316,15 @@ represent samples of evidence per time step and columns represent different accu
 `rand_state! = _rand_state!`: initialize first state with equal probability 
 """
 function simulate(
-        rng::AbstractRNG, 
-        model::AbstractaDDM,
-        args...; 
-        fixate, 
-        Δt = .001,
-        rand_state! = _rand_state!,
-        kwargs...
-    )
-    (;α,z) = model
+    rng::AbstractRNG,
+    model::AbstractaDDM,
+    args...;
+    fixate,
+    Δt = 0.001,
+    rand_state! = _rand_state!,
+    kwargs...,
+)
+    (; α, z) = model
     _fixate = () -> fixate(args...; kwargs...)
     rand_state!(args...)
     t = 0.0
@@ -337,5 +338,5 @@ function simulate(
         push!(evidence, x)
         push!(time_steps, t)
     end
-    return time_steps,evidence
+    return time_steps, evidence
 end

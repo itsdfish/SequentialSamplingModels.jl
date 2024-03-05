@@ -1,4 +1,4 @@
-module PlotsExt 
+module PlotsExt
 
     import Plots: histogram
     import Plots: histogram!
@@ -8,10 +8,10 @@ module PlotsExt
     import SequentialSamplingModels: get_plot_defaults
     import SequentialSamplingModels: get_model_plot_defaults
     import SequentialSamplingModels: get_default_labels
-    import SequentialSamplingModels: plot_model 
+    import SequentialSamplingModels: plot_model
     import SequentialSamplingModels: plot_model!
     import SequentialSamplingModels: plot_quantiles
-    import SequentialSamplingModels: plot_quantiles!  
+    import SequentialSamplingModels: plot_quantiles!
     import SequentialSamplingModels: plot_choices
     import SequentialSamplingModels: plot_choices!
 
@@ -25,7 +25,7 @@ module PlotsExt
     using SequentialSamplingModels: Exact
     using SequentialSamplingModels: get_pdf_type
     using Statistics
-    
+
     include("plots/plot.jl")
     include("plots/histogram.jl")
     include("plots/plot_model.jl")

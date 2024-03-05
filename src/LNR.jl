@@ -42,20 +42,20 @@ function LNR(ν, σ, τ)
 end
 
 function params(d::AbstractLNR)
-    return (d.ν, d.σ, d.τ)    
+    return (d.ν, d.σ, d.τ)
 end
 
-LNR(;ν=[-1,-2], σ=fill(1.0, length(ν)), τ=.20) = LNR(ν, σ, τ)
+LNR(; ν = [-1, -2], σ = fill(1.0, length(ν)), τ = 0.20) = LNR(ν, σ, τ)
 
 function rand(rng::AbstractRNG, dist::AbstractLNR)
-    (;ν,σ,τ) = dist
+    (; ν, σ, τ) = dist
     x = @. rand(rng, LogNormal(ν, σ)) + τ
-    rt,choice = findmin(x)
-    return (;choice,rt)
+    rt, choice = findmin(x)
+    return (; choice, rt)
 end
 
 function logpdf(d::AbstractLNR, r::Int, t::Float64)
-    (;ν,σ,τ) = d
+    (; ν, σ, τ) = d
     LL = 0.0
     for i ∈ 1:length(ν)
         if i == r
@@ -68,7 +68,7 @@ function logpdf(d::AbstractLNR, r::Int, t::Float64)
 end
 
 function pdf(d::AbstractLNR, r::Int, t::Float64)
-    (;ν,σ,τ) = d
+    (; ν, σ, τ) = d
     density = 1.0
     for i ∈ 1:length(ν)
         if i == r

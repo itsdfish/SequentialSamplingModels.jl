@@ -1,26 +1,26 @@
 using Documenter
 using SequentialSamplingModels
-using Turing 
+using Turing
 using Plots
 
 makedocs(
     warnonly = true,
-    sitename="SequentialSamplingModels",
-    format=Documenter.HTML(
-        assets=[
+    sitename = "SequentialSamplingModels",
+    format = Documenter.HTML(
+        assets = [
             asset(
                 "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
-                class=:css,
+                class = :css,
             ),
         ],
-        collapselevel=1,
+        collapselevel = 1,
     ),
-    modules=[
-        SequentialSamplingModels, 
-        Base.get_extension(SequentialSamplingModels, :TuringExt),  
-        Base.get_extension(SequentialSamplingModels, :PlotsExt) 
+    modules = [
+        SequentialSamplingModels,
+        Base.get_extension(SequentialSamplingModels, :TuringExt),
+        Base.get_extension(SequentialSamplingModels, :PlotsExt),
     ],
-    pages=[
+    pages = [
         "Home" => "index.md",
         "Models" => [
             "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
@@ -34,7 +34,7 @@ makedocs(
             "Poisson Race" => "poisson_race.md",
             "Racing Diffusion Model (RDM)" => "rdm.md",
             "Wald Model" => "wald.md",
-            "Wald Mixture Model" => "wald_mixture.md"
+            "Wald Mixture Model" => "wald_mixture.md",
         ],
         "Parameter Estimation" => [
             "Simple Bayesian Model" => "turing_simple.md",
@@ -46,13 +46,11 @@ makedocs(
         "Plotting" => [
             "Basic Example" => "basic_plot_example.md",
             "Changing the Layout" => "layout.md",
-            "Plot Model Process" => "plot_model.md"
+            "Plot Model Process" => "plot_model.md",
         ],
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md",
-    ]
+    ],
 )
 
-deploydocs(
-    repo="github.com/itsdfish/SequentialSamplingModels.jl.git",
-)
+deploydocs(repo = "github.com/itsdfish/SequentialSamplingModels.jl.git")

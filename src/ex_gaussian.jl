@@ -42,24 +42,26 @@ function ExGaussian(μ, σ, τ)
 end
 
 function params(d::ExGaussian)
-    return (d.μ, d.σ, d.τ)    
+    return (d.μ, d.σ, d.τ)
 end
 
-ExGaussian(;μ=.5, σ=.20, τ=.20) = ExGaussian(μ, σ, τ)
+ExGaussian(; μ = 0.5, σ = 0.20, τ = 0.20) = ExGaussian(μ, σ, τ)
 
 function rand(rng::AbstractRNG, dist::ExGaussian)
-    (;μ,σ,τ) = dist
+    (; μ, σ, τ) = dist
     return rand(Normal(μ, σ)) + rand(Exponential(τ))
 end
 
 function logpdf(d::ExGaussian, rt::Float64)
-    (;μ,σ,τ) = d
-    return log(1 / τ) + (μ - rt) / τ + (σ^2 / 2τ^2) + 
-        logcdf(Normal(0, 1), (rt - μ) / σ - σ / τ)
+    (; μ, σ, τ) = d
+    return log(1 / τ) +
+           (μ - rt) / τ +
+           (σ^2 / 2τ^2) +
+           logcdf(Normal(0, 1), (rt - μ) / σ - σ / τ)
 end
 
 function pdf(d::ExGaussian, rt::Float64)
-    (;μ,σ,τ) = d
+    (; μ, σ, τ) = d
     return (1 / τ) * exp((μ - rt) / τ + (σ^2 / 2τ^2)) * Φ((rt - μ) / σ - (σ / τ))
 end
 
