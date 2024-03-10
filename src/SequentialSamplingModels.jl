@@ -72,8 +72,11 @@ module SequentialSamplingModels
     export plot_quantiles
     export plot_quantiles!
     export predict_distribution
+    export predict_density
     export rand
+    export sample_subject_parms
     export simulate
+    export simulate_multilevel
     export std
     export survivor
 

@@ -17,7 +17,7 @@ Random.seed!(1124)
 ## Generate Simulated Data
 We will use the [Wald](wald.md) model as a simple example to illustrate how to create predictive distributions. The `Wald` model describes the evidence accumulation process underlying single detection decisions, such as respending when a stimulus appears. In the code block below, we will generate 50 data points.
 ```julia
-n_samples = 50
+n_samples = 100
 rts = rand(Wald(ν=1.5, α=.8, τ=.3), n_samples)
 ```
 
@@ -90,3 +90,16 @@ plot_quantiles(q_data, post_quantile_preds)
 ![](assets/wald_predictive_qq_plots.png)
 
 The posterior predictive quantile-quantile plot above shows that the model fits the reaction time distribution well. This close match is to be expected, as we generated the data from the same model. 
+
+## Posterior Predictive Distribution of Densities
+
+As an alternative to a quantile-quantile plot, we can evaluate the probability density function of the model at a series of time points and plot the densities against the histogram or kernel density of the data. In the current example, we will plot the posterior predictive densities against a normalized histogram of the data because the kernel density is unstable with only 100 data points.
+
+```julia
+t_range = range(.2, 3, length=150)
+pred_density = predict_density(Wald; model, t_range)
+post_density_preds = generated_quantities(pred_density, post_chain)
+histogram(rts, color=:grey, grid=false, norm=true, xlabel="RT [s]", ylabel="Density")
+plot!(t_range, post_density_preds[:], alpha =.05, leg=false, color=:darkred)
+```
+![](assets/wald_predictive_density.png)

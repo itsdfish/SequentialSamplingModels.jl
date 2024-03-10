@@ -12,3 +12,4 @@ function plot_quantiles end
 function plot_quantiles! end
 
 function predict_distribution end
+function predict_density end
