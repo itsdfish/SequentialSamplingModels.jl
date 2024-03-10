@@ -121,10 +121,9 @@ Base.broadcastable(x::ContinuousMultivariateSSM) = Ref(x)
 Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
-rand(d::SSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) =
-    rand(Random.default_rng(), d, n; kwargs...)
+rand(Random.default_rng(), d, n; kwargs...)
 
 """
     rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
