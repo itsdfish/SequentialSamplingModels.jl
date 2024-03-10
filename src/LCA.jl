@@ -6,16 +6,16 @@ A model type for the Leaky Competing Accumulator.
 # Parameters 
 
 - `ν`: drift rates 
-- `α`: evidence threshold 
+- `σ`: diffusion noise 
 - `β`: lateral inhabition 
 - `λ`: leak rate
+- `α`: evidence threshold 
 - `τ`: non-decision time 
-- `σ`: diffusion noise 
 - `Δt`: time step 
 
 # Constructors 
 
-    LCA(ν, α, β, λ, τ, σ, Δt)
+    LCA(ν, σ, β, λ, α, τ, Δt)
 
     LCA(;ν = [2.5,2.0], 
         α = 1.5, 
@@ -46,27 +46,26 @@ Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The
 """
 mutable struct LCA{T<:Real} <: AbstractLCA
     ν::Vector{T}
-    α::T
+    σ::T
     β::T
     λ::T
+    α::T
     τ::T
-    σ::T
     Δt::T
 end
 
-function LCA(ν, α, β, λ, τ, σ, Δt)
-    _, α, β, λ, τ, σ, Δt = promote(ν[1], α, β, λ, τ, σ, Δt)
+function LCA(ν, σ, β, λ, α, τ, Δt)
+    _, σ, β, λ, α, τ, Δt = promote(ν[1], σ, β, λ, α, τ, Δt)
     ν = convert(Vector{typeof(τ)}, ν)
-    return LCA(ν, α, β, λ, τ, σ, Δt)
+    return LCA(ν, σ, β, λ, α, τ, Δt)
 end
 
 function LCA(; ν = [2.5, 2.0], α = 1.5, β = 0.20, λ = 0.10, τ = 0.30, σ = 1.0, Δt = 0.001)
-
-    return LCA(ν, α, β, λ, τ, σ, Δt)
+    return LCA(ν, σ, β, λ, α, τ, Δt)
 end
 
 function params(d::AbstractLCA)
-    (d.ν, d.α, d.β, d.λ, d.τ, d.σ, d.Δt)
+    return (d.ν, d.σ, d.β, d.λ, d.α, d.τ, d.Δt)
 end
 
 get_pdf_type(d::AbstractLCA) = Approximate

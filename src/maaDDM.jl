@@ -5,7 +5,7 @@ An object for the multi-attribute attentional drift diffusion model.
 
 # Constructors
 
-    maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 
     maaDDM(; 
         ν = [4.0 5.0; 5.0 4.0],
@@ -29,12 +29,12 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 
 # Keywords 
 - `ν`: drift rates where rows are alternatives and columns are attributes
-- `α`: evidence threshold 
-- `z`: initial evidence 
+- `σ`: standard deviation of noise in evidence accumulation
 - `θ`: bias away from unattended alternative (lower indicates more bias)
 - `ϕ`: bias away from unattended attribute 
 - `ω`: attribute weight
-- `σ`: standard deviation of noise in evidence accumulation
+- `α`: evidence threshold 
+- `z`: initial evidence 
 - `Δ`: constant of evidence accumulation speed (evidence per ms)
 - `τ`: non-decision time
 
@@ -74,7 +74,7 @@ z = 0.0
 Δ = .0004
 τ = 0.0
 
-dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+dist = maaDDM(; ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 
 tmat = Transition([.98 .015 .0025 .0025;
                 .015 .98 .0025 .0025;
@@ -91,20 +91,20 @@ Psychological Review, 130(1), 52.
 """
 struct maaDDM{T<:Real} <: AbstractaDDM
     ν::Array{T,2}
-    α::T
-    z::T
+    σ::T
     θ::T
     ϕ::T
     ω::T
-    σ::T
+    α::T
+    z::T
     Δ::T
     τ::T
 end
 
-function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
-    _, α, z, θ, ϕ, ω, σ, Δ, τ = promote(ν[1], α, z, θ, ϕ, ω, σ, Δ, τ)
+function maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
+    _, σ, θ, ϕ, ω, α, z, Δ, τ= promote(ν[1], σ, θ, ϕ, ω, α, z, Δ, τ)
     ν = convert(Array{typeof(z),2}, ν)
-    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    return maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 end
 
 function maaDDM(;
@@ -119,7 +119,7 @@ function maaDDM(;
     τ = 0.0,
 )
 
-    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    return maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 end
 
 get_pdf_type(d::maaDDM) = Approximate

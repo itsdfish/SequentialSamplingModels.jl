@@ -26,25 +26,25 @@ The racing diffusion model of speeded decision making. Psychonomic Bulletin & Re
 """
 struct WaldA{T<:Real} <: SSM1D
     ν::T
-    k::T
     A::T
+    k::T
     τ::T
 end
 
-function WaldA(ν, k, A, τ)
-    return WaldA(promote(ν, k, A, τ)...)
+function WaldA(ν, A, k, τ)
+    return WaldA(promote(ν, A, k, τ)...)
 end
 
 Broadcast.broadcastable(x::WaldA) = Ref(x)
 
 function params(d::WaldA)
-    (d.ν, d.k, d.A, d.τ)
+    (d.ν, d.A, d.k, d.τ)
 end
 
-WaldA(; ν, k, A, τ) = WaldA(ν, k, A, τ)
+WaldA(; ν, A, k, τ) = WaldA(ν, A, k, τ)
 
 function pdf(d::WaldA, rt::Float64)
-    (; ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     t = rt - τ
     α = (k - t * ν) / √(t)
     β = (A + k - t * ν) / √(t)
@@ -55,7 +55,7 @@ end
 logpdf(d::WaldA, rt::Float64) = log(pdf(d, rt))
 
 function cdf(d::WaldA, rt::Float64)
-    (; ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     t = rt - τ
     b = A + k
     α1 = √(2) * ((ν * t - b) / √(2 * t))
@@ -72,7 +72,7 @@ end
 logccdf(d::WaldA, rt::Float64) = log(1 - cdf(d, rt))
 
 function rand(rng::AbstractRNG, d::WaldA)
-    (; ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     z = rand(rng, Uniform(0, A))
     α = k + A - z
     return rand(rng, InverseGaussian(α / ν, α^2)) + τ
@@ -92,8 +92,8 @@ An object for the racing diffusion model.
 # Parameters
 
 - `ν`: a vector of drift rates
-- `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
+- `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `τ`: a encoding-motor time offset
 
 # Example
@@ -112,19 +112,19 @@ The racing diffusion model of speeded decision making. Psychonomic Bulletin & Re
 """
 struct RDM{T<:Real} <: AbstractRDM
     ν::Vector{T}
-    k::T
     A::T
+    k::T
     τ::T
 end
 
 function RDM(ν, k, A, τ)
-    _, k, A, τ = promote(ν[1], k, A, τ)
+    _, A, k, τ = promote(ν[1], k, A, τ)
     ν = convert(Vector{typeof(k)}, ν)
-    return RDM(ν, k, A, τ)
+    return RDM(ν, A, k, τ)
 end
 
 function params(d::AbstractRDM)
-    (d.ν, d.k, d.A, d.τ)
+    (d.ν, d.A, d.k, d.τ)
 end
 
 RDM(; ν = [1, 2], k = 0.3, A = 0.7, τ = 0.2) = RDM(ν, k, A, τ)
@@ -137,7 +137,7 @@ function rand(rng::AbstractRNG, dist::AbstractRDM)
 end
 
 function logpdf(d::AbstractRDM, r::Int, rt::Float64)
-    (; ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     LL = 0.0
     for (i, m) in enumerate(ν)
         if i == r
@@ -150,7 +150,7 @@ function logpdf(d::AbstractRDM, r::Int, rt::Float64)
 end
 
 function pdf(d::AbstractRDM, r::Int, rt::Float64)
-    (; ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     like = 1.0
     for (i, m) in enumerate(ν)
         if i == r

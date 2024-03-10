@@ -6,14 +6,14 @@ A model object for the linear ballistic accumulator.
 # Parameters
 
 - `ν`: a vector of drift rates
+- `σ`: a vector of drift rate standard deviation
 - `A`: max start point
 - `k`: A + k = b, where b is the decision threshold
 - `τ`: a encoding-response offset
-- `σ`: a vector of drift rate standard deviation
 
 # Constructors 
 
-    LBA(ν, A, k, τ, σ)
+    LBA(ν, σ, A, k, τ)
     
     LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=[1.0,1.0])
 
@@ -33,25 +33,25 @@ Brown, S. D., & Heathcote, A. (2008). The simplest complete model of choice resp
 """
 mutable struct LBA{T<:Real} <: AbstractLBA
     ν::Vector{T}
+    σ::Vector{T}
     A::T
     k::T
     τ::T
-    σ::Vector{T}
 end
 
-function LBA(ν, A, k, τ, σ)
-    _, A, k, τ, _ = promote(ν[1], A, k, τ, σ[1])
+function LBA(ν, σ, A, k, τ)
+    _, _, A, k, τ = promote(ν[1], σ[1], A, k, τ)
     ν = convert(Vector{typeof(k)}, ν)
     σ = convert(Vector{typeof(k)}, σ)
-    return LBA(ν, A, k, τ, σ)
+    return LBA(ν, σ, A, k, τ)
 end
 
 function params(d::LBA)
-    return (d.ν, d.A, d.k, d.τ, d.σ)
+    return (d.ν, d.σ, d.A, d.k, d.τ)
 end
 
 LBA(; τ = 0.3, A = 0.8, k = 0.5, ν = [2.0, 1.75], σ = fill(1.0, length(ν))) =
-    LBA(ν, A, k, τ, σ)
+    LBA(ν, σ, A, k, τ)
 
 function select_winner(dt)
     if any(x -> x > 0, dt)
