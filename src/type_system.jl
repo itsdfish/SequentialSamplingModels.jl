@@ -113,7 +113,7 @@ Base.broadcastable(x::ContinuousMultivariateSSM) = Ref(x)
 
 Base.length(d::SSM2D) = 2
 
-rand(d::SSM2D) = rand(Random.default_rng(), d)
+rand(d::SSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) = rand(Random.default_rng(), d, n; kwargs...)
 
@@ -166,15 +166,15 @@ with more than one choice option.
 
 # Arguments
 - `d::SSM2D`: a 2D sequential sampling model.
-- `n_sim::Int`: the number of simulated choices and rts  
+- `N::Int`: the number of simulated choices and rts  
 """
-function rand(rng::AbstractRNG, d::SSM2D, N::Int)
-    choice = fill(0, N)
-    rt = fill(0.0, N)
-    for i in 1:N
-        choice[i],rt[i] = rand(rng, d)
-    end
-    return (;choice,rt)
+function rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)  
+    choice = fill(0, N)  
+    rt = fill(0.0, N)  
+    for i in 1:N  
+        choice[i],rt[i] = rand(rng, d; kwargs...)  
+    end  
+    return (;choice,rt)  
 end
 
 """
