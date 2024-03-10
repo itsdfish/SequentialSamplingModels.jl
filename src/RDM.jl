@@ -26,42 +26,42 @@ The racing diffusion model of speeded decision making. Psychonomic Bulletin & Re
 """
 struct WaldA{T<:Real} <: SSM1D
     ν::T
-    k::T
     A::T
+    k::T
     τ::T
 end
 
-function WaldA(ν, k, A, τ)
-    return WaldA(promote(ν, k, A, τ)...)
+function WaldA(ν, A, k, τ)
+    return WaldA(promote(ν, A, k, τ)...)
 end
 
 Broadcast.broadcastable(x::WaldA) = Ref(x)
 
 function params(d::WaldA)
-    (d.ν, d.k, d.A, d.τ)    
+    (d.ν, d.A, d.k, d.τ)
 end
 
-WaldA(;ν, k, A, τ) = WaldA(ν, k, A, τ)
+WaldA(; ν, A, k, τ) = WaldA(ν, A, k, τ)
 
 function pdf(d::WaldA, rt::Float64)
-    (;ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     t = rt - τ
     α = (k - t * ν) / √(t)
     β = (A + k - t * ν) / √(t)
-    return (-ν * Φ(α) + 1 / √(t) * ϕ(α) +
-        ν * Φ(β) - 1 / √(t) * ϕ(β)) / A
+    dens = (-ν * Φ(α) + 1 / √(t) * ϕ(α) + ν * Φ(β) - 1 / √(t) * ϕ(β)) / A
+    return max(eps(), dens)
 end
 
 logpdf(d::WaldA, rt::Float64) = log(pdf(d, rt))
 
 function cdf(d::WaldA, rt::Float64)
-    (;ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     t = rt - τ
     b = A + k
-    α1 = √(2) * ((ν * t - b)/√(2 * t))
-    α2 = √(2) * ((ν * t - k)/√(2 * t))
-    β1 = √(2) * ((-ν * t - b)/√(2 * t))
-    β2 = √(2) * ((-ν * t - k)/√(2 * t))
+    α1 = √(2) * ((ν * t - b) / √(2 * t))
+    α2 = √(2) * ((ν * t - k) / √(2 * t))
+    β1 = √(2) * ((-ν * t - b) / √(2 * t))
+    β2 = √(2) * ((-ν * t - k) / √(2 * t))
     v1 = (1 / (2 * ν * A)) * (Φ(α2) - Φ(α1))
     v2 = (√(t) / A) * (α2 * Φ(α2) - α1 * Φ(α1))
     v3 = -(1 / (2 * ν * A)) * (exp(2 * ν * k) * Φ(β2) - exp(2 * ν * b) * Φ(β1))
@@ -72,9 +72,9 @@ end
 logccdf(d::WaldA, rt::Float64) = log(1 - cdf(d, rt))
 
 function rand(rng::AbstractRNG, d::WaldA)
-    (;ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     z = rand(rng, Uniform(0, A))
-    α = k + A - z 
+    α = k + A - z
     return rand(rng, InverseGaussian(α / ν, α^2)) + τ
 end
 
@@ -92,8 +92,8 @@ An object for the racing diffusion model.
 # Parameters
 
 - `ν`: a vector of drift rates
-- `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `A`: the maximum starting point diffusion process, sampled from Uniform distribution
+- `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
 - `τ`: a encoding-motor time offset
 
 # Example
@@ -112,34 +112,34 @@ The racing diffusion model of speeded decision making. Psychonomic Bulletin & Re
 """
 struct RDM{T<:Real} <: AbstractRDM
     ν::Vector{T}
-    k::T
     A::T
+    k::T
     τ::T
 end
 
 function RDM(ν, k, A, τ)
-    _, k, A, τ = promote(ν[1], k, A, τ)
+    _, A, k, τ = promote(ν[1], k, A, τ)
     ν = convert(Vector{typeof(k)}, ν)
-    return RDM(ν, k, A, τ)
+    return RDM(ν, A, k, τ)
 end
 
 function params(d::AbstractRDM)
-    (d.ν, d.k, d.A, d.τ)    
+    (d.ν, d.A, d.k, d.τ)
 end
 
-RDM(;ν=[1,2], k=.3, A=.7, τ=.2) = RDM(ν, k, A, τ)
+RDM(; ν = [1, 2], k = 0.3, A = 0.7, τ = 0.2) = RDM(ν, k, A, τ)
 
 function rand(rng::AbstractRNG, dist::AbstractRDM)
-    (;ν, A, k, τ) = dist
+    (; ν, A, k, τ) = dist
     x = @. rand(rng, WaldA(ν, k, A, τ))
-    rt,choice = findmin(x)
-    return (;choice,rt)
+    rt, choice = findmin(x)
+    return (; choice, rt)
 end
 
 function logpdf(d::AbstractRDM, r::Int, rt::Float64)
-    (;ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     LL = 0.0
-    for (i,m) in enumerate(ν)
+    for (i, m) in enumerate(ν)
         if i == r
             LL += logpdf(WaldA(m, k, A, τ), rt)
         else
@@ -150,9 +150,9 @@ function logpdf(d::AbstractRDM, r::Int, rt::Float64)
 end
 
 function pdf(d::AbstractRDM, r::Int, rt::Float64)
-    (;ν, k, A, τ) = d
+    (; ν, A, k, τ) = d
     like = 1.0
-    for (i,m) in enumerate(ν)
+    for (i, m) in enumerate(ν)
         if i == r
             like *= pdf(WaldA(m, k, A, τ), rt)
         else
@@ -177,8 +177,8 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(rng::AbstractRNG, model::AbstractRDM; Δt=.001)
-    (;ν,A,k) = model
+function simulate(rng::AbstractRNG, model::AbstractRDM; Δt = 0.001)
+    (; ν, A, k) = model
     n = length(model.ν)
     t = 0.0
     z = rand(rng, Uniform(0, A), n)
@@ -193,11 +193,11 @@ function simulate(rng::AbstractRNG, model::AbstractRDM; Δt=.001)
         push!(evidence, deepcopy(x))
         push!(time_steps, t)
     end
-    return time_steps,reduce(vcat, transpose.(evidence))
+    return time_steps, reduce(vcat, transpose.(evidence))
 end
 
 function increment!(rng::AbstractRNG, model::AbstractRDM, x, ϵ, ν, Δt)
     ϵ .= rand(rng, Normal(0.0, 1.0), length(ν))
     x .+= ν * Δt + ϵ * √(Δt)
-    return nothing 
+    return nothing
 end

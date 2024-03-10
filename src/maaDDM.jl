@@ -5,7 +5,7 @@ An object for the multi-attribute attentional drift diffusion model.
 
 # Constructors
 
-    maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 
     maaDDM(; 
         ν = [4.0 5.0; 5.0 4.0],
@@ -29,12 +29,12 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 
 # Keywords 
 - `ν`: drift rates where rows are alternatives and columns are attributes
-- `α`: evidence threshold 
-- `z`: initial evidence 
+- `σ`: standard deviation of noise in evidence accumulation
 - `θ`: bias away from unattended alternative (lower indicates more bias)
 - `ϕ`: bias away from unattended attribute 
 - `ω`: attribute weight
-- `σ`: standard deviation of noise in evidence accumulation
+- `α`: evidence threshold 
+- `z`: initial evidence 
 - `Δ`: constant of evidence accumulation speed (evidence per ms)
 - `τ`: non-decision time
 
@@ -58,7 +58,7 @@ mutable struct Transition
  
  function attend(transition)
      (;mat,n,state) = transition
-     w = mat[state,:]
+     w = @view mat[state,:]
      next_state = sample(1:n, Weights(w))
      transition.state = next_state
      return next_state
@@ -74,7 +74,7 @@ z = 0.0
 Δ = .0004
 τ = 0.0
 
-dist = maaDDM(; ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+dist = maaDDM(; ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 
 tmat = Transition([.98 .015 .0025 .0025;
                 .015 .98 .0025 .0025;
@@ -91,34 +91,35 @@ Psychological Review, 130(1), 52.
 """
 struct maaDDM{T<:Real} <: AbstractaDDM
     ν::Array{T,2}
-    α::T
-    z::T
+    σ::T
     θ::T
     ϕ::T
     ω::T
-    σ::T
+    α::T
+    z::T
     Δ::T
     τ::T
 end
 
-function maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
-    _, α, z, θ, ϕ, ω, σ, Δ, τ = promote(ν[1], α, z, θ, ϕ, ω, σ, Δ, τ)
+function maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
+    _, σ, θ, ϕ, ω, α, z, Δ, τ= promote(ν[1], σ, θ, ϕ, ω, α, z, Δ, τ)
     ν = convert(Array{typeof(z),2}, ν)
-    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    return maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 end
 
-function maaDDM(; 
+function maaDDM(;
     ν = [4.0 5.0; 5.0 4.0],
-    α = 1.0, 
-    z = 0.0, 
-    θ = .3, 
-    ϕ = .50, 
-    ω = .70, 
-    σ = .02, 
-    Δ = .0004,
-    τ = 0.0)
+    α = 1.0,
+    z = 0.0,
+    θ = 0.3,
+    ϕ = 0.50,
+    ω = 0.70,
+    σ = 0.02,
+    Δ = 0.0004,
+    τ = 0.0,
+)
 
-    return maaDDM(ν, α, z, θ, ϕ, ω, σ, Δ, τ)
+    return maaDDM(ν, σ, θ, ϕ, ω, α, z, Δ, τ)
 end
 
 get_pdf_type(d::maaDDM) = Approximate
@@ -136,19 +137,23 @@ Returns the change evidence for a single iteration.
 - `location`: an index for fixation location 
 """
 function increment(rng, dist::maaDDM, location)
-    (;ν,θ,ϕ,ω,Δ,σ) = dist
+    (; ν, θ, ϕ, ω, Δ, σ) = dist
     # option 1, attribute 1
     if location == 1
-        return Δ * (ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * ϕ * (ν[1,2] - θ * ν[2,2])) + noise(rng, σ)
-    # option 1, attribute 2
+        return Δ * (ω * (ν[1, 1] - θ * ν[2, 1]) + (1 - ω) * ϕ * (ν[1, 2] - θ * ν[2, 2])) +
+               noise(rng, σ)
+        # option 1, attribute 2
     elseif location == 2
-        return Δ * (ϕ * ω * (ν[1,1] - θ * ν[2,1]) + (1 - ω) * (ν[1,2] - θ * ν[2,2])) + noise(rng, σ)
-    # option 2, attribute 1
+        return Δ * (ϕ * ω * (ν[1, 1] - θ * ν[2, 1]) + (1 - ω) * (ν[1, 2] - θ * ν[2, 2])) +
+               noise(rng, σ)
+        # option 2, attribute 1
     elseif location == 3
-        return Δ * (ω * (θ * ν[1,1] - ν[2,1]) + (1 - ω) * ϕ * (θ * ν[1,2] - ν[2,2])) + noise(rng, σ)
-    # option 2, attribute 2
+        return Δ * (ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * ϕ * (θ * ν[1, 2] - ν[2, 2])) +
+               noise(rng, σ)
+        # option 2, attribute 2
     else
-        return Δ * (ϕ * ω * (θ * ν[1,1] - ν[2,1]) + (1 - ω) * (θ * ν[1,2] - ν[2,2])) + noise(rng, σ)
+        return Δ * (ϕ * ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * (θ * ν[1, 2] - ν[2, 2])) +
+               noise(rng, σ)
     end
     return -100.0
-end 
+end

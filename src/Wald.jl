@@ -37,14 +37,14 @@ struct Wald{T<:Real} <: AbstractWald
     τ::T
 end
 
-Wald(;ν=1.5, α=.75, τ=0.20) = Wald(ν, α, τ)
+Wald(; ν = 1.5, α = 0.75, τ = 0.20) = Wald(ν, α, τ)
 
 function Wald(ν, α, τ)
     return Wald(promote(ν, α, τ)...)
 end
 
 function params(d::Wald)
-    return (d.ν, d.α, d.τ)    
+    return (d.ν, d.α, d.τ)
 end
 
 function pdf(d::AbstractWald, t::AbstractFloat)
@@ -60,10 +60,10 @@ function logccdf(d::Wald, t::AbstractFloat)
 end
 
 function cdf(d::Wald, t::AbstractFloat)
-    return cdf(InverseGaussian(d.α/d.ν, d.α^2), t - d.τ)
+    return cdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
 end
 
-rand(rng::AbstractRNG, d::AbstractWald) = rand(rng, InverseGaussian(d.α/d.ν, d.α^2)) + d.τ
+rand(rng::AbstractRNG, d::AbstractWald) = rand(rng, InverseGaussian(d.α / d.ν, d.α^2)) + d.τ
 
 function rand(rng::AbstractRNG, d::AbstractWald, n::Int)
     return rand(rng, InverseGaussian(d.α / d.ν, d.α^2), n) .+ d.τ
@@ -86,8 +86,8 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(model::Wald; Δt=.001)
-    (;ν,α) = model
+function simulate(model::Wald; Δt = 0.001)
+    (; ν, α) = model
     n = length(model.ν)
     x = 0.0
     t = 0.0
@@ -99,5 +99,5 @@ function simulate(model::Wald; Δt=.001)
         push!(evidence, x)
         push!(time_steps, t)
     end
-    return time_steps,evidence
+    return time_steps, evidence
 end

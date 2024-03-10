@@ -6,14 +6,14 @@ A model object for the linear ballistic accumulator.
 # Parameters
 
 - `ν`: a vector of drift rates
+- `σ`: a vector of drift rate standard deviation
 - `A`: max start point
 - `k`: A + k = b, where b is the decision threshold
-- `σ`: a vector of drift rate standard deviation
 - `τ`: a encoding-response offset
 
 # Constructors 
 
-    LBA(ν, A, k, τ, σ)
+    LBA(ν, σ, A, k, τ)
     
     LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=[1.0,1.0])
 
@@ -33,38 +33,39 @@ Brown, S. D., & Heathcote, A. (2008). The simplest complete model of choice resp
 """
 mutable struct LBA{T<:Real} <: AbstractLBA
     ν::Vector{T}
+    σ::Vector{T}
     A::T
     k::T
     τ::T
-    σ::Vector{T}
 end
 
-function LBA(ν, A, k, τ, σ)
-    _, A, k, τ, _ = promote(ν[1], A, k, τ, σ[1])
+function LBA(ν, σ, A, k, τ)
+    _, _, A, k, τ = promote(ν[1], σ[1], A, k, τ)
     ν = convert(Vector{typeof(k)}, ν)
     σ = convert(Vector{typeof(k)}, σ)
-    return LBA(ν, A, k, τ, σ)
+    return LBA(ν, σ, A, k, τ)
 end
 
 function params(d::LBA)
-    return (d.ν,d.A,d.k,d.τ,d.σ)    
+    return (d.ν, d.σ, d.A, d.k, d.τ)
 end
 
-LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=fill(1.0, length(ν))) = LBA(ν, A, k, τ, σ)
+LBA(; τ = 0.3, A = 0.8, k = 0.5, ν = [2.0, 1.75], σ = fill(1.0, length(ν))) =
+    LBA(ν, σ, A, k, τ)
 
 function select_winner(dt)
     if any(x -> x > 0, dt)
-        mi,mv = 0,Inf
-        for (i,t) in enumerate(dt)
+        mi, mv = 0, Inf
+        for (i, t) in enumerate(dt)
             if (t > 0) && (t < mv)
                 mi = i
                 mv = t
             end
         end
     else
-        return 1,-1.0
+        return 1, -1.0
     end
-    return mi,mv
+    return mi, mv
 end
 
 sample_drift_rates(ν, σ) = sample_drift_rates(Random.default_rng(), ν, σ)
@@ -81,20 +82,21 @@ function sample_drift_rates(rng::AbstractRNG, ν, σ)
 end
 
 function rand(rng::AbstractRNG, d::AbstractLBA)
-    (;τ,A,k,ν,σ) = d
+    (; τ, A, k, ν, σ) = d
     b = A + k
     N = length(ν)
     v = sample_drift_rates(rng, ν, σ)
     a = rand(rng, Uniform(0, A), N)
     dt = @. (b - a) / v
-    choice,mn = select_winner(dt)
+    choice, mn = select_winner(dt)
     rt = τ .+ mn
-    return (;choice,rt)
+    return (; choice, rt)
 end
 
 function logpdf(d::AbstractLBA, c, rt)
-    (;τ,A,k,ν,σ) = d
-    b = A + k; den = 0.0
+    (; τ, A, k, ν, σ) = d
+    b = A + k
+    den = 0.0
     rt < τ ? (return -Inf) : nothing
     for i ∈ 1:length(ν)
         if c == i
@@ -109,8 +111,9 @@ function logpdf(d::AbstractLBA, c, rt)
 end
 
 function pdf(d::AbstractLBA, c, rt)
-    (;τ,A,k,ν,σ) = d
-    b = A + k; den = 1.0
+    (; τ, A, k, ν, σ) = d
+    b = A + k
+    den = 1.0
     rt < τ ? (return 1e-10) : nothing
     for i ∈ 1:length(ν)
         if c == i
@@ -126,38 +129,39 @@ function pdf(d::AbstractLBA, c, rt)
 end
 
 function dens(d::AbstractLBA, v, σ, rt)
-    (;τ,A,k) = d
-    dt = rt - τ; b = A + k
+    (; τ, A, k) = d
+    dt = rt - τ
+    b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    dens = (1 / A) * (-v * Φ(n1) + σ * ϕ(n1) +
-        v * Φ(n2) - σ * ϕ(n2))
+    dens = (1 / A) * (-v * Φ(n1) + σ * ϕ(n1) + v * Φ(n2) - σ * ϕ(n2))
     return max(dens, 0.0)
 end
 
 function log_dens(d::AbstractLBA, v, σ, rt)
-    (;τ,A,k) = d
-    dt = rt - τ; b = A + k
+    (; τ, A, k) = d
+    dt = rt - τ
+    b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    dens = -log(A) + log(max(0.0, -v * Φ(n1) + σ * ϕ(n1) +
-        v * Φ(n2) - σ * ϕ(n2)))
+    dens = -log(A) + log(max(0.0, -v * Φ(n1) + σ * ϕ(n1) + v * Φ(n2) - σ * ϕ(n2)))
     return dens
 end
 
 function cummulative(d::AbstractLBA, v, σ, rt)
-    (;τ,A,k) = d
-    dt = rt - τ; b = A + k
+    (; τ, A, k) = d
+    dt = rt - τ
+    b = A + k
     n1 = (b - A - dt * v) / (dt * σ)
     n2 = (b - dt * v) / (dt * σ)
-    cm = 1 + ((b - A -dt * v) / A) * Φ(n1) -
-        ((b - dt * v) / A) * Φ(n2) + ((dt * σ) / A) * ϕ(n1) -
-        ((dt * σ) / A) * ϕ(n2)
+    cm =
+        1 + ((b - A - dt * v) / A) * Φ(n1) - ((b - dt * v) / A) * Φ(n2) +
+        ((dt * σ) / A) * ϕ(n1) - ((dt * σ) / A) * ϕ(n2)
     return cm
 end
 
 function pnegative(d::AbstractLBA)
-    (;ν,σ) = d
+    (; ν, σ) = d
     p = 1.0
     for i ∈ 1:length(ν)
         p *= Φ(-ν[i] / σ[i])
@@ -179,15 +183,15 @@ represent samples of evidence per time step and columns represent different accu
 
 - `n_steps=100`: number of time steps at which evidence is recorded
 """
-function simulate(rng::AbstractRNG, model::AbstractLBA; n_steps=100)
-    (;τ,A,k,ν,σ) = model
+function simulate(rng::AbstractRNG, model::AbstractLBA; n_steps = 100)
+    (; τ, A, k, ν, σ) = model
     b = A + k
     n = length(ν)
     νs = sample_drift_rates(rng, ν, σ)
     a = rand(Uniform(0, A), n)
     dt = @. (b - a) / νs
-    choice,t = select_winner(dt)
-    evidence = collect.(range.(a, a + νs * t, length=100))
-    time_steps = range(0, t, length=n_steps)
-    return time_steps,hcat(evidence...)
+    choice, t = select_winner(dt)
+    evidence = collect.(range.(a, a + νs * t, length = 100))
+    time_steps = range(0, t, length = n_steps)
+    return time_steps, hcat(evidence...)
 end

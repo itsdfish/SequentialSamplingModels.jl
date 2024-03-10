@@ -39,31 +39,31 @@ function WaldMixture(ν, η, α, τ)
     return WaldMixture(promote(ν, η, α, τ)...)
 end
 
-WaldMixture(;ν=3.0, η=.2, α=.5, τ=.130) = WaldMixture(ν, η, α, τ)
+WaldMixture(; ν = 3.0, η = 0.2, α = 0.5, τ = 0.130) = WaldMixture(ν, η, α, τ)
 
 function params(d::WaldMixture)
-    return (d.ν, d.η, d.α, d.τ)    
+    return (d.ν, d.η, d.α, d.τ)
 end
 
 function pdf(d::WaldMixture, t::AbstractFloat)
-    (;ν, η, α ,τ) = d
-    c1 = α / √((2 * π * (t - τ)^3)  * ((t - τ) * η^2 + 1))
+    (; ν, η, α, τ) = d
+    c1 = α / √((2 * π * (t - τ)^3) * ((t - τ) * η^2 + 1))
     c2 = 1 / Φ(ν / η)
     c3 = exp(-(ν * (t - τ) - α)^2 / (2 * (t - τ) * ((t - τ) * η^2 + 1)))
-    c4 = (α * η^2 + ν) / √(η^2 * ((t - τ)*η^2 + 1))
+    c4 = (α * η^2 + ν) / √(η^2 * ((t - τ) * η^2 + 1))
     return c1 * c2 * c3 * Φ(c4)
 end
 
 function logpdf(d::WaldMixture, t::AbstractFloat)
-    (;ν, η, α ,τ) = d
-    c1 = log(α) - log(√((2 * π * (t - τ)^3)  * ((t - τ) * η^2 + 1)))
-    c2 = log(1) - logcdf(Normal(0,1), ν / η)
-    c3 = -(ν * (t - τ) - α)^2 / (2*(t - τ)*((t - τ)*η^2 + 1))
+    (; ν, η, α, τ) = d
+    c1 = log(α) - log(√((2 * π * (t - τ)^3) * ((t - τ) * η^2 + 1)))
+    c2 = log(1) - logcdf(Normal(0, 1), ν / η)
+    c3 = -(ν * (t - τ) - α)^2 / (2 * (t - τ) * ((t - τ) * η^2 + 1))
     c4 = (α * η^2 + ν) / √(η^2 * ((t - τ) * η^2 + 1))
-    return c1 + c2 + c3 + logcdf(Normal(0,1), c4)
+    return c1 + c2 + c3 + logcdf(Normal(0, 1), c4)
 end
 
-function rand(rng::AbstractRNG, d::WaldMixture) 
+function rand(rng::AbstractRNG, d::WaldMixture)
     x = rand(rng, truncated(Normal(d.ν, d.η), 0, Inf))
     return rand(rng, InverseGaussian(d.α / x, d.α^2)) + d.τ
 end
@@ -86,8 +86,8 @@ represent samples of evidence per time step and columns represent different accu
 
 - `Δt=.001`: size of time step of decision process in seconds
 """
-function simulate(model::WaldMixture; Δt=.001)
-    (;ν,α,η) = model
+function simulate(model::WaldMixture; Δt = 0.001)
+    (; ν, α, η) = model
     n = length(model.ν)
     x = 0.0
     t = 0.0
@@ -100,5 +100,5 @@ function simulate(model::WaldMixture; Δt=.001)
         push!(evidence, x)
         push!(time_steps, t)
     end
-    return time_steps,evidence
+    return time_steps, evidence
 end

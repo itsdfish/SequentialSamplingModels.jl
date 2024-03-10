@@ -30,6 +30,7 @@ module SequentialSamplingModels
     import StatsAPI: params
     import StatsBase:cor2cov
 
+    export AbstractDDM
     export AbstractaDDM
     export AbstractCDDM
     export AbstractLBA
@@ -44,9 +45,9 @@ module SequentialSamplingModels
     export DDM
     export ExGaussian
     export RDM
-    export LBA 
+    export LBA
     export LCA
-    export LNR 
+    export LNR
     export maaDDM
     export PoissonRace
     export SSM1D
@@ -54,19 +55,19 @@ module SequentialSamplingModels
     export stDDM
     export ContinuousMultivariateSSM
     export Wald
-    export WaldMixture 
+    export WaldMixture
 
-    export cdf 
+    export cdf
     export compute_choice_probs
     export compute_quantiles
-    export loglikelihood 
+    export loglikelihood
     export logpdf
     export maximum
     export mean
     export minimum
     export n_options
     export params
-    export pdf 
+    export pdf
     export plot_choices
     export plot_choices!
     export plot_model
@@ -74,7 +75,7 @@ module SequentialSamplingModels
     export plot_quantiles
     export plot_quantiles!
     export predict_distribution
-    export rand 
+    export rand
     export simulate
     export std
     export survivor
