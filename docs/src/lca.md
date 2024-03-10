@@ -3,7 +3,7 @@
 The Leaky Competing Accumulator (LCA; Usher & McClelland, 2001) is a sequential sampling model in which evidence for options races independently. The LCA is similar to the Linear Ballistic Accumulator (LBA), but additionally assumes an intra-trial noise and leakage (in contrast, the LBA assumes that evidence accumulates in a ballistic fashion, i.e., linearly and deterministically until it hits the threshold).
 
 # Example
-In this example, we will demonstrate how to use the LBA in a generic two alternative forced choice task. 
+In this example, we will demonstrate how to use the LCA in a generic two alternative forced choice task. 
 ```@setup lca
 using SequentialSamplingModels
 using Plots 
