@@ -134,17 +134,17 @@ with more than one choice option.
 # Arguments
 
 - `d::SSM2D`: a 2D sequential sampling model.
-- `n_sim::Int`: the number of simulated choices and rts  
+- `N::Int`: the number of simulated choices and rts  
 
 # Keywords
 
 - `kwargs...`: optional keyword arguments 
 """
-function rand(rng::AbstractRNG, d::SSM2D, n_sim::Int)
-    choice = fill(0, n_sim)
-    rt = fill(0.0, n_sim)
-    for i = 1:n_sim
-        choice[i], rt[i] = rand(rng, d)
+function rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
+    choice = fill(0, N)
+    rt = fill(0.0, N)
+    for i = 1:N
+        choice[i], rt[i] = rand(rng, d; kwargs...)
     end
     return (; choice, rt)
 end
@@ -191,25 +191,6 @@ pdf(d::SSM2D, data::NamedTuple, args...; kwargs...) =
     pdf.(d, data.choice, data.rt, args...; kwargs...)
 
 pdf(d::SSM2D, data::AbstractArray{Real,2}) = pdf(d, Int(data[1]), data[2])
-
-"""
-    rand(rng::AbstractRNG, d::SSM2D, N::Int)
-
-Default method for Generating `n_sim` random choice-rt pairs from a sequential sampling model 
-with more than one choice option.
-
-# Arguments
-- `d::SSM2D`: a 2D sequential sampling model.
-- `N::Int`: the number of simulated choices and rts  
-"""
-function rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)  
-    choice = fill(0, N)  
-    rt = fill(0.0, N)  
-    for i in 1:N  
-        choice[i],rt[i] = rand(rng, d; kwargs...)  
-    end  
-    return (;choice,rt)  
-end
 
 """
     cdf(d::SSM2D, choice::Int, ub=10)
