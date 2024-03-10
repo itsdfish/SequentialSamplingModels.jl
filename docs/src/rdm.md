@@ -1,6 +1,6 @@
 # Racing Diffusion Model
 
-The Racing Diffusion Model (RDM; Tillman, [Van Zandt, & Logan, 2020](https://link.springer.com/article/10.3758/s13423-020-01719-6)) is a sequential sampling model in which evidence for options races independently. The RDM is similar to the Linear Ballistic Accumulator, except it assumes noise occurs during the within-trial evidence accumulation process, but the drift rate is constant across trials.
+The Racing Diffusion Model (RDM; [Tillman, Van Zandt, & Logan, 2020](https://link.springer.com/article/10.3758/s13423-020-01719-6)) is a sequential sampling model in which evidence for options races independently. The RDM is similar to the Linear Ballistic Accumulator, except it assumes noise occurs during the within-trial evidence accumulation process, but the drift rate is constant across trials.
 
 # Example
 In this example, we will demonstrate how to use the RDM in a generic two alternative forced choice task.
