@@ -53,9 +53,13 @@ choices,rts = rand(dist, 500)
 # References
 
 Amasino, D.R., Sullivan, N.J., Kranton, R.E. et al. Amount and time exert independent influences on intertemporal choice. Nat Hum Behav 3, 383–392 (2019). https://doi.org/10.1038/s41562-019-0537-2
+
 Barakchian, Z., Beharelle, A.R. & Hare, T.A. Healthy decisions in the cued-attribute food choice paradigm have high test-retest reliability. Sci Rep, (2021). https://doi.org/10.1038/s41598-021-91933-6
+
 Chen, HY., Lombardi, G., Li, SC. et al. Older adults process the probability of winning sooner but weigh it less during lottery decisions. Sci Rep, (2022). https://doi.org/10.1038/s41598-022-15432-y
+
 Lombardi, G., & Hare, T. Piecewise constant averaging methods allow for fast and accurate hierarchical Bayesian estimation of drift diffusion models with time-varying evidence accumulation rates. PsyArXiv, (2021). https://doi.org/10.31234/osf.io/5azyx
+
 Sullivan, N.J., Huettel, S.A. Healthful choices depend on the latency and rate of information accumulation. Nat Hum Behav 5, 1698–1706 (2021). https://doi.org/10.1038/s41562-021-01154-0
 """
 
@@ -133,13 +137,9 @@ function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; max_steps=6)
     X = z * α
     deciding = true
     cont = 1
-
     Ρ = [1.0 ρ; ρ 1.0]    
-    # Convert the standard deviations to a diagonal matrix
-    Σ_diag = [η[1] 0; 0 η[2]]
-    # Calculate the covariance matrix from correlation
-    Σ = Σ_diag * Ρ * Σ_diag
-
+    Σ = cor2cov(Ρ,η)
+   
     evidence = rand(MvNormal([ν[1], ν[2]], Σ))
 
     while deciding && cont <= lt

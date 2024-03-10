@@ -28,6 +28,7 @@ module SequentialSamplingModels
     import Distributions: rand
     import Distributions: std
     import StatsAPI: params
+    import StatsBase:cor2cov
 
     export AbstractaDDM
     export AbstractCDDM
