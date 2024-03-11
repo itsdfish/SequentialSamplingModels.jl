@@ -13,7 +13,11 @@ A model object for the Wald model, also known as the inverse Gaussian model.
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     Wald(ν, α, τ)
+
+The second constructor uses keywords with default values, and is not order dependent: 
 
     Wald(;ν=1.5, α=.50, τ=0.20)
 

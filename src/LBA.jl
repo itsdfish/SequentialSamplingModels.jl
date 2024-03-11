@@ -13,8 +13,12 @@ A model object for the linear ballistic accumulator.
 
 # Constructors 
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     LBA(ν, σ, A, k, τ)
-    
+
+The second constructor uses keywords with default values, and is not order dependent: 
+
     LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=[1.0,1.0])
 
 # Example 

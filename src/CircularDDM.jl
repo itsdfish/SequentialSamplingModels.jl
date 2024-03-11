@@ -15,9 +15,13 @@ working memory tasks. Currently supports the 2D case.
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     CDDM(ν, σ, η, α, τ)
 
-    CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30) 
+The second constructor uses keywords with default values, and is not order dependent: 
+
+    CDDM(; ν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30) 
 
 # Example
 

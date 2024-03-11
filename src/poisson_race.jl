@@ -9,7 +9,11 @@
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     PoissonRace(ν, α, τ)
+
+The second constructor uses keywords with default values, and is not order dependent: 
 
     PoissonRace(;ν=[.05,.06], α=[5,5], τ=.3)
 

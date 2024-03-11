@@ -5,7 +5,7 @@
         using Random
         Random.seed!(8414)
 
-        parms = (α = 1.5, β = 0.20, λ = 0.10, ν = [2.5, 2.0], Δt = 0.001, τ = 0.30, σ = 1.0)
+        parms = (α = 1.5, β = 0.20, λ = 0.10, ν = [2.5, 2.0], τ = 0.30, σ = 1.0)
 
         model = LCA(; parms...)
         choice, rt = rand(model, 10_000)
@@ -132,9 +132,9 @@
         Random.seed!(843)
         α = 0.80
         Δt = 0.0005
-        dist = LCA(; α, ν = [2, 1], Δt)
+        dist = LCA(; α, ν = [2, 1])
 
-        time_steps, evidence = simulate(dist)
+        time_steps, evidence = simulate(dist; Δt)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == size(evidence, 1)

@@ -10,8 +10,12 @@
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     WaldMixture(ν, η, α, τ)
     
+The second constructor uses keywords with default values, and is not order dependent: 
+
     WaldMixture(;ν=3.0, η=.2, α=.5, τ=.130)
     
 # Example

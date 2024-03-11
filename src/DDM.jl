@@ -4,6 +4,7 @@
 Model object for the standard Drift Diffusion Model.
 
 # Parameters
+
 - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
 - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
 - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
@@ -11,13 +12,14 @@ Model object for the standard Drift Diffusion Model.
 
 # Constructors 
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     DDM(ν, α, z, τ)
-    
-    DDM(; ν = 1.0,
-        α = 0.8,
-        τ = 0.3
-        z = 0.25)
-        
+
+The second constructor uses keywords with default values, and is not order dependent: 
+
+    DDM(; ν = 1.00, α = 0.80, τ = 0.30, z = 0.50)
+
 # Example 
 
 ```julia

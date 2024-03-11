@@ -15,7 +15,12 @@ An object for the attentional diffusion model.
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
+
     aDDM(ν, σ, Δ, θ, α, z, τ)
+
+The second constructor uses keywords with default values, and is not order dependent: 
 
     aDDM(;ν=[5.0,4.0], α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004, τ=0.0)
 

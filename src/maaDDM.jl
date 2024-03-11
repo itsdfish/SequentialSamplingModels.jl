@@ -5,21 +5,24 @@ An object for the multi-attribute attentional drift diffusion model.
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     maaDDM(ν, σ, Δ, θ, ϕ, ω, α, z, τ)
 
-    maaDDM(; 
-        ν = [4.0 5.0; 5.0 4.0],
-        α = 1.0, 
-        z = 0.0, 
-        θ = .3, 
-        ϕ = .50, 
-        ω = .70, 
-        σ = .02, 
-        Δ = .0004,
-        τ = 0.0)
-            
-Constructor for multialternative attentional diffusion model object. 
+The second constructor uses keywords with default values, and is not order dependent: 
 
+    maaDDM(;
+        ν = [4.0 5.0; 5.0 4.0],
+        α = 1.0,
+        z = 0.0,
+        θ = 0.3,
+        ϕ = 0.50,
+        ω = 0.70,
+        σ = 0.02,
+        Δ = 0.0004,
+        τ = 0.0,
+    )
+            
 In this version of the model, the non-attended attribute of the non-attended alternative is doubly discounted. For example,
 the mean drift rate for the attribute 1 of alternative 1 is given by:
 
@@ -28,6 +31,7 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 ```
 
 # Keywords 
+
 - `ν`: drift rates where rows are alternatives and columns are attributes
 - `σ`: standard deviation of noise in evidence accumulation
 - `Δ`: constant of evidence accumulation speed (evidence per ms)

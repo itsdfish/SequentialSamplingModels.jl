@@ -12,7 +12,11 @@ to model reaction time distributions. Note that this is not technically a sequen
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     ExGaussian(μ, σ, τ)
+
+The second constructor uses kewords, and is not order dependent: 
 
     ExGaussian(;μ=.5, σ=.20, τ=.20) 
 

@@ -85,7 +85,11 @@ An object for the racing diffusion model.
 
 # Constructors
 
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
+
     RDM(ν, k, A, τ)
+    
+The second constructor uses keywords with default values, and is not order dependent: 
 
     RDM(;ν=[1,2], k=.3, A=.7, τ=.2)
 

@@ -11,19 +11,16 @@ A model type for the Leaky Competing Accumulator.
 - `λ`: leak rate
 - `α`: evidence threshold 
 - `τ`: non-decision time 
-- `Δt`: time step 
 
 # Constructors 
 
-    LCA(ν, σ, β, λ, α, τ, Δt)
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
 
-    LCA(;ν = [2.5,2.0], 
-        α = 1.5, 
-        β = .20, 
-        λ = .10, 
-        τ = .30, 
-        σ = 1.0, 
-        Δt = .001)
+    LCA(ν, σ, β, λ, α, τ)
+
+The second constructor uses keywords with default values, and is not order dependent: 
+
+    LCA(; ν = [2.5, 2.0], α = 1.5, β = 0.20, λ = 0.10, τ = 0.30, σ = 1.0)
         
 # Example 
 
@@ -35,7 +32,6 @@ using SequentialSamplingModels
 λ = 0.10 
 σ = 1.0
 τ = 0.30
-Δt = .001
 
 dist = LCA(; ν, α, β, λ, τ, σ, Δt)
 choices,rts = rand(dist, 500)
@@ -51,34 +47,34 @@ mutable struct LCA{T<:Real} <: AbstractLCA
     λ::T
     α::T
     τ::T
-    Δt::T
 end
 
-function LCA(ν, σ, β, λ, α, τ, Δt)
-    _, σ, β, λ, α, τ, Δt = promote(ν[1], σ, β, λ, α, τ, Δt)
+function LCA(ν, σ, β, λ, α, τ)
+    _, σ, β, λ, α, τ = promote(ν[1], σ, β, λ, α, τ)
     ν = convert(Vector{typeof(τ)}, ν)
-    return LCA(ν, σ, β, λ, α, τ, Δt)
+    return LCA(ν, σ, β, λ, α, τ)
 end
 
-function LCA(; ν = [2.5, 2.0], α = 1.5, β = 0.20, λ = 0.10, τ = 0.30, σ = 1.0, Δt = 0.001)
-    return LCA(ν, σ, β, λ, α, τ, Δt)
+function LCA(; ν = [2.5, 2.0], α = 1.5, β = 0.20, λ = 0.10, τ = 0.30, σ = 1.0)
+    return LCA(ν, σ, β, λ, α, τ)
 end
 
 function params(d::AbstractLCA)
-    return (d.ν, d.σ, d.β, d.λ, d.α, d.τ, d.Δt)
+    return (d.ν, d.σ, d.β, d.λ, d.α, d.τ)
 end
 
 get_pdf_type(d::AbstractLCA) = Approximate
 
 """
-    rand(dist::AbstractLCA)
+    rand(dist::AbstractLCA; Δt = 0.001)
 
 Generate a random choice-rt pair for the Leaky Competing Accumulator.
 
 # Arguments
 - `dist`: model object for the Leaky Competing Accumulator. 
+- `Δt = 0.001`: time step size 
 """
-function rand(rng::AbstractRNG, dist::AbstractLCA)
+function rand(rng::AbstractRNG, dist::AbstractLCA; Δt = 0.001)
     # number of trials 
     n = length(dist.ν)
     # evidence for each alternative
@@ -87,19 +83,23 @@ function rand(rng::AbstractRNG, dist::AbstractLCA)
     Δμ = fill(0.0, n)
     # noise for each alternative 
     ϵ = fill(0.0, n)
-    return simulate_trial(rng, dist, x, Δμ, ϵ)
+    return simulate_trial(rng, dist, x, Δμ, ϵ; Δt)
 end
 
 """
-    rand(dist::AbstractLCA, n_sim::Int)
+    rand(dist::AbstractLCA, n_sim::Int; Δt = 0.001)
 
 Generate `n_sim` random choice-rt pairs for the Leaky Competing Accumulator.
 
 # Arguments
+
 - `dist`: model object for the Leaky Competing Accumulator.
-- `n_sim::Int`: the number of simulated choice-rt pairs  
+- `n_sim::Int`: the number of simulated choice-rt pairs 
+
+# Keywords
+- `Δt = 0.001`: time step size
 """
-function rand(rng::AbstractRNG, dist::AbstractLCA, n_sim::Int)
+function rand(rng::AbstractRNG, dist::AbstractLCA, n_sim::Int; Δt = 0.001)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
@@ -107,17 +107,17 @@ function rand(rng::AbstractRNG, dist::AbstractLCA, n_sim::Int)
     choices = fill(0, n_sim)
     rts = fill(0.0, n_sim)
     for i = 1:n_sim
-        choices[i], rts[i] = simulate_trial(rng, dist, x, Δμ, ϵ)
+        choices[i], rts[i] = simulate_trial(rng, dist, x, Δμ, ϵ; Δt)
         x .= 0.0
     end
     return (; choices, rts)
 end
 
-function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ)
-    (; Δt, α, τ) = dist
+function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ; Δt = 0.001)
+    (; α, τ) = dist
     t = 0.0
     while all(x .< α)
-        increment!(rng, dist, x, Δμ, ϵ)
+        increment!(rng, dist, x, Δμ, ϵ; Δt)
         t += Δt
     end
     _, choice = findmax(x)
@@ -141,10 +141,10 @@ function increment!(rng::AbstractRNG, ν, β, λ, σ, Δt, x, Δμ, ϵ)
     return nothing
 end
 
-increment!(dist, x, Δμ, ϵ) = increment!(Random.default_rng(), dist, x, Δμ, ϵ)
+increment!(dist, x, Δμ, ϵ; Δt = 0.001) = increment!(Random.default_rng(), dist, x, Δμ, ϵ; Δt)
 
-function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ)
-    (; ν, β, λ, σ, Δt) = dist
+function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ; Δt = 0.001)
+    (; ν, β, λ, σ) = dist
     return increment!(rng, ν, β, λ, σ, Δt, x, Δμ, ϵ)
 end
 
@@ -173,8 +173,8 @@ represent samples of evidence per time step and columns represent different accu
 
 - `model::AbstrctLCA`: an LCA model object
 """
-function simulate(model::AbstractLCA; _...)
-    (; Δt, α) = model
+function simulate(model::AbstractLCA; Δt = 0.001, _...)
+    (; α) = model
     n = length(model.ν)
     x = fill(0.0, n)
     μΔ = fill(0.0, n)
@@ -184,7 +184,7 @@ function simulate(model::AbstractLCA; _...)
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(model, x, μΔ, ϵ)
+        increment!(model, x, μΔ, ϵ; Δt)
         push!(evidence, copy(x))
         push!(time_steps, t)
     end

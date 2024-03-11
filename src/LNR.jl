@@ -9,9 +9,13 @@
 
 # Constructors
 
-    LNR(ν, σ, τ)
+Two constructors are defined below. The first constructor uses positional arguments, and is therefore order dependent:
 
-    LNR(;ν=[-1,-2], σ=[1.0,1.0], τ=.20) 
+    LNR(ν, σ, τ)
+    
+The second constructor uses keywords with default values, and is not order dependent: 
+
+    LNR(; ν = [-1, -2], σ = fill(1.0, length(ν)), τ = 0.20)
 
 # Example
 
