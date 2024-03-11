@@ -12,50 +12,50 @@ sz = 0.05</code></pre><pre class="documenter-example-output"><code class="nohigh
 ├───────────┼───────┤
 │ ν         │  1.00 │
 │ α         │  0.80 │
-│ τ         │  0.30 │
-│ z         │  0.25 │
+│ z         │  0.30 │
+│ τ         │  0.25 │
 └───────────┴───────┘
-</span></code></pre><h2 id="Simulate-Model"><a class="docs-heading-anchor" href="#Simulate-Model">Simulate Model</a><a id="Simulate-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Simulate-Model" title="Permalink"></a></h2><p>Now that the model is defined, we will generate <span>$10,000$</span> choices and reaction times using <code>rand</code>. </p><pre><code class="language-julia hljs"> choices,rts = rand(dist, 10_000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(choice = [2, 2, 1, 1, 2, 2, 2, 2, 1, 2  …  2, 1, 1, 1, 1, 1, 1, 2, 2, 1], rt = [0.557761005216008, 0.4833938587731694, 0.4053488075040135, 0.398298279719642, 0.32812883502695017, 0.3487368456758271, 0.4626803174366089, 0.3117403116828078, 0.3838608626329535, 0.39597715167585307  …  0.34362836831462906, 0.6818367289416989, 0.48193083014639704, 0.5696325950223435, 0.5731735446245481, 0.44237318213831933, 0.4386552929173067, 0.312603784814076, 0.43578665293496366, 0.49997263818725096])</code></pre><h2 id="Compute-PDF"><a class="docs-heading-anchor" href="#Compute-PDF">Compute PDF</a><a id="Compute-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PDF" title="Permalink"></a></h2><p>The PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">pdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
- 0.34483696225244076
- 0.6560976445550111
- 2.016518346098033
- 2.0200334890436347
- 6.705882216608096
- 3.9308979932881685
- 0.7964796731752382
- 9.293465201621014
- 1.9394384573326826
- 1.6996173749241064
+</span></code></pre><h2 id="Simulate-Model"><a class="docs-heading-anchor" href="#Simulate-Model">Simulate Model</a><a id="Simulate-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Simulate-Model" title="Permalink"></a></h2><p>Now that the model is defined, we will generate <span>$10,000$</span> choices and reaction times using <code>rand</code>. </p><pre><code class="language-julia hljs"> choices,rts = rand(dist, 10_000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(choice = [2, 2, 2, 1, 2, 2, 2, 1, 1, 2  …  1, 2, 2, 1, 1, 2, 2, 2, 1, 2], rt = [0.6040833743136477, 0.6672878615122555, 0.2667882086926956, 0.3119636321779704, 0.38724375430545344, 0.26872349052374334, 0.2790776286723692, 0.36446964239942803, 0.442913084190998, 0.2602443554497827  …  0.4264253513088843, 0.317697104139211, 0.3288217479547592, 0.3859702521570838, 0.4230704702512863, 0.2869607628955842, 0.31460519668186004, 0.302534016007984, 0.32805386370800405, 0.29508170742521594])</code></pre><h2 id="Compute-PDF"><a class="docs-heading-anchor" href="#Compute-PDF">Compute PDF</a><a id="Compute-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PDF" title="Permalink"></a></h2><p>The PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">pdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
+ 0.1707570036840438
+ 0.10157448683853935
+ 6.176050605689833
+ 1.9498828326430897
+ 1.1120445858644057
+ 6.254950207453447
+ 5.560196242606552
+ 2.2666992794573937
+ 1.3877157939199714
+ 4.34515444789423
  ⋮
- 0.27497121655757123
- 1.36036052180571
- 0.6873196502302258
- 0.667916598947243
- 1.7595083774996712
- 1.7951814509611352
- 9.385199437713409
- 1.0465981476460218
- 1.1905989633502752</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
- -1.064683546830006
- -0.4214456527078439
-  0.7013724332804934
-  0.7031140900101603
-  1.9029850840079074
-  1.368867896799592
- -0.22755367013942668
-  2.2293114866810404
-  0.6623984761919042
-  0.5304031521552572
+ 2.701291112278239
+ 2.270356352155836
+ 2.0467264610205906
+ 1.6067755657360605
+ 4.7736328601776865
+ 2.84352138656625
+ 3.5215570936719485
+ 2.282402058364405
+ 4.061215332628449</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
+ -1.7675137641891465
+ -2.2869628891660074
+  1.8206790066153677
+  0.6677692849463734
+  0.10620029022640319
+  1.8333731834480929
+  1.715633403072455
+  0.8183247114063541
+  0.32765908169488817
+  1.4690613042062584
   ⋮
- -1.2910888538569225
-  0.30774975418095274
- -0.37495581079299384
- -0.40359196511552026
-  0.5650344390638037
-  0.5851061037177335
-  2.239133920501375
-  0.045545045076725736
-  0.17445651104155704</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histograms for each option.</p><pre><code class="language-julia hljs"># rts for option 1
+  0.9937298484466898
+  0.8199368025012801
+  0.7162416685465508
+  0.47422941660124457
+  1.5631076209329136
+  1.0450432089484079
+  1.2589032479561681
+  0.8252284227588448
+  1.4014822718313942</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histograms for each option.</p><pre><code class="language-julia hljs"># rts for option 1
 rts1 = rts[choices .== 1]
 # rts for option 2
 rts2 = rts[choices .== 2]
@@ -76,4 +76,4 @@ plot!(t_range, pdf2, subplot=2, color=:darkorange, linewidth=2)
 # weight histogram according to choice probability
 hist[1][1][:y] *= p1
 hist[2][1][:y] *= (1 - p1)
-hist</code></pre><img src="8676fd02.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Navarro, D., &amp; Fuss, I. (2009). Fast and accurate calculations for first-passage times in Wiener diffusion models. https://doi.org/10.1016/J.JMP.2009.02.003</p><p>Ratcliff, R., &amp; McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922. https://doi.org/10.1162/neco.2008.12-06-420</p><p>Ratcliff, R., &amp; Rouder, J. N. (1998). Modeling Response Times for Two-Choice Decisions. Psychological Science, 9(5), 347–356. https://doi.org/10.1111/1467-9280.00067</p><p>Ratcliff, R., &amp; Smith, P. L. (2004). A comparison of sequential sampling models for two-choice reaction time. Psychological Review, 111 2, 333–367. https://doi.org/10.1037/0033-295X.111.2.333</p><p>Ratcliff, R., Smith, P. L., Brown, S. D., &amp; McKoon, G. (2016). Diffusion Decision Model: Current Issues and History. Trends in Cognitive Sciences, 20(4), 260–281. https://doi.org/10.1016/j.tics.2016.01.007</p><p>Wagenmakers, E.-J. (2009). Methodological and empirical developments for the Ratcliff diffusion model of response times and accuracy. European Journal of Cognitive Psychology, 21(5), 641-671.</p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Sunday 10 March 2024 23:32">Sunday 10 March 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+hist</code></pre><img src="8c00f38f.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Navarro, D., &amp; Fuss, I. (2009). Fast and accurate calculations for first-passage times in Wiener diffusion models. https://doi.org/10.1016/J.JMP.2009.02.003</p><p>Ratcliff, R., &amp; McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922. https://doi.org/10.1162/neco.2008.12-06-420</p><p>Ratcliff, R., &amp; Rouder, J. N. (1998). Modeling Response Times for Two-Choice Decisions. Psychological Science, 9(5), 347–356. https://doi.org/10.1111/1467-9280.00067</p><p>Ratcliff, R., &amp; Smith, P. L. (2004). A comparison of sequential sampling models for two-choice reaction time. Psychological Review, 111 2, 333–367. https://doi.org/10.1037/0033-295X.111.2.333</p><p>Ratcliff, R., Smith, P. L., Brown, S. D., &amp; McKoon, G. (2016). Diffusion Decision Model: Current Issues and History. Trends in Cognitive Sciences, 20(4), 260–281. https://doi.org/10.1016/j.tics.2016.01.007</p><p>Wagenmakers, E.-J. (2009). Methodological and empirical developments for the Ratcliff diffusion model of response times and accuracy. European Journal of Cognitive Psychology, 21(5), 641-671.</p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Monday 11 March 2024 10:13">Monday 11 March 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
