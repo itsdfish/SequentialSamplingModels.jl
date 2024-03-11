@@ -6,12 +6,12 @@ Model object for the standard Drift Diffusion Model.
 # Parameters
 - `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
 - `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
 - `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
+- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
 
 # Constructors 
 
-    DDM(ν, α, τ, z)
+    DDM(ν, α, z, τ)
     
     DDM(; ν = 1.0,
         α = 0.8,
@@ -35,20 +35,20 @@ Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data
 mutable struct DDM{T<:Real} <: AbstractDDM
     ν::T
     α::T
-    τ::T
     z::T
+    τ::T
 end
 
-function DDM(ν, α, τ, z)
-    return DDM(promote(ν, α, τ, z)...)
+function DDM(ν, α, z, τ)
+    return DDM(promote(ν, α, z, τ)...)
 end
 
 function params(d::DDM)
-    (d.ν, d.α, d.τ, d.z)
+    return (d.ν, d.α, d.z, d.τ)
 end
 
 function DDM(; ν = 1.00, α = 0.80, τ = 0.30, z = 0.50)
-    return DDM(ν, α, τ, z)
+    return DDM(ν, α, z, τ)
 end
 
 ################################################################################
@@ -64,15 +64,15 @@ end
 
 function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
     if choice == 1
-        (ν, α, τ, z) = params(d)
-        return _pdf(DDM(-ν, α, τ, 1 - z), rt; ϵ)
+        (ν, α, z, τ) = params(d)
+        return _pdf(DDM(-ν, α, 1 - z, τ), rt; ϵ)
     end
     return _pdf(d, rt; ϵ)
 end
 
 # probability density function over the lower boundary
 function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
-    (ν, α, τ, z) = params(d)
+    (ν, α, z, τ) = params(d)
     if τ ≥ t
         return T(NaN)
     end
@@ -146,8 +146,8 @@ logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 
 function cdf(d::DDM, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12)
     if choice == 1
-        (ν, α, τ, z) = params(d)
-        return _cdf(DDM(-ν, α, τ, 1 - z), rt; ϵ)
+        (ν, α, z, τ) = params(d)
+        return _cdf(DDM(-ν, α, 1 - z, τ), rt; ϵ)
     end
 
     return _cdf(d, rt; ϵ)
@@ -170,7 +170,7 @@ end
 
 # Large time representation of lower subdistribution
 function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
-    (ν, α, τ, z) = params(d)
+    (ν, α, z, τ) = params(d)
     F = zero(T)
     K_series = K:-1:1
     for k in K_series
@@ -185,7 +185,7 @@ end
 
 # Small time representation of the upper subdistribution
 function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
-    (ν, α, τ, z) = params(d)
+    (ν, α, z, τ) = params(d)
     if abs(ν) < sqrt(eps(T))
         return _Fs0_lower(d, K, t)
     end
@@ -225,7 +225,7 @@ end
 
 # Zero drift version
 function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
-    (_, α, τ, z) = params(d)
+    (_, α, z, τ) = params(d)
     F = zero(T)
     K_series = K:-1:0
     for k in K_series
@@ -238,7 +238,7 @@ function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
 end
 # Number of terms required for large time representation
 function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
-    (ν, α, τ, z) = params(d)
+    (ν, α, z, τ) = params(d)
     x = t - τ
     sqrtL1 = sqrt(1 / x) * α / π
     sqrtL2 = sqrt(
@@ -253,7 +253,7 @@ end
 
 # Number of terms required for small time representation
 function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
-    (ν, α, τ, z) = params(d)
+    (ν, α, z, τ) = params(d)
     if abs(ν) < sqrt(eps(T))
         return ceil(
             Int,
@@ -265,7 +265,7 @@ function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
         )
     end
     if ν > 0
-        return _K_small(DDM(-ν, α, τ, z), t; ϵ = exp(-2 * α * z * ν) * ϵ)
+        return _K_small(DDM(-ν, α, z, τ), t; ϵ = exp(-2 * α * z * ν) * ϵ)
     end
     S2 = z - 1 + 1 / (2 * ν * α) * log(ϵ / 2 * (1 - exp(2 * ν * α)))
     S3 = (0.535 * sqrt(2 * (t - τ)) + ν * (t - τ) + α * z) / (2 * α)
@@ -320,7 +320,7 @@ end
 # Rejection-based Method for the Symmetric Wiener Process(Tuerlinckx et al., 2001 based on Lichters et al., 1995)
 # adapted from the RWiener R package, note, here σ = 0.1
 function _rand_rejection(rng::AbstractRNG, d::DDM)
-    (ν, α, τ, z) = params(d)
+    (ν, α, z, τ) = params(d)
 
     ϵ = 1.0e-15
 

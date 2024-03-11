@@ -7,15 +7,15 @@ working memory tasks. Currently supports the 2D case.
 
 # Parameters 
 - `ν`: a vector drift rates. ν₁ is the mean drift rate along the x-axis; ν₂ is the mean drift rate along the y-axis.
+- `σ`: intra-trial drift rate variability 
 - `η`: a vector across-trial standard deviations of  drift rates. η₁ is the standard deviation of drift rate along the x-axis; 
     ν₂ is the standard deviation of drift rate along the y-axis
-- `σ`: intra-trial drift rate variability 
 - `α`: response boundary as measured by the radious of a circle 
 - `τ`: mean non-decision time 
 
 # Constructors
 
-    CDDM(ν, η, σ, α, τ)
+    CDDM(ν, σ, η, α, τ)
 
     CDDMν=[1,.5], η=[1,1], σ=1, α=1.5, τ=0.30) 
 
@@ -38,29 +38,29 @@ Computational Brain & Behavior, 1-13.
 """
 struct CDDM{T<:Real} <: AbstractCDDM
     ν::Vector{T}
-    η::Vector{T}
     σ::T
+    η::Vector{T}
     α::T
     τ::T
 end
 
-function CDDM(ν, η, σ, α, τ)
-    _, _, σ, α, τ = promote(ν[1], η[1], σ, α, τ)
+function CDDM(ν, σ, η, α, τ)
+    _, σ, _, α, τ = promote(ν[1], σ, η[1], α, τ)
     ν = convert(Vector{typeof(τ)}, ν)
     η = convert(Vector{typeof(τ)}, η)
-    return CDDM(ν, η, σ, α, τ)
+    return CDDM(ν, σ, η, α, τ)
 end
 
 function params(d::AbstractCDDM)
-    return (d.ν, d.η, d.σ, d.α, d.τ)
+    return (d.ν, d.σ, d.η, d.α, d.τ)
 end
 
 function CDDM(; ν = [1, 0.5], η = [1, 1], σ = 1, α = 1.5, τ = 0.30)
-    return CDDM(ν, η, σ, α, τ)
+    return CDDM(ν, σ, η, α, τ)
 end
 
 function rand(rng::AbstractRNG, model::AbstractCDDM; Δt = 0.001)
-    (; ν, η, σ, α, τ) = model
+    (; ν, σ, η, α, τ) = model
     # start position, distance, and time at 0
     x, y, r, t = zeros(4)
     _ν = @. rand(rng, Normal(ν, η))

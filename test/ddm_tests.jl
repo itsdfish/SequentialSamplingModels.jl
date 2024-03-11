@@ -6,7 +6,7 @@
         Random.seed!(654)
         include("KDE.jl")
 
-        dist = DDM(ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
+        dist = DDM(;ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
         choice, rt = rand(dist, 10^6)
         rt1 = rt[choice.==1]
         p1 = mean(choice .== 1)
@@ -31,7 +31,7 @@
         include("KDE.jl")
         Random.seed!(750)
 
-        dist = DDM(ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
+        dist = DDM(;ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
         choice, rt = rand(dist, 10^6)
         rt1 = rt[choice.==1]
         p1 = mean(choice .== 1)
@@ -56,7 +56,7 @@
         using Random
         Random.seed!(7540)
 
-        dist = DDM(ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
+        dist = DDM(;ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
         choice, rt = rand(dist, 10^5)
         rt1 = rt[choice.==1]
         p1 = mean(choice .== 1)
@@ -81,7 +81,7 @@
         using Random
         Random.seed!(2200)
 
-        dist = DDM(ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
+        dist = DDM(;ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
         choice, rt = rand(dist, 10^5)
         rt1 = rt[choice.==1]
         p1 = mean(choice .== 1)

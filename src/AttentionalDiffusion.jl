@@ -7,15 +7,15 @@ An object for the attentional diffusion model.
 
 - `ν`: relative decision values (i.e., drift rates)
 - `σ`: standard deviation of noise in evidence accumulation
+- `Δ`: constant of evidence accumulation speed (evidence per ms)
 - `α`: evidence threshold 
 - `z`: initial evidence 
 - `θ`: bias towards attended alternative (lower indicates more bias)
-- `Δ`: constant of evidence accumulation speed (evidence per ms)
 - `τ`: non-decision time
 
 # Constructors
 
-    aDDM(ν, σ, θ, α, z, Δ, τ)
+    aDDM(ν, σ, Δ, θ, α, z, τ)
 
     aDDM(;ν=[5.0,4.0], α=1.0, z=α*.5, θ=.3, σ=.02, Δ=.0004, τ=0.0)
 
@@ -61,21 +61,21 @@ value in simple choice. Nature neuroscience, 13(10), 1292-1298.
 struct aDDM{T<:Real} <: AbstractaDDM
     ν::Vector{T}
     σ::T
+    Δ::T
     θ::T
     α::T
     z::T
-    Δ::T
     τ::T
 end
 
-function aDDM(ν, σ, θ, α, z, Δ, τ)
-    _, σ, θ, α, z, Δ, τ= promote(ν[1], σ, θ, α, z, Δ, τ)
+function aDDM(ν, σ, Δ, θ, α, z, τ)
+    _, σ, Δ, θ, α, z, τ = promote(ν[1], σ, Δ, θ, α, z, τ)
     ν = convert(Vector{typeof(z)}, ν)
-    return aDDM(ν, σ, θ, α, z, Δ, τ)
+    return aDDM(ν, σ, Δ, θ, α, z, τ)
 end
 
 function aDDM(; ν = [5.0, 4.0], α = 1.0, z = 0.0, θ = 0.3, σ = 0.02, Δ = 0.0004, τ = 0.0)
-    return aDDM(ν, σ, θ, α, z, Δ, τ)
+    return aDDM(ν, σ, Δ, θ, α, z, τ)
 end
 
 get_pdf_type(d::aDDM) = Approximate
