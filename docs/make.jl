@@ -33,6 +33,7 @@ makedocs(
             "Muti-attribute attentional drift diffusion Model" => "maaDDM.md",
             "Poisson Race" => "poisson_race.md",
             "Racing Diffusion Model (RDM)" => "rdm.md",
+            "Starting-time Drift Diffusion Model (stDDM)" => "stDDM.md",
             "Wald Model" => "wald.md",
             "Wald Mixture Model" => "wald_mixture.md",
         ],

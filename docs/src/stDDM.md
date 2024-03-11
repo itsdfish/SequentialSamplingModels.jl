@@ -1,4 +1,4 @@
-# Starting-time Diffusion Decision Model (stDDM)
+# Starting-time Drift Diffusion Model (stDDM)
 
 The relative starting time drift diffusion model (stDDM) characterizes the contributions of multiple unique attributes to the rate of evidence accumulation. Compared to the DDM, which assumes a constant evidence accumulation rate within each trial, the stDDM allows different attributes to enter the evidence accumulation process at various time points relative to one another. By doing so, the stDDM quantifies both the weights given to each attribute and their onset times (Amasino et al., 2019; Barakchian et al., 2021; Chen et al., 2022; Maier et al., 2020; Sullivan and Huettel, 2021).
 
