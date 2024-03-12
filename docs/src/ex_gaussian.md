@@ -29,7 +29,7 @@ In the code below, we will define parameters for the LBA and create a model obje
 
 ### Mean of Gaussian Component
 
-The parameter $\mu$ represents the mean processing time of each accumulator in log space.
+The parameter $\mu$ represents the mean processing time in log space.
 
 ```@example ex_gaussian
 μ = .80
@@ -49,7 +49,7 @@ The parameter $\tau$ represents the mean of the exponential component.
 ```
 ### Ex-Gaussian Constructor
 
-Now that values have been asigned to the parameters, we will pass them to `ExGaussian` to generate the model object.
+Now that values have been assigned to the parameters, we will pass them to `ExGaussian` to generate the model object.
 
 ```@example ex_gaussian
 dist = ExGaussian(μ, σ, τ)

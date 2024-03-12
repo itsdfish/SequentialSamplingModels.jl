@@ -4,29 +4,29 @@ using Turing
 using Plots
 
 makedocs(
-    warnonly = true,
-    sitename = "SequentialSamplingModels",
-    format = Documenter.HTML(
-        assets = [
+    warnonly=true,
+    sitename="SequentialSamplingModels",
+    format=Documenter.HTML(
+        assets=[
             asset(
                 "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
-                class = :css,
+                class=:css,
             ),
         ],
-        collapselevel = 1,
+        collapselevel=1,
     ),
-    modules = [
+    modules=[
         SequentialSamplingModels,
         Base.get_extension(SequentialSamplingModels, :TuringExt),
         Base.get_extension(SequentialSamplingModels, :PlotsExt),
     ],
-    pages = [
+    pages=[
         "Home" => "index.md",
         "Models" => [
             "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
             "Circular Drift Diffusion Model (CDDM)" => "cddm.md",
             "Drift Diffusion Model (DDM)" => "DDM.md",
-            "Ex-Gaussian Distrbituion" => "ex_gaussian.md",
+            "Ex-Gaussian Distribution" => "ex_gaussian.md",
             "Leaky Competing Accumulator (LCA)" => "lca.md",
             "Linear Ballistic Accumulator (LBA)" => "lba.md",
             "Lognormal Race Model (LNR)" => "lnr.md",
@@ -53,4 +53,4 @@ makedocs(
     ],
 )
 
-deploydocs(repo = "github.com/itsdfish/SequentialSamplingModels.jl.git")
+deploydocs(repo="github.com/itsdfish/SequentialSamplingModels.jl.git")
