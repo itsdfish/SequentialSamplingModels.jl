@@ -4,23 +4,23 @@ using Turing
 using Plots
 
 makedocs(
-    warnonly=true,
-    sitename="SequentialSamplingModels",
-    format=Documenter.HTML(
-        assets=[
+    warnonly = true,
+    sitename = "SequentialSamplingModels",
+    format = Documenter.HTML(
+        assets = [
             asset(
                 "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
-                class=:css,
+                class = :css,
             ),
         ],
-        collapselevel=1,
+        collapselevel = 1,
     ),
-    modules=[
+    modules = [
         SequentialSamplingModels,
         Base.get_extension(SequentialSamplingModels, :TuringExt),
         Base.get_extension(SequentialSamplingModels, :PlotsExt),
     ],
-    pages=[
+    pages = [
         "Home" => "index.md",
         "Models" => [
             "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
@@ -54,4 +54,4 @@ makedocs(
     ],
 )
 
-deploydocs(repo="github.com/itsdfish/SequentialSamplingModels.jl.git")
+deploydocs(repo = "github.com/itsdfish/SequentialSamplingModels.jl.git")

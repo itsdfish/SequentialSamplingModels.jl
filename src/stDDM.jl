@@ -65,26 +65,27 @@ mutable struct stDDM{T<:Real} <: AbstractstDDM
 end
 
 function stDDM(ν, σ, s, z, η, ρ, α, τ)
-    _, σ ,s ,z ,_ ,ρ , α, τ = promote(ν[1],σ, s, z, η[1], ρ, α, τ)
+    _, σ, s, z, _, ρ, α, τ = promote(ν[1], σ, s, z, η[1], ρ, α, τ)
     ν = convert(Vector{typeof(τ)}, ν)
     η = convert(Vector{typeof(τ)}, η)
     return stDDM(ν, σ, s, z, η, ρ, α, τ)
 end
 
-function stDDM(;ν = [0.5,0.6], 
+function stDDM(;
+    ν = [0.5, 0.6],
     σ = 1,
-    s = 0.50, 
-    z = 0.50, 
-    η = fill(1.0, length(ν)), 
+    s = 0.50,
+    z = 0.50,
+    η = fill(1.0, length(ν)),
     ρ = 0.0,
-    α = 1.0, 
-    τ = .300
-    )
+    α = 1.0,
+    τ = 0.300,
+)
     return stDDM(ν, σ, s, z, η, ρ, α, τ)
 end
 
 function params(d::AbstractstDDM)
-    (d.ν, d.σ, d.s, d.z, d.η, d.ρ, d.α, d.τ)    
+    (d.ν, d.σ, d.s, d.z, d.η, d.ρ, d.α, d.τ)
 end
 
 get_pdf_type(d::AbstractstDDM) = Approximate
@@ -115,31 +116,29 @@ Generate a single simulated trial from the starting-time diffusion decision mode
 - `Δt`: time-step for simulation
 - `max_steps`: total/max time for simulation
 """
-function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; Δt = .001, max_steps=6)
-    (;ν, σ, s, z, η, ρ, α, τ) = d
+function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; Δt = 0.001, max_steps = 6)
+    (; ν, σ, s, z, η, ρ, α, τ) = d
 
     lt = Int(max_steps / Δt)
     start_step = abs(Int(s / Δt))
-    
+
     t = τ
     choice = 0  # Initialize choice with a default value
 
     X = z * α
     deciding = true
     cont = 1
-    Ρ = [1.0 ρ; ρ 1.0]    
-    Σ = cor2cov(Ρ,η)
-   
-    evidence = rand(MvNormal([ν[1], ν[2]], Σ))
+    Ρ = [1.0 ρ; ρ 1.0]
+    Σ = cor2cov(Ρ, η)
+    ν₁, ν₂ = rand(MvNormal(ν, Σ))
 
     while deciding && cont <= lt
-        δ1 = cont ≤ start_step && s > 0 ? 0.0 : 1.0  
-        δ2 = cont ≤ start_step && s < 0 ? 0.0 : 1.0 
+        δ1 = cont ≤ start_step && s > 0 ? 0.0 : 1.0
+        δ2 = cont ≤ start_step && s < 0 ? 0.0 : 1.0
 
         noise = rand(rng, Normal(0, σ)) * √(Δt)
 
-        X += (evidence[1] * δ1 + evidence[2] * δ2) * Δt + noise
-        # X += (evidence[1] * a1Δ * δ1 + evidence[2] * a1Δ * δ2) * Δt + noise #note something to consider and fix is attribute difference
+        X += (ν₁ * δ1 + ν₂ * δ2) * Δt + noise
         if X > α
             choice = 1
             deciding = false
@@ -151,8 +150,8 @@ function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; Δt = .001, max_step
 
         cont += 1
     end
-    
-    return (;choice,rt=t)
+
+    return (; choice, rt = t)
 
 end
 
@@ -169,8 +168,8 @@ represent samples of evidence per time step and columns represent different accu
 - `model::AbstractstDDM`: a starting-time diffusion decision model diffusion model object
 - `Δt`: time-step for simulation
 """
-function simulate(rng::AbstractRNG, model::AbstractstDDM; Δt = .001)
-    (;ν, σ, s, z, η, ρ, α, τ) = model
+function simulate(rng::AbstractRNG, model::AbstractstDDM; Δt = 0.001)
+    (; ν, σ, s, z, η, ρ, α, τ) = model
 
     x = α * z
     t = 0.0
@@ -179,23 +178,23 @@ function simulate(rng::AbstractRNG, model::AbstractstDDM; Δt = .001)
     cont = 1
     start_step = abs(Int(s / Δt))
 
-    Ρ = [1.0 ρ; ρ 1.0]    
-    Σ = cor2cov(Ρ,η) 
+    Ρ = [1.0 ρ; ρ 1.0]
+    Σ = cor2cov(Ρ, η)
+    ν₁, ν₂ = rand(MvNormal(ν, Σ))
     while (x < α) && (x > 0)
         t += Δt
 
-        δ1 = cont ≤ start_step && s > 0 ? 0.0 : 1.0  
-        δ2 = cont ≤ start_step && s < 0 ? 0.0 : 1.0 
+        δ1 = cont ≤ start_step && s > 0 ? 0.0 : 1.0
+        δ2 = cont ≤ start_step && s < 0 ? 0.0 : 1.0
 
-        increment = rand(rng, MvNormal([ν[1], ν[2]], Σ))
         noise = rand(rng, Normal(0, σ)) * √(Δt)
 
-        x += (increment[1] * δ1 + increment[2] * δ2) * Δt + noise
+        x += (ν₁ * δ1 + ν₂ * δ2) * Δt + noise
 
         push!(evidence, x)
         push!(time_steps, t)
         cont += 1
     end
 
-    return time_steps,evidence
+    return time_steps, evidence
 end

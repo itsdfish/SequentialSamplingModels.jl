@@ -70,7 +70,7 @@ abstract type AbstractLCA <: SSM2D end
 
 An abstract type for the Poisson race model.
 """
-abstract type AbstractPoissonRace <:SSM2D end
+abstract type AbstractPoissonRace <: SSM2D end
 
 """
     AbstractstDDM <: SSM2D
@@ -122,8 +122,8 @@ Base.length(d::SSM2D) = 2
 
 rand(d::SSM2D; kwargs...) = rand(Random.default_rng(), d; kwargs...)
 rand(d::ContinuousMultivariateSSM; kwargs...) = rand(Random.default_rng(), d; kwargs...)
-rand(d::ContinuousMultivariateSSM, n::Int; kwargs...) =
-rand(Random.default_rng(), d, n; kwargs...)
+rand(d::ContinuousMultivariateSSM, n_trials::Int; kwargs...) =
+    rand(Random.default_rng(), d, n_trials; kwargs...)
 
 """
     rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
@@ -134,21 +134,21 @@ with more than one choice option.
 # Arguments
 
 - `d::SSM2D`: a 2D sequential sampling model.
-- `N::Int`: the number of simulated choices and rts  
+- `n_trials::Int`: the number of simulated choices and rts  
 
 # Keywords
 
 - `kwargs...`: optional keyword arguments 
 """
-function rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
-    choice = fill(0, N)
-    rt = fill(0.0, N)
-    for i = 1:N
+function rand(rng::AbstractRNG, d::SSM2D, n_trials::Int; kwargs...)
+    choice = fill(0, n_trials)
+    rt = fill(0.0, n_trials)
+    for i ∈ 1:n_trials
         choice[i], rt[i] = rand(rng, d; kwargs...)
     end
     return (; choice, rt)
 end
-rand(d::SSM2D, N::Int; kwargs...) = rand(Random.default_rng(), d, N; kwargs...)
+rand(d::SSM2D, n_trials::Int; kwargs...) = rand(Random.default_rng(), d, n_trials; kwargs...)
 
 """
     logpdf(d::SSM2D, data::NamedTuple) 

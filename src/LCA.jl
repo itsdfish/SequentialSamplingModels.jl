@@ -141,7 +141,8 @@ function increment!(rng::AbstractRNG, ν, β, λ, σ, Δt, x, Δμ, ϵ)
     return nothing
 end
 
-increment!(dist, x, Δμ, ϵ; Δt = 0.001) = increment!(Random.default_rng(), dist, x, Δμ, ϵ; Δt)
+increment!(dist, x, Δμ, ϵ; Δt = 0.001) =
+    increment!(Random.default_rng(), dist, x, Δμ, ϵ; Δt)
 
 function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ; Δt = 0.001)
     (; ν, β, λ, σ) = dist
