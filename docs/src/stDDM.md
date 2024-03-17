@@ -24,17 +24,10 @@ The drift rate controls the speed and direction in which information accumulates
 ```@example stDDM
 ν = [2.5,2.0]
 ```
-
-### Threshold
-The threshold α represents the amount of evidence required to make a decision.
+### Diffusion Noise
+Diffusion noise is the amount of within trial noise in the evidence accumulation process. 
 ```@example stDDM 
-α = 1.5
-```
-
-### Non-Decision Time
-Non-decision time is an additive constant representing encoding and motor response time. 
-```@example stDDM 
-τ = 0.30
+σ = 1.0
 ```
 
 ### starting time
@@ -56,21 +49,22 @@ Dispersion parameters of the drift rate are drawn from a multivariate normal dis
 ρ = 0.3
 ```
 
-### Diffusion Noise
-Diffusion noise is the amount of within trial noise in the evidence accumulation process. 
+### Threshold
+The threshold α represents the amount of evidence required to make a decision.
 ```@example stDDM 
-σ = 1.0
+α = 1.5
 ```
-### Time Step
-The time step parameter $\Delta t$ is the precision of the discrete time approxmation. 
+
+### Non-Decision Time
+Non-decision time is an additive constant representing encoding and motor response time. 
 ```@example stDDM 
-Δt = .001
+τ = 0.30
 ```
 
 ### stDDM Constructor 
 Now that values have been asigned to the parameters, we will pass them to `stDDM` to generate the model object.
 ```@example stDDM 
-dist = stDDM(;ν, α, τ, s, z, η, ρ, σ, Δt)
+dist = stDDM(;ν, σ, s, z, η, ρ, α, τ,)
 ```
 
 ## Simulate Model
