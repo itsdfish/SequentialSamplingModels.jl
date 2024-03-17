@@ -28,6 +28,7 @@ module SequentialSamplingModels
     import Distributions: rand
     import Distributions: std
     import StatsAPI: params
+    import StatsBase:cor2cov
 
     export AbstractDDM
     export AbstractaDDM
@@ -36,7 +37,8 @@ module SequentialSamplingModels
     export AbstractLCA
     export AbstractLNR
     export AbstractPoissonRace
-    export AbstractRDM
+    export AbstractRDM 
+    export AbstractstDDM 
     export AbstractWald
     export aDDM
     export CDDM
@@ -50,6 +52,7 @@ module SequentialSamplingModels
     export PoissonRace
     export SSM1D
     export SSM2D
+    export stDDM
     export ContinuousMultivariateSSM
     export Wald
     export WaldMixture
@@ -92,4 +95,5 @@ module SequentialSamplingModels
     include("ext_functions.jl")
     include("ex_gaussian.jl")
     include("poisson_race.jl")
+    include("stDDM.jl")
 end
