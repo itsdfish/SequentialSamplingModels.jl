@@ -19,8 +19,8 @@ Random.seed!(8741)
 ## Create Model Object
 In the code below, we will define parameters for the stDDM and create a model object to store the parameter values. 
 
-### Drift Rates
-The drift rates control the speed and direction with which information accumulates, with one drift rate per attribute (e.g., taste and health, payoff and delay, self and other).
+### Drift Rate
+The drift rate controls the speed and direction in which information accumulates. Here, each drift coefficient indicates the weighting strengths given to the first and second attributes (e.g., taste and health, payoff and delay, self and other), respectively, to the total drift rate in a given trial, where the drift rate accumulates relative evidence in favor of an option.
 ```@example stDDM
 ν = [2.5,2.0]
 ```
@@ -38,7 +38,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 ```
 
 ### starting time
-The starting time parameter \(s\) denotes how much earlier one attribute begins to affect the evidence accumulation process relative to the other(s). If \(s\) is negative, attribute 1 evidence is accumulated before attribute 2 evidence; if \(s\) is positive, attribute 1 evidence is accumulated after attribute 2 evidence. The absolute value of \(s\) indicates the difference in starting times for the two attributes.
+The starting time parameter $s$ denotes how much earlier one attribute begins to affect the evidence accumulation process relative to the other(s). If $s$ is negative, attribute 1 evidence is accumulated before attribute 2 evidence; if $s$ is positive, attribute 1 evidence is accumulated after attribute 2 evidence. The absolute value of $s$ indicates the difference in starting times for the two attributes.
 ```@example stDDM 
 s = 0.10 
 ```

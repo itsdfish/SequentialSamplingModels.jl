@@ -5,29 +5,20 @@ An object for the starting-time diffusion decision model.
 
 # Parameters 
 
-- `ν`:  vector of drift rates for attribute one and two
-- `α`:  evidence threshold
-- `τ`:  non-decision time 
+- `ν`:  vector of drift rate weights for attribute one and two
+- `σ`:  diffusion noise
 - `s`:  initial latency bias (positive for attribute two, negative for attribute one)
 - `z`:  initial evidence 
 - `η`:  vector of variability in drift rate for attribute one and two
 - `ρ`:  correlation between drift rate for attributes
-- `σ`:  diffusion noise
-- `Δt`: time step 
+- `α`:  evidence threshold
+- `τ`:  non-decision time 
 
 # Constructors 
 
-    stDDM(ν, α, τ, s, z, η, ρ, σ, Δt)
+    stDDM(ν, σ, s, z, η, ρ, α, τ)
 
-    stDDM(;ν = [0.5,0.6], 
-        α = 1.0, 
-        τ = .300, 
-        s = 0.50, 
-        z = 0.50, 
-        η = [1.0,1.0], 
-        ρ = 0.00,
-        σ = 1,
-        Δt = .001)
+    stDDM(;ν = [0.5,0.6],σ = 1,s = 0.50, z = 0.50, η = [1.0,1.0], ρ = 0.00, α = 1.0, τ = .300)
         
 # Example 
 
@@ -35,17 +26,16 @@ An object for the starting-time diffusion decision model.
 using SequentialSamplingModels
 
 ν = [0.5, 0.6]
-α = 1.0
-τ = 0.300
+σ = 1
 s = 0.50
 z = 0.50
 η = [1.0, 1.0]
 ρ = 0.00
-σ = 1
-Δt = 0.001
+α = 1.0
+τ = 0.300
 
 # Create stDDM model instance
-dist = stDDM(;ν, α, τ, s, z, η, ρ, σ, Δt)
+dist = stDDM(;ν, σ, s, z, η, ρ, α, τ)
 
 choices,rts = rand(dist, 500)
 ```
@@ -65,38 +55,36 @@ Sullivan, N.J., Huettel, S.A. Healthful choices depend on the latency and rate o
 
 mutable struct stDDM{T<:Real} <: AbstractstDDM
     ν::Vector{T}
-    α::T
-    τ::T
+    σ::T
     s::T
     z::T
     η::Vector{T}
     ρ::T
-    σ::T
-    Δt::T
+    α::T
+    τ::T
 end
 
-function stDDM(ν, α, τ, s, z, η, ρ, σ, Δt)
-    _, α, τ, s, z,_ , ρ, σ, Δt = promote(ν[1], α, τ, s, z, η[1], ρ, σ, Δt)
+function stDDM(ν, σ, s, z, η, ρ, α, τ)
+    _, σ ,s ,z ,_ ,ρ , α, τ = promote(ν[1],σ, s, z, η[1], ρ, α, τ)
     ν = convert(Vector{typeof(τ)}, ν)
     η = convert(Vector{typeof(τ)}, η)
-    return stDDM(ν, α, τ, s, z, η, ρ, σ, Δt)
+    return stDDM(ν, σ, s, z, η, ρ, α, τ)
 end
 
 function stDDM(;ν = [0.5,0.6], 
-    α = 1.0, 
-    τ = .300, 
+    σ = 1,
     s = 0.50, 
     z = 0.50, 
     η = fill(1.0, length(ν)), 
     ρ = 0.0,
-    σ = 1,
-    Δt = .001)
-
-    return stDDM(ν, α, τ, s, z, η, ρ, σ, Δt)
+    α = 1.0, 
+    τ = .300
+    )
+    return stDDM(ν, σ, s, z, η, ρ, α, τ)
 end
 
 function params(d::AbstractstDDM)
-    (d.ν, d.α, d.τ, d.s, d.z, d.η, d.ρ, d.σ, d.Δt)    
+    (d.ν, d.σ, d.s, d.z, d.η, d.ρ, d.α, d.τ)    
 end
 
 get_pdf_type(d::AbstractstDDM) = Approximate
@@ -107,14 +95,16 @@ get_pdf_type(d::AbstractstDDM) = Approximate
 Generate a random choice-rt pair for starting-time diffusion decision model.
 
 # Arguments
+- `rng`: a random number generator
 - `dist`: model object for the starting-time diffusion decision model. 
+- `Δt`: time-step for simulation
 """
-function rand(rng::AbstractRNG, dist::AbstractstDDM)
-    return simulate_trial(rng, dist)
+function rand(rng::AbstractRNG, dist::AbstractstDDM; kwargs...)
+    return simulate_trial(rng, dist; kwargs...)
 end
 
 """
-simulate_trial(rng::AbstractRNG, dist::AbstractstDDM, TMax)
+    simulate_trial(rng::AbstractRNG, dist::AbstractstDDM;  Δt, max_steps)
 
 Generate a single simulated trial from the starting-time diffusion decision model.
 
@@ -122,12 +112,12 @@ Generate a single simulated trial from the starting-time diffusion decision mode
 
 - `rng`: a random number generator
 - `model::AbstractstDDM`: a starting-time diffusion decision model object
+- `Δt`: time-step for simulation
 - `max_steps`: total/max time for simulation
 """
+function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; Δt = .001, max_steps=6)
+    (;ν, σ, s, z, η, ρ, α, τ) = d
 
-function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; max_steps=6)
-    (;ν, α, τ, s, z, η, ρ, σ, Δt) = d
-    
     lt = Int(max_steps / Δt)
     start_step = abs(Int(s / Δt))
     
@@ -149,7 +139,7 @@ function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; max_steps=6)
         noise = rand(rng, Normal(0, σ)) * √(Δt)
 
         X += (evidence[1] * δ1 + evidence[2] * δ2) * Δt + noise
-        
+        # X += (evidence[1] * a1Δ * δ1 + evidence[2] * a1Δ * δ2) * Δt + noise #note something to consider and fix is attribute difference
         if X > α
             choice = 1
             deciding = false
@@ -168,17 +158,19 @@ end
 
 
 """
-    simulate(model::AbstractstDDM)
+    simulate(rng::AbstractRNG, model::AbstractstDDM; Δt)
 
 Returns a matrix containing evidence samples of the stDDM decision process. In the matrix, rows 
 represent samples of evidence per time step and columns represent different accumulators.
 
 # Arguments
 
+- `rng`: a random number generator
 - `model::AbstractstDDM`: a starting-time diffusion decision model diffusion model object
+- `Δt`: time-step for simulation
 """
-function simulate(rng::AbstractRNG, model::AbstractstDDM)
-    (;ν, α, s, z, η, ρ, σ, Δt) = model
+function simulate(rng::AbstractRNG, model::AbstractstDDM; Δt = .001)
+    (;ν, σ, s, z, η, ρ, α, τ) = model
 
     x = α * z
     t = 0.0
@@ -188,11 +180,7 @@ function simulate(rng::AbstractRNG, model::AbstractstDDM)
     start_step = abs(Int(s / Δt))
 
     Ρ = [1.0 ρ; ρ 1.0]    
-    # Convert the standard deviations to a diagonal matrix
-    Σ_diag = [η[1] 0; 0 η[2]]
-    # Calculate the covariance matrix from correlation
-    Σ = Σ_diag * Ρ * Σ_diag
-    
+    Σ = cor2cov(Ρ,η) 
     while (x < α) && (x > 0)
         t += Δt
 

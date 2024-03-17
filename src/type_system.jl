@@ -148,6 +148,7 @@ function rand(rng::AbstractRNG, d::SSM2D, N::Int; kwargs...)
     end
     return (; choice, rt)
 end
+rand(d::SSM2D, N::Int; kwargs...) = rand(Random.default_rng(), d, N; kwargs...)
 
 """
     logpdf(d::SSM2D, data::NamedTuple) 
