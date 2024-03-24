@@ -25,7 +25,7 @@ function _show(io::IO, model)
         row_label_alignment = :l,
         row_labels = [fieldnames(typeof(model))...],
         formatters = ft_printf("%5.2f"),
-        alignment = :l,
+        alignment = :l
     )
 end
 
@@ -62,13 +62,13 @@ reaction times in key `rt`
 function compute_quantiles(
     data::NamedTuple;
     choice_set = unique(data.choice),
-    percentiles = 0.1:0.1:0.90,
+    percentiles = 0.1:0.1:0.90
 )
     (; choice, rt) = data
     n_choices = length(choice_set)
     quantiles = Vector{typeof(rt)}(undef, n_choices)
     for c ∈ 1:n_choices
-        temp_rts = rt[choice.==choice_set[c]]
+        temp_rts = rt[choice .== choice_set[c]]
         isempty(temp_rts) ? (quantiles[c] = temp_rts; continue) : nothing
         quantiles[c] = quantile(temp_rts, percentiles)
     end
@@ -86,7 +86,7 @@ Returns the marginal quantiles for a continous multivariate SSM.
 
 - `percentiles=.1:.1:.90`: percentiles at which to evaluate the quantiles 
 """
-function compute_quantiles(data::Array{<:Real,2}; percentiles = 0.1:0.1:0.90)
+function compute_quantiles(data::Array{<:Real, 2}; percentiles = 0.1:0.1:0.90)
     return map(c -> quantile(data[:, c], percentiles), 1:size(data, 2))
 end
 

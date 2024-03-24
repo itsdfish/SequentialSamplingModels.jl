@@ -11,7 +11,7 @@
             ϕ = 0.50,
             ω = 0.00,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δ1s = map(x -> increment(model, x), 1:4)
@@ -28,7 +28,7 @@
             ϕ = 0.50,
             ω = 0.00,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δ2s = map(x -> increment(model, x), 1:4)
@@ -47,7 +47,7 @@
             ϕ = 0.50,
             ω = 0.00,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δs = map(x -> increment(model, x), 1:4)
@@ -70,7 +70,7 @@
             ϕ = 0.50,
             ω = 0.50,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δs = map(x -> increment(model, x), 1:4)
@@ -89,7 +89,7 @@
             ϕ = 1.0,
             ω = 1.0,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δ1s = map(x -> increment(model, x), 1:4)
@@ -102,7 +102,7 @@
             ϕ = 1.0,
             ω = 0.0,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δ2s = map(x -> increment(model, x), 1:4)
@@ -123,7 +123,7 @@
             ϕ = 0.0,
             ω = 1.0,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δ2s = map(x -> increment(model, x), 1:4)
@@ -143,7 +143,7 @@
             ϕ = 1.0,
             ω = 1.0,
             σ = eps(),
-            Δ = 1.0,
+            Δ = 1.0
         )
 
         Δ2s = map(x -> increment(model, x), 1:4)
@@ -161,7 +161,7 @@
         mutable struct Transition
             state::Int
             n::Int
-            mat::Array{Float64,2}
+            mat::Array{Float64, 2}
         end
 
         function Transition(mat)
@@ -184,13 +184,12 @@
 
         tmat = Transition(
             [
-                0.98 0.015 0.0025 0.0025
-                0.015 0.98 0.0025 0.0025
-                0.0025 0.0025 0.98 0.015
-                0.0025 0.0025 0.015 0.98
-            ],
+            0.98 0.015 0.0025 0.0025
+            0.015 0.98 0.0025 0.0025
+            0.0025 0.0025 0.98 0.015
+            0.0025 0.0025 0.015 0.98
+        ],
         )
-
 
         time_steps, evidence = simulate(dist, tmat; fixate)
 

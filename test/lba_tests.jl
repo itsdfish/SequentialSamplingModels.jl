@@ -6,7 +6,7 @@
 
         dist = LBA(ν = [3.0, 2.0], A = 0.8, k = 0.2, τ = 0.3)
         choice, rt = rand(dist, 10^5)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
         approx_pdf = kde(rt1)
@@ -15,7 +15,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
@@ -33,7 +33,7 @@
         # density overlay on histograms are valid
         dist = LBA(ν = [2.0, 2.7], A = 0.6, k = 0.26, τ = 0.4)
         choice, rt = rand(dist, 10^5)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
         approx_pdf = kde(rt1)
@@ -42,7 +42,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
@@ -60,7 +60,7 @@
         # density overlay on histograms are valid
         dist = LBA(ν = [2.0, 2.7], A = 0.4, k = 0.20, τ = 0.4, σ = [1.0, 0.5])
         choice, rt = rand(dist, 10^5)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
         approx_pdf = kde(rt1)
@@ -69,7 +69,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2

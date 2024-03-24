@@ -10,7 +10,7 @@
             Wald(3, 1, 0.2),
             WaldMixture(2, 0.2, 1, 0.1),
             aDDM(),
-            maaDDM(),
+            maaDDM()
         ]
 
         for m ∈ models
@@ -30,7 +30,7 @@
             DDM(),
             WaldMixture(2, 0.2, 1, 0.1),
             aDDM(),
-            maaDDM(),
+            maaDDM()
         ]
 
         for m ∈ models
@@ -49,7 +49,7 @@
             RDM(; ν = [1.0, 0.5], k = 0.5, A = 1.0, τ = 0.2),
             DDM(),
             aDDM(),
-            maaDDM(),
+            maaDDM()
         ]
 
         for m ∈ models

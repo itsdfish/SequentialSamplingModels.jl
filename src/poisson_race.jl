@@ -30,7 +30,7 @@ loglike = logpdf.(dist, choice, rt)
 
 LaBerge, D. A. (1962). A recruitment model of simple behavior. Psychometrika, 27, 375-395.
 """
-struct PoissonRace{T<:Real} <: AbstractPoissonRace
+struct PoissonRace{T <: Real} <: AbstractPoissonRace
     ν::Vector{T}
     α::Vector{Int}
     τ::T

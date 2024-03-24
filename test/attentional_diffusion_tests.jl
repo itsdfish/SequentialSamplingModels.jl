@@ -6,7 +6,7 @@
         mutable struct Transition
             state::Int
             n::Int
-            mat::Array{Float64,2}
+            mat::Array{Float64, 2}
         end
 
         function Transition(mat)
@@ -17,7 +17,7 @@
 
         function fixate(t)
             w = @view t.mat[t.state, :]
-            next_state = sample(1:t.n, Weights(w))
+            next_state = sample(1:(t.n), Weights(w))
             t.state = next_state
             return next_state
         end
@@ -56,7 +56,7 @@
         mutable struct Transition
             state::Int
             n::Int
-            mat::Array{Float64,2}
+            mat::Array{Float64, 2}
         end
 
         function Transition(mat)

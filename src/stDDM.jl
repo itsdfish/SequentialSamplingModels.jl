@@ -53,7 +53,7 @@ Lombardi, G., & Hare, T. Piecewise constant averaging methods allow for fast and
 Sullivan, N.J., Huettel, S.A. Healthful choices depend on the latency and rate of information accumulation. Nat Hum Behav 5, 1698–1706 (2021). https://doi.org/10.1038/s41562-021-01154-0
 """
 
-mutable struct stDDM{T<:Real} <: AbstractstDDM
+mutable struct stDDM{T <: Real} <: AbstractstDDM
     ν::Vector{T}
     σ::T
     s::T
@@ -79,7 +79,7 @@ function stDDM(;
     η = fill(1.0, length(ν)),
     ρ = 0.0,
     α = 1.0,
-    τ = 0.300,
+    τ = 0.300
 )
     return stDDM(ν, σ, s, z, η, ρ, α, τ)
 end
@@ -152,9 +152,7 @@ function simulate_trial(rng::AbstractRNG, d::AbstractstDDM; Δt = 0.001, max_ste
     end
 
     return (; choice, rt = t)
-
 end
-
 
 """
     simulate(rng::AbstractRNG, model::AbstractstDDM; Δt)

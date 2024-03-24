@@ -6,7 +6,7 @@ abstract type Mixed <: ValueSupport end
 An abstract type for sequential sampling models characterized by a multivariate choice-reaction time distribution.
 Sub-types of `SSM2D` output a `NamedTuple` consisting of a vector of choices and reaction times. 
 """
-const SSM2D = Distribution{Multivariate,Mixed}
+const SSM2D = Distribution{Multivariate, Mixed}
 
 """
     ContinuousMultivariateSSM <: ContinuousMultivariateDistribution
@@ -148,7 +148,8 @@ function rand(rng::AbstractRNG, d::SSM2D, n_trials::Int; kwargs...)
     end
     return (; choice, rt)
 end
-rand(d::SSM2D, n_trials::Int; kwargs...) = rand(Random.default_rng(), d, n_trials; kwargs...)
+rand(d::SSM2D, n_trials::Int; kwargs...) =
+    rand(Random.default_rng(), d, n_trials; kwargs...)
 
 """
     logpdf(d::SSM2D, data::NamedTuple) 
@@ -175,7 +176,7 @@ Computes the summed log likelihood for a 2D sequential sampling model.
 """
 loglikelihood(d::SSM2D, data::NamedTuple) = sum(logpdf.(d, data...))
 
-loglikelihood(d::SSM2D, data::AbstractArray{<:Real,2}) =
+loglikelihood(d::SSM2D, data::AbstractArray{<:Real, 2}) =
     sum(logpdf.(d, Int.(data[:, 1]), data[:, 2]))
 
 """
@@ -191,7 +192,7 @@ Computes the probability density for a 2D sequential sampling model.
 pdf(d::SSM2D, data::NamedTuple, args...; kwargs...) =
     pdf.(d, data.choice, data.rt, args...; kwargs...)
 
-pdf(d::SSM2D, data::AbstractArray{Real,2}) = pdf(d, Int(data[1]), data[2])
+pdf(d::SSM2D, data::AbstractArray{Real, 2}) = pdf(d, Int(data[1]), data[2])
 
 """
     cdf(d::SSM2D, choice::Int, ub=10)
@@ -273,7 +274,6 @@ Returns 1 for the number of choice options
 n_options(d::SSM1D) = 1
 
 n_options(d::ContinuousMultivariateSSM) = length(d.ν)
-
 
 simulate(model::SSM2D, args...; kwargs...) =
     simulate(Random.default_rng(), model::SSM2D, args...; kwargs...)

@@ -32,7 +32,7 @@ Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015).
 The lognormal race: A cognitive-process model of choice and latency with desirable 
 psychometric properties. Psychometrika, 80(2), 491-513.
 """
-struct LNR{T<:Real} <: AbstractLNR
+struct LNR{T <: Real} <: AbstractLNR
     ν::Vector{T}
     σ::Vector{T}
     τ::T

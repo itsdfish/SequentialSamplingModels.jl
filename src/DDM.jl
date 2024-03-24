@@ -34,7 +34,7 @@ loglike = logpdf.(dist, choice, rt)
     
 Ratcliff, R., & McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922.
 """
-mutable struct DDM{T<:Real} <: AbstractDDM
+mutable struct DDM{T <: Real} <: AbstractDDM
     ν::T
     α::T
     z::T
@@ -73,7 +73,7 @@ function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
 end
 
 # probability density function over the lower boundary
-function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     (ν, α, z, τ) = params(d)
     if τ ≥ t
         return T(NaN)
@@ -102,10 +102,10 @@ function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
 end
 
 # small-time expansion
-function _small_time_pdf(u::T, z::T, K::Int) where {T<:Real}
+function _small_time_pdf(u::T, z::T, K::Int) where {T <: Real}
     inf_sum = zero(T)
 
-    k_series = -floor(Int, 0.5 * (K - 1)):ceil(Int, 0.5 * (K - 1))
+    k_series = (-floor(Int, 0.5 * (K - 1))):ceil(Int, 0.5 * (K - 1))
     for k in k_series
         inf_sum += ((2k + z) * exp(-((2k + z)^2 / (2u))))
     end
@@ -114,7 +114,7 @@ function _small_time_pdf(u::T, z::T, K::Int) where {T<:Real}
 end
 
 # large-time expansion
-function _large_time_pdf(u::T, z::T, K::Int) where {T<:Real}
+function _large_time_pdf(u::T, z::T, K::Int) where {T <: Real}
     inf_sum = zero(T)
 
     for k = 1:K
@@ -127,11 +127,11 @@ end
 logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
 #logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ))
 
-function logpdf(d::DDM, data::T) where {T<:NamedTuple}
+function logpdf(d::DDM, data::T) where {T <: NamedTuple}
     return sum(logpdf.(d, data...))
 end
 
-function logpdf(dist::DDM, data::Array{<:Tuple,1})
+function logpdf(dist::DDM, data::Array{<:Tuple, 1})
     LL = 0.0
     for d in data
         LL += logpdf(dist, d...)
@@ -156,7 +156,7 @@ function cdf(d::DDM, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12)
 end
 
 # cumulative density function over the lower boundary
-function _cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     if d.τ ≥ t
         return T(NaN)
     end
@@ -171,7 +171,7 @@ function _cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
 end
 
 # Large time representation of lower subdistribution
-function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
+function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
     (ν, α, z, τ) = params(d)
     F = zero(T)
     K_series = K:-1:1
@@ -186,7 +186,7 @@ function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
 end
 
 # Small time representation of the upper subdistribution
-function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
+function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
     (ν, α, z, τ) = params(d)
     if abs(ν) < sqrt(eps(T))
         return _Fs0_lower(d, K, t)
@@ -201,16 +201,16 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     for k in K_series
         S1 += (
             _exp_pnorm(2 * ν * α * k, -sign(ν) * (2 * α * k + α * z + ν * (t - τ)) / sqt) - _exp_pnorm(
-                -2 * ν * α * k - 2 * ν * α * z,
-                sign(ν) * (2 * α * k + α * z - ν * (t - τ)) / sqt,
-            )
+            -2 * ν * α * k - 2 * ν * α * z,
+            sign(ν) * (2 * α * k + α * z - ν * (t - τ)) / sqt
+        )
         )
 
         S2 += (
             _exp_pnorm(-2 * ν * α * k, sign(ν) * (2 * α * k - α * z - ν * (t - τ)) / sqt) - _exp_pnorm(
-                2 * ν * α * k - 2 * ν * α * z,
-                -sign(ν) * (2 * α * k - α * z + ν * (t - τ)) / sqt,
-            )
+            2 * ν * α * k - 2 * ν * α * z,
+            -sign(ν) * (2 * α * k - α * z + ν * (t - τ)) / sqt
+        )
         )
     end
 
@@ -226,7 +226,7 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
 end
 
 # Zero drift version
-function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
+function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
     (_, α, z, τ) = params(d)
     F = zero(T)
     K_series = K:-1:0
@@ -239,22 +239,22 @@ function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T<:Real}
     return 2 * F
 end
 # Number of terms required for large time representation
-function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _K_large(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     (ν, α, z, τ) = params(d)
     x = t - τ
     sqrtL1 = sqrt(1 / x) * α / π
     sqrtL2 = sqrt(
         max(
-            1,
-            -2 / x * α * α / π / π *
-            (log(ϵ * π * x / 2 * (ν * ν + π * π / α / α)) + ν * α * z + ν * ν * x / 2),
-        ),
+        1,
+        -2 / x * α * α / π / π *
+        (log(ϵ * π * x / 2 * (ν * ν + π * π / α / α)) + ν * α * z + ν * ν * x / 2)
+    ),
     )
     return ceil(Int, max(sqrtL1, sqrtL2))
 end
 
 # Number of terms required for small time representation
-function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
+function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     (ν, α, z, τ) = params(d)
     if abs(ν) < sqrt(eps(T))
         return ceil(
@@ -262,8 +262,8 @@ function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
             max(
                 0,
                 z / 2 -
-                sqrt(t - τ) / (2 * α) * quantile(Normal(), max(0, min(1, ϵ / (2 - 2 * z)))),
-            ),
+                sqrt(t - τ) / (2 * α) * quantile(Normal(), max(0, min(1, ϵ / (2 - 2 * z))))
+            )
         )
     end
     if ν > 0
@@ -280,14 +280,14 @@ function _K_small(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
                 min(
                     1,
                     ϵ * α / (0.3 * sqrt(2 * π * (t - τ))) *
-                    exp(ν^2 * (t - τ) / 2 + ν * α * z),
-                ),
-            ),
+                    exp(ν^2 * (t - τ) / 2 + ν * α * z)
+                )
+            )
         )
     return ceil(Int, max(0, S2, S3, S4))
 end
 # Probability for absorption at upper barrier
-function _P_upper(ν::T, α::T, z::T) where {T<:Real}
+function _P_upper(ν::T, α::T, z::T) where {T <: Real}
     e = exp(-2 * ν * α * (1 - z))
     if isinf(e)
         return 1.0
@@ -299,7 +299,7 @@ function _P_upper(ν::T, α::T, z::T) where {T<:Real}
 end
 
 # Calculates exp(a) * pnorm(b) using an approximation by Kiani et al. (2008)
-function _exp_pnorm(a::T, b::T) where {T<:Real}
+function _exp_pnorm(a::T, b::T) where {T <: Real}
     r = exp(a) * cdf(Distributions.Normal(), b)
     if isnan(r) && b < -5.5
         r = (1 / sqrt(2)) * exp(a - b^2 / 2) * (0.5641882 / (b^3) - 1 / (b * sqrt(π)))

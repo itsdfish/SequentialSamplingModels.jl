@@ -10,15 +10,15 @@ makedocs(
         assets = [
             asset(
                 "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
-                class = :css,
-            ),
+                class = :css
+            )
         ],
-        collapselevel = 1,
+        collapselevel = 1
     ),
     modules = [
         SequentialSamplingModels,
         Base.get_extension(SequentialSamplingModels, :TuringExt),
-        Base.get_extension(SequentialSamplingModels, :PlotsExt),
+        Base.get_extension(SequentialSamplingModels, :PlotsExt)
     ],
     pages = [
         "Home" => "index.md",
@@ -35,23 +35,23 @@ makedocs(
             "Racing Diffusion Model (RDM)" => "rdm.md",
             "Starting-time Drift Diffusion Model (stDDM)" => "stDDM.md",
             "Wald Model" => "wald.md",
-            "Wald Mixture Model" => "wald_mixture.md",
+            "Wald Mixture Model" => "wald_mixture.md"
         ],
         "Parameter Estimation" => [
             "Simple Bayesian Model" => "turing_simple.md",
             "Advanced Model Specification" => "turing_advanced.md",
-            "Hierarchical Models" => "turing_hierarchical.md",
+            "Hierarchical Models" => "turing_hierarchical.md"
         ],
         "Model Comparison" => "bayes_factor.md",
         "Predictive Distributions" => "predictive_distributions.md",
         "Plotting" => [
             "Basic Example" => "basic_plot_example.md",
             "Changing the Layout" => "layout.md",
-            "Plot Model Process" => "plot_model.md",
+            "Plot Model Process" => "plot_model.md"
         ],
         "API" => "api.md",
-        "Developer Guide" => "developer_guide.md",
-    ],
+        "Developer Guide" => "developer_guide.md"
+    ]
 )
 
 deploydocs(repo = "github.com/itsdfish/SequentialSamplingModels.jl.git")
