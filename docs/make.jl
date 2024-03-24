@@ -9,9 +9,9 @@ makedocs(
     format = Documenter.HTML(
         assets = [
             asset(
-                "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
-                class = :css
-            )
+            "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
+            class = :css
+        )
         ],
         collapselevel = 1
     ),
