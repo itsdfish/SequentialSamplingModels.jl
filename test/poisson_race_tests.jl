@@ -6,7 +6,7 @@
 
         dist = PoissonRace(; ν = [0.05, 0.06], α = [4, 5], τ = 0.3)
         choice, rts = rand(dist, 10^5)
-        rts1 = rts[choice.==1]
+        rts1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         approx_pdf = kde(rts1)
@@ -15,7 +15,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.02
 
-        rts2 = rts[choice.==2]
+        rts2 = rts[choice .== 2]
         approx_pdf = kde(rts2)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
@@ -30,7 +30,7 @@
 
         dist = PoissonRace(; ν = [0.04, 0.045], α = [4, 3], τ = 0.2)
         choice, rts = rand(dist, 10^5)
-        rts1 = rts[choice.==1]
+        rts1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         approx_pdf = kde(rts1)
@@ -39,7 +39,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.02
 
-        rts2 = rts[choice.==2]
+        rts2 = rts[choice .== 2]
         approx_pdf = kde(rts2)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2

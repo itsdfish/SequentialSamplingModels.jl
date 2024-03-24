@@ -27,7 +27,7 @@ function ssm_histogram(
     norm,
     model_args = (),
     n_sim,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     data = rand(d, n_sim, model_args...)
@@ -49,7 +49,7 @@ function ssm_histogram(d::SSM2D; norm, model_args = (), model_kwargs = (), n_sim
     choices = choices[idx]
     rts = rts[idx]
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    rt_vecs = map(c -> rts[choices.==c], 1:n_subplots)
+    rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
     hist = histogram(rt_vecs; norm, defaults..., kwargs...)
@@ -141,7 +141,7 @@ function histogram!(
     d::ContinuousMultivariateSSM;
     norm = true,
     n_sim = 2000,
-    kwargs...,
+    kwargs...
 )
     return ssm_histogram!(d, cur_plot; norm, n_sim, kwargs...)
 end
@@ -153,7 +153,7 @@ function ssm_histogram!(
     model_kwargs = (),
     norm,
     n_sim,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
@@ -162,7 +162,7 @@ function ssm_histogram!(
     choices = choices[idx]
     rts = rts[idx]
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    rt_vecs = map(c -> rts[choices.==c], 1:n_subplots)
+    rt_vecs = map(c -> rts[choices .== c], 1:n_subplots)
     yaxis = norm ? "density" : "frequency"
     defaults = get_histogram_defaults(d)
     hist = histogram!(cur_plot, rt_vecs; norm, yaxis, defaults..., kwargs...)
@@ -177,7 +177,7 @@ function ssm_histogram!(
     model_args = (),
     norm,
     n_sim,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     data = rand(d, n_sim, model_args...)
@@ -244,7 +244,7 @@ function get_histogram_defaults(d)
         color = :grey,
         leg = false,
         title,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end
 
@@ -259,6 +259,6 @@ function get_histogram_defaults(d::AbstractCDDM)
         grid = false,
         color = :grey,
         leg = false,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end

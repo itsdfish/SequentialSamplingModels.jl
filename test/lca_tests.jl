@@ -11,10 +11,10 @@
         choice, rt = rand(model, 10_000)
 
         @test mean(choice .== 1) ≈ 0.60024 atol = 5e-3
-        @test mean(rt[choice.==1]) ≈ 0.7478 atol = 5e-3
-        @test mean(rt[choice.==2]) ≈ 0.7555 atol = 5e-3
-        @test std(rt[choice.==1]) ≈ 0.1869 atol = 5e-3
-        @test std(rt[choice.==2]) ≈ 0.18607 atol = 5e-3
+        @test mean(rt[choice .== 1]) ≈ 0.7478 atol = 5e-3
+        @test mean(rt[choice .== 2]) ≈ 0.7555 atol = 5e-3
+        @test std(rt[choice .== 1]) ≈ 0.1869 atol = 5e-3
+        @test std(rt[choice .== 2]) ≈ 0.18607 atol = 5e-3
     end
     # import numpy as np
 

@@ -54,7 +54,7 @@
 
         dist = LNR(ν = [-1.5, -0.9], σ = [0.5, 0.5], τ = 0.3)
         choice, rts = rand(dist, 10^5)
-        rts1 = rts[choice.==1]
+        rts1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         approx_pdf = kde(rts1)
@@ -63,7 +63,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
-        rts2 = rts[choice.==2]
+        rts2 = rts[choice .== 2]
         approx_pdf = kde(rts2)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2

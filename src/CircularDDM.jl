@@ -40,7 +40,7 @@ Smith, P. L. (2016). Diffusion theory of decision making in continuous report. P
 Smith, P. L., Garrett, P. M., & Zhou, J. (2023). Obtaining Stable Predicted Distributions of Response Times and Decision Outcomes for the Circular Diffusion Model. 
 Computational Brain & Behavior, 1-13.
 """
-struct CDDM{T<:Real} <: AbstractCDDM
+struct CDDM{T <: Real} <: AbstractCDDM
     ν::Vector{T}
     σ::T
     η::Vector{T}
@@ -97,7 +97,7 @@ function logpdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
     return logpdf_term1(d, θ, rt) + logpdf_term2(d, rt; k_max)
 end
 
-function logpdf(d::AbstractCDDM, data::Array{<:Real,2}; k_max = 50)
+function logpdf(d::AbstractCDDM, data::Array{<:Real, 2}; k_max = 50)
     n_obs = size(data, 1)
     LLs = zeros(n_obs)
     j0, j01, j02 = precompute_bessel(; k_max)
@@ -119,7 +119,7 @@ function pdf(d::AbstractCDDM, data::Vector{<:Real}, j0, j01, j02; k_max = 50)
     return max(0.0, pdf_term1(d, θ, rt) * pdf_term2(d, rt, j0, j01, j02; k_max))
 end
 
-function pdf(d::AbstractCDDM, data::Array{<:Real,2}; k_max = 50)
+function pdf(d::AbstractCDDM, data::Array{<:Real, 2}; k_max = 50)
     n_obs = size(data, 1)
     LLs = zeros(n_obs)
     j0, j01, j02 = precompute_bessel(; k_max)
@@ -127,7 +127,7 @@ function pdf(d::AbstractCDDM, data::Array{<:Real,2}; k_max = 50)
         LLs[r] = max(
             0.0,
             pdf_term1(d, data[r, 1], data[r, 2]) *
-            pdf_term2(d, data[r, 2], j0, j01, j02; k_max),
+            pdf_term2(d, data[r, 2], j0, j01, j02; k_max)
         )
     end
     return LLs
@@ -216,7 +216,6 @@ function pdf_rt(d::AbstractCDDM, rt::Real; k_max = 50, n_steps = 50, kwargs...)
     end
     return val * Δθ
 end
-
 
 """
     pdf_angle(d::AbstractCDDM, θ::Real; k_max = 50, n_steps = 50, kwargs...)

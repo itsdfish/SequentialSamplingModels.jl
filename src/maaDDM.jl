@@ -93,8 +93,8 @@ tmat = Transition([.98 .015 .0025 .0025;
 Yang, X., & Krajbich, I. (2023). A dynamic computational model of gaze and choice in multi-attribute decisions. 
 Psychological Review, 130(1), 52.
 """
-struct maaDDM{T<:Real} <: AbstractaDDM
-    ν::Array{T,2}
+struct maaDDM{T <: Real} <: AbstractaDDM
+    ν::Array{T, 2}
     σ::T
     Δ::T
     θ::T
@@ -107,7 +107,7 @@ end
 
 function maaDDM(ν, σ, Δ, θ, ϕ, ω, α, z, τ)
     _, σ, Δ, θ, ϕ, ω, α, z, τ = promote(ν[1], σ, Δ, θ, ϕ, ω, α, z, τ)
-    ν = convert(Array{typeof(z),2}, ν)
+    ν = convert(Array{typeof(z), 2}, ν)
     return maaDDM(ν, σ, Δ, θ, ϕ, ω, α, z, τ)
 end
 
@@ -120,9 +120,8 @@ function maaDDM(;
     ω = 0.70,
     σ = 0.02,
     Δ = 0.0004,
-    τ = 0.0,
+    τ = 0.0
 )
-
     return maaDDM(ν, σ, Δ, θ, ϕ, ω, α, z, τ)
 end
 

@@ -16,10 +16,10 @@
         #https://github.com/galombardi/method_HtSSM_aDDM/tree/master/RecoveryFitting/stDDM
 
         @test mean(choice .== 1) ≈ 0.8192 atol = 1e-1
-        @test mean(rt[choice.==1]) ≈ 0.4332 atol = 1e-1
-        @test mean(rt[choice.==2]) ≈ 0.4555 atol = 1e-1
-        @test std(rt[choice.==1]) ≈ 0.1106 atol = 1e-1
-        @test std(rt[choice.==2]) ≈ 0.1318 atol = 1e-1
+        @test mean(rt[choice .== 1]) ≈ 0.4332 atol = 1e-1
+        @test mean(rt[choice .== 2]) ≈ 0.4555 atol = 1e-1
+        @test std(rt[choice .== 1]) ≈ 0.1106 atol = 1e-1
+        @test std(rt[choice .== 2]) ≈ 0.1318 atol = 1e-1
 
         parms = (ν = [2, 1], α = 1.5, τ = 0.30, s = 0.20, z = 0.50)
         model = stDDM(; parms...)
@@ -30,10 +30,10 @@
         #Julia:  0.8897 0.6635 0.6298 0.2464 0.3037
 
         @test mean(choice .== 1) ≈ 0.8883 atol = 1e-1
-        @test mean(rt[choice.==1]) ≈ 0.6639 atol = 1e-1
-        @test mean(rt[choice.==2]) ≈ 0.6303 atol = 1e-1
-        @test std(rt[choice.==1]) ≈ 0.2377 atol = 1e-1
-        @test std(rt[choice.==2]) ≈ 0.3146 atol = 1e-1
+        @test mean(rt[choice .== 1]) ≈ 0.6639 atol = 1e-1
+        @test mean(rt[choice .== 2]) ≈ 0.6303 atol = 1e-1
+        @test std(rt[choice .== 1]) ≈ 0.2377 atol = 1e-1
+        @test std(rt[choice .== 2]) ≈ 0.3146 atol = 1e-1
 
         parms = (ν = [0.7, 0.9], α = 2, τ = 0.40, s = 0.60, z = 0.40)
         model = stDDM(; parms...)
@@ -44,11 +44,10 @@
         #Julia:  0.7335 1.1642 1.0546 0.533 0.6285
 
         @test mean(choice .== 1) ≈ 0.7417 atol = 1e-1
-        @test mean(rt[choice.==1]) ≈ 1.1632 atol = 1e-1
-        @test mean(rt[choice.==2]) ≈ 1.0788 atol = 1e-1
-        @test std(rt[choice.==1]) ≈ 0.5329 atol = 1e-1
-        @test std(rt[choice.==2]) ≈ 0.6273 atol = 1e-1
-
+        @test mean(rt[choice .== 1]) ≈ 1.1632 atol = 1e-1
+        @test mean(rt[choice .== 2]) ≈ 1.0788 atol = 1e-1
+        @test std(rt[choice .== 1]) ≈ 0.5329 atol = 1e-1
+        @test std(rt[choice .== 2]) ≈ 0.6273 atol = 1e-1
     end
 
     #   R:
@@ -188,5 +187,4 @@
         time_steps, evidence = simulate(dist; Δt)
         @test evidence[end] ≈ 0.0 atol = 0.05
     end
-
 end

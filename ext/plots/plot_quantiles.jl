@@ -15,14 +15,14 @@ Plots the predictive quantile distribution against the quantiles of the data for
 function plot_quantiles(
     q_data::AbstractVector{<:AbstractVector},
     q_preds::Matrix{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     n_choices = length(q_preds[1])
     return plot_quantiles!(
         plot(layout = (n_choices, 1); kwargs...),
         q_data,
         q_preds;
-        kwargs...,
+        kwargs...
     )
 end
 
@@ -45,7 +45,7 @@ function plot_quantiles!(
     cur_plot::Plots.Plot,
     q_data::AbstractVector{<:AbstractVector},
     q_preds::Matrix{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     n_choices = length(q_preds[1])
     _q_preds = map(r -> map(i -> q_preds[i][r], 1:length(q_preds)), 1:n_choices)
@@ -57,7 +57,7 @@ function plot_quantiles!(
             _q_preds[c];
             title = "choice $c",
             subplot = c,
-            kwargs...,
+            kwargs...
         )
     end
     return cur_plot
@@ -80,7 +80,7 @@ Plots the predictive quantile distribution against the quantiles of the data for
 function plot_quantiles(
     q_data::AbstractVector,
     q_preds::AbstractArray{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     return plot_quantiles!(plot(), q_data, q_preds; kwargs...)
 end
@@ -103,7 +103,7 @@ function plot_quantiles!(
     cur_plot::Plots.Plot,
     q_data::AbstractVector,
     q_preds::AbstractArray{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     q_mat = reduce(vcat, transpose.(q_preds))
     lb = map(c -> quantile(q_mat[:, c], 0.025), 1:size(q_mat, 2))
@@ -119,7 +119,7 @@ function plot_quantiles!(
         yerror = (q_data .- lb, ub .- q_data),
         xlabel = "Quantile Data",
         ylabel = "Quantile Model";
-        kwargs...,
+        kwargs...
     )
     return cur_plot
 end
@@ -127,7 +127,7 @@ end
 function plot_quantiles!(
     q_data::AbstractVector,
     q_preds::Matrix{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     return plot_quantiles!(Plots.current(), q_preds, q_data; kwargs...)
 end

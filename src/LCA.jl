@@ -40,7 +40,7 @@ choices,rts = rand(dist, 500)
 
 Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The leaky, competing accumulator model. Psychological Review, 108 3, 550–592. https://doi.org/10.1037/0033-295X.108.3.550
 """
-mutable struct LCA{T<:Real} <: AbstractLCA
+mutable struct LCA{T <: Real} <: AbstractLCA
     ν::Vector{T}
     σ::T
     β::T

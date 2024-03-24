@@ -63,7 +63,7 @@ mutable struct Transition
 Krajbich, I., Armel, C., & Rangel, A. (2010). Visual fixations and the computation and comparison of 
 value in simple choice. Nature neuroscience, 13(10), 1292-1298.
 """
-struct aDDM{T<:Real} <: AbstractaDDM
+struct aDDM{T <: Real} <: AbstractaDDM
     ν::Vector{T}
     σ::T
     Δ::T
@@ -121,7 +121,7 @@ function rand(
     fixate,
     rand_state! = _rand_state!,
     Δt = 0.001,
-    kwargs...,
+    kwargs...
 )
     choice = fill(0, n_sim)
     rt = fill(0.0, n_sim)
@@ -136,7 +136,7 @@ end
 _rand_state!(tmat) = _rand_state!(Random.default_rng(), tmat)
 
 function _rand_state!(rng, tmat)
-    tmat.state = rand(rng, 1:tmat.n)
+    tmat.state = rand(rng, 1:(tmat.n))
     return nothing
 end
 
@@ -172,7 +172,7 @@ function rand(
     fixate,
     rand_state! = _rand_state!,
     Δt = 0.001,
-    kwargs...,
+    kwargs...
 )
     rand_state!(rng, args...; kwargs...)
     return rand(rng, dist; fixate = () -> fixate(args...; kwargs...), Δt)
@@ -236,7 +236,7 @@ function cdf(
     args...;
     fixate,
     n_sim = 10_000,
-    kwargs...,
+    kwargs...
 )
     c, rt = rand(rng, d, n_sim, args...; fixate, kwargs...)
     return mean(c .== choice .&& rt .≤ ub)
@@ -254,7 +254,7 @@ function survivor(
     args...;
     fixate::Function,
     n_sim = 10_000,
-    kwargs...,
+    kwargs...
 )
     return 1 - cdf(rng, d, choice, ub, args...; fixate, kwargs...)
 end
@@ -327,7 +327,7 @@ function simulate(
     fixate,
     Δt = 0.001,
     rand_state! = _rand_state!,
-    kwargs...,
+    kwargs...
 )
     (; α, z) = model
     _fixate = () -> fixate(args...; kwargs...)

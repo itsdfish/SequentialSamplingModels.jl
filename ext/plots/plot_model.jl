@@ -36,7 +36,7 @@ function plot_model(
     n_sim = 1,
     model_args = (),
     model_kwargs = (),
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(model)
     defaults = get_model_plot_defaults(model)
@@ -52,7 +52,7 @@ function plot_model(
             evidence;
             ylims = (0, maximum(α)),
             defaults...,
-            kwargs...,
+            kwargs...
         )
         zs[i] = evidence[1, :][:]
     end
@@ -68,7 +68,7 @@ function plot_model(
             model_args,
             model_kwargs,
             density_scale,
-            density_kwargs...,
+            density_kwargs...
         )
     end
     return model_plot
@@ -98,9 +98,8 @@ function plot_model(
     density_kwargs = (),
     labels = get_default_labels(model),
     n_sim = 1,
-    kwargs...,
+    kwargs...
 )
-
     defaults = get_model_plot_defaults(model)
     ts, evidence = simulate(model)
     model_plot = plot(evidence[:, 1], evidence[:, 2], line_z = ts; defaults..., kwargs...)
@@ -141,7 +140,7 @@ function get_default_labels(model::AbstractLBA)
     return [
         (τ, A, text("A", 10, :right, :top)),
         (0, α, text("α", 10, :right)),
-        (τ / 2, 0, text("τ", 10, :bottom)),
+        (τ / 2, 0, text("τ", 10, :bottom))
     ]
 end
 
@@ -160,7 +159,7 @@ function get_default_labels(model::AbstractRDM)
     return [
         (τ, A, text("A", 10, :right, :top)),
         (0, α, text("α", 10, :right)),
-        (τ / 2, 0, text("τ", 10, :bottom)),
+        (τ / 2, 0, text("τ", 10, :bottom))
     ]
 end
 
@@ -235,7 +234,7 @@ function add_threashold!(model, model_plot; kwargs...)
         fill(α, 1, n_options(model)),
         linestyle = :dash,
         color = :black;
-        kwargs...,
+        kwargs...
     )
     return nothing
 end
@@ -261,14 +260,14 @@ function add_threashold!(model::AbstractaDDM, model_plot; kwargs...)
         fill(α, 1, n_options(model)),
         linestyle = :dash,
         color = :black;
-        kwargs...,
+        kwargs...
     )
     hline!(
         model_plot,
         fill(-α, 1, n_options(model)),
         linestyle = :dash,
         color = :black;
-        kwargs...,
+        kwargs...
     )
     return nothing
 end
@@ -300,7 +299,7 @@ function add_threashold!(model::AbstractCDDM, model_plot; kwargs...)
         aspect_ratio = 1,
         color = :black,
         leg = false;
-        kwargs...,
+        kwargs...
     )
     return nothing
 end
@@ -331,7 +330,7 @@ function add_threashold!(model::DDM, model_plot; kwargs...)
         fill(α, 1, n_options(model)),
         linestyle = :dash,
         color = :black;
-        kwargs...,
+        kwargs...
     )
 
     hline!(
@@ -339,7 +338,7 @@ function add_threashold!(model::DDM, model_plot; kwargs...)
         fill(0, 1, n_options(model)),
         linestyle = :dash,
         color = :black;
-        kwargs...,
+        kwargs...
     )
     return nothing
 end
@@ -366,7 +365,7 @@ function get_model_plot_defaults(d::AbstractLCA)
         color = :black,
         leg = false,
         title,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end
 
@@ -392,7 +391,7 @@ function get_model_plot_defaults(d::AbstractWald)
         color = :black,
         leg = false,
         title,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end
 
@@ -417,7 +416,7 @@ function get_model_plot_defaults(d::AbstractRDM)
         color = :black,
         leg = false,
         title,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end
 
@@ -445,7 +444,7 @@ function get_model_plot_defaults(d::AbstractLBA)
         leg = false,
         title,
         layout = (n_subplots, 1),
-        arrow = :closed,
+        arrow = :closed
     )
 end
 
@@ -468,7 +467,7 @@ function get_model_plot_defaults(d::AbstractCDDM)
         linewidth = 0.75,
         c = cgrad([:black, :purple, :darkorange], [0.3, 0.6, 0.8]),
         colorbar_title = "Time [s]",
-        framestyle = :box,
+        framestyle = :box
     )
 end
 
@@ -495,7 +494,7 @@ function get_model_plot_defaults(d::AbstractPoissonRace)
         leg = false,
         title,
         layout = (n_subplots, 1),
-        arrow = :closed,
+        arrow = :closed
     )
 end
 
@@ -517,7 +516,7 @@ function get_model_plot_defaults(d::DDM)
         linewidth = 0.75,
         color = :black,
         leg = false,
-        framestyle = :none,
+        framestyle = :none
     )
 end
 
@@ -539,7 +538,7 @@ function get_model_plot_defaults(d::AbstractaDDM)
         linewidth = 0.75,
         color = :black,
         leg = false,
-        framestyle = :none,
+        framestyle = :none
     )
 end
 
@@ -557,7 +556,7 @@ function add_density!(model, model_plot; model_args, model_kwargs, density_scale
         ylabel = "",
         xticks = nothing,
         yticks = nothing,
-        kwargs...,
+        kwargs...
     )
     return nothing
 end
@@ -568,7 +567,7 @@ function add_density!(
     model_args,
     model_kwargs,
     density_scale,
-    kwargs...,
+    kwargs...
 )
     α = compute_threshold(model)
     τ = model.τ
@@ -585,7 +584,7 @@ function add_density!(
         xticks = nothing,
         yticks = nothing,
         title = "",
-        kwargs...,
+        kwargs...
     )
 
     plot_bottom_density!(
@@ -600,7 +599,7 @@ function add_density!(
         xticks = nothing,
         yticks = nothing,
         title = "",
-        kwargs...,
+        kwargs...
     )
 
     plot!(model_plot, [0, 0], [0, α], color = :black)
@@ -614,7 +613,7 @@ function add_density!(
     model_args,
     model_kwargs,
     density_scale,
-    kwargs...,
+    kwargs...
 )
     α = compute_threshold(model)
     τ = model.τ
@@ -631,7 +630,7 @@ function add_density!(
         xticks = nothing,
         yticks = nothing,
         title = "",
-        kwargs...,
+        kwargs...
     )
 
     plot_bottom_density!(
@@ -646,7 +645,7 @@ function add_density!(
         xticks = nothing,
         yticks = nothing,
         title = "",
-        kwargs...,
+        kwargs...
     )
 
     plot!(model_plot, [0, 0], [0, α], color = :black)
@@ -668,7 +667,7 @@ function plot_top_density!(
     model_args = (),
     model_kwargs = (),
     density_scale = nothing,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
@@ -692,13 +691,12 @@ function plot_top_density!(
     model_args = (),
     model_kwargs = (),
     density_scale = nothing,
-    kwargs...,
+    kwargs...
 )
-
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    kdes = [kernel(rts[choices.==c]) for c ∈ 1:n_subplots]
+    kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
     pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
@@ -717,7 +715,7 @@ function plot_bottom_density!(
     model_args = (),
     model_kwargs = (),
     density_scale = nothing,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
@@ -740,12 +738,12 @@ function plot_bottom_density!(
     model_args = (),
     model_kwargs = (),
     density_scale = nothing,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    kdes = [kernel(rts[choices.==c]) for c ∈ 1:n_subplots]
+    kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
     pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     pds_vec = vcat(pds...)

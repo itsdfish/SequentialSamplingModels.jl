@@ -8,7 +8,7 @@
 
         dist = DDM(; ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
         choice, rt = rand(dist, 10^6)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         approx_pdf = kernel(rt1)
@@ -17,7 +17,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.05
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
@@ -33,7 +33,7 @@
 
         dist = DDM(; ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
         choice, rt = rand(dist, 10^6)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         approx_pdf = kernel(rt1)
@@ -42,7 +42,7 @@
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.02
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
@@ -58,7 +58,7 @@
 
         dist = DDM(; ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
         choice, rt = rand(dist, 10^5)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         ecdf1 = ecdf(rt1)
@@ -67,7 +67,7 @@
         y = cdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.01
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         ecdf2 = ecdf(rt2)
         y′ = ecdf1.(x) * p2
         y = cdf.(dist, (2,), x)
@@ -83,7 +83,7 @@
 
         dist = DDM(; ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
         choice, rt = rand(dist, 10^5)
-        rt1 = rt[choice.==1]
+        rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         ecdf1 = ecdf(rt1)
@@ -92,7 +92,7 @@
         y = cdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.01
 
-        rt2 = rt[choice.==2]
+        rt2 = rt[choice .== 2]
         ecdf2 = ecdf(rt2)
         y′ = ecdf1.(x) * p2
         y = cdf.(dist, (2,), x)
@@ -127,7 +127,7 @@
             1.172312572,
             3.694528049,
             6.216743527,
-            7.220954098,
+            7.220954098
         ]
         cnt = 0
         for v1 ∈ -2:2, v2 ∈ -2:2
@@ -311,5 +311,4 @@
         time_steps, evidence = simulate(dist; Δt = 0.0001)
         @test evidence[end] ≈ 0.0 atol = 0.010
     end
-
 end

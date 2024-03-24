@@ -32,7 +32,7 @@ Steingroever, H., Wabersich, D., & Wagenmakers, E. J. (2020).
 Modeling across-trial variability in the Wald drift rate parameter. 
 Behavior Research Methods, 1-17.
 """
-struct WaldMixture{T<:Real} <: AbstractWald
+struct WaldMixture{T <: Real} <: AbstractWald
     ν::T
     η::T
     α::T

@@ -6,7 +6,7 @@
         Random.seed!(741)
 
         dist = WaldA(ν = 0.5, k = 0.3, A = 0.7, τ = 0.2)
-        rts = map(_ -> rand(dist), 1:10^6)
+        rts = map(_ -> rand(dist), 1:(10^6))
         approx_pdf = kernel(rts)
         x = 0.201:0.01:2.5
         y′ = pdf(approx_pdf, x)
@@ -31,9 +31,8 @@
         @test p′ ≈ p rtol = 0.001
         @test p ≈ mean((rts .< 0.6) .& (rts .> 0.3)) rtol = 0.01
 
-
         dist = WaldA(ν = 1.0, k = 0.3, A = 1.0, τ = 0.2)
-        rts = map(_ -> rand(dist), 1:10^6)
+        rts = map(_ -> rand(dist), 1:(10^6))
         approx_pdf = kernel(rts)
         x = 0.201:0.01:2.5
         y′ = pdf(approx_pdf, x)
@@ -65,7 +64,7 @@
 
         dist = RDM(; ν = [1.0, 0.5], k = 0.5, A = 1.0, τ = 0.2)
         choice, rts = rand(dist, 10^6)
-        rt1 = rts[choice.==1]
+        rt1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         # approx_pdf = kernel(rt1)
@@ -74,7 +73,7 @@
         # y = pdf.(dist, (1,), x)
         # @test y′ ≈ y rtol = .03
 
-        rt2 = rts[choice.==2]
+        rt2 = rts[choice .== 2]
         approx_pdf = kernel(rt2)
         # x = .201:.01:1.5
         # y′ = pdf(approx_pdf, x) * p2
@@ -99,7 +98,6 @@
             quadgk(x -> pdf(dist, 1, x), 0.2, 1.5)[1] -
             quadgk(x -> pdf(dist, 1, x), 0.2, 1.4)[1]
         @test p ≈ mean((rt1 .< 1.5) .& (rt1 .> 1.4)) atol = 0.01
-
 
         p′ = quadgk(x -> pdf(dist, 2, x), 0.2, Inf)[1]
         @test p′ ≈ p2 rtol = 0.001

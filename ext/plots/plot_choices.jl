@@ -15,7 +15,7 @@ Plots choice probability distributions for multi-choice SSMs.
 function plot_choices(
     data::AbstractVector{<:Real},
     preds::AbstractArray{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     n_choices = length(preds[1])
     return plot_choices!(plot(layout = (n_choices, 1); kwargs...), data, preds; kwargs...)
@@ -39,7 +39,7 @@ function plot_choices!(
     cur_plot::Plots.Plot,
     data::AbstractVector{<:Real},
     preds::AbstractArray{<:AbstractVector};
-    kwargs...,
+    kwargs...
 )
     n_choices = length(preds[1])
     title = ["Choice $c" for _ ∈ 1:1, c ∈ 1:n_choices]
@@ -54,7 +54,7 @@ function plot_choices!(
         ylabel = "Density",
         grid = false,
         norm = true;
-        kwargs...,
+        kwargs...
     )
     vline!(data', color = :black, linestyle = :dash)
     return cur_plot
@@ -63,7 +63,7 @@ end
 function plot_choices!(
     data::AbstractVector{<:Real},
     preds::AbstractArray{<:AbstractArray};
-    kwargs...,
+    kwargs...
 )
     return plot_choices!(Plots.current(), data, preds; kwargs...)
 end

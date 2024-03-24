@@ -1,4 +1,4 @@
-loglikelihood(d::AbstractWald, data::AbstractArray{T,1}) where {T} = sum(logpdf.(d, data))
+loglikelihood(d::AbstractWald, data::AbstractArray{T, 1}) where {T} = sum(logpdf.(d, data))
 
 """
     Wald{T<:Real} <: AbstractWald
@@ -35,7 +35,7 @@ Anders, R., Alario, F., & Van Maanen, L. (2016). The shifted Wald distribution f
 
 Folks, J. L., & Chhikara, R. S. (1978). The inverse Gaussian distribution and its statistical application—a review. Journal of the Royal Statistical Society Series B: Statistical Methodology, 40(3), 263-275.
 """
-struct Wald{T<:Real} <: AbstractWald
+struct Wald{T <: Real} <: AbstractWald
     ν::T
     α::T
     τ::T

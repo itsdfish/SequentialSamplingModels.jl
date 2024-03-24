@@ -8,7 +8,7 @@
         mutable struct Transition
             state::Int
             n::Int
-            mat::Array{Float64,2}
+            mat::Array{Float64, 2}
         end
 
         function Transition(mat)
@@ -53,9 +53,8 @@
             add_density = true,
             model_kwargs = (; fixate),
             model_args = (; tmat),
-            density_kwargs = (; t_range = range(0.0, 4, length = 200),),
+            density_kwargs = (; t_range = range(0.0, 4, length = 200),)
         )
-
     end
 
     @safetestset "DDM" begin
@@ -81,9 +80,8 @@
             dist;
             n_sim = 2,
             add_density = true,
-            density_kwargs = (; t_range = range(0.3, 1, length = 200),),
+            density_kwargs = (; t_range = range(0.3, 1, length = 200),)
         )
-
     end
 
     @safetestset "RDM" begin
@@ -107,7 +105,6 @@
         dist = RDM()
         density_kwargs = (; t_range = range(0.20, 0.80, length = 100),)
         plot_model(dist; n_sim = 10, add_density = true, density_kwargs, xlims = (0, 0.80))
-
     end
 
     @safetestset "LCA" begin
@@ -149,7 +146,6 @@
 
         plot(dist; t_range = range(0.130, 1.0, length = 100))
         histogram!(dist)
-
 
         dist = Wald()
         density_kwargs = (; t_range = range(0.2, 1.2, length = 100),)
@@ -199,7 +195,6 @@
 
         density_kwargs = (; t_range = range(0.3, 1.2, length = 100),)
         plot_model(dist; add_density = true, n_sim = 2, density_kwargs, xlims = (0, 1.2))
-
     end
 
     @safetestset "WaldMixture" begin

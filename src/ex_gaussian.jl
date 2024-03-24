@@ -34,7 +34,7 @@ loglike = logpdf.(dist, rt)
 Matzke, D., & Wagenmakers, E. J. (2009). Psychological interpretation of the ex-Gaussian and shifted Wald parameters: 
 A diffusion model analysis. Psychonomic bulletin & review, 16, 798-817.
 """
-struct ExGaussian{T<:Real} <: SSM1D
+struct ExGaussian{T <: Real} <: SSM1D
     μ::T
     σ::T
     τ::T

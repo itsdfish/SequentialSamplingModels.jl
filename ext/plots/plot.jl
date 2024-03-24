@@ -61,7 +61,7 @@ function ssm_plot(
     model_args = (),
     model_kwargs = (),
     t_range,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
@@ -80,7 +80,7 @@ function ssm_plot(
     density_offset = 0,
     density_scale = nothing,
     t_range,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
@@ -100,12 +100,12 @@ function ssm_plot(
     n_sim = 2000,
     density_scale = nothing,
     t_range,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    kdes = [kernel(rts[choices.==c]) for c ∈ 1:n_subplots]
+    kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
     pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
@@ -171,7 +171,7 @@ function plot!(
     t_range = default_range(d),
     model_args = (),
     model_kwargs = (),
-    kwargs...,
+    kwargs...
 )
     return ssm_plot!(
         get_pdf_type(d),
@@ -180,7 +180,7 @@ function plot!(
         t_range,
         model_args,
         model_kwargs,
-        kwargs...,
+        kwargs...
     )
 end
 
@@ -202,7 +202,7 @@ function plot!(
     cur_plot::Plots.Plot,
     d::ContinuousMultivariateSSM;
     t_range = default_range(d),
-    kwargs...,
+    kwargs...
 )
     return ssm_plot!(get_pdf_type(d), d, cur_plot; t_range, kwargs...)
 end
@@ -216,7 +216,7 @@ function ssm_plot!(
     density_offset = 0,
     t_range,
     density_scale = nothing,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
@@ -240,7 +240,7 @@ function ssm_plot!(
     density_offset = 0,
     density_scale = nothing,
     t_range,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     pds = gen_pds(d, t_range, n_subplots; model_args, model_kwargs)
@@ -261,12 +261,12 @@ function ssm_plot!(
     model_kwargs = (),
     density_scale = nothing,
     t_range,
-    kwargs...,
+    kwargs...
 )
     n_subplots = n_options(d)
     choices, rts = rand(d, n_sim, model_args...; model_kwargs...)
     choice_probs = map(c -> mean(choices .== c), 1:n_subplots)
-    kdes = [kernel(rts[choices.==c]) for c ∈ 1:n_subplots]
+    kdes = [kernel(rts[choices .== c]) for c ∈ 1:n_subplots]
     pds = gen_pds(kdes, t_range, choice_probs; model_args, model_kwargs)
     scale_density!(pds, density_scale)
     map!(x -> x .+ density_offset, pds, pds)
@@ -314,7 +314,7 @@ function get_plot_defaults(d)
         color = :black,
         leg = false,
         title,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end
 
@@ -331,7 +331,7 @@ function get_plot_defaults(d::AbstractCDDM)
         linewidth = 1.5,
         color = :black,
         leg = false,
-        layout = (n_subplots, 1),
+        layout = (n_subplots, 1)
     )
 end
 
