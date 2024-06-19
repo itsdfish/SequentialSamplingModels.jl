@@ -101,10 +101,13 @@
         Random.seed!(6521)
 
         Δt = 0.001
-        β = 0.20
-        λ = 0.10
-        σ = 0.10
-        ν = [2.5, 2.0]
+        model = LCA(;
+            ν = [2.5, 2.0],
+            β = 0.20,
+            λ = 0.10,
+            σ = 0.10,
+        )
+        
         Δμ = [0.0, 0.0]
         x = [0.0, 0.0]
         ϵ = [0.0, 0.0]
@@ -113,11 +116,11 @@
         evidence = fill(0.0, n_reps, 2)
         for i ∈ 1:n_reps
             x .= 1.0
-            increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ)
+            increment!(model, x, Δμ, ϵ; Δt)
             evidence[i, :] = x
         end
 
-        true_std = σ * sqrt(Δt)
+        true_std = model.σ * sqrt(Δt)
         true_means = [(2.5 - 0.1 - 0.4) (2.0 - 0.2 - 0.2)] * Δt .+ 1.0
 
         @test mean(evidence, dims = 1) ≈ true_means atol = 5e-4

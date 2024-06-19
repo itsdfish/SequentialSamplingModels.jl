@@ -125,10 +125,11 @@ function simulate_trial(rng::AbstractRNG, dist, x, Δμ, ϵ; Δt = 0.001)
     return (; choice, rt)
 end
 
-increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ) =
-    increment!(Random.default_rng(), ν, β, λ, σ, Δt, x, Δμ, ϵ)
+# increment!(ν, β, λ, σ, Δt, x, Δμ, ϵ) =
+#     increment!(Random.default_rng(), ν, β, λ, σ, Δt, x, Δμ, ϵ)
 
-function increment!(rng::AbstractRNG, ν, β, λ, σ, Δt, x, Δμ, ϵ)
+function increment!(rng::AbstractRNG, dist::AbstractLCA, x, Δμ, ϵ; Δt = 0.001)
+    (;ν, β, λ, σ) = dist
     n = length(ν)
     # compute change of mean evidence: νᵢ - λxᵢ - βΣⱼxⱼ
     compute_mean_evidence!(ν, β, λ, x, Δμ)
@@ -144,10 +145,10 @@ end
 increment!(dist, x, Δμ, ϵ; Δt = 0.001) =
     increment!(Random.default_rng(), dist, x, Δμ, ϵ; Δt)
 
-function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ; Δt = 0.001)
-    (; ν, β, λ, σ) = dist
-    return increment!(rng, ν, β, λ, σ, Δt, x, Δμ, ϵ)
-end
+# function increment!(rng::AbstractRNG, dist, x, Δμ, ϵ; Δt = 0.001)
+#     (; ν, β, λ, σ) = dist
+#     return increment!(rng, ν, β, λ, σ, Δt, x, Δμ, ϵ)
+# end
 
 function compute_mean_evidence!(ν, β, λ, x, Δμ)
     for i = 1:length(ν)
