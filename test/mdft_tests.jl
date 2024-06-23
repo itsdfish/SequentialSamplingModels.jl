@@ -1,4 +1,4 @@
-@safetestset "MDFT tests" begin
+@safetestset "ClassicMDFT tests" begin
     @safetestset "similarity effect" begin
         using SequentialSamplingModels
         using Random
@@ -26,8 +26,8 @@
             -0.0499996 -0.0090303 0.95000000
         ]
 
-        model = MDFT(; σ, α, τ, w, S)
-        choices, _ = rand(model, 100_000, M; Δt = 1)
+        model = ClassicMDFT(; σ, α, τ, w, S)
+        choices, _ = rand(model, 100_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         ground_truth = [0.305315, 0.395226, 0.299459]
         @test probs ≈ ground_truth atol = 5e-3
@@ -60,8 +60,8 @@
             -0.045788 -0.045788 0.950000
         ]
 
-        model = MDFT(; σ, α, τ, w, S)
-        choices, _ = rand(model, 100_000, M; Δt = 1)
+        model = ClassicMDFT(; σ, α, τ, w, S)
+        choices, _ = rand(model, 100_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         ground_truth = [0.282626, 0.284605, 0.432769]
         @test probs ≈ ground_truth atol = 5e-3
@@ -94,8 +94,8 @@
             -0.022647 -0.00067034 0.95000000
         ]
 
-        model = MDFT(; σ, α, τ, w, S)
-        choices, _ = rand(model, 100_000, M; Δt = 1)
+        model = ClassicMDFT(; σ, α, τ, w, S)
+        choices, _ = rand(model, 100_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         ground_truth = [0.559048, 0.440950, 0.000002]
         @test probs ≈ ground_truth atol = 5e-3

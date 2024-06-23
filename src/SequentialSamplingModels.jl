@@ -44,6 +44,7 @@ export AbstractRDM
 export AbstractstDDM
 export AbstractWald
 export aDDM
+export ClassicMDFT
 export CDDM
 export DDM
 export ExGaussian
@@ -101,4 +102,6 @@ include("ex_gaussian.jl")
 include("poisson_race.jl")
 include("stDDM.jl")
 include("MDFT.jl")
+include("ClassicMDFT.jl")
+include("SDEMDFT.jl")
 end
