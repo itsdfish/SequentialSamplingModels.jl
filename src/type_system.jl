@@ -93,7 +93,6 @@ abstract type AbstractRDM <: SSM2D end
 
 abstract type PDFType end
 
-
 """
     Exact <: PDFType
 
@@ -107,16 +106,6 @@ struct Exact <: PDFType end
 Has approximate PDF based on kernel density estimator. 
 """
 struct Approximate <: PDFType end
-
-abstract type SimulatorType end 
-
-"""
-    SDE <: SimulatorType
-"""
-struct SDE <: SimulatorType end 
-
-struct Custom <: SimulatorType end 
-
 
 get_simulator_type(d::SSM1D) = Exact
 get_simulator_type(d::SSM2D) = Exact
