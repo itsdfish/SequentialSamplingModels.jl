@@ -29,7 +29,7 @@ TuringExt = "Turing"
 
 [compat]
 Distributions = "v0.24.6, 0.25"
-DynamicPPL = "0.22.0,0.23.0,0.24.0,0.25,0.26.0,0.27"
+DynamicPPL = "0.22.0,0.23.0,0.24.0,0.25,0.26.0,0.27, 0.28"
 FunctionZeros = "0.2.0,0.3.0, 1"
 HCubature = "1"
 Interpolations = "0.14.0,0.15.0"
