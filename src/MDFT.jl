@@ -1,4 +1,3 @@
-
 """
     MDFT{T <: Real} <: AbstractMDFT
 
@@ -16,7 +15,7 @@ A model type for simulating Multiattribute Decision Field Theory (MDFT) as an St
 - `β`: controls the weight of the dominance dimension in the feedback matrix distance function. If `β` < 0, the indifference dimension 
     recieves more where. If `β` > 0, the dominance dimension recieves more weight
 - `S::Array{T, 2}`: feedback matrix allowing self-connections and interconnections between alternatives. Self-connections range from zero to 1, where s_ij < 1 represents decay. Interconnections 
-     between options i and j  where i ≠ j are inhibatory if s_ij < 0.
+     between options i and j  where i ≠ j are inhibitory if s_ij < 0.
 - `C::Array{T, 2}`: contrast weight matrix where c_ij is the contrast weight when comparing options i and j.
 
 # Constructors 
@@ -43,6 +42,19 @@ because the options fall along the diagonal of attribute space, signifying a 1 t
 attributes. Option 3 is introduced to the choice set, which is similar to (and competitive with) option 1 and disimilar to option 2.
 In this case, the model predicts an increase the choice probability for option 2 relative to option 1.
 ```julia 
+using SequentialSamplingModels
+
+model = MDFT(;
+    n_alternatives = 3,
+    σ = 0.1,
+    α = .50,
+    τ = 0.0,
+    γ = 1.0,
+    κ = [5.0, 5.0],
+    ϕ1 = 0.01,
+    ϕ2 = 0.10,
+    β = 10.0
+)
 # value matrix where rows correspond to alternatives, and columns correspond to attributes
 M = [
     1.0 3.0
@@ -50,24 +62,8 @@ M = [
     0.9 3.1
 ]
 
-model = MDFT(;
-    # non-decision time 
-    τ = 0.300,
-    # diffusion noise 
-    σ = 1.0,
-    # decision threshold
-    α = 17.5,
-    # attribute attention weights 
-    w = [0.5, 0.5],
-    # feedback matrix 
-    S = [
-        0.9500000 -0.0122316 -0.04999996
-        -0.0122316 0.9500000 -0.00903030
-        -0.0499996 -0.0090303 0.95000000
-    ],
-)
-choices, rts = rand(model, 10_000, M; Δt = 1.0)
-map(c -> mean(choices .== c), 1:3)
+choices, rts = rand(model, 10_000, M)
+probs = map(c -> mean(choices .== c), 1:3)
 ```
 # References
 
@@ -118,7 +114,7 @@ function MDFT(;
 end
 
 function params(d::MDFT)
-    return (d.σ, d.α, d.τ, d.w, d.S, d.C)
+    return (d.σ, d.α, d.τ, d.γ, d.κ, d.ϕ1, d.ϕ2, d.β, d.C)
 end
 
 """
@@ -198,6 +194,23 @@ function _rand(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt = 0.001)
     return (; choice, rt)
 end
 
+"""
+    increment!(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt)
+
+Increments the preference states `x` on each time step. 
+
+# Arguments
+
+- `rng::AbstractRNG`: a random number generator which is a subtype of `AbstractRNG`
+- `dist::AbstractMDFT`: model object for the Multiattribute Decision Field Theory (MDFT).
+- `x`: a vector of preference states 
+- `Δμ`: a vector of mean change in the preference states 
+- `ϵ`: a vector of normally distributed noise added to the preference states 
+
+# Keywords
+
+- `Δt = 0.001`: time step size
+"""
 function increment!(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt)
     (; σ, _CM) = dist
     n_options = size(_CM, 1)
@@ -207,9 +220,33 @@ function increment!(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt)
     compute_mean_evidence!(dist, x, Δμ, v)
     ϵ .= rand(rng, Normal(0, σ), n_options)
     x .+= Δμ * Δt .+ ϵ * √Δt
-    return x
+    return nothing
 end
 
+"""
+    make_default_contrast(n)
+
+Creates an alternative × alternative contrast matrix representing comparisions between alternatives. 
+The contrast has the following properties: 
+
+1. The value of the diagonals are 1
+2. The rows sum to 0 
+3. The off diagonal values are equal 
+
+# Arguments
+
+- `n`: the number of alternatives in the `M` matrix 
+
+# Example 
+
+```julia
+make_default_contrast(3)
+3×3 Matrix{Float64}:
+  1.0  -0.5  -0.5
+ -0.5   1.0  -0.5
+ -0.5  -0.5   1.0
+```
+"""
 function make_default_contrast(n)
     C = fill(0.0, n, n)
     C .= -1 / (n - 1)

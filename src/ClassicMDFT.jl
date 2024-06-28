@@ -73,7 +73,14 @@ function ClassicMDFT(σ, α, τ, w, S, C)
     return ClassicMDFT(σ, α, τ, w, S, C)
 end
 
-function ClassicMDFT(; σ = 1.0, α = 15.0, τ = 10.0, w, S, C = make_default_contrast(size(S,1)))
+function ClassicMDFT(;
+    σ = 1.0,
+    α = 15.0,
+    τ = 10.0,
+    w,
+    S,
+    C = make_default_contrast(size(S, 1))
+)
     return ClassicMDFT(σ, α, τ, w, S, C)
 end
 
