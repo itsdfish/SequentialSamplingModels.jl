@@ -21,7 +21,7 @@ test_similarity(probs2, probs3) =
 
 function run_tests(parms; Ma, Ms, Mc)
     rand_parms = (
-        ϕ1 = round(rand(Uniform(.5, 1)), digits = 2),
+        ϕ1 = round(rand(Uniform(0.5, 1)), digits = 2),
         ϕ2 = round(rand(Uniform(0, 2)), digits = 2),
         β = round(rand(Uniform(5, 15)), digits = 2),
         κ = round.(fill(rand(Uniform(1, 20)), 2), digits = 2)

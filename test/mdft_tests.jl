@@ -182,9 +182,9 @@ end
 
         C = make_default_contrast(3)
 
-        @test size(C) == (3,3)
+        @test size(C) == (3, 3)
         @test C[diagind(C)] ≈ fill(1, 3)
-        @test all(x -> x == -.5, offdiag(C))
+        @test all(x -> x == -0.5, offdiag(C))
     end
 
     @safetestset "similarity effect" begin
@@ -198,12 +198,12 @@ end
 
         parms = (
             σ = 0.1,
-            α = .50,
+            α = 0.50,
             τ = 0.0,
             γ = 1.0,
-            ϕ1 = 0.01, 
-            ϕ2 = 0.1, 
-            β = 10, 
+            ϕ1 = 0.01,
+            ϕ2 = 0.1,
+            β = 10,
             κ = [5, 5]
         )
 
@@ -216,7 +216,6 @@ end
         ]
 
         @test test_context_effect(parms, (), M; test_func = test_similarity, n_sim = 1000)
-        
         true_probs = [0.15667, 0.54876, 0.29457]
         true_mean_rts = [0.9106421, 0.5445200, 0.7405360]
         choices, rts = rand(model, 10_000, M)
@@ -240,10 +239,10 @@ end
             α = 1.0,
             τ = 0.0,
             γ = 1.0,
-            ϕ1 = .03, 
-            ϕ2 = 1.2, 
-            β = 10.0, 
-            κ = [10,10]
+            ϕ1 = 0.03,
+            ϕ2 = 1.2,
+            β = 10.0,
+            κ = [10, 10]
         )
 
         model = MDFT(; n_alternatives = 3, parms...)
@@ -272,20 +271,18 @@ end
         using Random
         using Test
         include("mdft_test_functions.jl")
-        
         Random.seed!(2141)
 
         parms = (
             σ = 0.1,
-            α = .50,
+            α = 0.50,
             τ = 0.0,
             γ = 1.0,
-            ϕ1 = 0.01, 
-            ϕ2 = 0.1, 
-            β = 10, 
+            ϕ1 = 0.01,
+            ϕ2 = 0.1,
+            β = 10,
             κ = [5, 5]
         )
-        
         model = MDFT(; n_alternatives = 3, parms...)
 
         M = [
