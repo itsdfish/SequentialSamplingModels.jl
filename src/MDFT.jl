@@ -117,6 +117,8 @@ function params(d::MDFT)
     return (d.σ, d.α, d.τ, d.γ, d.κ, d.ϕ1, d.ϕ2, d.β, d.C)
 end
 
+n_options(d::AbstractMDFT) = size(d.C, 1)
+
 """
     rand(
         rng::AbstractRNG,
@@ -336,3 +338,36 @@ function compute_feedback_matrix(dist::MDFT, D)
 end
 
 prob_switch(κ, Δt) = 1 - exp(-κ * Δt)
+
+"""
+    simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
+
+Returns a matrix containing evidence samples of the AbstractMDFT decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::MDFT`: an MDFT model object
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
+function simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
+    (; α, C, γ, _CM) = model
+    n = size(M, 1)
+    x = fill(0.0, n)
+    μΔ = fill(0.0, n)
+    ϵ = fill(0.0, n)
+    t = 0.0
+    _CM .= C * M * γ
+    model._att_idx = rand(1:2)
+    distances = compute_distances(model, M)
+    model.S = compute_feedback_matrix(model, distances)
+    evidence = [fill(0.0, n)]
+    time_steps = [t]
+    while all(x .< α)
+        t += Δt
+        increment!(model, x, μΔ, ϵ; Δt)
+        push!(evidence, copy(x))
+        push!(time_steps, t)
+    end
+    return time_steps, reduce(vcat, transpose.(evidence))
+end

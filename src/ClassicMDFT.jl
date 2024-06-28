@@ -84,6 +84,8 @@ function ClassicMDFT(;
     return ClassicMDFT(σ, α, τ, w, S, C)
 end
 
+get_pdf_type(d::AbstractMDFT) = Approximate
+
 function params(d::ClassicMDFT)
     return (d.σ, d.α, d.τ, d.w, d.S, d.C)
 end
@@ -168,7 +170,7 @@ function increment!(rng::AbstractRNG, dist::ClassicMDFT, x, Δμ, ϵ, CM)
     compute_mean_evidence!(dist, x, Δμ, v)
     ϵ .= rand(rng, Normal(0, σ), n_alternatives)
     x .= Δμ .+ C * ϵ
-    return x
+    return nothing
 end
 
 function compute_mean_evidence!(dist::AbstractMDFT, x, Δμ, v)
