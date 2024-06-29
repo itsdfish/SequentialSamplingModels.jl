@@ -128,7 +128,7 @@ function increment!(rng::AbstractRNG, dist::AbstractLCA, x, Δμ; Δt = 0.001)
     # compute change of mean evidence: νᵢ - λxᵢ - βΣⱼxⱼ
     compute_mean_evidence!(dist, x, Δμ)
     # add mean change in evidence plus noise 
-    x .+= Δμ * Δt .+ rand(rng, Normal(0, σ * √(Δt)), n) 
+    x .+= Δμ * Δt .+ rand(rng, Normal(0, σ * √(Δt)), n)
     # ensure that evidence is non-negative 
     x .= max.(x, 0.0)
     return nothing

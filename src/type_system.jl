@@ -224,7 +224,14 @@ function cdf(::Type{<:Exact}, d::SSM2D, choice::Int, ub::Real, args...)
     return hcubature(t -> pdf(d, choice, t[1], args...), [d.τ], [ub])[1]::Float64
 end
 
-function cdf(::Type{<:Approximate}, d::SSM2D, choice::Int, ub::Real, args...; n_sim = 10_000)
+function cdf(
+    ::Type{<:Approximate},
+    d::SSM2D,
+    choice::Int,
+    ub::Real,
+    args...;
+    n_sim = 10_000
+)
     c, rt = rand(d, n_sim, args...)
     return mean(c .== choice .&& rt .≤ ub)
 end

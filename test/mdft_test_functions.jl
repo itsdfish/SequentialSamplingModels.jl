@@ -1,5 +1,5 @@
 function test_context_effect(parms, rand_parms, M; test_func, n_sim = 1000)
-    probs2,probs3 = simulate_context_effect(parms, rand_parms, M; n_sim)
+    probs2, probs3 = simulate_context_effect(parms, rand_parms, M; n_sim)
     return test_func(probs2, probs3)
 end
 
@@ -14,7 +14,7 @@ function simulate_context_effect(parms, rand_parms, M; n_sim = 1000)
     model = MDFT(; n_alternatives, parms..., rand_parms...)
     choices, _ = rand(model, n_sim, M)
     probs3 = map(c -> mean(choices .== c), 1:n_alternatives)
-    return probs2, probs3 
+    return probs2, probs3
 end
 
 test_attraction(probs2, probs3) = (probs3[1] - probs2[2]) ≥ 0.005
