@@ -11,7 +11,7 @@ M = [
 
 # Multi-attribute Decision Field Theory
 
-Multi-attribute Decision Field Theory (MDFT; Roe, Busemeyer, & James, 2001) models how people choose between alternatives with multiple dimensions, such as cars, phones, or jobs. As an example, jobs may differ in terms of benefits, salary, flexibility, and life-work balance. As with other sequential sampling models, MDFT assumes that evidence (or preference) accumulates dynamically until the evidence for one alternative reaches a threshold, and triggers the selection of the winning alternative. In addition, MDFT is based on three other core assumptions:
+Multi-attribute Decision Field Theory (MDFT; Roe, Busemeyer, & Townsend, 2001) models how people choose between alternatives with multiple dimensions, such as cars, phones, or jobs. As an example, jobs may differ in terms of benefits, salary, flexibility, and work-life balance. As with other sequential sampling models, MDFT assumes that evidence (or preference) accumulates dynamically until the evidence for one alternative reaches a threshold, and triggers the selection of the winning alternative. MDFT incorporates three additional core assumptions:
 
 1. Attention switches between attributes, and alternatives are compared on the currently attended attribute
 2. As two alternatives become closer to each other in attribute space, their mutual inhibition increases
@@ -24,7 +24,7 @@ Note that this version of MDFT uses stochastic differential equations (see Evans
 # Similarity Effect
 
 In what follows, we will illustrate the use of MDFT with a demonstration of the similarity effect. 
-Consider the choice between two jobs, $A$ and $B$. The main criteria for evaluating the two jobs are salary and flexibility. Job A is high on salary but low on flexibility, whereas job B is low on salary. In the plot below, jobs A and B are located on the line of indifference, $y = 3 - x$. However, because salary recieves more attention, job A is slightly prefered over job B.
+Consider the choice between two jobs, `A` and `B`. The main criteria for evaluating the two jobs are salary and flexibility. Job `A` is high on salary but low on flexibility, whereas job `B` is low on salary. In the plot below, jobs `A` and `B` are located on the line of indifference, $y = 3 - x$. However, because salary recieves more attention, job `A` is slightly prefered over job `B`.
 
 ```@example MDFT
 scatter(
@@ -64,7 +64,7 @@ using Random
 Random.seed!(8741)
 ```
 ## Create Model Object
-In the code below, we will define parameters for the LBA and create a model object to store the parameter values. 
+In the code below, we will define parameters for the MDFT and create a model object to store the parameter values. 
 
 ### Drift Rate Scalar
 In MDFT, the drift rate is determined by the contrast between alternatives along the attended attribute. These evaluations are scaled by the parameter $\gamma$:
@@ -118,7 +118,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 τ = 0.30
 ```
 ### Attention Switching Rates
-The rate at which attention shifts from one attribute to the other is controled by the following rate parameters:
+The rate at which attention shifts from one attribute to the other is controlled by the following rate parameters:
 ```@example MDFT 
 κ = [6, 5]
 ```
@@ -154,7 +154,7 @@ M₂ = [
 choices,rts = rand(dist, 10_000, M₂; Δt = .001)
 probs2 = map(c -> mean(choices .== c), 1:2)
 ```
-Here, we see that job `A` is prefered over job `B`. In the code block above, `rand` has a keyword argument `Δt` which controls the precision of the discrete approximation. The default value is `Δt = .001`.
+Here, we see that job `A` is prefered over job `B`. Also note, in the code block above, `rand` has a keyword argument `Δt` which controls the precision of the discrete approximation. The default value is `Δt = .001`.
 
 Next, we will simulate the choice between jobs `A`, `B`, and `S`.
 
@@ -180,7 +180,7 @@ M₃ = [
 choices,rts = rand(dist, 10_000, M₃)
 probs3 = map(c -> mean(choices .== c), 1:3)
 ```
-In this case, the preferences have reversed: job `B` is now prefered over job `A`. 
+In this case, the preferences have reversed: job `B` is now preferred over job `A`. 
 
 ## Compute Choice Probability
 The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf` along with a large value for time as the second argument.

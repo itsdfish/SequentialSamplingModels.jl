@@ -10,13 +10,14 @@ A model type for simulating Multi-attribute Decision Field Theory (MDFT) as an S
 - `γ::T`: scales the valance, `CMW`, functioning like a drift rate
 - `κ::Vector{T}`: exponential rate parameters for switching attention between attributes. Currently, limited to two 
     attributes 
-- `ϕ1`: controls evidence leakage in the distance function for creating the feedback matrix, `S`
-- `ϕ2`: controls the sensitivity of lateral inhibition to distance in the distance function for creating the feedback matrix, `S`
+- `ϕ1`: controls the sensitivity of lateral inhibition to distance in the distance function for creating the feedback matrix, `S`
+- `ϕ2`: controls evidence decay and maximum inhibition in the distance function for creating the feedback matrix, `S`
 - `β`: controls the weight of the dominance dimension in the feedback matrix distance function. If `β` < 0, the indifference dimension 
     recieves more where. If `β` > 0, the dominance dimension recieves more weight
 - `S::Array{T, 2}`: feedback matrix allowing self-connections and interconnections between alternatives. Self-connections range from zero to 1, where s_ij < 1 represents decay. Interconnections 
-     between options i and j  where i ≠ j are inhibitory if s_ij < 0.
-- `C::Array{T, 2}`: contrast weight matrix where c_ij is the contrast weight when comparing options i and j.
+     between options i and j where i ≠ j are inhibitory if s_ij < 0.
+- `C::Array{T, 2}`: contrast weight matrix for comparing attended alternative to other alternatives.
+    The element c_ij is the contrast weight when comparing options i and j.
 
 # Constructors 
 
@@ -40,7 +41,7 @@ A model type for simulating Multi-attribute Decision Field Theory (MDFT) as an S
 An example of the similarity effect. When choosing between options 1 and 2, the model predicts equal preference 
 because the options fall along the diagonal of attribute space, signifying a 1 to 1 trade-off of equally weighted 
 attributes. Option 3 is introduced to the choice set, which is similar to (and competitive with) option 1 and disimilar to option 2.
-In this case, the model predicts an increase the choice probability for option 2 relative to option 1.
+In this case, the model predicts a reversal of preference between options 1 and 2.
 ```julia 
 using SequentialSamplingModels
 
@@ -50,7 +51,7 @@ model = MDFT(;
     α = .50,
     τ = 0.0,
     γ = 1.0,
-    κ = [5.0, 5.0],
+    κ = [6.0, 5.0],
     ϕ1 = 0.01,
     ϕ2 = 0.10,
     β = 10.0
@@ -195,7 +196,7 @@ function _rand(rng::AbstractRNG, dist::MDFT, x, Δμ; Δt = 0.001)
 end
 
 """
-    increment!(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt)
+    increment!(rng::AbstractRNG, dist::MDFT, x, Δμ; Δt)
 
 Increments the preference states `x` on each time step. 
 
@@ -205,7 +206,6 @@ Increments the preference states `x` on each time step.
 - `dist::AbstractMDFT`: model object for the Multi-attribute Decision Field Theory (MDFT).
 - `x`: a vector of preference states 
 - `Δμ`: a vector of mean change in the preference states 
-- `ϵ`: a vector of normally distributed noise added to the preference states 
 
 # Keywords
 
@@ -310,7 +310,7 @@ end
 """
     compute_feedback_matrix(dist::MDFT, D)
 
-Computes feedback matrix `S` for Multi-attribute decision field theory. The magnitude of self-connections and inhibitory 
+Computes feedback matrix `S` for Multi-attribute decision field theory (MDFT). The magnitude of self-connections and inhibitory 
 connections are inversely proportional to distance between alternatives in attribute space. 
 
 # Arguments
@@ -341,7 +341,7 @@ prob_switch(κ, Δt) = 1 - exp(-κ * Δt)
 """
     simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
 
-Returns a matrix containing evidence samples of the AbstractMDFT decision process. In the matrix, rows 
+Returns a matrix containing evidence samples of the MDFT decision process. In the matrix, rows 
 represent samples of evidence per time step and columns represent different accumulators.
 
 # Arguments
