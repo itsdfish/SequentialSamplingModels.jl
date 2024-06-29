@@ -121,12 +121,11 @@ function rand(
     n_alternatives = size(M, 1)
     x = fill(0.0, n_alternatives)
     Δμ = fill(0.0, n_alternatives)
-    ϵ = fill(0.0, n_alternatives)
     choices = fill(0, n_sim)
     rts = fill(0.0, n_sim)
     CM = dist.C * M
     for i ∈ 1:n_sim
-        choices[i], rts[i] = _rand(rng, dist, x, Δμ, ϵ, CM)
+        choices[i], rts[i] = _rand(rng, dist, x, Δμ, CM)
         x .= 0.0
     end
     return (; choices, rts)
@@ -147,14 +146,14 @@ function rand(rng::AbstractRNG, dist::ClassicMDFT, M::AbstractArray)
     ϵ = fill(0.0, n_alternatives)
     # precompute matric multiplication
     CM = dist.C * M
-    return _rand(rng, dist, x, Δμ, ϵ, CM)
+    return _rand(rng, dist, x, Δμ, CM)
 end
 
-function _rand(rng::AbstractRNG, dist::ClassicMDFT, x, Δμ, ϵ, CM)
+function _rand(rng::AbstractRNG, dist::ClassicMDFT, x, Δμ, CM)
     (; α, τ) = dist
     t = 0.0
     while all(x .< α)
-        increment!(rng, dist, x, Δμ, ϵ, CM)
+        increment!(rng, dist, x, Δμ, CM)
         t += 1
     end
     _, choice = findmax(x)
@@ -162,14 +161,13 @@ function _rand(rng::AbstractRNG, dist::ClassicMDFT, x, Δμ, ϵ, CM)
     return (; choice, rt)
 end
 
-function increment!(rng::AbstractRNG, dist::ClassicMDFT, x, Δμ, ϵ, CM)
+function increment!(rng::AbstractRNG, dist::ClassicMDFT, x, Δμ, CM)
     (; σ, w, S, C) = dist
     n_alternatives, n_attributes = size(CM)
     att_idx = sample(1:n_attributes, Weights(w))
     v = @view CM[:, att_idx]
     compute_mean_evidence!(dist, x, Δμ, v)
-    ϵ .= rand(rng, Normal(0, σ), n_alternatives)
-    x .= Δμ .+ C * ϵ
+    x .= Δμ .+ C * rand(rng, Normal(0, σ), n_alternatives)
     return nothing
 end
 

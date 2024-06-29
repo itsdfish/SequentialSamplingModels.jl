@@ -1,7 +1,7 @@
 """
     MDFT{T <: Real} <: AbstractMDFT
 
-A model type for simulating Multiattribute Decision Field Theory (MDFT) as an Stochastic Differential Equation (SDE). 
+A model type for simulating Multi-attribute Decision Field Theory (MDFT) as an Stochastic Differential Equation (SDE). 
     
 # Parameters 
 - `σ = 1.0`: diffusion noise 
@@ -72,7 +72,7 @@ Evans, N. J., Holmes, W. R., & Trueblood, J. S. (2019). Response-time data provi
 Hotaling, J. M., Busemeyer, J. R., & Li, J. (2010). Theoretical developments in decision
 field theory: Comment on tsetsos, usher, and chater (2010). Psychological Review, 117 , 1294-1298.
 
-Roe, Robert M., Jermone R. Busemeyer, and James T. Townsend. "Multiattribute Decision Field Theory: A dynamic connectionst model of decision making." Psychological review 108.2 (2001): 370.
+Roe, Robert M., Jermone R. Busemeyer, and James T. Townsend. "Multi-attribute Decision Field Theory: A dynamic connectionst model of decision making." Psychological review 108.2 (2001): 370.
 """
 mutable struct MDFT{T <: Real} <: AbstractMDFT
     σ::T
@@ -122,18 +122,18 @@ n_options(d::AbstractMDFT) = size(d.C, 1)
 """
     rand(
         rng::AbstractRNG,
-        dist::AbstractMDFT,
+        dist::MDFT,
         n_sim::Int,
         M::AbstractArray;
         Δt = 0.001
     )
 
-Generate `n_sim` random choice-rt pairs for the Multiattribute Decision Field Theory (MDFT).
+Generate `n_sim` random choice-rt pairs for the Multi-attribute Decision Field Theory (MDFT).
 
 # Arguments
 
 - `rng::AbstractRNG`: a random number generator which is a subtype of `AbstractRNG`
-- `dist::AbstractMDFT`: model object for the Multiattribute Decision Field Theory (MDFT).
+- `dist::MDFT`: model object for the Multi-attribute Decision Field Theory (MDFT).
 - `n_sim::Int`: the number of simulated choice-rt pairs
 - `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
 
@@ -158,7 +158,7 @@ function rand(
     distances = compute_distances(dist, M)
     dist.S = compute_feedback_matrix(dist, distances)
     for i ∈ 1:n_sim
-        choices[i], rts[i] = _rand(rng, dist, x, Δμ, ϵ; Δt)
+        choices[i], rts[i] = _rand(rng, dist, x, Δμ; Δt)
         x .= 0.0
     end
     return (; choices, rts)
@@ -176,19 +176,17 @@ function rand(rng::AbstractRNG, dist::MDFT, M::AbstractArray; Δt = 0.001)
     x = fill(0.0, n_options)
     # mean change in evidence for each alternative
     Δμ = fill(0.0, n_options)
-    # noise for each alternative 
-    ϵ = fill(0.0, n_options)
     # precompute matric multiplication
     _CM .= C * M * γ
-    return _rand(rng, dist, x, Δμ, ϵ; Δt)
+    return _rand(rng, dist, x, Δμ; Δt)
 end
 
-function _rand(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt = 0.001)
+function _rand(rng::AbstractRNG, dist::MDFT, x, Δμ; Δt = 0.001)
     (; α, τ) = dist
     t = 0.0
     dist._att_idx = rand(1:2)
     while all(x .< α)
-        increment!(rng, dist, x, Δμ, ϵ; Δt)
+        increment!(rng, dist, x, Δμ; Δt)
         t += Δt
     end
     _, choice = findmax(x)
@@ -204,7 +202,7 @@ Increments the preference states `x` on each time step.
 # Arguments
 
 - `rng::AbstractRNG`: a random number generator which is a subtype of `AbstractRNG`
-- `dist::AbstractMDFT`: model object for the Multiattribute Decision Field Theory (MDFT).
+- `dist::AbstractMDFT`: model object for the Multi-attribute Decision Field Theory (MDFT).
 - `x`: a vector of preference states 
 - `Δμ`: a vector of mean change in the preference states 
 - `ϵ`: a vector of normally distributed noise added to the preference states 
@@ -213,17 +211,18 @@ Increments the preference states `x` on each time step.
 
 - `Δt = 0.001`: time step size
 """
-function increment!(rng::AbstractRNG, dist::MDFT, x, Δμ, ϵ; Δt)
+function increment!(rng::AbstractRNG, dist::MDFT, x, Δμ; Δt)
     (; σ, _CM) = dist
     n_options = size(_CM, 1)
     att_idx = update_attention(dist; Δt)
     dist._att_idx = att_idx
     v = @view _CM[:, att_idx]
     compute_mean_evidence!(dist, x, Δμ, v)
-    ϵ .= rand(rng, Normal(0, σ), n_options)
-    x .+= Δμ * Δt .+ ϵ * √Δt
+    x .+= Δμ * Δt .+ rand(rng, Normal(0, dist.σ * √Δt), n_options)
     return nothing
 end
+
+increment!(dist::MDFT, x, Δμ; Δt) = increment!(Random.default_rng(), dist, x, Δμ; Δt)
 
 """
     make_default_contrast(n)
@@ -311,7 +310,7 @@ end
 """
     compute_feedback_matrix(dist::MDFT, D)
 
-Computes feedback matrix `S` for multiattribute decision field theory. The magnitude of self-connections and inhibitory 
+Computes feedback matrix `S` for Multi-attribute decision field theory. The magnitude of self-connections and inhibitory 
 connections are inversely proportional to distance between alternatives in attribute space. 
 
 # Arguments
@@ -355,7 +354,6 @@ function simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
     n = size(M, 1)
     x = fill(0.0, n)
     μΔ = fill(0.0, n)
-    ϵ = fill(0.0, n)
     t = 0.0
     _CM .= C * M * γ
     model._att_idx = rand(1:2)
@@ -365,7 +363,7 @@ function simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(model, x, μΔ, ϵ; Δt)
+        increment!(model, x, μΔ; Δt)
         push!(evidence, copy(x))
         push!(time_steps, t)
     end

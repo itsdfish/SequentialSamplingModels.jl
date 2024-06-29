@@ -213,23 +213,24 @@ available for a given model.
 # Arguments
 - `d::SSM2D`: a 2D sequential sampling model.
 - `choice::Int`: the number of simulated choices and rts  
-- `ub=10`: upper bound of integration
+- `ub::Real`: upper bound of integration
+- `args...`: optional arguments passed to `rand`
 """
-function cdf(d::SSM2D, choice::Int, ub = 10)
-    return cdf(get_pdf_type(d), d, choice, ub)
+function cdf(d::SSM2D, choice::Int, ub::Real, args...)
+    return cdf(get_pdf_type(d), d, choice, ub, args...)
 end
 
-function cdf(::Type{<:Exact}, d::SSM2D, choice::Int, ub = 10)
-    return hcubature(t -> pdf(d, choice, t[1]), [d.τ], [ub])[1]::Float64
+function cdf(::Type{<:Exact}, d::SSM2D, choice::Int, ub::Real, args...)
+    return hcubature(t -> pdf(d, choice, t[1], args...), [d.τ], [ub])[1]::Float64
 end
 
-function cdf(::Type{<:Approximate}, d::SSM2D, choice::Int, ub = 10; n_sim = 10_000)
-    c, rt = rand(d, n_sim)
+function cdf(::Type{<:Approximate}, d::SSM2D, choice::Int, ub::Real, args...; n_sim = 10_000)
+    c, rt = rand(d, n_sim, args...)
     return mean(c .== choice .&& rt .≤ ub)
 end
 
-function survivor(d::SSM2D, choice::Int, ub = 10)
-    return 1 - cdf(d, choice, ub)
+function survivor(d::SSM2D, choice::Int, ub::Real, args...)
+    return 1 - cdf(d, choice, ub, args...)
 end
 
 """

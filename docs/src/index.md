@@ -19,13 +19,14 @@ using SequentialSamplingModels
 using SequentialSamplingModels: increment!
 Random.seed!(8437)
 
-parms = (α = 1.5,
-            β=0.20,
-             λ=0.10,
-             ν=[2.5,2.0],
-             Δt=.001,
-             τ=.30,
-             σ=1.0)
+parms = (
+    α = 1.5,
+    β=0.20,
+    λ=0.10,
+    ν=[2.5,2.0],
+    τ=.30,
+    σ=1.0
+)
 model = LCA(; parms...)
 time_steps,evidence = simulate(model)
 lca_plot = plot(time_steps, evidence, xlabel="Time (seconds)", ylabel="Evidence",

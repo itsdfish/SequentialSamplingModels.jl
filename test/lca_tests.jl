@@ -109,13 +109,12 @@
 
         Δμ = [0.0, 0.0]
         x = [0.0, 0.0]
-        ϵ = [0.0, 0.0]
 
         n_reps = 1000
         evidence = fill(0.0, n_reps, 2)
         for i ∈ 1:n_reps
             x .= 1.0
-            increment!(model, x, Δμ, ϵ; Δt)
+            increment!(model, x, Δμ; Δt)
             evidence[i, :] = x
         end
 

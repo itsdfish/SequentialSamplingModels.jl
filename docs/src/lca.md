@@ -51,12 +51,6 @@ Diffusion noise is the amount of within trial noise in the evidence accumulation
 ```@example lca 
 σ = 1.0
 ```
-### Time Step
-The time step parameter $\Delta t$ is the precision of the discrete time approxmation. 
-
-```@example lca 
-Δt = .001
-```
 
 ### Non-Decision Time
 
@@ -69,7 +63,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 Now that values have been asigned to the parameters, we will pass them to `LCA` to generate the model object.
 
 ```@example lca 
-dist = LCA(; ν, α, β, λ, τ, σ, Δt)
+dist = LCA(; ν, α, β, λ, τ, σ)
 ```
 ## Simulate Model
 
@@ -78,13 +72,13 @@ Now that the model is defined, we will generate $10,000$ choices and reaction ti
  ```@example lca 
  choices,rts = rand(dist, 10_000)
 ```
-## Compute Choice Probability
-The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
+In the code block above, `rand` has a keyword argument `Δt` which controls the precision of the discrete approximation. The default value is `Δt = .001`.
 
+## Compute Choice Probability
+The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf` along with a large value for time as the second argument.
  ```@example lca 
-cdf(dist, 1)
+cdf(dist, 1, Inf)
 ```
-To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
 
 ## Plot Simulation
 The code below plots a histogram for each option.

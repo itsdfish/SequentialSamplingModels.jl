@@ -81,9 +81,7 @@ function rand(rng::AbstractRNG, dist::AbstractLCA; Δt = 0.001)
     x = fill(0.0, n)
     # mean change in evidence for each alternative
     Δμ = fill(0.0, n)
-    # noise for each alternative 
-    ϵ = fill(0.0, n)
-    return _rand(rng, dist, x, Δμ, ϵ; Δt)
+    return _rand(rng, dist, x, Δμ; Δt)
 end
 
 """
@@ -103,21 +101,20 @@ function rand(rng::AbstractRNG, dist::AbstractLCA, n_sim::Int; Δt = 0.001)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
-    ϵ = fill(0.0, n)
     choices = fill(0, n_sim)
     rts = fill(0.0, n_sim)
     for i ∈ 1:n_sim
-        choices[i], rts[i] = _rand(rng, dist, x, Δμ, ϵ; Δt)
+        choices[i], rts[i] = _rand(rng, dist, x, Δμ; Δt)
         x .= 0.0
     end
     return (; choices, rts)
 end
 
-function _rand(rng::AbstractRNG, dist::AbstractLCA, x, Δμ, ϵ; Δt = 0.001)
+function _rand(rng::AbstractRNG, dist::AbstractLCA, x, Δμ; Δt = 0.001)
     (; α, τ) = dist
     t = 0.0
     while all(x .< α)
-        increment!(rng, dist, x, Δμ, ϵ; Δt)
+        increment!(rng, dist, x, Δμ; Δt)
         t += Δt
     end
     _, choice = findmax(x)
@@ -125,22 +122,20 @@ function _rand(rng::AbstractRNG, dist::AbstractLCA, x, Δμ, ϵ; Δt = 0.001)
     return (; choice, rt)
 end
 
-function increment!(rng::AbstractRNG, dist::AbstractLCA, x, Δμ, ϵ; Δt = 0.001)
+function increment!(rng::AbstractRNG, dist::AbstractLCA, x, Δμ; Δt = 0.001)
     (; ν, σ) = dist
     n = length(ν)
     # compute change of mean evidence: νᵢ - λxᵢ - βΣⱼxⱼ
     compute_mean_evidence!(dist, x, Δμ)
-    # sample noise 
-    ϵ .= rand(rng, Normal(0, σ), n)
     # add mean change in evidence plus noise 
-    x .+= Δμ * Δt .+ ϵ * √(Δt)
+    x .+= Δμ * Δt .+ rand(rng, Normal(0, σ * √(Δt)), n) 
     # ensure that evidence is non-negative 
     x .= max.(x, 0.0)
     return nothing
 end
 
-increment!(dist, x, Δμ, ϵ; Δt = 0.001) =
-    increment!(Random.default_rng(), dist, x, Δμ, ϵ; Δt)
+increment!(dist, x, Δμ; Δt = 0.001) =
+    increment!(Random.default_rng(), dist, x, Δμ; Δt)
 
 function compute_mean_evidence!(dist::AbstractLCA, x, Δμ)
     (; ν, β, λ) = dist
@@ -173,13 +168,12 @@ function simulate(model::AbstractLCA; Δt = 0.001, _...)
     n = length(model.ν)
     x = fill(0.0, n)
     μΔ = fill(0.0, n)
-    ϵ = fill(0.0, n)
     t = 0.0
     evidence = [fill(0.0, n)]
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(model, x, μΔ, ϵ; Δt)
+        increment!(model, x, μΔ; Δt)
         push!(evidence, copy(x))
         push!(time_steps, t)
     end

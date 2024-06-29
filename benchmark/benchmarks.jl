@@ -61,3 +61,24 @@ for dist ∈ dists
     SUITE[:simulate][dist_name] =
         @benchmarkable(simulate($dist()), evals = 10, samples = 1000,)
 end
+
+parms = (
+    σ = 0.1,
+    α = 0.50,
+    τ = 0.0,
+    γ = 1.0,
+    ϕ1 = 0.01,
+    ϕ2 = 0.1,
+    β = 10,
+    κ = [5, 5]
+)
+
+mdft = MDFT(; n_alternatives = 3, parms...)
+
+M = [
+    1.0 3.0
+    3.0 1.0
+    0.9 3.1
+]
+
+SUITE[:simulate][:mdft] = @benchmarkable(simulate(mdft, M), evals = 10, samples = 1000,)

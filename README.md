@@ -21,6 +21,7 @@ The following SSMs are supported :
 - [Linear Ballistic Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lba/) 
 - [Log Normal Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lnr/) 
 - [Multi-attribute Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/maaDDM/)
+- [Multi-attribute Decision Field Theory](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/mdft/)
 - [Poisson Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/poisson_race)
 - [Racing Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/rdm/) 
 - [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
