@@ -86,12 +86,10 @@ logpdf.(dist, choices, rts)
 ```
 
 ## Compute Choice Probability
-The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
-
+The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf` along with a large value for time as the second argument.
  ```@example lba 
-cdf(dist, 1)
+cdf(dist, 1, Inf)
 ```
-To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
 
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.

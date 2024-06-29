@@ -11,7 +11,9 @@ using FunctionZeros
 using PrettyTables
 using Random
 using SpecialFunctions
+
 using HCubature: hcubature
+using StatsBase: Weights
 
 import Base: length
 import Distributions: AbstractRNG
@@ -36,11 +38,13 @@ export AbstractCDDM
 export AbstractLBA
 export AbstractLCA
 export AbstractLNR
+export AbstractMDFT
 export AbstractPoissonRace
 export AbstractRDM
 export AbstractstDDM
 export AbstractWald
 export aDDM
+export ClassicMDFT
 export CDDM
 export DDM
 export ExGaussian
@@ -49,6 +53,7 @@ export LBA
 export LCA
 export LNR
 export maaDDM
+export MDFT
 export PoissonRace
 export SSM1D
 export SSM2D
@@ -96,4 +101,6 @@ include("ext_functions.jl")
 include("ex_gaussian.jl")
 include("poisson_race.jl")
 include("stDDM.jl")
+include("MDFT.jl")
+include("ClassicMDFT.jl")
 end

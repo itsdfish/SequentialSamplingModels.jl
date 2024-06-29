@@ -44,8 +44,10 @@ function plot_model(
     add_starting_point!(model, model_plot)
     α = compute_threshold(model)
     zs = Vector{Vector{Float64}}(undef, n_sim)
+    y_min = 0
     for i ∈ 1:n_sim
         time_range, evidence = simulate(model, model_args...; model_kwargs...)
+        y_min = min(y_min, minimum(evidence))
         plot!(
             model_plot,
             time_range .+ model.τ,
@@ -68,6 +70,7 @@ function plot_model(
             model_args,
             model_kwargs,
             density_scale,
+            ylims = (y_min, Inf),
             density_kwargs...
         )
     end
@@ -353,6 +356,32 @@ Returns default plot options
 - `d::AbstractLCA`: an object for the leaky competing accumulator
 """
 function get_model_plot_defaults(d::AbstractLCA)
+    n_subplots = n_options(d)
+    title = ["choice $i" for _ ∈ 1:1, i ∈ 1:n_subplots]
+    return (
+        xaxis = nothing,
+        yaxis = nothing,
+        xticks = nothing,
+        yticks = nothing,
+        grid = false,
+        linewidth = 0.75,
+        color = :black,
+        leg = false,
+        title,
+        layout = (n_subplots, 1)
+    )
+end
+
+"""
+    get_model_plot_defaults(d::MDFT)
+
+Returns default plot options 
+
+# Arguments
+
+- `d::MDFT`: an object for multi-attribute decision field theory
+"""
+function get_model_plot_defaults(d::MDFT)
     n_subplots = n_options(d)
     title = ["choice $i" for _ ∈ 1:1, i ∈ 1:n_subplots]
     return (

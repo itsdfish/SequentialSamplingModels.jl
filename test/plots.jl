@@ -129,6 +129,51 @@
         plot_model(dist; n_sim = 10, add_density = true, density_kwargs, xlims = (0, 1.50))
     end
 
+    @safetestset "MDFT" begin
+        using Plots
+        using SequentialSamplingModels
+        using Test
+
+        parms = (
+            σ = 0.1,
+            α = 0.50,
+            τ = 0.0,
+            γ = 1.0,
+            ϕ1 = 0.01,
+            ϕ2 = 0.1,
+            β = 10,
+            κ = [5, 5]
+        )
+
+        dist = MDFT(; n_alternatives = 3, parms...)
+
+        M = [
+            1.0 3.0
+            3.0 1.0
+            0.9 3.1
+        ]
+
+        h = histogram(dist; model_args = (M,))
+        plot!(h, dist; model_args = (M,))
+
+        histogram(dist; model_args = (M,))
+        plot!(dist; model_args = (M,))
+
+        plot(dist; model_args = (M,))
+        histogram!(dist; model_args = (M,))
+
+        p = plot(dist; model_args = (M,))
+        histogram!(p, dist; model_args = (M,))
+
+        plot_model(
+            dist;
+            n_sim = 2,
+            add_density = true,
+            model_args = (M,),
+            density_kwargs = (; t_range = range(0.1, 1, length = 200),)
+        )
+    end
+
     @safetestset "Wald" begin
         using Plots
         using SequentialSamplingModels

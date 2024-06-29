@@ -74,7 +74,7 @@ logpdf.(dist, choices, rts)
 The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
 
  ```@example lnr 
-cdf(dist, 1)
+cdf(dist, 1, Inf)
 ```
 To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
 

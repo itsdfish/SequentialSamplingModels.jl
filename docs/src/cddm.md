@@ -11,7 +11,8 @@ model = CDDM(;
     η = [.50,.50],
     σ = 1.0,
     α = 4.0,
-    τ = .30)
+    τ = .30
+)
 
 Random.seed!(5874)
 
@@ -90,7 +91,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 Now that values have been asigned to the parameters, we will pass them to `CDDM` to generate the model object.
 
 ```@example CDDM 
-dist = CDDM(ν, η, σ, α, τ)
+dist = CDDM(; ν, η, σ, α, τ)
 ```
 ## Simulate Model
 
