@@ -5,11 +5,11 @@ A model object for the linear ballistic accumulator.
 
 # Parameters
 
-- `ν`: a vector of drift rates
-- `σ`: a vector of drift rate standard deviation
-- `A`: max start point
-- `k`: A + k = b, where b is the decision threshold
-- `τ`: a encoding-response offset
+- `ν::Vector{T}`: a vector of drift rates
+- `σ::Vector{T}`: a vector of drift rate standard deviation
+- `A::T`: max start point
+- `k::T`: A + k = b, where b is the decision threshold
+- `τ::T`: an encoding-response offset
 
 # Constructors 
 
@@ -50,12 +50,12 @@ function LBA(ν, σ, A, k, τ)
     return LBA(ν, σ, A, k, τ)
 end
 
+LBA(; τ = 0.3, A = 0.8, k = 0.5, ν = [2.0, 1.75], σ = fill(1.0, length(ν))) =
+    LBA(ν, σ, A, k, τ)
+
 function params(d::LBA)
     return (d.ν, d.σ, d.A, d.k, d.τ)
 end
-
-LBA(; τ = 0.3, A = 0.8, k = 0.5, ν = [2.0, 1.75], σ = fill(1.0, length(ν))) =
-    LBA(ν, σ, A, k, τ)
 
 function select_winner(dt)
     if any(x -> x > 0, dt)
