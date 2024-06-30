@@ -78,7 +78,8 @@ function rand(rng::AbstractRNG, d::AbstractMLBA, M::AbstractArray)
     return rand(rng, d)
 end
 
-rand(d::AbstractMLBA, n_trials::Int, M::AbstractArray) = rand(Random.default_rng(), d, n_trials, M)
+rand(d::AbstractMLBA, n_trials::Int, M::AbstractArray) =
+    rand(Random.default_rng(), d, n_trials, M)
 
 function rand(rng::AbstractRNG, d::AbstractMLBA, n_trials::Int, M::AbstractArray)
     compute_drift_rates!(d, M)
