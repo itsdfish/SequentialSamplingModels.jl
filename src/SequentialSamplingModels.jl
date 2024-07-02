@@ -38,6 +38,7 @@ export AbstractCDDM
 export AbstractLBA
 export AbstractLCA
 export AbstractLNR
+export AbstractMLBA
 export AbstractMDFT
 export AbstractPoissonRace
 export AbstractRDM
@@ -53,6 +54,7 @@ export LBA
 export LCA
 export LNR
 export maaDDM
+export MLBA
 export MDFT
 export PoissonRace
 export SSM1D
@@ -103,4 +105,5 @@ include("poisson_race.jl")
 include("stDDM.jl")
 include("MDFT.jl")
 include("ClassicMDFT.jl")
+include("MLBA.jl")
 end

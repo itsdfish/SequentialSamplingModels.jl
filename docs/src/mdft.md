@@ -154,7 +154,7 @@ M₂ = [
 choices,rts = rand(dist, 10_000, M₂; Δt = .001)
 probs2 = map(c -> mean(choices .== c), 1:2)
 ```
-Here, we see that job `A` is prefered over job `B`. Also note, in the code block above, `rand` has a keyword argument `Δt` which controls the precision of the discrete approximation. The default value is `Δt = .001`.
+Here, we see that job `A` is prefered over job `B`. Also note, in the code block above, `rand` has a keyword argument `Δt` which controls the precision of the time discrete approximation. The default value is `Δt = .001`.
 
 Next, we will simulate the choice between jobs `A`, `B`, and `S`.
 

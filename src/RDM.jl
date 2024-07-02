@@ -187,20 +187,18 @@ function simulate(rng::AbstractRNG, model::AbstractRDM; Δt = 0.001)
     z = rand(rng, Uniform(0, A), n)
     α = k + A
     x = z
-    ϵ = fill(0.0, n)
     evidence = [deepcopy(x)]
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(rng, model, x, ϵ, ν; Δt)
+        increment!(rng, model, x, ν; Δt)
         push!(evidence, deepcopy(x))
         push!(time_steps, t)
     end
-    return time_steps, reduce(vcat, transpose.(evidence))
+    return time_steps, stack(evidence, dims = 1)
 end
 
-function increment!(rng::AbstractRNG, model::AbstractRDM, x, ϵ, ν; Δt)
-    ϵ .= rand(rng, Normal(0.0, 1.0), length(ν))
-    x .+= ν * Δt + ϵ * √(Δt)
+function increment!(rng::AbstractRNG, model::AbstractRDM, x, ν; Δt)
+    x .+= ν * Δt .+ rand(rng, Normal(0.0, √(Δt)), length(ν))
     return nothing
 end

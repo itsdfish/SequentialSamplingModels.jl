@@ -59,6 +59,13 @@ An abstract type for the lognormal race model
 abstract type AbstractLNR <: SSM2D end
 
 """
+    AbstractMLBA <: AbstractLBA
+
+An abstract type for the multi-attribute linear ballistic accumulator
+"""
+abstract type AbstractMLBA <: AbstractLBA end
+
+"""
     AbstractLCA <: SSM2D
 
 An abstract type for the leaky competing accumulator model
@@ -157,6 +164,7 @@ function rand(rng::AbstractRNG, d::SSM2D, n_trials::Int; kwargs...)
     end
     return (; choice, rt)
 end
+
 rand(d::SSM2D, n_trials::Int; kwargs...) =
     rand(Random.default_rng(), d, n_trials; kwargs...)
 
