@@ -20,13 +20,13 @@
     MLBA(;
         n_alternatives = 3,
         ν = fill(0.0, n_alternatives),
-        β₀ = 1.0,
-        λₚ = 1.0,
-        λₙ = 1.0,
-        γ = 0.70,
+        β₀ = 5.0,
+        λₚ = 0.20,
+        λₙ = 0.40,
+        γ = 5.0,
         τ = 0.3,
-        A = 0.8,
-        k = 0.5,
+        A = 1.0,
+        k = 1.0,
         σ = fill(1.0, n_alternatives)
     )
 
@@ -56,13 +56,13 @@ end
 MLBA(;
     n_alternatives = 3,
     ν = fill(0.0, n_alternatives),
-    β₀ = 1.0,
-    λₚ = 1.0,
-    λₙ = 1.0,
-    γ = 0.70,
+    β₀ = 5.0,
+    λₚ = 0.20,
+    λₙ = 0.40,
+    γ = 5.0,
     τ = 0.3,
-    A = 0.8,
-    k = 0.5,
+    A = 1.0,
+    k = 1.0,
     σ = fill(1.0, n_alternatives)
 ) =
     MLBA(ν, β₀, λₚ, λₙ, γ, σ, A, k, τ)
@@ -73,6 +73,16 @@ end
 
 rand(d::AbstractMLBA, M::AbstractArray) = rand(Random.default_rng(), d, M)
 
+"""
+    rand(rng::AbstractRNG, d::AbstractMLBA, M::AbstractArray)
+
+Generates a single choice-rt pair of simulated data from the Multi-attribute Linear Ballistic Accumulator.
+
+# Arguments
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
 function rand(rng::AbstractRNG, d::AbstractMLBA, M::AbstractArray)
     compute_drift_rates!(d, M)
     return rand(rng, d)
@@ -81,11 +91,31 @@ end
 rand(d::AbstractMLBA, n_trials::Int, M::AbstractArray) =
     rand(Random.default_rng(), d, n_trials, M)
 
+"""
+    rand(rng::AbstractRNG, d::AbstractMLBA, n_trials::Int, M::AbstractArray)
+
+Generates `n_trials` choice-rt pair of simulated data from the Multi-attribute Linear Ballistic Accumulator.
+
+# Arguments
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `n_trials::Int`: the number of trials to simulate
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
 function rand(rng::AbstractRNG, d::AbstractMLBA, n_trials::Int, M::AbstractArray)
     compute_drift_rates!(d, M)
     return rand(rng, d, n_trials)
 end
 
+"""
+    compute_drift_rates!(dist::AbstractMLBA, M::AbstractArray)
+
+
+# Arguments
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
 function compute_drift_rates!(dist::AbstractMLBA, M::AbstractArray)
     (; ν, β₀) = dist
     n_options = length(ν)
@@ -100,12 +130,35 @@ function compute_drift_rates!(dist::AbstractMLBA, M::AbstractArray)
     return nothing
 end
 
+"""
+    compute_weight(dist::AbstractMLBA, u1, u2)
+
+Computes attention weight between two options. The weight is an inverse function of similarity between the 
+options. Similarity between two options decays exponentially as a function of distance and is asymmetrical 
+when decay rates λₚ ≠ λₙ. 
+
+# Arguments
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `u1`: utility of the first option 
+- `u1`: utility of the second option 
+"""
 function compute_weight(dist::AbstractMLBA, u1, u2)
     (; λₙ, λₚ) = dist
     λ = u1 ≥ u2 ? λₚ : λₙ
     return exp(-λ * abs(u1 - u2))
 end
 
+"""
+    compute_utility(dist::AbstractMLBA, v)
+
+Computes the utility of an alternative.  
+
+# Arguments
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `v`: a vector representing the attributes of a given n_alternative
+"""
 function compute_utility(dist::AbstractMLBA, v)
     (; γ) = dist
     θ = atan(v[2], v[1])
@@ -118,6 +171,18 @@ function compute_utility(dist::AbstractMLBA, v)
     return u
 end
 
+"""
+    compare(dist::AbstractMLBA, u1, u2)
+
+Computes a weighted difference between two options, where the weight is an inverse function of similarity
+between options.   
+
+# Arguments
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `u1`: utility of the first option 
+- `u1`: utility of the second option 
+"""
 function compare(dist::AbstractMLBA, u1, u2)
     v = 0.0
     for i ∈ 1:2
@@ -125,6 +190,43 @@ function compare(dist::AbstractMLBA, u1, u2)
     end
     return v
 end
+
+"""
+    pdf(d::AbstractMLBA, c::Int, rt::Real,  M::AbstractArray)
+
+Computes default probability density for multi-alternative linear ballistic accumulator. 
+
+# Arguments 
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `c::Int`: choice index
+- `rt::Real`: reaction time in seconds 
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
+function pdf(d::AbstractMLBA, c::Int, rt::Real, M::AbstractArray)
+    compute_drift_rates!(d, M)
+    return pdf(d, c, rt)
+end
+
+"""
+    logpdf(d::AbstractMLBA, c::Int, rt::Real,  M::AbstractArray)
+
+Computes default log probability density for multi-alternative linear ballistic accumulator. 
+
+# Arguments 
+
+- `dist::AbstractMLBA`: an object for the multi-attribute linear ballistic accumulator
+- `c::Int`: choice index
+- `rt::Real`: reaction time in seconds 
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
+function logpdf(d::AbstractMLBA, c::Int, rt::Real, M::AbstractArray)
+    compute_drift_rates!(d, M)
+    return logpdf(d, c, rt)
+end
+
+loglikelihood(d::AbstractMLBA, data::NamedTuple, M::AbstractArray) =
+    sum(logpdf.(d, data..., (M,)))
 
 """
     simulate(rng::AbstractRNG, model::AbstractMLBA, M::AbstractArray; n_steps = 100)
