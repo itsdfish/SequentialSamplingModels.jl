@@ -367,5 +367,5 @@ function simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
         push!(evidence, copy(x))
         push!(time_steps, t)
     end
-    return time_steps, reduce(vcat, transpose.(evidence))
+    return time_steps, stack(evidence, dims = 1)
 end

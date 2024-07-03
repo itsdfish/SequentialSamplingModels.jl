@@ -32,6 +32,7 @@ makedocs(
             "Lognormal Race Model (LNR)" => "lnr.md",
             "Muti-attribute Attentional Drift Diffusion Model" => "maaDDM.md",
             "Multi-attribute Decision Field Theory" => "mdft.md",
+            "Multi-attribute Linear Ballistic Accumulator" => "mlba.md",
             "Poisson Race" => "poisson_race.md",
             "Racing Diffusion Model (RDM)" => "rdm.md",
             "Starting-time Drift Diffusion Model (stDDM)" => "stDDM.md",
