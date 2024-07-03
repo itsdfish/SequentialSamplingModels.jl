@@ -111,7 +111,7 @@ The parameter for extremeness aversion is:
 γ = 5
 ```
 
- $\gamma = 1$ indicates objective treatment of stimuli, whereas $\gamma > 1$ indicates extreness aversion, i.e. $[2,2]$ is prefered to $[3,1]$ even though both fall along the line indifference.
+ $\gamma = 1$ indicates objective treatment of stimuli, whereas $\gamma > 1$ indicates extreness aversion, i.e. $[2,2]$ is prefered to $[3,1]$ even though both fall along the line of indifference.
 
 ### Standard Deviation of Drift Rates
 The standard deviation of the drift rate distribution is given by $\sigma$, which is commonly fixed to 1 for each accumulator.
