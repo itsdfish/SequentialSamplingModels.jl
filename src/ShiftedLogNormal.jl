@@ -33,23 +33,23 @@ loglike = logpdf.(dist, rts)
 Heathcote, A., & Bohlscheid, E. Analysis and Modeling of Response Time using the Shifted Lognormal Distribution.
 """
 struct ShiftedLogNormal{T <: Real} <: AbstractShiftedLogNormal
-    ν::T 
-    σ::T 
+    ν::T
+    σ::T
     τ::T
 end
 
 ShiftedLogNormal(ν, σ, τ) = ShiftedLogNormal(promote(ν, σ, τ)...)
 
-ShiftedLogNormal(; ν = -1, σ=.5, τ = .20) = ShiftedLogNormal(ν, σ, τ)
+ShiftedLogNormal(; ν = -1, σ = 0.5, τ = 0.20) = ShiftedLogNormal(ν, σ, τ)
 
 function logpdf(dist::AbstractShiftedLogNormal, rt)
-    (; τ, ν, σ) = dist 
+    (; τ, ν, σ) = dist
     return logpdf(LogNormal(ν, σ), rt - τ)
 end
 
 function rand(dist::AbstractShiftedLogNormal, n_trials::Int)
-    (; τ, ν, σ) = dist 
+    (; τ, ν, σ) = dist
     return rand(LogNormal(ν, σ), n_trials) .+ τ
 end
 
-model = ShiftedLogNormal(ν = 1, σ = 1, τ = .20)
+model = ShiftedLogNormal(ν = 1, σ = 1, τ = 0.20)
