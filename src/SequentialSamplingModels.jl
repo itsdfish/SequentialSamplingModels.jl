@@ -42,6 +42,7 @@ export AbstractMLBA
 export AbstractMDFT
 export AbstractPoissonRace
 export AbstractRDM
+export AbstractShiftedLogNormal
 export AbstractstDDM
 export AbstractWald
 export aDDM
@@ -57,6 +58,7 @@ export maaDDM
 export MLBA
 export MDFT
 export PoissonRace
+export ShiftedLogNormal
 export SSM1D
 export SSM2D
 export stDDM
@@ -106,4 +108,5 @@ include("stDDM.jl")
 include("MDFT.jl")
 include("ClassicMDFT.jl")
 include("MLBA.jl")
+include("ShiftedLogNormal.jl")
 end

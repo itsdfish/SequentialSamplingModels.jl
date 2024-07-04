@@ -98,6 +98,13 @@ An abstract type for the racing diffusion model.
 """
 abstract type AbstractRDM <: SSM2D end
 
+"""
+    AbstractShiftedLogNormal <: SSM1D
+
+An abstract type for the shifted lognormal model.
+"""
+abstract type AbstractShiftedLogNormal <: SSM1D end
+
 abstract type PDFType end
 
 """
