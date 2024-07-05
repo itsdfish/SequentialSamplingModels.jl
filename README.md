@@ -11,22 +11,34 @@ This package provides a unified interface for simulating and evaluating sequenti
 A summary of the core features is provided below. Please see the [documentation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) for more information.
 
 ## Supported Models
-The following SSMs are supported :
+The following SSMs are supported:
 
-- [Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/aDDM/)
-- [Circular Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/cddm/) 
-- [Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/DDM/)
+### Single Choice Models 
 - [Ex-Gaussian](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/ex_gaussian/)
+- [Shifted Lognormal](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/shifted_lognormal/)
+- [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
+- [Wald Mixture](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald_mixture/)
+
+### Multi-Choice Models 
+#### Single Attribute
+- [Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/aDDM/)
 - [Leaky Competing Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lca/)
+- [Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/DDM/)
 - [Linear Ballistic Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lba/) 
 - [Log Normal Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lnr/) 
+- [Poisson Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/poisson_race)
+- [Racing Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/rdm/) 
+
+#### Multi-Attribute 
+
 - [Multi-attribute Attentional Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/maaDDM/)
 - [Multi-attribute Decision Field Theory](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/mdft/)
 - [Multi-attribute Linear Ballistic Accumulator](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/mlba/)
-- [Poisson Race](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/poisson_race)
-- [Racing Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/rdm/) 
-- [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
-- [Wald Mixture](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald_mixture/)
+
+### Alternative Geometries 
+
+- [Circular Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/cddm/) 
+
 
 ## API
 

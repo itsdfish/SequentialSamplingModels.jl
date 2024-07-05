@@ -23,21 +23,31 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Models" => [
-            "Attentional Drift Diffusion (aDDM)" => "aDDM.md",
-            "Circular Drift Diffusion Model (CDDM)" => "cddm.md",
-            "Drift Diffusion Model (DDM)" => "DDM.md",
-            "Ex-Gaussian Distribution" => "ex_gaussian.md",
-            "Leaky Competing Accumulator (LCA)" => "lca.md",
-            "Linear Ballistic Accumulator (LBA)" => "lba.md",
-            "Lognormal Race Model (LNR)" => "lnr.md",
-            "Muti-attribute Attentional Drift Diffusion Model" => "maaDDM.md",
-            "Multi-attribute Decision Field Theory" => "mdft.md",
-            "Multi-attribute Linear Ballistic Accumulator" => "mlba.md",
-            "Poisson Race" => "poisson_race.md",
-            "Racing Diffusion Model (RDM)" => "rdm.md",
-            "Starting-time Drift Diffusion Model (stDDM)" => "stDDM.md",
-            "Wald Model" => "wald.md",
-            "Wald Mixture Model" => "wald_mixture.md"
+            "Single Choice Models" => [
+                "Ex-Gaussian Distribution" => "ex_gaussian.md",
+                "Shifted LogNormal" => "shifted_lognormal.md",
+                "Wald Model" => "wald.md",
+                "Wald Mixture Model" => "wald_mixture.md",
+            ],
+            "Multi-choice Models" => [
+                "Single Attribute Models" => [
+                    "Drift Diffusion Model (DDM)" => "DDM.md",
+                    "Leaky Competing Accumulator (LCA)" => "lca.md",
+                    "Linear Ballistic Accumulator (LBA)" => "lba.md",
+                    "Lognormal Race Model (LNR)" => "lnr.md",
+                    "Poisson Race" => "poisson_race.md",
+                    "Racing Diffusion Model (RDM)" => "rdm.md",
+                    "Starting-time Drift Diffusion Model (stDDM)" => "stDDM.md",
+                ],
+                "Multi-attribute Models" => [
+                    "Muti-attribute Attentional Drift Diffusion Model" => "maaDDM.md",
+                    "Multi-attribute Decision Field Theory" => "mdft.md",
+                    "Multi-attribute Linear Ballistic Accumulator" => "mlba.md",
+                ]
+            ],
+            "Alternative Geometries" => [
+                "Circular Drift Diffusion Model (CDDM)" => "cddm.md",
+            ],
         ],
         "Parameter Estimation" => [
             "Mode Estimation" => "mode_estimation.md",
