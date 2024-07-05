@@ -135,6 +135,7 @@ maximum(d::SSM1D) = Inf
 minimum(d::SSM2D) = 0.0
 maximum(d::SSM2D) = Inf
 
+insupport(d::SSM1D, rt::Real) = rt ≥ minimum(d) && rt ≤ maximum(d)
 insupport(d::SSM2D, data) = data.rt ≥ minimum(d) && data.rt ≤ maximum(d)
 
 Base.broadcastable(x::SSM1D) = Ref(x)
@@ -187,6 +188,18 @@ Computes the likelihood for a 2D sequential sampling model.
 """
 logpdf(d::SSM2D, data::NamedTuple) = logpdf.(d, data.choice, data.rt)
 logpdf(d::SSM2D, data::AbstractVector{<:Real}) = logpdf(d, Int(data[1]), data[2])
+
+"""
+    loglikelihood(d::SSM1D, data::AbstractArray{T, 1})
+
+Computes the summed log likelihood for a 1D sequential sampling model. 
+
+# Arguments
+
+- `d::SSM2D`: an object for a 2D sequential sampling model 
+- `data::AbstractVector{<:Real}`: a vector of reaction times
+"""
+loglikelihood(d::SSM1D, data::AbstractVector{<:Real}) = sum(logpdf.(d, data))
 
 """
     loglikelihood(d::SSM2D, data::NamedTuple) 

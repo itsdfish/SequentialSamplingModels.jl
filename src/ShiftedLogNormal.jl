@@ -47,9 +47,24 @@ function logpdf(dist::AbstractShiftedLogNormal, rt)
     return logpdf(LogNormal(ν, σ), rt - τ)
 end
 
-function rand(dist::AbstractShiftedLogNormal, n_trials::Int)
+function rand(rng::AbstractRNG, dist::AbstractShiftedLogNormal, n_trials::Int)
     (; τ, ν, σ) = dist
-    return rand(LogNormal(ν, σ), n_trials) .+ τ
+    return rand(rng, LogNormal(ν, σ), n_trials) .+ τ
 end
 
-model = ShiftedLogNormal(ν = 1, σ = 1, τ = 0.20)
+function rand(rng::AbstractRNG, dist::AbstractShiftedLogNormal)
+    (; τ, ν, σ) = dist
+    return rand(rng, LogNormal(ν, σ)) .+ τ
+end
+
+function params(d::AbstractShiftedLogNormal)
+    return (d.ν, d.σ, d.τ)
+end
+
+function mean(dist::AbstractShiftedLogNormal)
+    return mean(LogNormal(dist.ν, dist.σ)) + dist.τ
+end
+
+function std(dist::AbstractShiftedLogNormal)
+    return std(LogNormal(dist.ν, dist.σ))
+end

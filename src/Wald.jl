@@ -1,5 +1,3 @@
-loglikelihood(d::AbstractWald, data::AbstractArray{T, 1}) where {T} = sum(logpdf.(d, data))
-
 """
     Wald{T<:Real} <: AbstractWald
 
