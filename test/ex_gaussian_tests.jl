@@ -33,6 +33,27 @@
         @test y′ ≈ y rtol = 0.03
     end
 
+    @safetestset "pdf 3" begin
+        using Distributions
+        using Random
+        using SequentialSamplingModels
+        using SequentialSamplingModels: Φ
+        using Test
+        Random.seed!(218)
+
+        # direct pdf, not used due to numerical instability in edge cases
+        function _pdf(d::ExGaussian, rt::Float64)
+            (; μ, σ, τ) = d
+            return (1 / τ) * exp((μ - rt) / τ + (σ^2 / 2τ^2)) * Φ((rt - μ) / σ - (σ / τ))
+        end
+
+        for _ ∈ 1:100
+            d = ExGaussian(rand(Uniform(0.3, 1), 3)...)
+            rts = rand(d, 10)
+            @test pdf.(d, rts) ≈ _pdf.(d, rts)
+        end
+    end
+
     @safetestset "logpdf" begin
         using SequentialSamplingModels
         using Random

@@ -64,10 +64,8 @@ function logpdf(d::ExGaussian, rt::Float64)
            logcdf(Normal(0, 1), (rt - μ) / σ - σ / τ)
 end
 
-function pdf(d::ExGaussian, rt::Float64)
-    (; μ, σ, τ) = d
-    return (1 / τ) * exp((μ - rt) / τ + (σ^2 / 2τ^2)) * Φ((rt - μ) / σ - (σ / τ))
-end
+# exponetiate logpdf for numerical stability
+pdf(d::ExGaussian, rt::Float64) = exp(logpdf(d, rt))
 
 mean(d::ExGaussian) = d.μ + d.τ
 
