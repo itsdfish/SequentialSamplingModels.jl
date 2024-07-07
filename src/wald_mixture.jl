@@ -60,6 +60,11 @@ end
 
 function logpdf(d::WaldMixture, t::AbstractFloat)
     (; ν, η, α, τ) = d
+    return η ≈ 0 ? logpdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ) : _logpdf(d, t)
+end
+
+function _logpdf(d::WaldMixture, t::AbstractFloat)
+    (; ν, η, α, τ) = d
     c1 = log(α) - log(√((2 * π * (t - τ)^3) * ((t - τ) * η^2 + 1)))
     c2 = log(1) - logcdf(Normal(0, 1), ν / η)
     c3 = -(ν * (t - τ) - α)^2 / (2 * (t - τ) * ((t - τ) * η^2 + 1))
@@ -68,7 +73,8 @@ function logpdf(d::WaldMixture, t::AbstractFloat)
 end
 
 function rand(rng::AbstractRNG, d::WaldMixture)
-    x = rand(rng, truncated(Normal(d.ν, d.η), 0, Inf))
+    (; ν, η, α, τ) = d
+    x = η ≈ 0 ? ν : rand(rng, truncated(Normal(d.ν, d.η), 0, Inf))
     return rand(rng, InverseGaussian(d.α / x, d.α^2)) + d.τ
 end
 
