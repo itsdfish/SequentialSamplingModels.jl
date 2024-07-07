@@ -15,7 +15,7 @@ The following SSMs are supported:
 
 ### Single Choice Models 
 - [Ex-Gaussian](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/ex_gaussian/)
-- [Shifted Lognormal](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/shifted_lognormal/)
+- [Shifted Log Normal](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/shifted_lognormal/)
 - [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
 - [Wald Mixture](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald_mixture/)
 
@@ -38,7 +38,6 @@ The following SSMs are supported:
 ### Alternative Geometries 
 
 - [Circular Drift Diffusion](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/cddm/) 
-
 
 ## API
 

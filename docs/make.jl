@@ -24,17 +24,17 @@ makedocs(
         "Home" => "index.md",
         "Models" => [
             "Single Choice Models" => [
-                "Ex-Gaussian Distribution" => "ex_gaussian.md",
-                "Shifted LogNormal" => "shifted_lognormal.md",
-                "Wald Model" => "wald.md",
-                "Wald Mixture Model" => "wald_mixture.md"
+                "Ex-Gaussian" => "ex_gaussian.md",
+                "Shifted Log Normal" => "shifted_lognormal.md",
+                "Wald" => "wald.md",
+                "Wald Mixture" => "wald_mixture.md"
             ],
             "Multi-choice Models" => [
                 "Single Attribute Models" => [
                     "Drift Diffusion Model (DDM)" => "DDM.md",
                     "Leaky Competing Accumulator (LCA)" => "lca.md",
                     "Linear Ballistic Accumulator (LBA)" => "lba.md",
-                    "Lognormal Race Model (LNR)" => "lnr.md",
+                    "Log Normal Race (LNR)" => "lnr.md",
                     "Poisson Race" => "poisson_race.md",
                     "Racing Diffusion Model (RDM)" => "rdm.md",
                     "Starting-time Drift Diffusion Model (stDDM)" => "stDDM.md"

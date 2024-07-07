@@ -58,7 +58,7 @@ function plot_model(
         )
         zs[i] = evidence[1, :][:]
     end
-    add_threashold!(model, model_plot)
+    add_threshold!(model, model_plot)
     #add_mean_drift_rate(model, model_plot, zs)
     for s ∈ 1:n_subplots
         annotate!(labels, subplot = s)
@@ -106,7 +106,7 @@ function plot_model(
     defaults = get_model_plot_defaults(model)
     ts, evidence = simulate(model)
     model_plot = plot(evidence[:, 1], evidence[:, 2], line_z = ts; defaults..., kwargs...)
-    add_threashold!(model, model_plot)
+    add_threshold!(model, model_plot)
     return model_plot
 end
 
@@ -217,7 +217,7 @@ function add_starting_point!(model::AbstractRDM, cur_plot; kwargs...)
 end
 
 """
-    add_threashold!(model, model_plot; kwargs...)
+    add_threshold!(model, model_plot; kwargs...)
 
 Adds a horizonal line reprenting the decision threshold. 
 
@@ -230,7 +230,7 @@ Adds a horizonal line reprenting the decision threshold.
 
 - `kwargs...`: optional keyword arguments for configuring the plot 
 """
-function add_threashold!(model, model_plot; kwargs...)
+function add_threshold!(model, model_plot; kwargs...)
     α = compute_threshold(model)
     hline!(
         model_plot,
@@ -243,7 +243,7 @@ function add_threashold!(model, model_plot; kwargs...)
 end
 
 """
-    add_threashold!(model, model_plot; kwargs...)
+    add_threshold!(model, model_plot; kwargs...)
 
 Adds a horizonal line reprenting the decision threshold. 
 
@@ -256,7 +256,7 @@ Adds a horizonal line reprenting the decision threshold.
 
 - `kwargs...`: optional keyword arguments for configuring the plot 
 """
-function add_threashold!(model::AbstractaDDM, model_plot; kwargs...)
+function add_threshold!(model::AbstractaDDM, model_plot; kwargs...)
     α = compute_threshold(model)
     hline!(
         model_plot,
@@ -275,14 +275,14 @@ function add_threashold!(model::AbstractaDDM, model_plot; kwargs...)
     return nothing
 end
 
-function add_threashold!(model::AbstractPoissonRace, model_plot; kwargs...)
+function add_threshold!(model::AbstractPoissonRace, model_plot; kwargs...)
     α = compute_threshold(model)
     hline!(model_plot, α', linestyle = :dash, color = :black; kwargs...)
     return nothing
 end
 
 """
-    add_threashold!(model::AbstractCDDM, model_plot; kwargs...)
+    add_threshold!(model::AbstractCDDM, model_plot; kwargs...)
 
 Adds a circle reprenting the decision threshold of an abstract CDDM.
 
@@ -295,7 +295,7 @@ Adds a circle reprenting the decision threshold of an abstract CDDM.
 
 - `kwargs...`: optional keyword arguments for configuring the plot 
 """
-function add_threashold!(model::AbstractCDDM, model_plot; kwargs...)
+function add_threshold!(model::AbstractCDDM, model_plot; kwargs...)
     plot!(
         model_plot,
         circle(0, 0, model.α),
@@ -313,7 +313,7 @@ function circle(h, k, r)
 end
 
 """
-    add_threashold!(model, model_plot; kwargs...)
+    add_threshold!(model, model_plot; kwargs...)
 
 Adds a horizonal line reprenting the decision threshold. 
 
@@ -326,7 +326,7 @@ Adds a horizonal line reprenting the decision threshold.
 
 - `kwargs...`: optional keyword arguments for configuring the plot 
 """
-function add_threashold!(model::DDM, model_plot; kwargs...)
+function add_threshold!(model::DDM, model_plot; kwargs...)
     α = compute_threshold(model)
     hline!(
         model_plot,
