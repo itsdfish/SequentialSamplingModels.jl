@@ -55,7 +55,10 @@ makedocs(
             "Advanced Model Specification" => "turing_advanced.md",
             "Hierarchical Models" => "turing_hierarchical.md"
         ],
-        "Model Comparison" => "bayes_factor.md",
+        "Model Comparison" => [
+            "Bayes Factors" => "bayes_factor.md",
+            "PSIS-LOO" => "loo_compare.md"
+        ],
         "Predictive Distributions" => "predictive_distributions.md",
         "Plotting" => [
             "Basic Example" => "basic_plot_example.md",
