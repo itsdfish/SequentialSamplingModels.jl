@@ -26,7 +26,7 @@ The next step is to generate simulated data for comparing the models. Here, we'l
 Random.seed!(5000)
 
 dist = LBA(ν=[3.0, 2.0], A=0.8, k=0.3, τ=0.3)
-data = rand(dist, 1000)
+data = map(_ -> rand(dist), 1:1000)
 ```
 
 ## Specify Turing Models
@@ -34,14 +34,16 @@ data = rand(dist, 1000)
 The following code block defines the model along with its prior distributions using Turing.jl. We'll use this model with different fixed values for the `k` parameter.
 
 ```@example loo_example
-@model function model_LBA(data, k; min_rt=minimum(data.rt))
+@model function model_LBA(data, k; min_rt=minimum(x -> x.rt, data))
     # Priors
     ν ~ MvNormal(fill(3.0, 2), I * 2)
     A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
     τ ~ Uniform(0.0, min_rt)
 
     # Likelihood
-    data ~ LBA(; ν, A, k, τ)
+    for i in 1:length(data)
+        data[i] ~ LBA(; ν, A, k, τ)
+    end
 end
 ```
 
@@ -63,7 +65,7 @@ Next we will use the `psis_loo` function to compute the PSIS-LOO for each model:
 res1 = psis_loo(model_LBA(data, 2.0), chain_LBA1)
 res2 = psis_loo(model_LBA(data, 0.3), chain_LBA2)
 res3 = psis_loo(model_LBA(data, 1.0), chain_LBA3)
-show(stdout, MIME"text/plain"(), ans)
+show(stdout, MIME"text/plain"(), ans) # hide
 ```
 
 ## Compare Models
@@ -72,7 +74,7 @@ Finally, we can compare the models using the `loo_compare` function:
 
 ```@example loo_example
 loo_compare((LBA1 = res1, LBA2 = res2, LBA3 = res3))
-show(stdout, MIME"text/plain"(), ans)
+show(stdout, MIME"text/plain"(), ans) # hide
 ```
 
 Here we indeed correctly identified the generative model we simulated. It is of note that some researchers have criticized using model comparison metrics such as leave-one-out cross-validation. See Gronau et al. (2019) for more information.
