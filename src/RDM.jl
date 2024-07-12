@@ -49,7 +49,7 @@ function pdf(d::WaldA, rt::Float64)
     α = (k - t * ν) / √(t)
     β = (A + k - t * ν) / √(t)
     dens = (-ν * Φ(α) + 1 / √(t) * ϕ(α) + ν * Φ(β) - 1 / √(t) * ϕ(β)) / A
-    return max(eps(), dens)
+    return max(0.0, dens)
 end
 
 logpdf(d::WaldA, rt::Float64) = log(pdf(d, rt))
