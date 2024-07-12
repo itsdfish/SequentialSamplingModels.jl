@@ -32,7 +32,7 @@ loglike = logpdf.(dist, rt)
 # References
 
 Matzke, D., & Wagenmakers, E. J. (2009). Psychological interpretation of the ex-Gaussian and shifted Wald parameters: 
-A diffusion model analysis. Psychonomic bulletin & review, 16, 798-817.
+A diffusion model analysis. Psychonomic Bulletin & Review, 16, 798-817.
 """
 struct ExGaussian{T <: Real} <: SSM1D
     μ::T
@@ -64,7 +64,7 @@ function logpdf(d::ExGaussian, rt::Float64)
            logcdf(Normal(0, 1), (rt - μ) / σ - σ / τ)
 end
 
-# exponetiate logpdf for numerical stability
+# exponentiate logpdf for numerical stability
 pdf(d::ExGaussian, rt::Float64) = exp(logpdf(d, rt))
 
 mean(d::ExGaussian) = d.μ + d.τ

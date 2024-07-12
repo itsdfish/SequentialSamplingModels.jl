@@ -9,7 +9,7 @@ working memory tasks. Currently supports the 2D case.
 - `ν`: a vector drift rates. ν₁ is the mean drift rate along the x-axis; ν₂ is the mean drift rate along the y-axis.
 - `σ`: intra-trial drift rate variability 
 - `η`: a vector across-trial standard deviations of  drift rates. η₁ is the standard deviation of drift rate along the x-axis; 
-    ν₂ is the standard deviation of drift rate along the y-axis
+    η₂ is the standard deviation of drift rate along the y-axis
 - `α`: response boundary as measured by the radious of a circle 
 - `τ`: mean non-decision time 
 
@@ -71,7 +71,7 @@ function rand(rng::AbstractRNG, model::AbstractCDDM; Δt = 0.001)
     𝒩 = Normal(0, σ)
     sqΔt = √(Δt)
     while r < α
-        #step in x direction 
+        # step in x direction 
         x += _ν[1] * Δt + rand(rng, 𝒩) * sqΔt
         # step in y direction 
         y += _ν[2] * Δt + rand(rng, 𝒩) * sqΔt
@@ -275,12 +275,6 @@ function simulate(model::AbstractCDDM; Δt = 0.001)
     end
     return time_steps, reduce(vcat, transpose.(evidence))
 end
-
-# function increment!(model::AbstractRDM, x, ϵ, ν, Δt)
-#     ϵ .= rand(Normal(0.0, 1.0), length(ν))
-#     x .+= ν * Δt + ϵ * √(Δt)
-#     return nothing 
-# end
 
 function bessel_hm(d::AbstractCDDM, rt; k_max = 50)
     (; σ, α, τ) = d

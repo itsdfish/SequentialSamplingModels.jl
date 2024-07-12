@@ -134,6 +134,21 @@ function increment!(rng::AbstractRNG, dist::AbstractLCA, x, Δμ; Δt = 0.001)
     return nothing
 end
 
+"""
+    increment!(dist::AbstractLCA, x, Δμ; Δt = 0.001)
+
+Increments the evidence states `x` on each time step. 
+
+# Arguments
+
+- `dist::AbstractLCA`: model object for the Leaky Competing Accumulator.
+- `x`: a vector of preference states 
+- `Δμ`: a vector of mean change in the preference states 
+
+# Keywords
+
+- `Δt = 0.001`: time step size
+"""
 increment!(dist, x, Δμ; Δt = 0.001) =
     increment!(Random.default_rng(), dist, x, Δμ; Δt)
 
@@ -153,16 +168,6 @@ function inhibit(x, i)
     return v
 end
 
-"""
-    simulate(model::AbstractLCA; _...)
-
-Returns a matrix containing evidence samples of the LCA decision process. In the matrix, rows 
-represent samples of evidence per time step and columns represent different accumulators.
-
-# Arguments
-
-- `model::AbstrctLCA`: an LCA model object
-"""
 function simulate(model::AbstractLCA; Δt = 0.001, _...)
     (; α) = model
     n = length(model.ν)

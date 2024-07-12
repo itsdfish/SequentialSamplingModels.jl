@@ -30,6 +30,31 @@
         σ = fill(1.0, n_alternatives)
     )
 
+# Example 
+
+```julia
+using SequentialSamplingModels
+
+dist = MLBA(
+    λₚ = 0.20,
+    λₙ = 0.40,
+    β₀ = 5,
+    γ = 5,
+    τ = 0.3,
+    A = 0.8,
+    k = 0.5
+)
+
+M = [
+    1 4
+    2 2
+    4 1
+]
+
+choice, rt = rand(dist, 1000, M)
+like = pdf.(dist, choice, rt, (M,))
+loglike = logpdf.(dist, choice, rt, (M,))
+```
 # References 
 
 Trueblood, J. S., Brown, S. D., & Heathcote, A. (2014). The multiattribute linear ballistic accumulator model of context effects in multialternative choice. Psychological Review, 121(2), 179.

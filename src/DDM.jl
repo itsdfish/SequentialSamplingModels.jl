@@ -406,20 +406,6 @@ Returns 2 for the number of choice options
 """
 n_options(d::DDM) = 2
 
-"""
-    simulate(model::DDM; Δt=.001)
-
-Returns a matrix containing evidence samples of the drift diffusion model decision process. In the matrix, rows 
-represent samples of evidence per time step and columns represent different accumulators.
-
-# Arguments
-
-- `model::DDM`: an drift diffusion  model object
-
-# Keywords
-
-- `Δt=.001`: size of time step of decision process in seconds
-"""
 function simulate(rng::AbstractRNG, model::DDM; Δt = 0.001)
     (; ν, α, z) = model
     x = α * z

@@ -100,18 +100,18 @@ end
 function logpdf(d::AbstractLBA, c, rt)
     (; τ, A, k, ν, σ) = d
     b = A + k
-    den = 0.0
+    LL = 0.0
     rt < τ ? (return -Inf) : nothing
     for i ∈ 1:length(ν)
         if c == i
-            den += log_dens(d, ν[i], σ[i], rt)
+            LL += log_dens(d, ν[i], σ[i], rt)
         else
-            den += log(max(0.0, 1 - cummulative(d, ν[i], σ[i], rt)))
+            LL += log(max(0.0, 1 - cummulative(d, ν[i], σ[i], rt)))
         end
     end
     pneg = pnegative(d)
-    den = den - log(1 - pneg)
-    return max(den, -1000.0)
+    LL = LL - log(1 - pneg)
+    return max(LL, -1000.0)
 end
 
 function pdf(d::AbstractLBA, c, rt)
@@ -174,7 +174,7 @@ function pnegative(d::AbstractLBA)
 end
 
 """
-    simulate(model::AbstractLBA; n_steps=100)
+    simulate(model::AbstractLBA; n_steps=100, _...)
 
 Returns a matrix containing evidence samples of the LBA decision process. In the matrix, rows 
 represent samples of evidence per time step and columns represent different accumulators.
@@ -187,7 +187,7 @@ represent samples of evidence per time step and columns represent different accu
 
 - `n_steps=100`: number of time steps at which evidence is recorded
 """
-function simulate(rng::AbstractRNG, model::AbstractLBA; n_steps = 100)
+function simulate(rng::AbstractRNG, model::AbstractLBA; n_steps = 100, _...)
     (; τ, A, k, ν, σ) = model
     b = A + k
     n = length(ν)

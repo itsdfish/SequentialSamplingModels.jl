@@ -9,34 +9,27 @@ This package provides a unified interface for simulating and evaluating popular 
 - [Turing.jl](https://turinglang.org/dev/docs/using-turing/get-started): Bayesian parameter estimation
 
 ## Background
-SSMs, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. An example of the evidence accumulation process is illustrated below for the Leaking Competing Accumulator (LCA):
+SSMs, also known as an evidence accumulation models, are a broad class of dynamic models of human decision making in which evidence for each option accumulates until the evidence for one option reaches a decision threshold. Models within this class make different assumptions about the nature of the evidence accumulation process. An example of the evidence accumulation process is illustrated below for the Racing Diffusion Model (RDM):
 
 ```@setup accumulation
-using Plots
-using Random
-using Colors
-using SequentialSamplingModels
-using SequentialSamplingModels: increment!
-Random.seed!(8437)
+# using Plots
+# using Random 
+# using SequentialSamplingModels 
 
-parms = (
-    α = 1.5,
-    β=0.20,
-    λ=0.10,
-    ν=[2.5,2.0],
-    τ=.30,
-    σ=1.0
-)
-model = LCA(; parms...)
-time_steps,evidence = simulate(model)
-lca_plot = plot(time_steps, evidence, xlabel="Time (seconds)", ylabel="Evidence",
-    label=["option1" "option2"], ylims=(0, 2.0), grid=false, linewidth = 2,
-    color =[RGB(148/255, 90/255, 147/255) RGB(90/255, 112/255, 148/255)])
-hline!(lca_plot, [model.α], color=:black, linestyle=:dash, label="threshold", linewidth = 2)
-savefig("lca_plot.png")
+# Random.seed!(50)
+# model = RDM(ν = [1.0,1.5,2.0])
+# α = model.A + model.k
+# times, evidence = simulate(model)
+# color = [RGB(.251, .388, .847) RGB(.584, .345, .689) RGB(.796, .235, .20) ]
+# animation = @animate for i ∈ 1:length(times)
+#     plot(times[1:i], evidence[1:i,:], xlims = extrema(times); color,
+#     ylims = (-.5, α + .1), ticks = :none, linewidth = 1.5)
+#     hline!([α], color = :black, linestyle = :dash, leg = false)
+# end
+# gif(animation, "rdm.gif", fps = 30)
 ```
 
-![](lca_plot.png)
+![](assets/rdm.gif)
 # Installation
 
 You can install a stable version of `SequentialSamplingModels` by running the following in the Julia REPL:

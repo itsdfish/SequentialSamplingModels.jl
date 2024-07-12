@@ -6,6 +6,8 @@
 
 This package provides a unified interface for simulating and evaluating sequential sampling models (SSMs) in Julia. SSMs describe decision making as a stochastic and dynamic evidence accumulation process in which a decision is triggered by the option whose evidence hits a decision treshold first. 
 
+![](docs/src/assets/rdm.gif)
+
 # Feature Overview
 
 A summary of the core features is provided below. Please see the [documentation](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) for more information.
@@ -71,8 +73,6 @@ In the example below, we instantiate a Linear Ballistic Accumulator (LBA) model,
 
 ```julia
 using SequentialSamplingModels
-using StatsPlots
-using Random
 
 # Create LBA distribution with known parameters
 dist = LBA(; ν=[2.75,1.75], A=0.8, k=0.5, τ=0.25)

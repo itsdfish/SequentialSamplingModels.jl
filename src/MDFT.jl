@@ -338,18 +338,7 @@ end
 
 prob_switch(κ, Δt) = 1 - exp(-κ * Δt)
 
-"""
-    simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
-
-Returns a matrix containing evidence samples of the MDFT decision process. In the matrix, rows 
-represent samples of evidence per time step and columns represent different accumulators.
-
-# Arguments
-
-- `model::MDFT`: an MDFT model object
-- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
-"""
-function simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
+function simulate(rng::AbstractRNG, model::MDFT, M::AbstractArray; Δt = 0.001, _...)
     (; α, C, γ, _CM) = model
     n = size(M, 1)
     x = fill(0.0, n)
@@ -363,9 +352,23 @@ function simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(model, x, μΔ; Δt)
+        increment!(rng, model, x, μΔ; Δt)
         push!(evidence, copy(x))
         push!(time_steps, t)
     end
     return time_steps, stack(evidence, dims = 1)
 end
+
+"""
+    simulate(model::MDFT, M::AbstractArray; Δt = 0.001, _...)
+
+Returns a matrix containing evidence samples of the MDFT decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::MDFT`: an MDFT model object
+- `M::AbstractArray`: an alternative × attribute value matrix representing the value of the stimuli 
+"""
+simulate(model::MDFT, M::AbstractArray; Δt = 0.001, kwargs...) =
+    simulate(Random.default_rng(), model, M; Δt, kwargs...)

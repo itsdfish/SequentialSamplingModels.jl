@@ -74,20 +74,6 @@ end
 mean(d::AbstractWald) = mean(InverseGaussian(d.α / d.ν, d.α^2)) + d.τ
 std(d::AbstractWald) = std(InverseGaussian(d.α / d.ν, d.α^2))
 
-"""
-    simulate(model::Wald; Δt=.001)
-
-Returns a matrix containing evidence samples of the Wald decision process. In the matrix, rows 
-represent samples of evidence per time step and columns represent different accumulators.
-
-# Arguments
-
-- `model::Wald`: an Wald model object
-
-# Keywords
-
-- `Δt=.001`: size of time step of decision process in seconds
-"""
 function simulate(model::Wald; Δt = 0.001)
     (; ν, α) = model
     n = length(model.ν)
@@ -97,9 +83,13 @@ function simulate(model::Wald; Δt = 0.001)
     time_steps = [t]
     while x .< α
         t += Δt
-        x += ν * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
+        x = increment!(model, x, ν; Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end
     return time_steps, evidence
+end
+
+function increment!(rnd::AbstractRNG, model::AbstractWald, x, Δμ; Δt = 0.001)
+    return x += Δμ * Δt + rand(rnd, Normal(0.0, √(Δt)))
 end

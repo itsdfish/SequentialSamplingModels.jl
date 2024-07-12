@@ -76,20 +76,6 @@ function rand(rng::AbstractRNG, d::WaldMixture, n::Int)
     return map(x -> rand(rng, d), 1:n)
 end
 
-"""
-    simulate(model::WaldMixture; Δt=.001)
-
-Returns a matrix containing evidence samples of the Wald mixture decision process. In the matrix, rows 
-represent samples of evidence per time step and columns represent different accumulators.
-
-# Arguments
-
-- `model::Wald`: an Wald mixture model object
-
-# Keywords
-
-- `Δt=.001`: size of time step of decision process in seconds
-"""
 function simulate(model::WaldMixture; Δt = 0.001)
     (; ν, α, η) = model
     n = length(model.ν)
@@ -100,9 +86,13 @@ function simulate(model::WaldMixture; Δt = 0.001)
     ν′ = rand(truncated(Normal(ν, η), 0, Inf))
     while x .< α
         t += Δt
-        x += ν′ * Δt + rand(Normal(0.0, 1.0)) * √(Δt)
+        x = increment!(model, x, ν′; Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end
     return time_steps, evidence
+end
+
+function increment!(rnd::AbstractRNG, model::WaldMixture, x, Δμ; Δt = 0.001)
+    return x += Δμ * Δt + rand(rnd, Normal(0.0, √(Δt)))
 end

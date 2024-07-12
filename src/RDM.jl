@@ -166,20 +166,6 @@ function pdf(d::AbstractRDM, r::Int, rt::Float64)
     return like
 end
 
-"""
-    simulate(model::AbstractRDM)
-
-Returns a matrix containing evidence samples of the racing diffusion model decision process. In the matrix, rows 
-represent samples of evidence per time step and columns represent different accumulators.
-
-# Arguments
-
-- `model::AbstractRDM`: an racing diffusion model object
-
-# Keywords
-
-- `Δt=.001`: size of time step of decision process in seconds
-"""
 function simulate(rng::AbstractRNG, model::AbstractRDM; Δt = 0.001)
     (; ν, A, k) = model
     n = length(model.ν)
@@ -198,7 +184,7 @@ function simulate(rng::AbstractRNG, model::AbstractRDM; Δt = 0.001)
     return time_steps, stack(evidence, dims = 1)
 end
 
-function increment!(rng::AbstractRNG, model::AbstractRDM, x, ν; Δt)
-    x .+= ν * Δt .+ rand(rng, Normal(0.0, √(Δt)), length(ν))
+function increment!(rng::AbstractRNG, model::AbstractRDM, x, μΔ; Δt = 0.001)
+    x .+= μΔ * Δt .+ rand(rng, Normal(0.0, √(Δt)), length(μΔ))
     return nothing
 end

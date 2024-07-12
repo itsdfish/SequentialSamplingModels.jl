@@ -320,5 +320,76 @@ n_options(d::SSM1D) = 1
 
 n_options(d::ContinuousMultivariateSSM) = length(d.ν)
 
-simulate(model::SSM2D, args...; kwargs...) =
-    simulate(Random.default_rng(), model::SSM2D, args...; kwargs...)
+"""
+    simulate(model::SSM2D, args...; Δt = .001, kwargs...)
+
+Returns a matrix containing evidence samples from a 2D SSM. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::SSM2D`: a subtype of a 2D SSM 
+- `args...`: optional positional arguments 
+
+# Keywords
+
+- `Δt = .001`: size of time step of decision process in seconds
+- `kwargs...`: optional keyword arguments
+"""
+simulate(model::SSM2D, args...; Δt = 0.001, kwargs...) =
+    simulate(Random.default_rng(), model, args...; Δt, kwargs...)
+
+"""
+    simulate(model::SSM1D, args...; Δt = .001, kwargs...)
+
+Returns a matrix containing evidence samples from a 2D SSM. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::SSM1D`: a subtype of a 2D SSM 
+- `args...`: optional positional arguments 
+
+# Keywords
+
+- `Δt = .001`: size of time step of decision process in seconds
+- `kwargs...`: optional keyword arguments
+"""
+simulate(model::SSM1D, args...; Δt = 0.001, kwargs...) =
+    simulate(Random.default_rng(), model, args...; Δt, kwargs...)
+
+"""
+    increment!(model::SSM2D, x, μΔ; Δt = 0.001) 
+
+Increments the evidence states `x` on each time step. 
+
+# Arguments
+
+- `dist::SSM2D`: a subtype of 2D SSM.
+- `x`: a vector of preference states 
+- `μΔ`: a vector of mean change in evidence (i.e. drift rates)
+
+# Keywords
+
+- `Δt = 0.001`: time step size
+"""
+increment!(model::SSM2D, x, μΔ; Δt = 0.001) =
+    increment!(Random.default_rng(), model, x, μΔ; Δt)
+
+"""
+    increment!(model::SSM1D, x, μΔ; Δt = 0.001) 
+
+Increments the evidence states `x` on each time step. 
+
+# Arguments
+
+- `dist::SSM1D`: a subtype of 1D SSM.
+- `x`: a vector of preference states 
+- `μΔ`: a vector of mean change in evidence (i.e. drift rates)
+
+# Keywords
+
+- `Δt = 0.001`: time step size
+"""
+increment!(model::SSM1D, x, μΔ; Δt = 0.001) =
+    increment!(Random.default_rng(), model, x, μΔ; Δt)
