@@ -65,6 +65,7 @@ makedocs(
             "Changing the Layout" => "layout.md",
             "Plot Model Process" => "plot_model.md"
         ],
+        "Performance Tips" => "performance_tips.md",
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md"
     ]
