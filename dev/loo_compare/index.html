@@ -6,27 +6,7 @@ using ParetoSmooth
 using Turing</code></pre><h2 id="Data-Generating-Model"><a class="docs-heading-anchor" href="#Data-Generating-Model">Data-Generating Model</a><a id="Data-Generating-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Data-Generating-Model" title="Permalink"></a></h2><p>The next step is to generate simulated data for comparing the models. Here, we&#39;ll use an LBA as the true data-generating model:</p><pre><code class="language-julia hljs">Random.seed!(5000)
 
 dist = LBA(ν=[3.0, 2.0], A=0.8, k=0.3, τ=0.3)
-data = map(_ -&gt; rand(dist), 1:1000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1000-element Vector{NamedTuple{(:choice, :rt), Tuple{Int64, Float64}}}:
- (choice = 1, rt = 0.5537064050410118)
- (choice = 1, rt = 0.38629170185227296)
- (choice = 1, rt = 0.637280655039369)
- (choice = 1, rt = 0.5448903749539002)
- (choice = 1, rt = 0.5952443705536006)
- (choice = 2, rt = 0.37945657633479085)
- (choice = 1, rt = 0.41796892609364245)
- (choice = 1, rt = 0.6285830144194395)
- (choice = 1, rt = 0.4844343165181269)
- (choice = 2, rt = 0.4595476942984271)
- ⋮
- (choice = 1, rt = 0.4832630477233871)
- (choice = 1, rt = 0.39554491474077214)
- (choice = 1, rt = 0.4134086615325262)
- (choice = 1, rt = 0.5548783467911398)
- (choice = 1, rt = 0.5048770131987131)
- (choice = 1, rt = 0.5318772546839357)
- (choice = 1, rt = 0.3938795055279204)
- (choice = 2, rt = 0.3787803046977727)
- (choice = 1, rt = 0.3957807741556064)</code></pre><h2 id="Specify-Turing-Models"><a class="docs-heading-anchor" href="#Specify-Turing-Models">Specify Turing Models</a><a id="Specify-Turing-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Specify-Turing-Models" title="Permalink"></a></h2><p>The following code block defines the model along with its prior distributions using Turing.jl. We&#39;ll use this model with different fixed values for the <code>k</code> parameter.</p><pre><code class="language-julia hljs">@model function model_LBA(data, k; min_rt=minimum(x -&gt; x.rt, data))
+data = map(_ -&gt; rand(dist), 1:1000)</code></pre><h2 id="Specify-Turing-Models"><a class="docs-heading-anchor" href="#Specify-Turing-Models">Specify Turing Models</a><a id="Specify-Turing-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Specify-Turing-Models" title="Permalink"></a></h2><p>The following code block defines the model along with its prior distributions using Turing.jl. We&#39;ll use this model with different fixed values for the <code>k</code> parameter.</p><pre><code class="language-julia hljs">@model function model(data, k; min_rt=minimum(x -&gt; x.rt, data))
     # Priors
     ν ~ MvNormal(fill(3.0, 2), I * 2)
     A ~ truncated(Normal(0.8, 0.4), 0.0, Inf)
@@ -36,41 +16,9 @@ data = map(_ -&gt; rand(dist), 1:1000)</code></pre><pre class="documenter-exampl
     for i in 1:length(data)
         data[i] ~ LBA(; ν, A, k, τ)
     end
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">model_LBA (generic function with 2 methods)</code></pre><h2 id="Estimate-the-Parameters"><a class="docs-heading-anchor" href="#Estimate-the-Parameters">Estimate the Parameters</a><a id="Estimate-the-Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Estimate-the-Parameters" title="Permalink"></a></h2><p>Now we&#39;ll estimate the parameters using three different fixed <code>k</code> values:</p><pre><code class="language-julia hljs">chain_LBA1 = sample(model_LBA(data, 2.0), NUTS(), 1000)
-chain_LBA2 = sample(model_LBA(data, 0.3), NUTS(), 1000)
-chain_LBA3 = sample(model_LBA(data, 1.0), NUTS(), 1000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Chains MCMC chain (1000×16×1 Array{Float64, 3}):
-
-Iterations        = 501:1:1500
-Number of chains  = 1
-Samples per chain = 1000
-Wall duration     = 26.32 seconds
-Compute duration  = 26.32 seconds
-parameters        = ν[1], ν[2], A, τ
-internals         = lp, n_steps, is_accept, acceptance_rate, log_density, hamiltonian_energy, hamiltonian_energy_error, max_hamiltonian_energy_error, tree_depth, numerical_error, step_size, nom_step_size
-
-Summary Statistics
- <span class="sgr1"> parameters      mean       std      mcse   ess_bulk   ess_tail      rhat   e ⋯
- <span class="sgr90">     Symbol   Float64   Float64   Float64    Float64    Float64   Float64     ⋯
-
-        ν[1]    3.5648    0.2859    0.0244   140.6753   133.6910    1.0016     ⋯
-        ν[2]    2.8066    0.2420    0.0209   137.1230   173.7268    1.0031     ⋯
-           A    0.6198    0.2015    0.0168   141.2151   130.5000    1.0057     ⋯
-           τ    0.1665    0.0058    0.0004   196.0040   266.4891    1.0072     ⋯
-</span><span class="sgr36">                                                                1 column omitted
-
-Quantiles
-  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
- </span><span class="sgr90">     Symbol   Float64   Float64   Float64   Float64   Float64
-
-        ν[1]    3.0427    3.3614    3.5486    3.7610    4.1645
-        ν[2]    2.3555    2.6345    2.7922    2.9723    3.2739
-           A    0.2133    0.4827    0.6164    0.7656    0.9879
-           τ    0.1556    0.1627    0.1664    0.1701    0.1781
-</span></span></code></pre><h2 id="Compute-PSIS-LOO"><a class="docs-heading-anchor" href="#Compute-PSIS-LOO">Compute PSIS-LOO</a><a id="Compute-PSIS-LOO-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PSIS-LOO" title="Permalink"></a></h2><p>Next we will use the <code>psis_loo</code> function to compute the PSIS-LOO for each model:</p><pre><code class="language-julia hljs">res1 = psis_loo(model_LBA(data, 2.0), chain_LBA1)
-res2 = psis_loo(model_LBA(data, 0.3), chain_LBA2)
-res3 = psis_loo(model_LBA(data, 1.0), chain_LBA3)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[ Info: No source provided for samples; variables are assumed to be from a Markov Chain. If the samples are independent, specify this with keyword argument `source=:other`.
-[ Info: No source provided for samples; variables are assumed to be from a Markov Chain. If the samples are independent, specify this with keyword argument `source=:other`.
-[ Info: No source provided for samples; variables are assumed to be from a Markov Chain. If the samples are independent, specify this with keyword argument `source=:other`.
+end</code></pre><p>Note that <a href="https://turinglang.org/ParetoSmooth.jl/stable/turing/#For-Loop-Method">iterating</a> over the data with a for loop necessary to produce correct PSIS-LOO estimates. </p><h2 id="Estimate-the-Parameters"><a class="docs-heading-anchor" href="#Estimate-the-Parameters">Estimate the Parameters</a><a id="Estimate-the-Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Estimate-the-Parameters" title="Permalink"></a></h2><p>Now we&#39;ll estimate the parameters using three different fixed <code>k</code> values:</p><pre><code class="language-julia hljs">chain_lba1 = sample(model(data, 2.0), NUTS(), 1000)
+chain_lba2 = sample(model(data, 0.3), NUTS(), 1000)
+chain_lba3 = sample(model(data, 1.0), NUTS(), 1000)</code></pre><h2 id="Compute-PSIS-LOO"><a class="docs-heading-anchor" href="#Compute-PSIS-LOO">Compute PSIS-LOO</a><a id="Compute-PSIS-LOO-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PSIS-LOO" title="Permalink"></a></h2><p>Next we will use the <code>psis_loo</code> function to compute the PSIS-LOO for each model:</p><h3 id="Model-1"><a class="docs-heading-anchor" href="#Model-1">Model 1</a><a id="Model-1-1"></a><a class="docs-heading-anchor-permalink" href="#Model-1" title="Permalink"></a></h3><pre><code class="language-julia hljs">loo1 = psis_loo(model_LBA(data, 2.0), chain_lba1)</code></pre><pre><code class="language-julia hljs">[ Info: No source provided for samples; variables are assumed to be from a Markov Chain. If the samples are independent, specify this with keyword argument `source=:other`.
 Results of PSIS-LOO-CV with 1000 Monte Carlo samples and 1000 data points. Total Monte Carlo SE of 0.14.
 ┌───────────┬────────┬──────────┬───────┬─────────┐
 │           │  total │ se_total │  mean │ se_mean │
@@ -78,10 +26,24 @@ Results of PSIS-LOO-CV with 1000 Monte Carlo samples and 1000 data points. Total
 │   cv_elpd │ 359.33 │    29.11 │  0.36 │    0.03 │
 │ naive_lpd │ 364.34 │    28.90 │  0.36 │    0.03 │
 │     p_eff │   5.01 │     0.32 │  0.01 │    0.00 │
-└───────────┴────────┴──────────┴───────┴─────────┘</code></pre><h2 id="Compare-Models"><a class="docs-heading-anchor" href="#Compare-Models">Compare Models</a><a id="Compare-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Compare-Models" title="Permalink"></a></h2><p>Finally, we can compare the models using the <code>loo_compare</code> function:</p><pre><code class="language-julia hljs">loo_compare((LBA1 = res1, LBA2 = res2, LBA3 = res3))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌──────┬─────────┬────────┬────────┐
+└───────────┴────────┴──────────┴───────┴─────────┘</code></pre><h3 id="Model-2"><a class="docs-heading-anchor" href="#Model-2">Model 2</a><a id="Model-2-1"></a><a class="docs-heading-anchor-permalink" href="#Model-2" title="Permalink"></a></h3><pre><code class="language-julia hljs">loo2 = psis_loo(model_LBA(data, 0.3), chain_lba2)</code></pre><pre><code class="language-julia hljs">Results of PSIS-LOO-CV with 1000 Monte Carlo samples and 1000 data points. Total Monte Carlo SE of 0.077.
+┌───────────┬────────┬──────────┬───────┬─────────┐
+│           │  total │ se_total │  mean │ se_mean │
+├───────────┼────────┼──────────┼───────┼─────────┤
+│   cv_elpd │ 378.04 │    28.87 │  0.38 │    0.03 │
+│ naive_lpd │ 381.63 │    28.71 │  0.38 │    0.03 │
+│     p_eff │   3.59 │     0.26 │  0.00 │    0.00 │
+└───────────┴────────┴──────────┴───────┴─────────┘</code></pre><h3 id="Model-3"><a class="docs-heading-anchor" href="#Model-3">Model 3</a><a id="Model-3-1"></a><a class="docs-heading-anchor-permalink" href="#Model-3" title="Permalink"></a></h3><pre><code class="language-julia hljs">loo3 = psis_loo(model_LBA(data, 1.0), chain_lba3)</code></pre><pre><code class="language-julia hljs">Results of PSIS-LOO-CV with 1000 Monte Carlo samples and 1000 data points. Total Monte Carlo SE of 0.14.
+┌───────────┬────────┬──────────┬───────┬─────────┐
+│           │  total │ se_total │  mean │ se_mean │
+├───────────┼────────┼──────────┼───────┼─────────┤
+│   cv_elpd │ 359.33 │    29.11 │  0.36 │    0.03 │
+│ naive_lpd │ 364.34 │    28.90 │  0.36 │    0.03 │
+│     p_eff │   5.01 │     0.32 │  0.01 │    0.00 │
+└───────────┴────────┴──────────┴───────┴─────────┘</code></pre><h2 id="Compare-Models"><a class="docs-heading-anchor" href="#Compare-Models">Compare Models</a><a id="Compare-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Compare-Models" title="Permalink"></a></h2><p>Finally, we can compare the models using the <code>loo_compare</code> function:</p><pre><code class="language-julia hljs">loo_compare((lba1 = loo1, lba2 = loo2, lba3 = loo3))</code></pre><pre><code class="language-julia hljs">┌──────┬─────────┬────────┬────────┐
 │      │ cv_elpd │ cv_avg │ weight │
 ├──────┼─────────┼────────┼────────┤
-│ LBA2 │    0.00 │   0.00 │   1.00 │
-│ LBA3 │  -18.71 │  -0.02 │   0.00 │
-│ LBA1 │  -24.53 │  -0.02 │   0.00 │
-└──────┴─────────┴────────┴────────┘</code></pre><p>Here we indeed correctly identified the generative model we simulated. It is of note that some researchers have criticized using model comparison metrics such as leave-one-out cross-validation. See Gronau et al. (2019) for more information.</p><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Gronau, Q. F., &amp; Wagenmakers, E. J. (2019). Limitations of Bayesian leave-one-out cross-validation for model selection. Computational brain &amp; behavior, 2, 1-11.</p><p>Vehtari, A., Gelman, A. &amp; Gabry, J. Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../bayes_factor/">« Bayes Factors</a><a class="docs-footer-nextpage" href="../predictive_distributions/">Predictive Distributions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.5.0 on <span class="colophon-date" title="Wednesday 10 July 2024 19:14">Wednesday 10 July 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+│ lba2 │    0.00 │   0.00 │   1.00 │
+│ lba3 │  -18.71 │  -0.02 │   0.00 │
+│ lba1 │  -24.53 │  -0.02 │   0.00 │
+└──────┴─────────┴────────┴────────┘</code></pre><p>Here we indeed correctly identified the generative model we simulated. It is of note that some researchers have criticized using model comparison metrics such as leave-one-out cross-validation. See Gronau et al. (2019) for more information.</p><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Gronau, Q. F., &amp; Wagenmakers, E. J. (2019). Limitations of Bayesian leave-one-out cross-validation for model selection. Computational brain &amp; behavior, 2, 1-11.</p><p>Vehtari, A., Gelman, A. &amp; Gabry, J. Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../bayes_factor/">« Bayes Factors</a><a class="docs-footer-nextpage" href="../predictive_distributions/">Predictive Distributions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.5.0 on <span class="colophon-date" title="Friday 12 July 2024 12:13">Friday 12 July 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
