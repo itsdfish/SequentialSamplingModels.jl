@@ -91,12 +91,12 @@ function _pdf_Full(d::DDM{T}, rt; ϵ::Real = 1.0e-12, simps_err::Real = 1e-6) wh
     (ν, α, z, τ, η, sz, st, σ) = params(d)
 
     # Check if parameters are valid
-    if (z < 0 || z > 1 || α <= 0 || τ < 0 || st < 0 || η < 0 || sz < 0 || sz > 1 || 
-        (rt - (τ - st/2)) < 0 || (z + sz/2) > 1 || (z - sz/2) < 0 || (τ - st/2) < 0)
-        return zero(T)
-    end
+    # if (z < 0 || z > 1 || α <= 0 || τ < 0 || st < 0 || η < 0 || sz < 0 || sz > 1 || 
+    #     (rt - (τ - st/2)) < 0 || (z + sz/2) > 1 || (z - sz/2) < 0 || (τ - st/2) < 0)
+    #     return zero(T)
+    # end
 
-    rt = abs(rt)
+    rt = abs.(rt)
 
     if st < 1e-6
         st = 0
@@ -109,7 +109,7 @@ function _pdf_Full(d::DDM{T}, rt; ϵ::Real = 1.0e-12, simps_err::Real = 1e-6) wh
         if st == 0  # η=0, sz=0, st=0
             return _pdf_sv(DDM(ν, α, z, τ, η, 0, 0, σ), rt - τ; ϵ)
         else  # η=0, sz=0, st≠0
-            f = y -> _pdf_sv(DDM(ν, α, z, y[1], η, 0, 0, σ), rt - y[1]; ϵ)
+            f = y -> _pdf_sv(DDM(ν, α, z, y[1], η, 0, 0, σ), rt .- y[1]; ϵ)
             result, _ = hcubature(f, (τ-st/2,), (τ+st/2,); rtol=simps_err, atol=simps_err)
             return result / st  # Normalize by the integration range
         end
@@ -119,7 +119,7 @@ function _pdf_Full(d::DDM{T}, rt; ϵ::Real = 1.0e-12, simps_err::Real = 1e-6) wh
             result, _ = hcubature(f, (z-sz/2,), (z+sz/2,); rtol=simps_err, atol=simps_err)
             return result / sz  
         else  # η=0, sz≠0, st≠0
-            f = y -> _pdf_sv(DDM(ν, α, y[1], y[2], η, 0, 0, σ), rt - y[2]; ϵ)
+            f = y -> _pdf_sv(DDM(ν, α, y[1], y[2], η, 0, 0, σ), rt .- y[2]; ϵ)
             result, _ = hcubature(f, (z-sz/2, τ-st/2), (z+sz/2, τ+st/2); rtol=simps_err, atol=simps_err)
             return result / (sz * st)  
         end
@@ -141,23 +141,29 @@ for variability in drift-rate.
 - Returns the computed PDF value.
 
 """
-function _pdf_sv(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
+function _pdf_sv(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T<:Real}
     (ν, α, z, τ, η, σ) = params(d)
 
-    if t <= 0
-        return zero(T)
+    if !(t > zero(t))
+        return zero(promote_type(T, typeof(t)))
     end
 
-    if η == 0
-        return _pdf(DDM(ν, α, z, τ, 0, 0, 0, σ), t; ϵ)
+    if iszero(η)
+        # XX = t / (α^2) #use normalized time
+        return _pdf(DDM(ν, α, z, τ, zero(η), zero(η), zero(η), σ), t; ϵ)
     end
+
+    p = _pdf(DDM(ν, α, z, τ, zero(η), zero(η), zero(η), σ), t; ϵ) #get f(t|0,1,w)
 
     XX = t / (α^2) #use normalized time
-    p = _pdf(DDM(ν, α, z, τ, 0, 0, 0, σ), XX; ϵ) #get f(t|0,1,w)
     # convert to f(t|v,a,w)
     return exp(log(p) + ((α*z*η)^2 - 2*α*ν*z - (ν^2)*XX)/(2*(η^2)*XX+2)) / sqrt((η^2)*XX+1) / (α^2)
 
 end
+
+# function _pdf_sv(d::DDM{T}, t::AbstractVector; ϵ::Real = 1.0e-12) where {T<:Real}
+#     return [_pdf_sv(d, ti; ϵ=ϵ) for ti in t]
+# end
 
 ################################################################################
 #  Converted from WienerDiffusionModel.jl repository orginally by Tobias Alfers#
@@ -196,17 +202,19 @@ function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     if t <= 0
         return zero(T)
     end
-    u = t
+#    u = t
+    u = t / (α^2) #use normalized time
 
-    K_s = 2.0
-    K_l = 1 / (π * sqrt(u))
+
+    K_s = 2.0 #minimal kappa
+    K_l = 1 / (π * sqrt(u)) #boundary condition
     # number of terms needed for large-time expansion
-    if (π * u * ϵ) < 1
+    if (π * u * ϵ) < 1 # if error threshold is set low enough
         K_l = max(sqrt((-2 * log(π * u * ϵ)) / (π^2 * u)), K_l)
     end
     # number of terms needed for small-time expansion
     if (2 * sqrt(2 * π * u) * ϵ) < 1
-        K_s = max(2 + sqrt(-2u * log(2ϵ * sqrt(2 * π * u))), sqrt(u) + 1)
+        K_s = max(2 + sqrt(-2 * u * log(2 * sqrt(2 * π * u) * ϵ)), sqrt(u) + 1)
     end
 
     p = exp((-α * z * ν) - (0.5 * (ν^2) * (t))) / (α^2)
@@ -225,7 +233,7 @@ function _small_time_pdf(u::T, z::T, K::Int) where {T <: Real}
 
     k_series = (-floor(Int, 0.5 * (K - 1))):ceil(Int, 0.5 * (K - 1))
     for k in k_series
-        inf_sum += ((2k + z) * exp(-((2k + z)^2 / (2u))))
+        inf_sum += ((z + 2 * k) * exp(-((z + 2 * k)^2/2/u)))
     end
 
     return inf_sum / sqrt(2π * u^3)
@@ -236,7 +244,8 @@ function _large_time_pdf(u::T, z::T, K::Int) where {T <: Real}
     inf_sum = zero(T)
 
     for k = 1:K
-        inf_sum += (k * exp(-0.5 * (k^2 * π^2 * u)) * sin(k * π * z))
+        # inf_sum += (k * exp(-0.5 * (k^2 * π^2 * u)) * sin(k * π * z))
+        inf_sum += (k * exp(-(k^2)) * (π^2) * u / 2) * sin(k * π * z)
     end
 
     return π * inf_sum
