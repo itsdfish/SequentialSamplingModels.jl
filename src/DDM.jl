@@ -202,54 +202,99 @@ function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     if t <= 0
         return zero(T)
     end
-#    u = t
-    u = t / (α^2) #use normalized time
+    u = t / (α^2)  # use normalized time
+    w = z / α       # convert to relative start point
 
-
-    K_s = 2.0 #minimal kappa
-    K_l = 1 / (π * sqrt(u)) #boundary condition
-    # number of terms needed for large-time expansion
-    if (π * u * ϵ) < 1 # if error threshold is set low enough
-        K_l = max(sqrt((-2 * log(π * u * ϵ)) / (π^2 * u)), K_l)
-    end
-    # number of terms needed for small-time expansion
-    if (2 * sqrt(2 * π * u) * ϵ) < 1
-        K_s = max(2 + sqrt(-2 * u * log(2 * sqrt(2 * π * u) * ϵ)), sqrt(u) + 1)
+    # calculate number of terms needed for large t
+    if π * u * ϵ < 1  # if error threshold is set low enough
+        kl = sqrt(-2 * log(π * u * ϵ) / (π^2 * u))  # bound
+        kl = max(kl, 1 / (π * sqrt(u)))  # ensure boundary conditions met
+    else  # if error threshold set too high
+        kl = 1 / (π * sqrt(u))  # set to boundary condition
     end
 
-    p = exp((-α * z * ν) - (0.5 * (ν^2) * (t))) / (α^2)
-
-    # decision rule for infinite sum algorithm
-    if K_s < K_l
-        return p * _small_time_pdf(u, z, ceil(Int, K_s))
+    # calculate number of terms needed for small t
+    if 2 * sqrt(2π * u) * ϵ < 1  # if error threshold is set low enough
+        ks = 2 + sqrt(-2 * u * log(2 * sqrt(2π * u) * ϵ))  # bound
+        ks = max(ks, sqrt(u) + 1)  # ensure boundary conditions are met
+    else  # if error threshold was set too high
+        ks = 2  # minimal kappa for that case
     end
 
-    return p * _large_time_pdf(u, z, ceil(Int, K_l))
+    # compute f(u|0,1,w)
+    p = 0.0  # initialize density
+    if ks < kl  # if small t is better
+        K = ceil(Int, ks)  # round to smallest integer meeting error
+        for k in -floor(Int, (K-1)/2):ceil(Int, (K-1)/2)  # loop over k
+            p += (w + 2*k) * exp(-((w + 2*k)^2)/2/u)  # increment sum
+        end
+        p = p / sqrt(2*π*u^3)  # add constant term
+    else  # if large t is better
+        K = ceil(Int, kl)
+        for k in 1:K
+            p += k * exp(-(k^2)*(π^2)*u/2) * sin(k*π*w)  # increment sum
+        end
+        p *= pi  # add constant term
+    end
+    # convert to f(t|ν,α,w)
+    p *= exp(-ν*α*w - (ν^2)*t/2) / (α^2)
+    return p
 end
+# function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
+#     (ν, α, z) = params(d)
 
-# small-time expansion
-function _small_time_pdf(u::T, z::T, K::Int) where {T <: Real}
-    inf_sum = zero(T)
+#     if t <= 0
+#         return zero(T)
+#     end
+# #    u = t
+#     u = t / (α^2) #use normalized time
+#     w = z / α       # convert to relative start point
 
-    k_series = (-floor(Int, 0.5 * (K - 1))):ceil(Int, 0.5 * (K - 1))
-    for k in k_series
-        inf_sum += ((z + 2 * k) * exp(-((z + 2 * k)^2/2/u)))
-    end
 
-    return inf_sum / sqrt(2π * u^3)
-end
+#     K_s = 2.0 #minimal kappa
+#     K_l = 1 / (π * sqrt(u)) #boundary condition
+#     # number of terms needed for large-time expansion
+#     if (π * u * ϵ) < 1 # if error threshold is set low enough
+#         K_l = max(sqrt((-2 * log(π * u * ϵ)) / (π^2 * u)), K_l)
+#     end
+#     # number of terms needed for small-time expansion
+#     if (2 * sqrt(2 * π * u) * ϵ) < 1
+#         K_s = max(2 + sqrt(-2 * u * log(2 * sqrt(2 * π * u) * ϵ)), sqrt(u) + 1)
+#     end
 
-# large-time expansion
-function _large_time_pdf(u::T, z::T, K::Int) where {T <: Real}
-    inf_sum = zero(T)
+#     p = exp((-α * w * ν) - (0.5 * (ν^2) * (t))) / (α^2)
 
-    for k = 1:K
-        # inf_sum += (k * exp(-0.5 * (k^2 * π^2 * u)) * sin(k * π * z))
-        inf_sum += (k * exp(-(k^2)) * (π^2) * u / 2) * sin(k * π * z)
-    end
+#     # decision rule for infinite sum algorithm
+#     if K_s < K_l
+#         return p * _small_time_pdf(u, w, ceil(Int, K_s))
+#     end
 
-    return π * inf_sum
-end
+#     return p * _large_time_pdf(u, w, ceil(Int, K_l))
+# end
+
+# # small-time expansion
+# function _small_time_pdf(u::T, z::T, K::Int) where {T <: Real}
+#     inf_sum = zero(T)
+
+#     k_series = (-floor(Int, 0.5 * (K - 1))):ceil(Int, 0.5 * (K - 1))
+#     for k in k_series
+#         inf_sum += ((z + 2 * k) * exp(-((z + 2 * k)^2/2/u)))
+#     end
+
+#     return inf_sum / sqrt(2π * u^3)
+# end
+
+# # large-time expansion
+# function _large_time_pdf(u::T, z::T, K::Int) where {T <: Real}
+#     inf_sum = zero(T)
+
+#     for k = 1:K
+#         # inf_sum += (k * exp(-0.5 * (k^2 * π^2 * u)) * sin(k * π * z))
+#         inf_sum += (k * exp(-(k^2)) * (π^2) * u / 2) * sin(k * π * z)
+#     end
+
+#     return π * inf_sum
+# end
 
 logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
 #logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ))
