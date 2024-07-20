@@ -1,44 +1,53 @@
 # Style Guide
 
-In most cases, code written in SequentialSamplingModels.jl follows the guidelines specified in the [blue style](https://github.com/invenia/BlueStyle) guide for Julia. Please use the blue style guide or existing code as a guide, and deviate from the guides only when there is a compelling reason to do so.
+The code written in SequentialSamplingModels.jl follows the guidlines presented in the .[JuliaFormatter.toml](https://github.com/itsdfish/SequentialSamplingModels.jl/blob/master/.JuliaFormatter.toml) file, which is inspired by [blue style](https://github.com/JuliaDiff/BlueStyle). You may run the formatter locally by loading SequentialSamplingModels into your session and running ` JuliaFormatter.format(SequentialSamplingModels)`. All PRs undergo a formatting check, which will provide suggestions if you forget to run the formatter locally.  
 
 # Documentation
+
+Each model should adhere to the following guidelines. Include additional details as necessary.
 
 ## Docstrings
 
 Provide docstrings for methods and types which are part of the API. For example, the doc strings for each model should adhere to the following format:
 
-````markdown
-    LNR{T<:Real} <: SSM2D
+````julia
+  LNR{T<:Real} <: AbstractLNR
 
-A lognormal race model object. 
+  Parameters
+  ≡≡≡≡≡≡≡≡≡≡
 
-# Parameters 
+    •  ν: a vector of means in log-space
 
-- `μ`: a vector of means in log-space
-- `σ`: a standard deviation parameter in log-space
-- `ϕ`: a encoding-response offset
+    •  σ: a vector of standard deviation parameter in log-space
 
-# Constructors
+    •  τ: a encoding-response offset
 
-    LNR(μ, σ, ϕ)
+  Constructors
+  ≡≡≡≡≡≡≡≡≡≡≡≡
 
-    LNR(;μ, σ, ϕ)
+  Two constructors are defined below. The first constructor uses positional arguments, and is therefore order
+  dependent:
 
-# Example
+  LNR(ν, σ, τ)
 
-```julia
-using SequentialSamplingModels
-dist = LNR(μ=[-2,-3], σ=1.0, ϕ=.3)
-choice,rt = rand(dist, 10)
-like = pdf.(dist, choice, rt)
-loglike = logpdf.(dist, choice, rt)
-```
-# References
+  The second constructor uses keywords with default values, and is not order dependent:
 
-Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015). 
-The lognormal race: A cognitive-process model of choice and latency with desirable 
-psychometric properties. Psychometrika, 80(2), 491-513.
+  LNR(; ν = [-1, -2], σ = fill(1.0, length(ν)), τ = 0.20)
+
+  Example
+  ≡≡≡≡≡≡≡
+
+  using SequentialSamplingModels
+  dist = LNR(ν = [-2,-3], σ = [1.0,1.0], τ = .3)
+  choice,rt = rand(dist, 10)
+  like = pdf.(dist, choice, rt)
+  loglike = logpdf.(dist, choice, rt)
+
+  References
+  ≡≡≡≡≡≡≡≡≡≡
+
+  Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., & Heathcote, A. (2015). The lognormal race: A
+  cognitive-process model of choice and latency with desirable psychometric properties. Psychometrika, 80(2), 491-513.
 ````
 
 For the benefit of other developers, err on the side of providing doc strings for internal methods. The doc strings should provide the function signature, a high level explanation of the function, and a description of arguments and keywords. Please include references as appropriate. 
@@ -51,7 +60,7 @@ Provide a detailed model walk through for the online documentation under the sec
 
 Only export (make public) types and methods that are intended for users. Other methods are implementational details for interal use. 
 
-# Unit tests
+# Unit Tests
 
 Provide unit tests for most (if not all) methods. When possible, programatically test a method over a wide range of inputs. If you find a bug, write a unit test for the bug to prevent regressions. When possible, compare methods to those defined in established and trusted packages in other languages.  
 
@@ -65,3 +74,11 @@ To ensure consistency across models, please use the following variable names:
 5. use `τ` for non-decision time
 6. use `z` for evidence starting point
 7. use `η` for across-trial noise of drift rate
+
+# Other Conventions
+
+Use variable names that are descriptive unless there is a strong mathematical convention for a particular variable name. When appropriate, use verbs to describe functions. For example, use `summarize(model)` instead of `summary(model)`. Use lower case for variables, and capitalize the first letter of package names, types, and constructors. Use underscore to separate words. For example, name a file `developer_guide.md` instead of `developerguide.md`.
+
+# Contributing
+
+If you are interested in contributing, please open an issue and propose changes or additions you think would be beneficial. After discussion and approval, create a fork of the repository, and submit the changes via a pull request.  
