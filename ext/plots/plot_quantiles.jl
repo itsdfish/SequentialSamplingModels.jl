@@ -1,6 +1,10 @@
 """
-    plot_quantiles(q_data::AbstractVector{<:AbstractVector}, q_preds::Matrix{<:AbstractVector}; kwargs...)
-
+    plot_quantiles(
+        q_data::AbstractVector{<:AbstractVector},
+        q_preds::Matrix{<:AbstractVector};
+        kwargs...
+    )
+        
 Plots the predictive quantile distribution against the quantiles of the data for multi-choice SSMs.
 
 # Arguments
@@ -27,7 +31,12 @@ function plot_quantiles(
 end
 
 """
-    plot_quantiles!(cur_plot::Plots.Plot, q_data::AbstractVector{<:AbstractVector}, q_preds::Matrix{<:AbstractVector}; kwargs...)
+    plot_quantiles!(
+        cur_plot::Plots.Plot,
+        q_data::AbstractVector{<:AbstractVector},
+        q_preds::Matrix{<:AbstractVector};
+        kwargs...
+    )
 
 Adds to an existing plot the predictive quantile distribution against the quantiles of the data for multi-choice SSMs.
 
@@ -64,7 +73,11 @@ function plot_quantiles!(
 end
 
 """
-    plot_quantiles(q_data::AbstractVector{<:AbstractVector}, q_preds::Matrix{<:AbstractVector}; kwargs...)
+    plot_quantiles(
+        q_data::AbstractVector,
+        q_preds::AbstractArray{<:AbstractVector};
+        kwargs...
+    )
 
 Plots the predictive quantile distribution against the quantiles of the data for single choice SSMs.
 
@@ -86,8 +99,13 @@ function plot_quantiles(
 end
 
 """
-    plot_quantiles!(q_data::AbstractVector{<:AbstractVector}, q_preds::Matrix{<:AbstractVector}; kwargs...)
-
+    plot_quantiles!(
+        cur_plot::Plots.Plot,
+        q_data::AbstractVector,
+        q_preds::AbstractArray{<:AbstractVector};
+        kwargs...
+    )
+        
 Adds to an existing plot the predictive quantile distribution against the quantiles of the data for single choice SSMs.
 
 # Arguments

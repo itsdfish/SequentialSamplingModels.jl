@@ -1,11 +1,15 @@
 """
-    plot_choices(data::AbstractVector{<:Real}, preds::AbstractArray{<:AbstractVector}; kwargs...)
+    plot_choices(
+        data::AbstractVector{<:Real},
+        preds::AbstractArray{<:AbstractVector};
+        kwargs...
+    )
 
 Plots choice probability distributions for multi-choice SSMs.
 
 # Arguments
 
-- `data::AbstractVector`: a vector of observed choice proportions
+- `data::AbstractVector{<:Real}`: a vector of observed choice proportions
 - `preds::AbstractArray{<:AbstractVector}`: an array containing vectors of choice probabilities
 
 # Keywords
@@ -22,13 +26,18 @@ function plot_choices(
 end
 
 """
-    plot_choices!(cur_plot::Plots.Plot, data::AbstractVector{<:Real}, preds::AbstractArray{<:AbstractVector}; kwargs...)
+    plot_choices!(
+        cur_plot::Plots.Plot,
+        data::AbstractVector{<:Real},
+        preds::AbstractArray{<:AbstractVector};
+        kwargs...
+    )
 
 Adds to a current plot choice probability distributions for multi-choice SSMs.
 
 # Arguments
 
-- `data::AbstractVector`: a vector of observed choice proportions
+- `data::AbstractVector{<:Real}`: a vector of observed choice proportions
 - `preds::AbstractArray{<:AbstractVector}`: an array containing vectors of choice probabilities
 
 # Keywords

@@ -1,15 +1,16 @@
 """
-    plot_model(model; 
-        add_density = false, 
-        density_kwargs = (), 
-        labels = get_default_labels(model), 
+    plot_model(
+        model;
+        add_density = false,
+        density_kwargs = (),
+        labels = get_default_labels(model),
         density_scale = compute_threshold(model),
         n_sim = 1,
         model_args = (),
-        model_kwargs = (), 
+        model_kwargs = (),
         kwargs...
     )
-
+        
 Plot the evidence accumulation process of a generic SSM.
 
 # Arguments
@@ -70,7 +71,6 @@ function plot_model(
             model_args,
             model_kwargs,
             density_scale,
-            ylims = (y_min, Inf),
             density_kwargs...
         )
     end
@@ -78,8 +78,14 @@ function plot_model(
 end
 
 """
-    plot_model(model; 
-        add_density=false, density_kwargs=(), n_sim=1, kwargs...)
+    plot_model(
+        model::ContinuousMultivariateSSM;
+        add_density = false,
+        density_kwargs = (),
+        labels = get_default_labels(model),
+        n_sim = 1,
+        kwargs...
+    )
 
 Plot the evidence accumulation process of a continous multivariate sequential sampling model.
 

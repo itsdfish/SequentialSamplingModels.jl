@@ -34,3 +34,18 @@ dist = RDM()
 density_kwargs=(;t_range=range(.20, 1.0, length=100),)
 plot_model(dist; n_sim=1, add_density=true, density_kwargs, xlims=(0,1.0))
 ```
+
+## Animate 
+
+You can animate the evidence accumulation process with the plotting function `animate`, which works similarly to `plot_model`.  
+
+```julia 
+using SequentialSamplingModels
+using Plots
+using Random 
+Random.seed!(77)
+
+dist = RDM()
+animate(dist)
+```
+![](assets/rdm_animation.gif)

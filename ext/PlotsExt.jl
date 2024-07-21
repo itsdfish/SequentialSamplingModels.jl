@@ -4,6 +4,8 @@ import Plots: histogram
 import Plots: histogram!
 import Plots: plot
 import Plots: plot!
+import Plots: animate
+
 import SequentialSamplingModels as SSMs
 import SequentialSamplingModels: get_plot_defaults
 import SequentialSamplingModels: get_model_plot_defaults
@@ -20,6 +22,7 @@ using KernelDensity
 using KernelDensity: Epanechnikov
 using LinearAlgebra
 using Plots
+using Plots: giffn
 using SequentialSamplingModels
 using SequentialSamplingModels: Approximate
 using SequentialSamplingModels: Exact
@@ -32,4 +35,5 @@ include("plots/plot_model.jl")
 include("plots/plot_quantiles.jl")
 include("plots/plot_choices.jl")
 include("plots/kde.jl")
+include("plots/animation.jl")
 end
