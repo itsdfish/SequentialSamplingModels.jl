@@ -43,7 +43,6 @@ function animate(
     t_range = default_range(model),
     kwargs...
 )
-
     times, evidence = simulate(model, model_args...; model_kwargs...)
     y_min = minimum(evidence)
 
@@ -65,7 +64,7 @@ function animate(
         model_plot = plot(
             model_plot,
             times[1:i] .+ model.τ,
-            evidence[1:i,:];
+            evidence[1:i, :];
             xlims,
             ylims,
             defaults...,
@@ -125,7 +124,13 @@ function animate(
     defaults = get_model_plot_defaults(model)
     times, evidence = simulate(model)
     animation = @animate for i ∈ 1:4:length(times)
-        model_plot = plot(evidence[1:i, 1], evidence[1:i, 2], line_z = times; defaults..., kwargs...)
+        model_plot = plot(
+            evidence[1:i, 1],
+            evidence[1:i, 2],
+            line_z = times;
+            defaults...,
+            kwargs...
+        )
         add_threshold!(model, model_plot)
     end
     return gif(animation, file_path; fps)

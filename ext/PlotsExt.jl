@@ -22,7 +22,7 @@ using KernelDensity
 using KernelDensity: Epanechnikov
 using LinearAlgebra
 using Plots
-using Plots: giffn 
+using Plots: giffn
 using SequentialSamplingModels
 using SequentialSamplingModels: Approximate
 using SequentialSamplingModels: Exact
