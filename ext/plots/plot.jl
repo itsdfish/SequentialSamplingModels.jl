@@ -185,8 +185,13 @@ function plot!(
 end
 
 """
-    plot!([cur_plot], d::ContinuousMultivariateSSM; t_range=default_range(d), kwargs...)
-
+    plot!(
+        cur_plot::Plots.Plot,
+        d::ContinuousMultivariateSSM;
+        t_range = default_range(d),
+        kwargs...
+    )
+        
 Adds the marginal probability density of a multivariate continuous sequential sampling model to an existing plot
 
 # Arguments

@@ -1,5 +1,5 @@
 """
-    histogram(d::SSM2D;  kwargs...)
+    histogram(d::SSM2D; norm = true, n_sim = 2000, kwargs...)
 
 Plots the histogram of a multi-alternative sequential sampling model.
 
