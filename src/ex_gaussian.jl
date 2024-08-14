@@ -59,7 +59,7 @@ end
 function logpdf(d::ExGaussian, rt::Float64)
     (; μ, σ, τ) = d
     if τ == 0
-        return -Inf 
+        return -Inf
     end
     return log(1 / τ) +
            (μ - rt) / τ +
