@@ -54,7 +54,7 @@ function pdf(d::AbstractWald, t::AbstractFloat)
 end
 
 function logpdf(d::AbstractWald, t::AbstractFloat)
-    return logpdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
+    return d.ν == 0 ? -Inf : logpdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
 end
 
 function logccdf(d::Wald, t::AbstractFloat)
