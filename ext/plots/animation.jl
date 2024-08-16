@@ -30,7 +30,15 @@ Animates the evidence accumulation process of the specified model.
 - `t_range`: the range of time points over which the probability density is plotted 
 - `kwargs...`: optional keyword arguments for configuring plot options
 """
-function animate(
+function animate(model::SSM2D; kwargs...)
+    return _animate(model; kwargs...)
+end
+
+function animate(model::SSM1D; kwargs...)
+    return _animate(model; kwargs...)
+end
+
+function _animate(
     model;
     add_density = false,
     density_kwargs = (),
@@ -85,7 +93,6 @@ function animate(
     end
     return gif(animation, file_path; fps)
 end
-
 """
     animate(
         model::ContinuousMultivariateSSM;
