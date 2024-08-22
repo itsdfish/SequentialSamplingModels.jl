@@ -23,21 +23,24 @@ Random.seed!(8741)
 ## Create Model Object
 In the code below, we will define parameters for the LBA and create a model object to store the parameter values.
 
-### Mean Log Time
+### $\nu$ 
 
-The parameter $\nu$ represents the mean processing time of each accumulator in log space.
+We will set $\nu [-1,-1.5]$.
 
 ```@example lnr
 ν = [-1,-1.5]
 ```
 
-### Log Standard Deviation
+### $\sigma$
 
-The parameter $\sigma$ represents the standard deviation of processing time in log space.
+We will set the parameter $\sigma = [-1,-1.5]$ 
 
 ```@example lnr
 σ = [0.50,0.50]
 ```
+
+Note that $\nu$ and $\sigma$ affect both the mean and variance of the lognormal distribution. See ACT-R for a possible theoretical intepretation of parameters $\nu$ and $\sigma$.
+
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time.
 ```@example lnr
