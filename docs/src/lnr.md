@@ -39,7 +39,11 @@ We will set the parameter $\sigma = [-1,-1.5]$
 σ = [0.50,0.50]
 ```
 
-Note that $\nu$ and $\sigma$ affect both the mean and variance of the lognormal distribution. See ACT-R for a possible theoretical intepretation of parameters $\nu$ and $\sigma$.
+The lognormal has the following relationship to the normal distribution:
+
+$X \sim \mathrm{lognormal(\nu, \sigma)} \iff \log(X) \sim \mathrm{normal}(\nu, \sigma)$. 
+
+This means that $E[\log(X)] = \nu$ and $\mathrm{Var}[\log(X)] = \sigma^2$. Note that $\nu$ and $\sigma$ affect both the mean and variance of the lognormal distribution. See ACT-R for a possible theoretical intepretation of parameters $\nu$ and $\sigma$.
 
 ### Non-Decision Time
 Non-decision time is an additive constant representing encoding and motor response time.
