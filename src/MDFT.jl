@@ -153,16 +153,16 @@ function rand(
     x = fill(0.0, n_options)
     Δμ = fill(0.0, n_options)
     ϵ = fill(0.0, n_options)
-    choices = fill(0, n_sim)
-    rts = fill(0.0, n_sim)
+    choice = fill(0, n_sim)
+    rt = fill(0.0, n_sim)
     dist._CM = dist.C * M * dist.γ
     distances = compute_distances(dist, M)
     dist.S = compute_feedback_matrix(dist, distances)
     for i ∈ 1:n_sim
-        choices[i], rts[i] = _rand(rng, dist, x, Δμ; Δt)
+        choice[i], rt[i] = _rand(rng, dist, x, Δμ; Δt)
         x .= 0.0
     end
-    return (; choices, rts)
+    return (; choice, rt)
 end
 
 rand(dist::MDFT, M::AbstractArray; Δt = 0.001) = rand(Random.default_rng(), dist, M; Δt)

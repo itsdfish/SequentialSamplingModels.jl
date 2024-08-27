@@ -101,13 +101,13 @@ function rand(rng::AbstractRNG, dist::AbstractLCA, n_sim::Int; Δt = 0.001)
     n = length(dist.ν)
     x = fill(0.0, n)
     Δμ = fill(0.0, n)
-    choices = fill(0, n_sim)
-    rts = fill(0.0, n_sim)
+    choice = fill(0, n_sim)
+    rt = fill(0.0, n_sim)
     for i ∈ 1:n_sim
-        choices[i], rts[i] = _rand(rng, dist, x, Δμ; Δt)
+        choice[i], rt[i] = _rand(rng, dist, x, Δμ; Δt)
         x .= 0.0
     end
-    return (; choices, rts)
+    return (; choice, rt)
 end
 
 function _rand(rng::AbstractRNG, dist::AbstractLCA, x, Δμ; Δt = 0.001)

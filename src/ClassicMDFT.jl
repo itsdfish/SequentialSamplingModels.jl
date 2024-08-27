@@ -121,14 +121,14 @@ function rand(
     n_alternatives = size(M, 1)
     x = fill(0.0, n_alternatives)
     Δμ = fill(0.0, n_alternatives)
-    choices = fill(0, n_sim)
-    rts = fill(0.0, n_sim)
+    choice = fill(0, n_sim)
+    rt = fill(0.0, n_sim)
     CM = dist.C * M
     for i ∈ 1:n_sim
-        choices[i], rts[i] = _rand(rng, dist, x, Δμ, CM)
+        choice[i], rt[i] = _rand(rng, dist, x, Δμ, CM)
         x .= 0.0
     end
-    return (; choices, rts)
+    return (; choice, rt)
 end
 
 rand(dist::ClassicMDFT, M::AbstractArray;) = rand(Random.default_rng(), dist, M)
