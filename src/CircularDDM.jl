@@ -6,12 +6,12 @@ A circular drift diffusion model (CDDM) for continous responding. CCDM is typica
 working memory tasks. Currently supports the 2D case. 
 
 # Parameters 
-- `ν`: a vector drift rates. ν₁ is the mean drift rate along the x-axis; ν₂ is the mean drift rate along the y-axis.
-- `σ`: intra-trial drift rate variability 
-- `η`: a vector across-trial standard deviations of  drift rates. η₁ is the standard deviation of drift rate along the x-axis; 
-    η₂ is the standard deviation of drift rate along the y-axis
-- `α`: response boundary as measured by the radious of a circle 
-- `τ`: mean non-decision time 
+- `ν::T`: a vector drift rates. ν₁ is the mean drift rate along the x-axis; ν₂ is the mean drift rate along the y-axis. ν ∈ ℝⁿ.
+- `σ::T`: intra-trial drift rate variability. σ ∈ ℝ.
+- `η::T`: a vector across-trial standard deviations of  drift rates. η₁ is the standard deviation of drift rate along the x-axis; 
+    η₂ is the standard deviation of drift rate along the y-axis. η ∈ ℝⁿ⁺.
+- `α::T`: response boundary as measured by the radius of a circle. α ∈ ℝ⁺.
+- `τ::T`: mean non-decision time. τ ∈ [0, min_rt]. 
 
 # Constructors
 

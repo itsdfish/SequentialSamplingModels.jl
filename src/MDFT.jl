@@ -4,15 +4,15 @@
 A model type for simulating Multi-attribute Decision Field Theory (MDFT) as an Stochastic Differential Equation (SDE). 
     
 # Parameters 
-- `σ = 1.0`: diffusion noise 
-- `α = 15.0`: evidence threshold 
-- `τ = .30`: non-decision time
-- `γ::T`: scales the valance, `CMW`, functioning like a drift rate
+- `σ::T = 1.0`: diffusion noise. σ ∈ ℝ⁺. 
+- `α::T = 15.0`: evidence threshold. α ∈ ℝ⁺.
+- `τ::T = .30`: non-decision time. τ ∈ [0, min_rt].
+- `γ::T`: scales the valance, `CMW`, functioning like a drift rate. γ ∈ ℝ⁺.
 - `κ::Vector{T}`: exponential rate parameters for switching attention between attributes. Currently, limited to two 
-    attributes 
-- `ϕ1`: controls the sensitivity of lateral inhibition to distance in the distance function for creating the feedback matrix, `S`
-- `ϕ2`: controls evidence decay and maximum inhibition in the distance function for creating the feedback matrix, `S`
-- `β`: controls the weight of the dominance dimension in the feedback matrix distance function. If `β` < 0, the indifference dimension 
+    attributes. κ ∈ ℝ⁺.
+- `ϕ1::T`: controls the sensitivity of lateral inhibition to distance in the distance function for creating the feedback matrix, `S`. ϕ1 ∈ ℝ⁺.
+- `ϕ2::T`: controls evidence decay and maximum inhibition in the distance function for creating the feedback matrix, `S`. ϕ2 ∈ ℝ⁺.
+- `β::T`: controls the weight of the dominance dimension in the feedback matrix distance function. If `β` < 0, the indifference dimension 
     recieves more where. If `β` > 0, the dominance dimension recieves more weight
 - `S::Array{T, 2}`: feedback matrix allowing self-connections and interconnections between alternatives. Self-connections range from zero to 1, where s_ij < 1 represents decay. Interconnections 
      between options i and j where i ≠ j are inhibitory if s_ij < 0.

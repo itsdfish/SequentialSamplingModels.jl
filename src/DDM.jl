@@ -5,10 +5,10 @@ Model object for the standard Drift Diffusion Model.
 
 # Parameters
 
-- `ν`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 < ν < 5
-- `α`: boundary threshold separation. The amount of information that is considered for a decision. Typical range: 0.5 < α < 2
-- `z`: starting point. Indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).
-- `τ`: non-decision time. The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 < τ < 0.5 
+- `ν::T`: drift rate. Average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. ν ∈ ℝ. Typical range: ν ∈ [-5,5].
+- `α::T`: boundary threshold separation. The amount of information that is considered for a decision. α ∈ ℝ⁺. Typical range: α ∈ [.5, 2].
+- `z::T`: starting point. Indicator of an an initial bias towards a decision. The z ∈ [0,1] parameter is relative to α.
+- `τ::T`: non-decision time. The duration for a non-decisional processes (encoding and response execution). τ ∈ [0, min_rt]. Typical range: τ ∈ [.1,.5].
 
 # Constructors 
 

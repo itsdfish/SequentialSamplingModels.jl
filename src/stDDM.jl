@@ -5,14 +5,14 @@ An object for the starting-time diffusion decision model.
 
 # Parameters 
 
-- `ν`:  vector of drift rate weights for attribute one and two
-- `σ`:  diffusion noise
-- `s`:  initial latency bias (positive for attribute two, negative for attribute one)
-- `z`:  initial evidence 
-- `η`:  vector of variability in drift rate for attribute one and two
-- `ρ`:  correlation between drift rate for attributes
-- `α`:  evidence threshold
-- `τ`:  non-decision time 
+- `ν::T`:  vector of drift rate weights for attribute one and two. ν ∈ ℝ.
+- `σ::T`:  diffusion noise. σ ∈ ℝ⁺.
+- `s::T`:  initial latency bias (positive for attribute two, negative for attribute one)
+- `z::T`:  initial evidence. z ∈ [0,α].  
+- `η::T`:  vector of variability in drift rate for attribute one and two. η ∈ ℝ⁺.
+- `ρ::T`:  correlation between drift rate for attributes. ρ ∈ [-1,1].
+- `α::T`:  evidence threshold. α ∈ ℝ⁺.
+- `τ::T`:  non-decision time. τ ∈ [0, min_rt].
 
 # Constructors 
 

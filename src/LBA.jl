@@ -5,11 +5,11 @@ A model object for the linear ballistic accumulator.
 
 # Parameters
 
-- `ν::Vector{T}`: a vector of drift rates
-- `σ::T1`: a scalar or vector of drift rate standard deviation
-- `A::T`: max start point
-- `k::T`: A + k = b, where b is the decision threshold
-- `τ::T`: an encoding-response offset
+- `ν::Vector{T}`: a vector of drift rates. α ∈ ℝ⁺.
+- `σ::T1`: a scalar or vector of drift rate standard deviation. σ ∈ ℝ⁺.
+- `A::T`: max start point. A ∈ ℝ⁺.
+- `k::T`: A + k = b, where b is the decision threshold. k ∈ ℝ⁺.
+- `τ::T`: an encoding-response offset. τ ∈ [0, min_rt].
 
 # Constructors 
 

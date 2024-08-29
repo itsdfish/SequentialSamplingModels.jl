@@ -5,13 +5,13 @@ An object for the attentional diffusion model.
 
 # Parameters 
 
-- `ν`: relative decision values (i.e., drift rates)
-- `σ`: standard deviation of noise in evidence accumulation
-- `Δ`: constant of evidence accumulation speed (evidence per ms)
-- `α`: evidence threshold 
-- `z`: initial evidence 
-- `θ`: bias towards attended alternative (lower indicates more bias)
-- `τ`: non-decision time
+- `ν::Vector{T}`: relative decision values (i.e., drift rates). ν ∈ ℝⁿ.
+- `σ::T`: standard deviation of noise in evidence accumulation. σ ∈ ℝ.
+- `Δ::T`: constant of evidence accumulation speed (evidence per ms). Δ ∈ ℝ.
+- `α::T`: evidence threshold. α ∈ ℝ.  
+- `z::T`: initial evidence. z ∈ [0, α] 
+- `θ::T`: bias towards attended alternative (lower indicates more bias)
+- `τ::T`: non-decision time. τ ∈ [0, min_rt]
 
 # Constructors
 

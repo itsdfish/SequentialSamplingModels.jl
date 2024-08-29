@@ -1,11 +1,11 @@
 """
-    LNR{T<:Real} <: AbstractLNR
+    LNR{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractLNR{T, T1}
 
 # Parameters 
 
-- `ν`: a vector of means in log-space
-- `σ`: a scalar or vector of standard deviation parameter in log-space
-- `τ`: a encoding-response offset
+- `ν::Vector{T}`: a vector of means in log-space. ν ∈ ℝⁿ.
+- `σ::T1`: a scalar or vector of standard deviation parameter in log-space. σ ∈ ℝ⁺.
+- `τ::T`: a encoding-response offset. τ ∈ [0, min_rt].
 
 # Constructors
 

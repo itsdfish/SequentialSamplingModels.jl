@@ -5,9 +5,9 @@ A model object for the Wald model, also known as the inverse Gaussian model.
 
 # Parameters 
 
-- `ν`: drift rate
-- `α`: decision threshold
-- `τ`: a encoding-response offset
+- `ν`: drift rate. ν ∈ ℝ⁺. 
+- `α`: decision threshold. α ∈ ℝ⁺
+- `τ`: a encoding-response offset. τ ∈ [0, min_rt]
 
 # Constructors
 

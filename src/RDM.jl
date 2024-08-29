@@ -95,10 +95,10 @@ The second constructor uses keywords with default values, and is not order depen
 
 # Parameters
 
-- `ν`: a vector of drift rates
-- `A`: the maximum starting point diffusion process, sampled from Uniform distribution
-- `k`: k = b - A where b is the decision threshold, and A is the maximum starting point
-- `τ`: a encoding-motor time offset
+- `ν::T`: a vector of drift rates. ν ∈ ℝⁿ.
+- `A::T`: the maximum starting point diffusion process, sampled from Uniform distribution. A ∈ ℝ⁺
+- `k::T`: k = b - A where b is the decision threshold, and A is the maximum starting point. k ∈ ℝ⁺
+- `τ::T`: a encoding-motor time offset. τ ∈ [0, min_rt].
 
 # Example
 

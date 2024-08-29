@@ -3,15 +3,15 @@
 
 # Fields 
 
-- `ν::Vector{T}`: a vector of drift rates, which is a function of β₀, λₚ, λₙ, γ
-- `β₀::T`: baseline input for drift rate 
-- `λₚ::T`: decay constant for attention weights of positive differences
-- `λₙ::T`: decay constant for attention weights of negative differences  
-- `γ::T`: risk aversion exponent for subjective values
-- `σ::T1`: a scalar or vector of drift rate standard deviation
-- `A::T`: max start point
-- `k::T`: A + k = b, where b is the decision threshold
-- `τ::T`: an encoding-response offset
+- `ν::Vector{T}`: a vector of drift rates, which is a function of β₀, λₚ, λₙ, γ. ν ∈ ℝⁿ.
+- `β₀::T`: baseline input for drift rate. β₀ ∈ ℝ. 
+- `λₚ::T`: decay constant for attention weights of positive differences. λₚ ∈ ℝ⁺.
+- `λₙ::T`: decay constant for attention weights of negative differences. λₙ ∈ ℝ⁺.
+- `γ::T`: risk aversion exponent for subjective values. γ ∈ ℝ⁺.
+- `σ::T1`: a scalar or vector of drift rate standard deviation. σ ∈ ℝ⁺.
+- `A::T`: max start point. A ∈ ℝ⁺.
+- `k::T`: A + k = b, where b is the decision threshold. k ∈ ℝ⁺.
+- `τ::T`: an encoding-response offset. τ ∈ [0, min_rt].
 
 # Constructors
 

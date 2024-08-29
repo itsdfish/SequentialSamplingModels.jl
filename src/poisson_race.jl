@@ -3,9 +3,9 @@
 
 # Parameters 
 
-- `ν`: gamma scale parameter
-- `α`: threshold
-- `τ`: a encoding-response offset
+- `ν::T`: gamma scale parameter. ν ∈ ℝ⁺.
+- `α::T`: threshold. α ∈ ℝ⁺
+- `τ::T`: a encoding-response offset. τ ∈ [0, min_rt].
 
 # Constructors
 

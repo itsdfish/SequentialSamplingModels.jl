@@ -5,10 +5,10 @@
 A model type for Multiattribute Decision Field Theory. 
     
 # Parameters 
-- `σ = 1.0`: diffusion noise 
-- `α = 15.0`: evidence threshold 
-- `τ = .30`: non-decision time
-- `w::Vector{T}`: attention weights vector where each element corresponds to the attention given to the corresponding dimension
+- `σ::T = 1.0`: diffusion noise. σ ∈ ℝ⁺. 
+- `α::T = 15.0`: evidence threshold. α  ∈ ℝ⁺.
+- `τ::T = .30`: non-decision time. τ ∈ [0, min_rt].
+- `w::Vector{T}`: attention weights vector where each element corresponds to the attention given to the corresponding dimension. wᵢ ∈ [0,1], ∑wᵢ = 1.
 - `S::Array{T, 2}`: feedback matrix allowing self-connections and interconnections between alternatives. Self-connections range from zero to 1, where s_ij < 1 represents decay. Interconnections 
      between options i and j  where i ≠ j are inhibatory if s_ij < 0.
 - `C::Array{T, 2}`: contrast weight matrix where c_ij is the contrast weight when comparing options i and j.

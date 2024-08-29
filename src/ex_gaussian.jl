@@ -6,9 +6,9 @@ to model reaction time distributions. Note that this is not technically a sequen
 
 # Parameters 
 
-- `μ`: mean of Gaussian component
-- `σ`: standard deviation of Gaussian component
-- `τ`: mean of exponential component
+- `μ::T`: mean of Gaussian component. μ ∈ ℝ⁺.
+- `σ::T`: standard deviation of Gaussian component. σ ∈ ℝ⁺
+- `τ::T`: mean of exponential component. τ ∈ [0, min_rt]
 
 # Constructors
 

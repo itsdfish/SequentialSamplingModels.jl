@@ -3,10 +3,10 @@
 
 # Parameters
 
-- `υ`: drift rate
-- `η`: standard deviation of drift rate
-- `α`: decision threshold
-- `τ`: a encoding-response offset
+- `υ`: drift rate. ν ∈ ℝ⁺. 
+- `η`: standard deviation of drift rate. ν ∈ ℝ⁺.
+- `α`: decision threshold. α ∈ ℝ⁺.
+- `τ`: a encoding-response offset. τ ∈ [0, min_rt]
 
 # Constructors
 

@@ -5,9 +5,9 @@ A special case of the lognormal race (LNR) model for a single response. The firs
 
 # Parameters 
 
-- `ν`: mean finishing time in log-space
-- `σ`: standard deviation parameter in log-space
-- `τ`: a encoding-response offset
+- `ν::T`: mean finishing time in log-space. ν ∈ ℝ. 
+- `σ::T`: standard deviation parameter in log-space. σ ∈ ℝ⁺.
+- `τ::T`: a encoding-response offset. τ ∈ [0, min_rt].
 
 # Constructors
 
