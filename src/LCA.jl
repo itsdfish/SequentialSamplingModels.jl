@@ -49,9 +49,9 @@ mutable struct LCA{T <: Real} <: AbstractLCA
     τ::T
 end
 
-function LCA(ν, σ, β, λ, α, τ)
+function LCA(ν, σ, β, λ, α, τ::T) where {T}
     _, σ, β, λ, α, τ = promote(ν[1], σ, β, λ, α, τ)
-    ν = convert(Vector{typeof(τ)}, ν)
+    ν = convert(Vector{T}, ν)
     return LCA(ν, σ, β, λ, α, τ)
 end
 

@@ -1,5 +1,5 @@
 """
-    MLBA{T <: Real} <: AbstractMLBA
+    MLBA{T <: Real, T1 <: Union{<: T, Vector{<: T}}} <: AbstractMLBA{T,T1}
 
 # Fields 
 
@@ -8,7 +8,7 @@
 - `λₚ::T`: decay constant for attention weights of positive differences
 - `λₙ::T`: decay constant for attention weights of negative differences  
 - `γ::T`: risk aversion exponent for subjective values
-- `σ::Vector{T}`: a vector of drift rate standard deviation
+- `σ::T1`: a scalar or vector of drift rate standard deviation
 - `A::T`: max start point
 - `k::T`: A + k = b, where b is the decision threshold
 - `τ::T`: an encoding-response offset
@@ -27,7 +27,7 @@
         τ = 0.3,
         A = 1.0,
         k = 1.0,
-        σ = fill(1.0, n_alternatives)
+        σ = 1.0
     )
 
 # Example 
@@ -59,22 +59,22 @@ loglike = logpdf.(dist, choice, rt, (M,))
 
 Trueblood, J. S., Brown, S. D., & Heathcote, A. (2014). The multiattribute linear ballistic accumulator model of context effects in multialternative choice. Psychological Review, 121(2), 179.
 """
-mutable struct MLBA{T <: Real} <: AbstractMLBA
+mutable struct MLBA{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractMLBA{T, T1}
     ν::Vector{T}
     β₀::T
     λₚ::T
     λₙ::T
     γ::T
-    σ::Vector{T}
+    σ::T1
     A::T
     k::T
     τ::T
 end
 
-function MLBA(ν, β₀, λₚ, λₙ, γ, σ, A, k, τ)
+function MLBA(ν, β₀, λₚ, λₙ, γ, σ, A, k::T, τ) where {T}
     _, β₀, λₚ, λₙ, γ, _, A, k, τ = promote(ν[1], β₀, λₚ, λₙ, γ, σ[1], A, k, τ)
-    ν = convert(Vector{typeof(k)}, ν)
-    σ = convert(Vector{typeof(k)}, σ)
+    ν = convert(Vector{T}, ν)
+    σ = isa(σ, Vector) ? convert(Vector{T}, σ) : convert(T, σ)
     return MLBA(ν, β₀, λₚ, λₙ, γ, σ, A, k, τ)
 end
 
@@ -88,7 +88,7 @@ MLBA(;
     τ = 0.3,
     A = 1.0,
     k = 1.0,
-    σ = fill(1.0, n_alternatives)
+    σ = 1.0
 ) =
     MLBA(ν, β₀, λₚ, λₙ, γ, σ, A, k, τ)
 

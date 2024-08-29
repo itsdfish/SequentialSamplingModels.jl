@@ -90,10 +90,10 @@ mutable struct MDFT{T <: Real} <: AbstractMDFT
     _att_idx::Int
 end
 
-function MDFT(σ, α, τ, γ, κ, ϕ1, ϕ2, β, C)
+function MDFT(σ, α, τ::T, γ, κ, ϕ1, ϕ2, β, C) where {T}
     σ, α, τ, γ, _, ϕ1, ϕ2, β, = promote(σ, α, τ, γ, κ[1], ϕ1, ϕ2, β)
-    κ = convert(Vector{typeof(τ)}, κ)
-    C = convert(Array{typeof(τ), 2}, C)
+    κ = convert(Vector{T}, κ)
+    C = convert(Array{T, 2}, C)
     _CM = zeros(size(C, 1), length(κ))
     S = similar(C)
     return MDFT(σ, α, τ, γ, κ, ϕ1, ϕ2, β, S, C, _CM, 0)

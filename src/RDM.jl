@@ -121,9 +121,9 @@ struct RDM{T <: Real} <: AbstractRDM
     τ::T
 end
 
-function RDM(ν, k, A, τ)
+function RDM(ν, k::T, A, τ) where {T}
     _, A, k, τ = promote(ν[1], k, A, τ)
-    ν = convert(Vector{typeof(k)}, ν)
+    ν = convert(Vector{T}, ν)
     return RDM(ν, A, k, τ)
 end
 
