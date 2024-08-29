@@ -42,7 +42,7 @@ abstract type AbstractaDDM <: AbstractDDM end
 
 An abstract type for the linear ballistic accumulator model.  
 """
-abstract type AbstractLBA <: SSM2D end
+abstract type AbstractLBA{T, T1} <: SSM2D end
 
 """
     AbstractWald <: SSM1D
@@ -56,14 +56,14 @@ abstract type AbstractWald <: SSM1D end
 
 An abstract type for the lognormal race model
 """
-abstract type AbstractLNR <: SSM2D end
+abstract type AbstractLNR{T, T1} <: SSM2D end
 
 """
     AbstractMLBA <: AbstractLBA
 
 An abstract type for the multi-attribute linear ballistic accumulator
 """
-abstract type AbstractMLBA <: AbstractLBA end
+abstract type AbstractMLBA{T, T1} <: AbstractLBA{T, T1} end
 
 """
     AbstractLCA <: SSM2D

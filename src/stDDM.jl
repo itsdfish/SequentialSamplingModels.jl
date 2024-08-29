@@ -64,10 +64,10 @@ mutable struct stDDM{T <: Real} <: AbstractstDDM
     τ::T
 end
 
-function stDDM(ν, σ, s, z, η, ρ, α, τ)
+function stDDM(ν, σ, s, z, η, ρ, α, τ::T) where {T}
     _, σ, s, z, _, ρ, α, τ = promote(ν[1], σ, s, z, η[1], ρ, α, τ)
-    ν = convert(Vector{typeof(τ)}, ν)
-    η = convert(Vector{typeof(τ)}, η)
+    ν = convert(Vector{T}, ν)
+    η = convert(Vector{T}, η)
     return stDDM(ν, σ, s, z, η, ρ, α, τ)
 end
 

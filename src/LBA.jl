@@ -1,12 +1,12 @@
 """
-    LBA{T<:Real} <: AbstractLBA
+    LBA{T <: Real, T1 <: Union{<: T, Vector{<: T}}} <: AbstractLBA
 
 A model object for the linear ballistic accumulator.
 
 # Parameters
 
 - `ν::Vector{T}`: a vector of drift rates
-- `σ::Vector{T}`: a vector of drift rate standard deviation
+- `σ::T1`: a scalar or vector of drift rate standard deviation
 - `A::T`: max start point
 - `k::T`: A + k = b, where b is the decision threshold
 - `τ::T`: an encoding-response offset
@@ -19,7 +19,7 @@ Two constructors are defined below. The first constructor uses positional argume
 
 The second constructor uses keywords with default values, and is not order dependent: 
 
-    LBA(;τ=.3, A=.8, k=.5, ν=[2.0,1.75], σ=[1.0,1.0])
+    LBA(;τ = .3, A = .8, k = .5, ν = [2.0,1.75], σ = 1)
 
 # Example 
 
@@ -35,22 +35,22 @@ loglike = logpdf.(dist, choice, rt)
 
 Brown, S. D., & Heathcote, A. (2008). The simplest complete model of choice response time: Linear ballistic accumulation. Cognitive psychology, 57(3), 153-178.
 """
-mutable struct LBA{T <: Real} <: AbstractLBA
+mutable struct LBA{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractLBA{T, T1}
     ν::Vector{T}
-    σ::Vector{T}
+    σ::T1
     A::T
     k::T
     τ::T
 end
 
-function LBA(ν, σ, A, k, τ)
+function LBA(ν, σ, A, k, τ::T) where {T}
     _, _, A, k, τ = promote(ν[1], σ[1], A, k, τ)
-    ν = convert(Vector{typeof(k)}, ν)
-    σ = convert(Vector{typeof(k)}, σ)
+    ν = convert(Vector{T}, ν)
+    σ = isa(σ, Vector) ? convert(Vector{T}, σ) : convert(T, σ)
     return LBA(ν, σ, A, k, τ)
 end
 
-LBA(; τ = 0.3, A = 0.8, k = 0.5, ν = [2.0, 1.75], σ = fill(1.0, length(ν))) =
+LBA(; τ = 0.3, A = 0.8, k = 0.5, ν = [2.0, 1.75], σ = 1) =
     LBA(ν, σ, A, k, τ)
 
 function params(d::LBA)
@@ -79,7 +79,7 @@ function sample_drift_rates(rng::AbstractRNG, ν, σ)
     v = similar(ν)
     n_options = length(ν)
     while negative
-        v = [rand(rng, Normal(ν[i], σ[i])) for i ∈ 1:n_options]
+        v = @. rand(rng, Normal(ν, σ))
         negative = any(x -> x > 0, v) ? false : true
     end
     return v
@@ -97,7 +97,7 @@ function rand(rng::AbstractRNG, d::AbstractLBA)
     return (; choice, rt)
 end
 
-function logpdf(d::AbstractLBA, c, rt)
+function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
     (; τ, A, k, ν, σ) = d
     b = A + k
     LL = 0.0
@@ -114,7 +114,24 @@ function logpdf(d::AbstractLBA, c, rt)
     return max(LL, -1000.0)
 end
 
-function pdf(d::AbstractLBA, c, rt)
+function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
+    (; τ, A, k, ν, σ) = d
+    b = A + k
+    LL = 0.0
+    rt < τ ? (return -Inf) : nothing
+    for i ∈ 1:length(ν)
+        if c == i
+            LL += log_dens(d, ν[i], σ, rt)
+        else
+            LL += log(max(0.0, 1 - cummulative(d, ν[i], σ, rt)))
+        end
+    end
+    pneg = pnegative(d)
+    LL = LL - log(1 - pneg)
+    return max(LL, -1000.0)
+end
+
+function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
     (; τ, A, k, ν, σ) = d
     b = A + k
     den = 1.0
@@ -124,6 +141,24 @@ function pdf(d::AbstractLBA, c, rt)
             den *= dens(d, ν[i], σ[i], rt)
         else
             den *= (1 - cummulative(d, ν[i], σ[i], rt))
+        end
+    end
+    pneg = pnegative(d)
+    den = den / (1 - pneg)
+    den = max(den, 1e-10)
+    isnan(den) ? (return 0.0) : (return den)
+end
+
+function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
+    (; τ, A, k, ν, σ) = d
+    b = A + k
+    den = 1.0
+    rt < τ ? (return 1e-10) : nothing
+    for i ∈ 1:length(ν)
+        if c == i
+            den *= dens(d, ν[i], σ, rt)
+        else
+            den *= (1 - cummulative(d, ν[i], σ, rt))
         end
     end
     pneg = pnegative(d)
@@ -164,11 +199,20 @@ function cummulative(d::AbstractLBA, v, σ, rt)
     return cm
 end
 
-function pnegative(d::AbstractLBA)
+function pnegative(d::AbstractLBA{T, T1}) where {T, T1 <: Vector{<:Real}}
     (; ν, σ) = d
     p = 1.0
     for i ∈ 1:length(ν)
         p *= Φ(-ν[i] / σ[i])
+    end
+    return p
+end
+
+function pnegative(d::AbstractLBA{T, T1}) where {T, T1 <: Real}
+    (; ν, σ) = d
+    p = 1.0
+    for i ∈ 1:length(ν)
+        p *= Φ(-ν[i] / σ)
     end
     return p
 end

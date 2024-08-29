@@ -36,9 +36,9 @@ struct PoissonRace{T <: Real} <: AbstractPoissonRace
     τ::T
 end
 
-function PoissonRace(ν, α, τ)
+function PoissonRace(ν, α, τ::T) where {T}
     _, τ = promote(ν[1], τ)
-    ν = convert(Vector{typeof(τ)}, ν)
+    ν = convert(Vector{T}, ν)
     return PoissonRace(ν, α, τ)
 end
 
