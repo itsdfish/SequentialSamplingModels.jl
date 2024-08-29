@@ -32,13 +32,13 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 
 # Keywords 
 
-- `ν::T`: drift rates where rows are alternatives and columns are attributes. ν ∈ ℝ⁺.
+- `ν::T`: drift rates where rows are alternatives and columns are attributes. ν ∈ ℝⁿᵐ.
 - `σ::T`: standard deviation of noise in evidence accumulation. σ ∈ ℝ.
 - `Δ::T`: constant of evidence accumulation speed (evidence per ms). Δ ∈ ℝ.
 - `θ::T`: bias away from unattended alternative (lower indicates more bias). θ ∈ [0,1].
 - `ϕ::T`: bias away from unattended attribute. ϕ ∈ [0,1]. 
 - `ω::T`: attribute weight. ω ∈ [0,1].
-- `α::T`: evidence threshold. α ∈ ℝ. 
+- `α::T`: evidence threshold. α ∈ ℝ⁺. 
 - `z::T`: initial evidence. z ∈ [0, α]
 - `τ::T`: non-decision time. τ ∈ [0, min_rt].
 
