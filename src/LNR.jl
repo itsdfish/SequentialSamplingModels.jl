@@ -109,3 +109,29 @@ function pdf(d::AbstractLNR{T, T1}, r::Int, t::Float64) where {T, T1 <: Real}
     end
     return density
 end
+
+"""
+    simulate(model::AbstractLNR; n_steps=100, _...)
+
+Returns a matrix containing evidence samples of the LBA decision process. In the matrix, rows 
+represent samples of evidence per time step and columns represent different accumulators.
+
+# Arguments
+
+- `model::AbstractLNR`: a subtype of AbstractLNR
+
+# Keywords 
+
+- `n_steps=100`: number of time steps at which evidence is recorded
+"""
+function simulate(rng::AbstractRNG, model::AbstractLNR; n_steps = 100, _...)
+    (; τ, ν, σ) = model
+    n = length(ν)
+    νs = @. rand(rng, Normal(ν, σ))
+    βs = @. exp(νs)
+    _,choice = findmax(βs)
+    t = 1 / βs[choice]
+    evidence = collect.(range.(0, βs * t, length = 100))
+    time_steps = range(0, t, length = n_steps)
+    return time_steps, hcat(evidence...)
+end

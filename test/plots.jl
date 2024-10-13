@@ -242,6 +242,30 @@
         plot_model(dist; add_density = true, n_sim = 2, density_kwargs, xlims = (0, 1.2))
     end
 
+    @safetestset "LNR" begin
+        using Plots
+        using SequentialSamplingModels
+        using Test
+
+        dist = LNR()
+
+        h = histogram(dist)
+        plot!(h, dist)
+
+        histogram(dist)
+        plot!(dist)
+
+        p = plot(dist)
+        histogram!(p, dist)
+
+        plot(dist)
+        histogram!(dist)
+
+        density_kwargs = (; t_range = range(0.1, 1.2, length = 100),)
+        plot_model(dist; add_density = true, n_sim = 2, density_kwargs, xlims = (0, 1.2))
+    end
+
+
     @safetestset "WaldMixture" begin
         using Plots
         using SequentialSamplingModels

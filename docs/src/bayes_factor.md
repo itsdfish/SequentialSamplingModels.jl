@@ -131,7 +131,7 @@ mll_rdm = stepping_stone(pt_rdm)
 ```
 
 ## Compute the Bayes Factor
-The bayes factor is obtained by exponentiating the difference between marginal log likelihoods. The value of `1.21` indicates that the LBA is `1.21` times more likely to have generated the data. 
+The bayes factor is obtained by exponentiating the difference between marginal log likelihoods. The value of `1.21` indicates that the data are `1.21` times more likely under the LBA than the RDM. 
 ```julia
 bf = exp(mll_lba - mll_rdm)
 ```

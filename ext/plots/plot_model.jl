@@ -119,7 +119,7 @@ end
 compute_threshold(model) = model.α
 compute_threshold(model::AbstractLBA) = model.A + model.k
 compute_threshold(model::AbstractRDM) = model.A + model.k
-
+compute_threshold(model::AbstractLNR) = 1.0
 """
     get_default_labels(model::AbstractRDM)
 
@@ -150,6 +150,23 @@ function get_default_labels(model::AbstractLBA)
         (τ, A, text("A", 10, :right, :top)),
         (0, α, text("α", 10, :right)),
         (τ / 2, 0, text("τ", 10, :bottom))
+    ]
+end
+
+"""
+    get_default_labels(model::AbstractLNR)
+
+Generates default parameter labels and locations 
+
+# Arguments
+
+- `model::AbstractLBA`: an object for the log normal race model 
+"""
+function get_default_labels(model::AbstractLNR)
+    α = 1
+    return [
+        (0, α, text("α", 10, :right)),
+        (model.τ, 0, text("τ", 10, :bottom))
     ]
 end
 
@@ -466,6 +483,34 @@ Returns default plot options
 - `n_subplots`: the number of subplots (i.e., choices)
 """
 function get_model_plot_defaults(d::AbstractLBA)
+    n_subplots = n_options(d)
+    title = ["choice $i" for _ ∈ 1:1, i ∈ 1:n_subplots]
+    return (
+        xaxis = nothing,
+        yaxis = nothing,
+        xticks = nothing,
+        yticks = nothing,
+        grid = false,
+        linewidth = 0.75,
+        color = :black,
+        leg = false,
+        title,
+        layout = (n_subplots, 1),
+        arrow = :closed
+    )
+end
+
+"""
+    get_model_plot_defaults(d::AbstractLNR)
+
+Returns default plot options 
+
+# Arguments
+
+- `d::AbstractLNR`: an object for the log normal race 
+- `n_subplots`: the number of subplots (i.e., choices)
+"""
+function get_model_plot_defaults(d::AbstractLNR)
     n_subplots = n_options(d)
     title = ["choice $i" for _ ∈ 1:1, i ∈ 1:n_subplots]
     return (
