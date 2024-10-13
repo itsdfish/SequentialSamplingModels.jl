@@ -265,7 +265,6 @@
         plot_model(dist; add_density = true, n_sim = 2, density_kwargs, xlims = (0, 1.2))
     end
 
-
     @safetestset "WaldMixture" begin
         using Plots
         using SequentialSamplingModels
