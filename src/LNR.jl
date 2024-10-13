@@ -129,7 +129,7 @@ function simulate(rng::AbstractRNG, model::AbstractLNR; n_steps = 100, _...)
     n = length(ν)
     νs = @. rand(rng, Normal(ν, σ))
     βs = @. exp(νs)
-    _,choice = findmax(βs)
+    _, choice = findmax(βs)
     t = 1 / βs[choice]
     evidence = collect.(range.(0, βs * t, length = 100))
     time_steps = range(0, t, length = n_steps)
