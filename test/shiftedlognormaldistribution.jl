@@ -46,7 +46,7 @@
         Random.seed!(2008)
 
         parms = (ν = -1, σ = 0.3, τ = 0.0)
-        x = rand(ShiftedLogNormal(; parms...), 10_000)
+        x = rand(ShiftedLogNormal(; parms...), 15_000)
 
         νs = range(0.80 * parms.ν, 1.2 * parms.ν, length = 100)
         LLs = map(ν -> sum(logpdf.(ShiftedLogNormal(; parms..., ν), x)), νs)
