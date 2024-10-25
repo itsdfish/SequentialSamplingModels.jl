@@ -2,6 +2,7 @@ module TuringExt
 
 import DynamicPPL: reconstruct
 import DynamicPPL: vectorize
+import DynamicPPL: tovec
 using SequentialSamplingModels
 import SequentialSamplingModels: predict_distribution
 using Turing: @model
@@ -32,4 +33,6 @@ end
 
 vectorize(d::SSM2D, r::NamedTuple) = [r...]
 reconstruct(d::SSM2D, v::NamedTuple) = deepcopy(v)
+tovec(x::@NamedTuple{choice::C, rt::R}) where {C <: Integer, R <: AbstractFloat} =
+    [x.choice, x.rt]
 end
