@@ -130,10 +130,10 @@
         using Random
 
         Random.seed!(5841)
-        
+
         # implied threshold 
         α = 1
-        dist = LNR(ν = [-2,-3], σ = 1, τ = .3)
+        dist = LNR(ν = [-2, -3], σ = 1, τ = 0.3)
 
         time_steps, evidence = simulate(dist; Δt = 0.001)
 
