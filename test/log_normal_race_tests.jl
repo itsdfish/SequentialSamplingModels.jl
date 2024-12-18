@@ -123,4 +123,23 @@
             end
         end
     end
+
+    @safetestset "simulate" begin
+        using SequentialSamplingModels
+        using Test
+        using Random
+
+        Random.seed!(5841)
+        
+        # implied threshold 
+        α = 1
+        dist = LNR(ν = [-2,-3], σ = 1, τ = .3)
+
+        time_steps, evidence = simulate(dist; Δt = 0.001)
+
+        @test time_steps[1] ≈ 0
+        @test length(time_steps) == size(evidence, 1)
+        @test size(evidence, 2) == 2
+        @test maximum(evidence[end, :]) ≈ α atol = 0.005
+    end
 end
