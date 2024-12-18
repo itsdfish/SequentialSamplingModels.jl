@@ -231,15 +231,15 @@ represent samples of evidence per time step and columns represent different accu
 
 - `n_steps=100`: number of time steps at which evidence is recorded
 """
-function simulate(rng::AbstractRNG, model::AbstractLBA; n_steps = 100, _...)
+function simulate(rng::AbstractRNG, model::AbstractLBA; Δt = 0.01, _...)
     (; τ, A, k, ν, σ) = model
     b = A + k
     n = length(ν)
     νs = sample_drift_rates(rng, ν, σ)
-    a = rand(Uniform(0, A), n)
+    a = rand(rng,Uniform(0, A), n)
     dt = @. (b - a) / νs
     choice, t = select_winner(dt)
-    evidence = collect.(range.(a, a + νs * t, length = 100))
-    time_steps = range(0, t, length = n_steps)
+    evidence = collect.(range.(a, a + νs * t, step = Δt))
+    time_steps = range(0, t, length=length(evidence[1]))
     return time_steps, hcat(evidence...)
 end
