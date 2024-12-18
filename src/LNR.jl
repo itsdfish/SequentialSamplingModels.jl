@@ -122,16 +122,15 @@ represent samples of evidence per time step and columns represent different accu
 
 # Keywords 
 
-- `n_steps=100`: number of time steps at which evidence is recorded
+- `Δt = 0.001`: the time step
 """
-function simulate(rng::AbstractRNG, model::AbstractLNR; n_steps = 100, _...)
-    (; τ, ν, σ) = model
-    n = length(ν)
+function simulate(rng::AbstractRNG, model::AbstractLNR; Δt = 0.001, _...)
+    (; ν, σ) = model
     νs = @. rand(rng, Normal(ν, σ))
     βs = @. exp(νs)
     _, choice = findmax(βs)
     t = 1 / βs[choice]
-    evidence = collect.(range.(0, βs * t, length = 100))
-    time_steps = range(0, t, length = n_steps)
+    time_steps = range(0, t, step = Δt)
+    evidence = collect.(range.(0, βs * t, length = length(time_steps)))
     return time_steps, hcat(evidence...)
 end

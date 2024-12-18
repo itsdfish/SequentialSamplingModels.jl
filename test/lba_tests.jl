@@ -102,7 +102,7 @@
         α = A + k
         dist = LBA(; A, k, ν = [2, 1])
 
-        time_steps, evidence = simulate(dist; n_steps = 100)
+        time_steps, evidence = simulate(dist; Δt = 0.001)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == size(evidence, 1)
