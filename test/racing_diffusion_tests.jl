@@ -177,7 +177,7 @@
             using StatsBase
             using Test
 
-            Random.seed!(111)
+            Random.seed!(125)
             n_sim = 20_000
             dist = RDM(; ν = [0.3, 0.4], k = 0.1, A = 0.3, τ = 0.2)
             choice, rt = rand(dist, n_sim)

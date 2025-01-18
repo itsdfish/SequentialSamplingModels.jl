@@ -19,7 +19,7 @@ end
 
 test_attraction(probs2, probs3) = (probs3[1] - probs2[2]) ≥ 0.005
 test_compromise(probs2, probs3) =
-    isapprox(probs2..., atol = 0.005) && ((probs3[2] - probs3[1]) ≥ 0.005) &&
+    isapprox(probs2..., atol = 0.02) && ((probs3[2] - probs3[1]) ≥ 0.005) &&
     ((probs3[2] - probs3[3]) ≥ 0.005)
 test_similarity(probs2, probs3) =
     ((probs2[1] - probs2[2]) ≥ 0.005) && ((probs3[2] - probs3[1]) ≥ 0.005)

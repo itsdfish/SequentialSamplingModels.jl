@@ -3,7 +3,7 @@
         using SequentialSamplingModels
         using Test
         using Random
-        Random.seed!(8414)
+        Random.seed!(4874)
 
         parms = (α = 1.5, β = 0.20, λ = 0.10, ν = [2.5, 2.0], τ = 0.30, σ = 1.0)
 

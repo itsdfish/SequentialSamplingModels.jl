@@ -2,7 +2,7 @@
     @safetestset "pdf1" begin
         using SequentialSamplingModels, Test, Random, Distributions
         include("KDE.jl")
-        Random.seed!(5364)
+        Random.seed!(471)
 
         dist = PoissonRace(; ν = [0.05, 0.06], α = [4, 5], τ = 0.3)
         choice, rts = rand(dist, 10^5)

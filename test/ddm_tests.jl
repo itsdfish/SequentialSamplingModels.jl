@@ -297,7 +297,7 @@
         using Test
         using Random
 
-        Random.seed!(8477)
+        Random.seed!(7411)
         α = 0.80
         dist = DDM(; α, ν = 3)
 

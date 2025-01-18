@@ -194,7 +194,7 @@ end
         using Test
         include("mdft_test_functions.jl")
 
-        Random.seed!(62541)
+        Random.seed!(3254)
 
         parms = (
             σ = 0.1,
@@ -232,7 +232,7 @@ end
         using Test
         include("mdft_test_functions.jl")
 
-        Random.seed!(6511)
+        Random.seed!(541)
 
         parms = (
             σ = 0.1,
@@ -253,7 +253,7 @@ end
             3.0 1.0
         ]
 
-        @test test_context_effect(parms, (), M; test_func = test_compromise, n_sim = 1000)
+        @test test_context_effect(parms, (), M; test_func = test_compromise, n_sim = 2000)
 
         true_probs = [0.30025, 0.40453, 0.29522]
         true_mean_rts = [2.238162, 2.886065, 2.239521]

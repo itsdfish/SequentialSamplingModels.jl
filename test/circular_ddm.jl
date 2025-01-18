@@ -65,7 +65,7 @@
             using Statistics
             include("KDE.jl")
 
-            Random.seed!(5)
+            Random.seed!(550)
 
             model = CDDM(; ν = [1.5, 1], η = [0.0, 0.0], σ = 1.0, α = 1.5, τ = 0.300)
 
@@ -90,7 +90,7 @@
             using Statistics
             include("KDE.jl")
 
-            Random.seed!(145)
+            Random.seed!(56)
 
             model = CDDM(; ν = [1.5, -1], η = [0.0, 0.0], σ = 0.5, α = 2.5, τ = 0.400)
 
@@ -242,7 +242,7 @@
         using SequentialSamplingModels
         using Random
 
-        Random.seed!(58447)
+        Random.seed!(584)
 
         sum_logpdf(model, data) = sum(logpdf(model, data))
 
