@@ -21,7 +21,7 @@
             end
             return t
         end
-        rts = map(_ -> simulate(3, 1, 0.2), 1:(10^5))
+        rts = map(_ -> simulate(3, 1, 0.2), 1:(10 ^ 5))
         approx_pdf = kde(rts)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x)
