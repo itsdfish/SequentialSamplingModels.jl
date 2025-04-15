@@ -1,16 +1,16 @@
 # Neural Parameter Estimation
 
-Neural parameter estimation provides a likelihood-free approach to parameter recovery, especially useful for models with computationally intractable likelihoods. This method is based on training neural networks to learn the mapping from data to parameters. Once trained, these networks can perform inference rapidly across multiple datasets, making them particularly valuable for models like the Leaky Competing Accumulator (LCA).
+Neural parameter estimation provides a likelihood-free approach to parameter recovery, especially useful for models with computationally intractable likelihoods. This method is based on training neural networks to learn the mapping from data to parameters. See the review paper by Zammit-Mangion et al. (2025) for more details. Once trained, these networks can perform inference rapidly across multiple datasets, making them particularly valuable for models like the Leaky Competing Accumulator (LCA; Usher & McClelland, 2001).
 
 Below, we demonstrate how to estimate parameters of the LCA model using the [NeuralEstimators.jl](https://github.com/msainsburydale/NeuralEstimators) package.
 
 ## Example
 
-We'll estimate parameters of the LCA model, which is particularly challenging due to its complex dynamics where parameters like leak rate (λ) and lateral inhibition (β) can be difficult to recover.
+We'll estimate parameters of the LCA model, which is particularly challenging due to its complex dynamics, where parameters like leak rate (λ) and lateral inhibition (β) can be difficult to recover. This example draws from a more in-depth case that highlights many of the steps one ought to consider when utilizing amortized inference for cognitive modeling; see [Principled Amortized Bayesian Workflow for Cognitive Modeling](https://bayesflow.org/stable-legacy/_examples/Amortized_Bayesian_Workflow_for_Cognitive_Modeling.html).
 
 ## Load Packages
 
-```julia
+```@example 
 using NeuralEstimators
 using SequentialSamplingModels
 using Flux
@@ -24,7 +24,7 @@ Random.seed!(123)
 
 ## Define Parameter Bounds
 
-```julia
+```@example 
 # Define parameter bounds for the LCA model
 const ν_min, ν_max = 0.1, 4.0      # Drift rates
 const α_min, α_max = 0.5, 3.5      # Threshold
@@ -37,7 +37,7 @@ const τ_min, τ_max = 0.1, 0.5      # Non-decision time
 
 Unlike traditional Bayesian approaches, simulation based inference methods require us to define a prior sampling function to generate training data. We will use this function to sample a range of parameters for training:
 
-```julia
+```@example 
 # Function to sample parameters from priors
 function sample(K::Integer)
     ν1 = rand(Gamma(2, 1/1.2), K)  # Drift rate 1
@@ -56,20 +56,19 @@ end
 
 ## Define Data Simulator
 
-Neural estimators learn the mapping from data to parameters through simulation. Here we define a function to simulate LCA model data. To do so we will use the LCA function from SequentialSamplingModels.
+Neural estimators learn the mapping from data to parameters through simulation. Here we define a function to simulate LCA model data. To do so we will use the [LCA](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/lca/).
 
-```julia
+```@example 
 # Function to simulate data from the LCA model
 function simulate(θ, n_trials_per_param)
     # Simulate data for each parameter vector
     simulated_data = map(eachcol(θ)) do param
         # Extract parameters for this model
         ν1, ν2, α, β, λ, τ = param
-        ν = [ν1, ν2]  # Two-choice LCA
-        σ = 1.0        # Fixed diffusion noise
+        ν = [ν1, ν2]   # Two-choice LCA
         
-        # Create LCA model
-        model = LCA(; ν, α, β, λ, τ, σ)
+        # Create LCA model with SSM
+        model = LCA(; ν, α, β, λ, τ)
         
         # Generate choices and reaction times
         choices, rts = rand(model, n_trials_per_param)
@@ -86,7 +85,7 @@ end
 
 For LCA parameter recovery, we use a DeepSet architecture which respects the permutation invariance of trial data. For more details on the method see NeuralEstimators.jl documentation. To construct the network architecture we will use the Flux.jl package.
 
-```julia
+```@example 
 # Create neural network architecture for parameter recovery
 function create_neural_estimator()
     # Input dimension: 2 (choice and RT for each trial)
@@ -133,22 +132,22 @@ end
 
 ## Training the Neural Estimator
 
-Neural estimators, like all deep learning methods, require a training phase where they learn the mapping from data to parameters. Here we will train the estimator, simulating data as we go where the sampler provides new parameter vectors from the prior, and a simulator can be provided to continuously simulate new data conditional on the parameters.
+Neural estimators, like all deep learning methods, require a training phase where they learn the mapping from data to parameters. Here we will train the estimator, simulating data as we go where the sampler provides new parameter vectors from the prior, and a simulator can be provided to continuously simulate new data conditional on the parameters. For more details on the training see the API for arguments [here](https://msainsburydale.github.io/NeuralEstimators.jl/dev/API/core/#Training).
 
-```julia
+```@example 
 # Create the neural estimator
 estimator = create_neural_estimator()
 
-# Train with on-the-fly simulation
+# Train network
 trained_estimator = train(
     estimator,
     sample,              # Parameter sampler function
     simulate,            # Data simulator function
     m = 100,             # Number of trials per parameter vector
-    K = 1000,           # Number of training parameter vectors
-    K_val = 200,        # Number of validation parameter vectors
+    K = 10000,           # Number of training parameter vectors
+    K_val = 2000,        # Number of validation parameter vectors
     loss = Flux.mae,     # Mean absolute error loss
-    epochs = 5,         # Number of training epochs
+    epochs = 50,         # Number of training epochs
     epochs_per_Z_refresh = 1,  # Refresh data every epoch
     epochs_per_θ_refresh = 5,  # Refresh parameters every 5 epochs
     batchsize = 64,            # Batch size for training
@@ -160,7 +159,7 @@ trained_estimator = train(
 
 We can assess the performance of our trained estimator on held-out test data:
 
-```julia
+```@example 
 # Generate test data
 n_test = 100
 θ_test = sample(n_test)
@@ -186,7 +185,7 @@ println("RMSE: ", rmse_results)
 
 A key advantage of neural estimation is the ability to quickly conduct inference after training. For example, we can visualize the recovery of parameters:
 
-```julia
+```@example 
 # Extract data from assessment
 df = assessment.df
 
@@ -220,7 +219,7 @@ display(p_combined)
 
 Once trained, the estimator can instantly recover parameters from new data via a forward pass:
 
-```julia
+```@example 
 # Generate "observed" data
 ν = [2.5, 2.0]
 α = 1.5
@@ -230,7 +229,7 @@ Once trained, the estimator can instantly recover parameters from new data via a
 σ = 1.0
 
 # Create model and generate data
-true_model = LCA(; ν, α, β, λ, τ, σ)
+true_model = LCA(; ν, α, β, λ, τ)
 observed_choices, observed_rts = rand(true_model, 100)
 
 # Format the data
@@ -256,6 +255,8 @@ Miletić, S., Turner, B. M., Forstmann, B. U., & van Maanen, L. (2017). Paramete
 
 Sainsbury-Dale, Matthew, Andrew Zammit-Mangion, and Raphaël Huser. "Likelihood-free parameter estimation with neural Bayes estimators." The American Statistician 78.1 (2024): 1-14.
 
-Zammit-Mangion, Andrew, Matthew Sainsbury-Dale, and Raphaël Huser. "Neural methods for amortized inference." Annual Review of Statistics and Its Application 12 (2024).
-
 Radev, S. T., Schmitt, M., Schumacher, L., Elsemüller, L., Pratz, V., Schälte, Y., ... & Bürkner, P. C. (2023). BayesFlow: Amortized Bayesian workflows with neural networks. arXiv preprint arXiv:2306.16015.
+
+Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The leaky, competing accumulator model. Psychological Review, 108 3, 550–592. https://doi.org/10.1037/0033-295X.108.3.550
+
+Zammit-Mangion, Andrew, Matthew Sainsbury-Dale, and Raphaël Huser. "Neural methods for amortized inference." Annual Review of Statistics and Its Application 12 (2024).
