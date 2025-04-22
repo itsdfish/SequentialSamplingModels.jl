@@ -54,7 +54,7 @@ makedocs(
             "Simple Bayesian Model" => "turing_simple.md",
             "Advanced Model Specification" => "turing_advanced.md",
             "Hierarchical Models" => "turing_hierarchical.md",
-            "Amorized Inference" => "neuralestimators_amorized.md",
+            "Amorized Inference" => "neuralestimators_amorized.md"
         ],
         "Model Comparison" => [
             "Bayes Factors" => "bayes_factor.md",
