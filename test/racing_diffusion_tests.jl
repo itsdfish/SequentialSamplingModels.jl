@@ -6,7 +6,7 @@
         Random.seed!(741)
 
         dist = WaldA(ν = 0.5, k = 0.3, A = 0.7, τ = 0.2)
-        rts = map(_ -> rand(dist), 1:(10^6))
+        rts = map(_ -> rand(dist), 1:(10 ^ 6))
         approx_pdf = kernel(rts)
         x = 0.201:0.01:2.5
         y′ = pdf(approx_pdf, x)
@@ -32,7 +32,7 @@
         @test p ≈ mean((rts .< 0.6) .& (rts .> 0.3)) rtol = 0.01
 
         dist = WaldA(ν = 1.0, k = 0.3, A = 1.0, τ = 0.2)
-        rts = map(_ -> rand(dist), 1:(10^6))
+        rts = map(_ -> rand(dist), 1:(10 ^ 6))
         approx_pdf = kernel(rts)
         x = 0.201:0.01:2.5
         y′ = pdf(approx_pdf, x)
