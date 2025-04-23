@@ -56,8 +56,8 @@ makedocs(
             "Hierarchical Models" => "turing_hierarchical.md",
             "Amortized Neural Estimation" => [
                 "Point Estimation" => "amortized_point_estimation.md",
-                "Bayesian Parameter Estimation" => "amortized_bayesian_parameter_estimation.md",
-            ],
+                "Bayesian Parameter Estimation" => "amortized_bayesian_parameter_estimation.md"
+            ]
         ],
         "Model Comparison" => [
             "Bayes Factors" => "bayes_factor.md",
