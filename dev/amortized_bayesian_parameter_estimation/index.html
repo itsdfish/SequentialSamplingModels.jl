@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Bayesian Parameter Estimation · SequentialSamplingModels</title><meta name="title" content="Bayesian Parameter Estimation · SequentialSamplingModels"/><meta property="og:title" content="Bayesian Parameter Estimation · SequentialSamplingModels"/><meta property="twitter:title" content="Bayesian Parameter Estimation · SequentialSamplingModels"/><meta name="description" content="Documentation for SequentialSamplingModels."/><meta property="og:description" content="Documentation for SequentialSamplingModels."/><meta property="twitter:description" content="Documentation for SequentialSamplingModels."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="SequentialSamplingModels logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">SequentialSamplingModels</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><input class="collapse-toggle" id="menuitem-2" type="checkbox"/><label class="tocitem" for="menuitem-2"><span class="docs-label">Models</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><input class="collapse-toggle" id="menuitem-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-1"><span class="docs-label">Single Choice Models</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../ex_gaussian/">Ex-Gaussian</a></li><li><a class="tocitem" href="../shifted_lognormal/">Shifted Log Normal</a></li><li><a class="tocitem" href="../wald/">Wald</a></li><li><a class="tocitem" href="../wald_mixture/">Wald Mixture</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Multi-choice Models</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><input class="collapse-toggle" id="menuitem-2-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-2-1"><span class="docs-label">Single Attribute Models</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../DDM/">Drift Diffusion Model (DDM)</a></li><li><a class="tocitem" href="../lca/">Leaky Competing Accumulator (LCA)</a></li><li><a class="tocitem" href="../lba/">Linear Ballistic Accumulator (LBA)</a></li><li><a class="tocitem" href="../lnr/">Log Normal Race (LNR)</a></li><li><a class="tocitem" href="../poisson_race/">Poisson Race</a></li><li><a class="tocitem" href="../rdm/">Racing Diffusion Model (RDM)</a></li><li><a class="tocitem" href="../stDDM/">Starting-time Drift Diffusion Model (stDDM)</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2-2"><span class="docs-label">Multi-attribute Models</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../maaDDM/">Muti-attribute Attentional Drift Diffusion Model</a></li><li><a class="tocitem" href="../mdft/">Multi-attribute Decision Field Theory</a></li><li><a class="tocitem" href="../mlba/">Multi-attribute Linear Ballistic Accumulator</a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">Alternative Geometries</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../cddm/">Circular Drift Diffusion Model (CDDM)</a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-3" type="checkbox" checked/><label class="tocitem" for="menuitem-3"><span class="docs-label">Parameter Estimation</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../mode_estimation/">Mode Estimation</a></li><li><a class="tocitem" href="../turing_simple/">Simple Bayesian Model</a></li><li><a class="tocitem" href="../turing_advanced/">Advanced Model Specification</a></li><li><a class="tocitem" href="../turing_hierarchical/">Hierarchical Models</a></li><li><input class="collapse-toggle" id="menuitem-3-5" type="checkbox" checked/><label class="tocitem" for="menuitem-3-5"><span class="docs-label">Amortized Neural Estimation</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../amortized_point_estimation/">Point Estimation</a></li><li class="is-active"><a class="tocitem" href>Bayesian Parameter Estimation</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Full-Code"><span>Full Code</span></a></li><li class="toplevel"><a class="tocitem" href="#Load-Dependencies"><span>Load Dependencies</span></a></li><li class="toplevel"><a class="tocitem" href="#Simulation-Functions"><span>Simulation Functions</span></a></li><li><a class="tocitem" href="#Sample-from-Prior-Distribution"><span>Sample from Prior Distribution</span></a></li><li><a class="tocitem" href="#Sample-from-Model"><span>Sample from Model</span></a></li><li class="toplevel"><a class="tocitem" href="#Configure-Neural-Network"><span>Configure Neural Network</span></a></li><li class="toplevel"><a class="tocitem" href="#Train-the-Neural-Network"><span>Train the Neural Network</span></a></li><li class="toplevel"><a class="tocitem" href="#Assess-the-Accuracy-of-the-Neural-Network"><span>Assess the Accuracy of the Neural Network</span></a></li><li class="toplevel"><a class="tocitem" href="#Perform-Bayesian-Parameter-Estimation"><span>Perform Bayesian Parameter Estimation</span></a></li><li class="toplevel"><a class="tocitem" href="#Save-the-Trained-Neural-Network"><span>Save the Trained Neural Network</span></a></li><li class="toplevel"><a class="tocitem" href="#References"><span>References</span></a></li></ul></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-4" type="checkbox"/><label class="tocitem" for="menuitem-4"><span class="docs-label">Model Comparison</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../bayes_factor/">Bayes Factors</a></li><li><a class="tocitem" href="../loo_compare/">PSIS-LOO</a></li></ul></li><li><a class="tocitem" href="../predictive_distributions/">Predictive Distributions</a></li><li><input class="collapse-toggle" id="menuitem-6" type="checkbox"/><label class="tocitem" for="menuitem-6"><span class="docs-label">Plotting</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../basic_plot_example/">Basic Example</a></li><li><a class="tocitem" href="../layout/">Changing the Layout</a></li><li><a class="tocitem" href="../plot_model/">Plot Model Process</a></li></ul></li><li><a class="tocitem" href="../performance_tips/">Performance Tips</a></li><li><a class="tocitem" href="../api/">API</a></li><li><a class="tocitem" href="../developer_guide/">Developer Guide</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Parameter Estimation</a></li><li><a class="is-disabled">Amortized Neural Estimation</a></li><li class="is-active"><a href>Bayesian Parameter Estimation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Bayesian Parameter Estimation</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/itsdfish/SequentialSamplingModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/itsdfish/SequentialSamplingModels.jl/blob/master/docs/src/amortized_bayesian_parameter_estimation.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h1><p>The purpose of this example is to illustrate how to perform Bayesian parameter estimation with a neural parameter estimation. Neural parameter estimation learns the mapping between simulated data and the parameters of a model (Zammit-Mangion et al., 2024; Sainsbury-Dale et al., 2024; Radev et al., 2023). Neural parameter estimation constitutes a method of amortized inference, whereby a large upfront computational cost is incurred during training to enable rapid parameter estimation with the trained neural network. One benefit of amortized inference is that the neural network can be saved and reused to estimate parameters on multiple datasets. Additionally, neural estimator  estimator called normalizing flows. Normalizing flows are a special type of invertible neural network which can learn the posterior distribution by learning the mapping between parameters and the corresponding simulated data. </p><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>In the example below, we estimate the parameters of the <a href="../lnr/">lognormal race model</a> (LNR; Heathcote et al., 2012; Rounder et al., 2015) with the package <a href="https://msainsburydale.github.io/NeuralEstimators.jl/dev/">NeuralEstimators.jl</a>. We will use a normalising flow network in order to estimate the full posterior distribution of the LRN parameters. Generally speaking, neural parameter estimation is most useful for models with an intractible likelihood function, such as the leaky competing accumulator (Usher, M., &amp; McClelland ). However, some of its key parameters are notoriously difficult to recover. As an alterntaive, we will use the LNR because its parameters have good estimation properties and can be easily recovered (Rounder et al., 2015).</p><h2 id="Full-Code"><a class="docs-heading-anchor" href="#Full-Code">Full Code</a><a id="Full-Code-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Code" title="Permalink"></a></h2><p>You can reveal copy-and-pastable version of the full code by clicking the ▶ below. </p><details>
+<summary><b>Show Full Code</b></summary><pre><code class="language-julia hljs">using AlgebraOfGraphics
+using CairoMakie
+using Distributions
+using Flux
+using NeuralEstimators
+using Plots
+using Random
+using SequentialSamplingModels
+
+Random.seed!(544)
+
+n = 2           # dimension of each data replicate 
+m = 100         # number of independent replicates 
+d = 4           # dimension of the parameter vector θ
+w = 128         # width of each hidden layer 
+
+function sample_prior(K)
+    ν = rand(Normal(-2, 3), K, 2)
+    σ = rand(truncated(Normal(1, 3), 0, Inf), K)
+    τ = rand(Uniform(0.100, 0.300), K)
+    θ = vcat(ν&#39;, σ&#39;, τ&#39;)
+    return θ
+end
+
+to_array(x) = Float32[x.choice&#39;; x.rt&#39;]
+simulate(θ, m) = [to_array(rand(LNR(ϑ[1:2], ϑ[3], ϑ[4]), m)) for ϑ ∈ eachcol(θ)]
+
+# Approximate distribution
+approx_dist = NormalisingFlow(d, 2d)
+
+# Neural network mapping data to summary statistics (of the same dimension used in the approximate distribution)
+ψ = Chain(x -&gt; log.(x), Dense(n, w, relu), Dense(w, w, relu))
+ϕ = Chain(Dense(w, w, relu), Dense(w, 2d))
+network = DeepSet(ψ, ϕ)
+
+# Initialise a neural posterior estimator
+estimator = PosteriorEstimator(approx_dist, network)
+
+# Train the estimator
+estimator = train(
+    estimator, 
+	sample_prior, 
+	simulate; 
+	m, 
+	K = 25_000
+)
+
+# Assess the estimator
+θ_test = sample_prior(1000)
+data_test = simulate(θ_test, m)
+assessment = assess(estimator, θ_test, data_test; parameter_names = [&quot;ν₁&quot;, &quot;ν₂&quot;, &quot;σ&quot;, &quot;τ&quot;])
+bias(assessment)
+rmse(assessment)
+recovery_plot = AlgebraOfGraphics.plot(assessment)
+
+# perform Bayesian parameter estimation on simulated data 
+θ = [-1.5, 0, 0.75, 0.250]       
+data = simulate(θ, m)        
+post_samples = sampleposterior(estimator, data)
+Plots.histogram(
+    post_samples&#39;,
+    layout = (4, 1),
+    color = :grey,
+    norm = true,
+    leg = false,
+    grid = false,
+    xlabel = [&quot;ν₁&quot; &quot;ν₂&quot; &quot;σ&quot; &quot;τ&quot;]
+)
+vline!([θ&#39;], color = :darkred, linewidth = 2)</code></pre></details><h1 id="Load-Dependencies"><a class="docs-heading-anchor" href="#Load-Dependencies">Load Dependencies</a><a id="Load-Dependencies-1"></a><a class="docs-heading-anchor-permalink" href="#Load-Dependencies" title="Permalink"></a></h1><p>The first step is to load the dependencies. <code>NeuralEstimators</code> and <code>Flux</code> are the primary packages for performing Bayesian parameter estimation with normalizing flows. We will also load <code>AlgebraOfGraphics</code>, <code>CairoMakie</code>, and <code>Plots</code> to visualize the parameter recovery and posterior distributions. </p><pre><code class="language-julia hljs">using AlgebraOfGraphics
+using CairoMakie
+using Distributions
+using Flux
+using NeuralEstimators
+using Plots
+using Random
+using SequentialSamplingModels</code></pre><p>In the code block below, we set the seed for the random number generator so that the results are reproducible. </p><pre><code class="language-julia hljs">Random.seed!(544)</code></pre><h1 id="Simulation-Functions"><a class="docs-heading-anchor" href="#Simulation-Functions">Simulation Functions</a><a id="Simulation-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Simulation-Functions" title="Permalink"></a></h1><p>As previously noted, normalizing flow neural networks learn the mapping between the prior distribution and simulated data. Once that mapping is learned, the network is inverted to allow one to sample from posterior distribution. We define two functions to generate training data–-one to sample from the prior distribution, and another to sample data from the model, given a sampled parameter vector from the prior distribution.</p><h2 id="Sample-from-Prior-Distribution"><a class="docs-heading-anchor" href="#Sample-from-Prior-Distribution">Sample from Prior Distribution</a><a id="Sample-from-Prior-Distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Sample-from-Prior-Distribution" title="Permalink"></a></h2><p>In the code block below, the <span>$K$</span> samples are generated from each prior and concatonated into a <span>$4 \times K$</span> array. </p><pre><code class="language-julia hljs">function sample_prior(K)
+    ν = rand(Normal(-2, 3), K, 2)
+    σ = rand(truncated(Normal(1, 3), 0, Inf), K)
+    τ = rand(Uniform(0.100, 0.300), K)
+    θ = vcat(ν&#39;, σ&#39;, τ&#39;)
+    return θ
+end</code></pre><h2 id="Sample-from-Model"><a class="docs-heading-anchor" href="#Sample-from-Model">Sample from Model</a><a id="Sample-from-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Sample-from-Model" title="Permalink"></a></h2><p>The code block below specifies the function <code>simulate</code> to sample simulated data from the model. In this function, <span>$\theta$</span> is a <span>$4 \times K$</span> array, with each column representing an independent sample from the prior distribution, and <span>$m$</span> is the number of trials sampled from the model per sample from the prior. The helper function <code>to_array</code> transforms the data into the required format: an <span>$m \times 2$</span> array in which the first column consists of choice indices, and the second column consists of reaction times. </p><pre><code class="language-julia hljs">to_array(x) = Float32[x.choice&#39;; x.rt&#39;]
+simulate(θ, m) = [to_array(rand(LNR(ϑ[1:2], ϑ[3], ϑ[4]), m)) for ϑ ∈ eachcol(θ)]</code></pre><h1 id="Configure-Neural-Network"><a class="docs-heading-anchor" href="#Configure-Neural-Network">Configure Neural Network</a><a id="Configure-Neural-Network-1"></a><a class="docs-heading-anchor-permalink" href="#Configure-Neural-Network" title="Permalink"></a></h1><p>In this section, we will configure the neural network to perform Bayesian parameter estimation. At a high level, the neural network has two primary components. The first component is the <code>DeepSet</code> neural network, which compresses the data by learning summary statistics describing the distribution of data. The second component is an invertible neural network called a <code>NormalisingFlow</code>. A normalising flow transforms a set of simple base distributions to approximate a complex distribution (see below). Importantly, because normalising flows are invertible, they can be used to sample from the posterior distribution. </p><p><img src="https://uvadlc-notebooks.readthedocs.io/en/latest/_images/normalizing_flow_layout.png" alt/>  <em>The sequential transformation process of a normalising flow. <a href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial11/NF_image_modeling.html">Credit</a>.</em> </p><pre><code class="language-julia hljs"># Approximate distribution
+approx_dist = NormalisingFlow(d, 2d)
+
+# Neural network mapping data to summary statistics (of the same dimension used in the approximate distribution)
+ψ = Chain(x -&gt; log.(x), Dense(n, w, relu), Dense(w, w, relu))
+ϕ = Chain(Dense(w, w, relu), Dense(w, 2d))
+network = DeepSet(ψ, ϕ)
+
+# Initialise a neural posterior estimator
+estimator = PosteriorEstimator(approx_dist, network)</code></pre><h1 id="Train-the-Neural-Network"><a class="docs-heading-anchor" href="#Train-the-Neural-Network">Train the Neural Network</a><a id="Train-the-Neural-Network-1"></a><a class="docs-heading-anchor-permalink" href="#Train-the-Neural-Network" title="Permalink"></a></h1><p>Next, to train the neural estimator, we pass the <code>estimator</code>, the function <code>sample_prior</code>, and the function <code>simulate</code> to the function <code>train</code>. </p><pre><code class="language-julia hljs">estimator = train(
+    estimator, 
+    sample_prior, 
+    simulate; 
+    # the sample size
+    m, 
+    # the number of training examples
+    K = 25_000
+)</code></pre><h1 id="Assess-the-Accuracy-of-the-Neural-Network"><a class="docs-heading-anchor" href="#Assess-the-Accuracy-of-the-Neural-Network">Assess the Accuracy of the Neural Network</a><a id="Assess-the-Accuracy-of-the-Neural-Network-1"></a><a class="docs-heading-anchor-permalink" href="#Assess-the-Accuracy-of-the-Neural-Network" title="Permalink"></a></h1><p>As shown in the code block below, the package NeuralEstimators provides three ways to assess the accuracy of the neural network: <code>bias</code>, <code>rmse</code>, and scatter plots of the parameer recovery. The parameter recovery plots below indicate that the neural network learned the mapping well. </p><pre><code class="language-julia hljs">θ_test = sample_prior(1000)
+data_test = simulate(θ_test, m)
+assessment = assess(estimator, θ_test, data_test; parameter_names = [&quot;ν₁&quot;, &quot;ν₂&quot;, &quot;σ&quot;, &quot;τ&quot;])
+bias(assessment)
+rmse(assessment)
+recovery_plot = AlgebraOfGraphics.plot(assessment)</code></pre><p><img src="../assets/lnr_parameter_recovery.png" alt/></p><h1 id="Perform-Bayesian-Parameter-Estimation"><a class="docs-heading-anchor" href="#Perform-Bayesian-Parameter-Estimation">Perform Bayesian Parameter Estimation</a><a id="Perform-Bayesian-Parameter-Estimation-1"></a><a class="docs-heading-anchor-permalink" href="#Perform-Bayesian-Parameter-Estimation" title="Permalink"></a></h1><p>Now that the neural network has been trained, we can perform Bayesian parameter estimation. In the example below, we simulate data from the model using parameters defined in the vector <span>$\theta$</span>. The estimator and data are passed to <code>sampleposterior</code>, which generates samples from the posterior distribution of parameters. As expected, the histogram shows that the posterior distributions are near the true parameter values, displayed as red vertical lines.</p><pre><code class="language-julia hljs">θ = [-1.5, 0, 0.75, 0.150]       
+data = simulate(θ, m)        
+post_samples = sampleposterior(estimator, data)
+Plots.histogram(
+    post_samples&#39;,
+    layout = (4, 1),
+    color = :grey,
+    norm = true,
+    leg = false,
+    grid = false,
+    xlabel = [&quot;ν₁&quot; &quot;ν₂&quot; &quot;σ&quot; &quot;τ&quot;]
+)
+vline!([θ&#39;], color = :darkred, linewidth = 2)</code></pre><p><img src="../assets/lnr_posterior.png" alt/></p><h1 id="Save-the-Trained-Neural-Network"><a class="docs-heading-anchor" href="#Save-the-Trained-Neural-Network">Save the Trained Neural Network</a><a id="Save-the-Trained-Neural-Network-1"></a><a class="docs-heading-anchor-permalink" href="#Save-the-Trained-Neural-Network" title="Permalink"></a></h1><pre><code class="language-julia hljs">using BSON: @save 
+using Flux
+
+model_state = Flux.state(estimator)
+@save &quot;lnr_estimator.bson&quot; model_state</code></pre><p>You can load the trained neural network into a new Julia session with the <code>@load</code> macro from <code>BSON</code>. In order to successfully reuse the trained neural network, you will need to initialize the neural network before passing the trained parameters. You can reveal copy-and-pastable version of the full code by clicking the ▶ below. </p><details>
+<summary><b>Show Full Code</b></summary><pre><code class="language-julia hljs">using BSON: @load
+using Distributions
+using Flux
+using NeuralEstimators
+using SequentialSamplingModels
+
+Random.seed!(544)
+
+n = 2           # dimension of each data replicate 
+m = 100         # number of independent replicates 
+d = 4           # dimension of the parameter vector θ
+w = 128         # width of each hidden layer 
+
+# Approximate distribution
+approx_dist = NormalisingFlow(d, 2d)
+
+# Neural network mapping data to summary statistics (of the same dimension used in the approximate distribution)
+ψ = Chain(x -&gt; log.(x), Dense(n, w, relu), Dense(w, w, relu))
+ϕ = Chain(Dense(w, w, relu), Dense(w, 2d))
+network = DeepSet(ψ, ϕ)
+
+# Initialise a neural posterior estimator
+estimator = PosteriorEstimator(approx_dist, network)
+
+# load the weights
+@load &quot;lnr_estimator.bson&quot; model_state
+Flux.loadmodel!(estimator, model_state)</code></pre></details><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Heathcote, A., &amp; Love, J. (2012). Linear deterministic accumulator models of simple choice. Frontiers in psychology, 3, 292.</p><p>Sainsbury-Dale, Matthew, Andrew Zammit-Mangion, and Raphaël Huser. &quot;Likelihood-free parameter estimation with neural Bayes estimators.&quot; The American Statistician 78.1 (2024): 1-14.</p><p>Radev, S. T., Schmitt, M., Schumacher, L., Elsemüller, L., Pratz, V., Schälte, Y., ... &amp; Bürkner, P. C. (2023). BayesFlow: Amortized Bayesian workflows with neural networks. arXiv preprint arXiv:2306.16015.</p><p>Rouder, J. N., Province, J. M., Morey, R. D., Gomez, P., &amp; Heathcote, A. (2015). The lognormal race: A cognitive-process model of choice and latency with desirable psychometric properties. Psychometrika, 80(2), 491-513.</p><p>Zammit-Mangion, Andrew, Matthew Sainsbury-Dale, and Raphaël Huser. &quot;Neural methods for amortized inference.&quot; Annual Review of Statistics and Its Application 12 (2024).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../amortized_point_estimation/">« Point Estimation</a><a class="docs-footer-nextpage" href="../bayes_factor/">Bayes Factors »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.1 on <span class="colophon-date" title="Wednesday 23 April 2025 12:30">Wednesday 23 April 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
