@@ -4,6 +4,7 @@
 This package provides a unified interface for simulating and evaluating popular sequential sampling models (SSMs), which integrates with the following packages:
 
 - [Distributions.jl](https://github.com/JuliaStats/Distributions.jl): functions for probability distributions
+- [NeuralEstimators.jl](https://github.com/msainsburydale/NeuralEstimators.jl): amortized inference using neural networks
 - [Pigeons.jl](http://pigeons.run/dev/): Bayesian parameter estimation and Bayes factors
 - [Plots.jl](https://github.com/JuliaPlots/Plots.jl): extended plotting tools for SSMs
 - [Turing.jl](https://turinglang.org/dev/docs/using-turing/get-started): Bayesian parameter estimation

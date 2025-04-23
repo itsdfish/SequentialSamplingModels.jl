@@ -53,7 +53,10 @@ makedocs(
             "Mode Estimation" => "mode_estimation.md",
             "Simple Bayesian Model" => "turing_simple.md",
             "Advanced Model Specification" => "turing_advanced.md",
-            "Hierarchical Models" => "turing_hierarchical.md"
+            "Hierarchical Models" => "turing_hierarchical.md",
+            "Amortized Neural Estimation" => [
+                "Bayesian Parameter Estimation" => "amortized_bayesian_parameter_estimation.md",
+            ]
         ],
         "Model Comparison" => [
             "Bayes Factors" => "bayes_factor.md",

@@ -38,7 +38,7 @@ An abstract type for the attentional drift diffusion model.
 abstract type AbstractaDDM <: AbstractDDM end
 
 """
-    AbstractLBA <: SSM2D
+    AbstractLBA{T, T1} <: SSM2D
 
 An abstract type for the linear ballistic accumulator model.  
 """
@@ -52,14 +52,14 @@ An abstract type for the Wald model.
 abstract type AbstractWald <: SSM1D end
 
 """
-    AbstractLNR <: SSM2D
+    AbstractLNR{T, T1} <: SSM2D
 
 An abstract type for the lognormal race model
 """
 abstract type AbstractLNR{T, T1} <: SSM2D end
 
 """
-    AbstractMLBA <: AbstractLBA
+    AbstractMLBA{T, T1} <: AbstractLBA
 
 An abstract type for the multi-attribute linear ballistic accumulator
 """

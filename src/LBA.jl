@@ -98,8 +98,7 @@ function rand(rng::AbstractRNG, d::AbstractLBA)
 end
 
 function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
-    (; τ, A, k, ν, σ) = d
-    b = A + k
+    (; τ, ν, σ) = d
     LL = 0.0
     rt < τ ? (return -Inf) : nothing
     for i ∈ 1:length(ν)
@@ -115,8 +114,7 @@ function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
 end
 
 function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
-    (; τ, A, k, ν, σ) = d
-    b = A + k
+    (; τ, ν, σ) = d
     LL = 0.0
     rt < τ ? (return -Inf) : nothing
     for i ∈ 1:length(ν)
@@ -150,8 +148,7 @@ function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
 end
 
 function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
-    (; τ, A, k, ν, σ) = d
-    b = A + k
+    (; τ, ν, σ) = d
     den = 1.0
     rt < τ ? (return 1e-10) : nothing
     for i ∈ 1:length(ν)
