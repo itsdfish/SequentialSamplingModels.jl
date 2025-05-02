@@ -5,6 +5,8 @@ using BenchmarkTools
 using SequentialSamplingModels
 using DataFrames
 
+df = DataFrame()
+
 SUITE = BenchmarkGroup()
 ####################################################################################################
 #                                       logpdf
