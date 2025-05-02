@@ -1,0 +1,5 @@
+[deps]
+BenchmarkPlots = "ab8c0f59-4072-4e0d-8f91-a91e1495eb26"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+PkgBenchmark = "32113eaa-f34f-5b0d-bd6c-c81e245fc73d"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
