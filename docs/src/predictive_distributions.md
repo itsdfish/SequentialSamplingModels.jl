@@ -2,6 +2,52 @@
 
 This tutorial explains the steps required for constructing and plotting prior and posterior predictive distributions of a sequential sampling models (SSMs). The primary function we will be using is `predict_distribution`, which allows you to generate prior or posterior predictive distributions from a given model. 
 
+## Full Code 
+
+You can reveal copy-and-pastable version of the full code by clicking the ▶ below.
+
+```@raw html
+<details>
+<summary><b>Show Full Code</b></summary>
+```
+```julia
+using Distributions
+using Plots
+using Random
+using SequentialSamplingModels
+using Turing 
+Random.seed!(1124)
+
+n_samples = 50
+rts = rand(Wald(ν=1.5, α=.8, τ=.3), n_samples)
+
+@model function wald_model(rts)
+    ν ~ truncated(Normal(1.5, 1), 0, Inf)
+    α ~ truncated(Normal(.8, 1), 0, Inf)
+    τ = 0.3
+    rts ~ Wald(ν, α, τ)
+    return (;ν, α, τ)
+end
+
+model = wald_model(rts)
+
+prior_chain = sample(model, Prior(), 1000)
+
+pred_model = predict_distribution(Wald; model, func=mean, n_samples)
+prior_preds = generated_quantities(pred_model, prior_chain)
+
+post_chain = sample(model, NUTS(1000, .85), 1000)
+post_preds = generated_quantities(pred_model, post_chain)
+
+histogram(prior_preds[:], xlims=(0,4), xlabel="Mean RT", ylabel="Density", norm=true, 
+    color=:grey, label="prior", grid=false)
+histogram!(post_preds[:], alpha=.7, color=:darkred, norm=true, label="posterior", grid=false)
+vline!([mean(rts)], linestyle=:dash, color=:black, linewidth=2, label="data")
+```
+```@raw html
+</details>
+```
+
 # Example 
 The first step is to load the required packages and set the seed for the random number generator.
 

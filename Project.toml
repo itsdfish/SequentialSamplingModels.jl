@@ -1,7 +1,7 @@
 name = "SequentialSamplingModels"
 uuid = "0e71a2a6-2b30-4447-8742-d083a85e82d1"
 authors = ["itsdfish"]
-version = "0.12.3"
+version = "0.12.4c"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -44,7 +44,7 @@ SpecialFunctions = "1,2"
 Statistics = "1"
 StatsAPI = "1.0.0"
 StatsBase = "0.33.0,0.34.0"
-Turing = "0.29.0,0.30.0,0.31.0,0.32,0.33,0.34.0,0.35.0,0.36.0,0.37,0.38.0"
+Turing = "0.35.0,0.36.0,0.37,0.38.0,0.39.0"
 julia = "1"
 
 [extras]
