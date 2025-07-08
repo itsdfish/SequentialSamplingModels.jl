@@ -131,7 +131,6 @@ end
 
 function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
     (; τ, A, k, ν, σ) = d
-    b = A + k
     den = 1.0
     rt < τ ? (return 1e-10) : nothing
     for i ∈ 1:length(ν)

@@ -127,18 +127,6 @@ end
 logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
 #logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ))
 
-function logpdf(d::DDM, data::T) where {T <: NamedTuple}
-    return sum(logpdf.(d, data...))
-end
-
-function logpdf(dist::DDM, data::Array{<:Tuple, 1})
-    LL = 0.0
-    for d in data
-        LL += logpdf(dist, d...)
-    end
-    return LL
-end
-
 logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 
 #########################################
