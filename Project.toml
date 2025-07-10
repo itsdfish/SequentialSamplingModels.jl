@@ -1,7 +1,7 @@
 name = "SequentialSamplingModels"
 uuid = "0e71a2a6-2b30-4447-8742-d083a85e82d1"
 authors = ["itsdfish"]
-version = "0.12.5"
+version = "0.12.6"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -29,10 +29,10 @@ TuringExt = "Turing"
 
 [compat]
 Distributions = "v0.24.6, 0.25"
-DynamicPPL = "0.29.0,0.30.0,0.31.0,0.32.0,0.33.0,0.34.0,0.35.0,0.36.0"
+DynamicPPL = "0.31.0,0.32.0,0.33.0,0.34.0,0.35.0,0.36.0"
 FunctionZeros = "0.2.0,0.3.0, 1"
 HCubature = "1"
-Interpolations = "0.14.0,0.15.0"
+Interpolations = "0.14.0,0.15.0,0.16.0"
 KernelDensity = "0.6.5"
 LinearAlgebra = "1"
 Plots = "1.0.0"
