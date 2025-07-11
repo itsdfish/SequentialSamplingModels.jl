@@ -393,3 +393,8 @@ Increments the evidence states `x` on each time step.
 """
 increment!(model::SSM1D, x, μΔ; Δt = 0.001) =
     increment!(Random.default_rng(), model, x, μΔ; Δt)
+
+Base.eltype(::Type{<:Sampleable{F, Mixed}}) where {F} =
+    @NamedTuple{choice::Vector{Int64}, rt::Vector{Float64}}
+
+Base.length(s::ContinuousMultivariateSSM) = 2

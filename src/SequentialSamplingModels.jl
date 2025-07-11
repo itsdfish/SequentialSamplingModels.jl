@@ -12,6 +12,7 @@ using PrettyTables
 using Random
 using SpecialFunctions
 
+using Distributions: ProductDistribution
 using HCubature: hcubature
 using StatsBase: Weights
 
@@ -28,6 +29,7 @@ import Distributions: mean
 import Distributions: minimum
 import Distributions: pdf
 import Distributions: rand
+import Distributions: rand!
 import Distributions: std
 import StatsAPI: params
 import StatsBase: cor2cov
@@ -109,4 +111,5 @@ include("MDFT.jl")
 include("ClassicMDFT.jl")
 include("MLBA.jl")
 include("ShiftedLogNormal.jl")
+include("product_distribution.jl")
 end
