@@ -2,7 +2,7 @@
     @safetestset "pd" begin
         @safetestset "pdf 1" begin
             using Test, SequentialSamplingModels, Random
-            include("KDE.jl")
+            include("../KDE.jl")
             Random.seed!(54)
             d = WaldMixture(3, 0.5, 1, 0.1)
             @test mean(d) ≈ (1 / 3) + 0.1 atol = 1e-5

@@ -63,7 +63,7 @@
             using Random
             using SequentialSamplingModels
             using Statistics
-            include("KDE.jl")
+            include("../KDE.jl")
 
             Random.seed!(550)
 
@@ -88,7 +88,7 @@
             using Random
             using SequentialSamplingModels
             using Statistics
-            include("KDE.jl")
+            include("../KDE.jl")
 
             Random.seed!(56)
 
@@ -116,7 +116,7 @@
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_rt
             using Statistics
-            include("KDE.jl")
+            include("../KDE.jl")
 
             Random.seed!(1345)
 
@@ -140,7 +140,7 @@
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_rt
             using Statistics
-            include("KDE.jl")
+            include("../KDE.jl")
 
             Random.seed!(6541)
 
@@ -166,7 +166,7 @@
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_angle
             using Statistics
-            include("KDE.jl")
+            include("../KDE.jl")
 
             Random.seed!(4556)
 
@@ -190,7 +190,7 @@
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_angle
             using Statistics
-            include("KDE.jl")
+            include("../KDE.jl")
 
             Random.seed!(6541)
 

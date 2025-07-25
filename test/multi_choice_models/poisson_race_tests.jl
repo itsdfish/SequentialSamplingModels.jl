@@ -1,7 +1,7 @@
 @safetestset "Poisson Race Tests" begin
     @safetestset "pdf1" begin
         using SequentialSamplingModels, Test, Random, Distributions
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(471)
 
         dist = PoissonRace(; ν = [0.05, 0.06], α = [4, 5], τ = 0.3)
@@ -25,7 +25,7 @@
 
     @safetestset "pdf2" begin
         using SequentialSamplingModels, Test, Random, Distributions
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(65)
 
         dist = PoissonRace(; ν = [0.04, 0.045], α = [4, 3], τ = 0.2)

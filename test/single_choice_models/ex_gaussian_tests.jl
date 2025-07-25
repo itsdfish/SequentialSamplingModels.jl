@@ -3,7 +3,7 @@
         using SequentialSamplingModels
         using Random
         using Test
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(5414)
 
         d = ExGaussian(μ = 0.5, σ = 0.10, τ = 0.20)
@@ -20,7 +20,7 @@
         using SequentialSamplingModels
         using Random
         using Test
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(605)
 
         d = ExGaussian(μ = 0.8, σ = 0.30, τ = 0.60)
@@ -58,7 +58,7 @@
         using SequentialSamplingModels
         using Random
         using Test
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(87401)
 
         d = ExGaussian(μ = 0.8, σ = 0.30, τ = 0.60)

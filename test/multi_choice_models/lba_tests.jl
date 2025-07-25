@@ -1,7 +1,7 @@
 @safetestset "LBA Tests" begin
     @safetestset "LBA Test1" begin
         using SequentialSamplingModels, Test, Random
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(10542)
 
         dist = LBA(ν = [3.0, 2.0], A = 0.8, k = 0.2, τ = 0.3)
@@ -25,7 +25,7 @@
 
     @safetestset "LBA Test2" begin
         using SequentialSamplingModels, Test, Random
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(8521)
 
         # note for some values, tests will fail
@@ -52,7 +52,7 @@
 
     @safetestset "LBA Test3" begin
         using SequentialSamplingModels, Test, Random
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(851)
 
         # note for some values, tests will fail

@@ -1,7 +1,7 @@
 @safetestset "LogNormal Race Tests" begin
     @safetestset "pdf" begin
         using SequentialSamplingModels, Test, Random, Distributions
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(54154)
         d1 = LNR(; ν = [1.0], σ = [1.0], τ = 0.1)
         v1 = 0.3

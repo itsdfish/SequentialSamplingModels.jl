@@ -2,7 +2,7 @@
     @safetestset "pdf" begin
         using SequentialSamplingModels, Test, QuadGK, Random
         import SequentialSamplingModels: WaldA
-        include("KDE.jl")
+        include("../KDE.jl")
         Random.seed!(741)
 
         dist = WaldA(ν = 0.5, k = 0.3, A = 0.7, τ = 0.2)
