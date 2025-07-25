@@ -1,5 +1,5 @@
 using SafeTestsets
 
-files = filter(f -> f ≠ "runtests.jl", readdir())
+files = filter(f -> occursin(".jl", f) && f ≠ "runtests.jl", readdir())
 
 include.(files)
