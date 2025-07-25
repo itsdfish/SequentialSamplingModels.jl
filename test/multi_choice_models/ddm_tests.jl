@@ -2,12 +2,12 @@
     @safetestset "DDM pdf 1" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(654)
+        using StableRNGs
+        rng = StableRNG(225)
         include("../KDE.jl")
 
         dist = DDM(; ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
-        choice, rt = rand(dist, 10^6)
+        choice, rt = rand(rng, dist, 10^6)
         rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
@@ -27,12 +27,12 @@
     @safetestset "DDM pdf 2" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
         include("../KDE.jl")
-        Random.seed!(750)
+        rng = StableRNG(323)
 
         dist = DDM(; ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
-        choice, rt = rand(dist, 10^6)
+        choice, rt = rand(rng, dist, 10^6)
         rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
@@ -53,11 +53,11 @@
         using SequentialSamplingModels
         using Test
         using StatsBase
-        using Random
-        Random.seed!(7540)
+        using StableRNGs
+        rng = StableRNG(111)
 
         dist = DDM(; ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
-        choice, rt = rand(dist, 10^5)
+        choice, rt = rand(rng, dist, 10^5)
         rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
@@ -78,11 +78,11 @@
         using SequentialSamplingModels
         using Test
         using StatsBase
-        using Random
-        Random.seed!(2200)
+        using StableRNGs
+        rng = StableRNG(1444)
 
         dist = DDM(; ν = 2.0, α = 1.5, z = 0.5, τ = 0.30)
-        choice, rt = rand(dist, 10^5)
+        choice, rt = rand(rng, dist, 10^5)
         rt1 = rt[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
@@ -295,20 +295,20 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(7411)
+        rng = StableRNG(4548)
         α = 0.80
         dist = DDM(; α, ν = 3)
 
-        time_steps, evidence = simulate(dist; Δt = 0.0001)
+        time_steps, evidence = simulate(rng, dist; Δt = 0.0001)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == length(evidence)
         @test evidence[end] ≈ α atol = 0.010
 
         dist = DDM(; α, ν = -3)
-        time_steps, evidence = simulate(dist; Δt = 0.0001)
+        time_steps, evidence = simulate(rng, dist; Δt = 0.0001)
         @test evidence[end] ≈ 0.0 atol = 0.010
     end
 end

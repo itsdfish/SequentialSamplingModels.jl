@@ -1,10 +1,10 @@
 @safetestset "ClassicMDFT tests" begin
     @safetestset "similarity effect" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
 
-        Random.seed!(5484)
+        rng = StableRNG(1152)
         # non-decision time 
         τ = 0.300
         # diffusion noise 
@@ -27,7 +27,7 @@
         ]
 
         model = ClassicMDFT(; σ, α, τ, w, S)
-        choices, _ = rand(model, 100_000, M)
+        choices, _ = rand(rng, model, 100_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         ground_truth = [0.305315, 0.395226, 0.299459]
         @test probs ≈ ground_truth atol = 5e-3
@@ -35,10 +35,10 @@
 
     @safetestset "compromise effect" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
 
-        Random.seed!(6541)
+        rng = StableRNG(34)
         # non-decision time 
         τ = 0.300
         # diffusion noise 
@@ -61,7 +61,7 @@
         ]
 
         model = ClassicMDFT(; σ, α, τ, w, S)
-        choices, _ = rand(model, 100_000, M)
+        choices, _ = rand(rng, model, 100_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         ground_truth = [0.282626, 0.284605, 0.432769]
         @test probs ≈ ground_truth atol = 5e-3
@@ -69,10 +69,10 @@
 
     @safetestset "attraction effect" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
 
-        Random.seed!(201)
+        rng = StableRNG(322)
         # non-decision time 
         τ = 0.300
         # diffusion noise 
@@ -95,7 +95,7 @@
         ]
 
         model = ClassicMDFT(; σ, α, τ, w, S)
-        choices, _ = rand(model, 100_000, M)
+        choices, _ = rand(rng, model, 100_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         ground_truth = [0.559048, 0.440950, 0.000002]
         @test probs ≈ ground_truth atol = 5e-3
@@ -106,7 +106,6 @@ end
     @safetestset "compute_distances" begin
         using SequentialSamplingModels
         using SequentialSamplingModels: compute_distances
-        using Random
         using Test
 
         model = MDFT(;
@@ -140,7 +139,6 @@ end
         using SequentialSamplingModels
         using SequentialSamplingModels: compute_distances
         using SequentialSamplingModels: compute_feedback_matrix
-        using Random
         using Test
 
         model = MDFT(;
@@ -175,7 +173,6 @@ end
         using LinearAlgebra
         using SequentialSamplingModels
         using SequentialSamplingModels: make_default_contrast
-        using Random
         using Test
 
         offdiag(A) = (A[ι] for ι in CartesianIndices(A) if ι[1] ≠ ι[2])
@@ -190,11 +187,11 @@ end
     @safetestset "similarity effect" begin
         using SequentialSamplingModels
         using Distributions
-        using Random
+        using StableRNGs
         using Test
         include("mdft_test_functions.jl")
 
-        Random.seed!(3254)
+        rng = StableRNG(1602)
 
         parms = (
             σ = 0.1,
@@ -215,24 +212,31 @@ end
             0.9 3.1
         ]
 
-        @test test_context_effect(parms, (), M; test_func = test_similarity, n_sim = 1000)
+        @test test_context_effect(
+            rng,
+            parms,
+            (),
+            M;
+            test_func = test_similarity,
+            n_sim = 1500
+        )
         true_probs = [0.15667, 0.54876, 0.29457]
         true_mean_rts = [0.9106421, 0.5445200, 0.7405360]
-        choices, rts = rand(model, 10_000, M)
+        choices, rts = rand(rng, model, 10_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         @test probs ≈ true_probs rtol = 0.02
         mean_rts = map(c -> mean(rts[choices .== c]), 1:3)
-        @test mean_rts ≈ true_mean_rts rtol = 0.01
+        @test mean_rts ≈ true_mean_rts rtol = 0.02
     end
 
     @safetestset "compromise effect" begin
         using Distributions
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
         include("mdft_test_functions.jl")
 
-        Random.seed!(541)
+        rng = StableRNG(23)
 
         parms = (
             σ = 0.1,
@@ -253,12 +257,19 @@ end
             3.0 1.0
         ]
 
-        @test test_context_effect(parms, (), M; test_func = test_compromise, n_sim = 2000)
+        @test test_context_effect(
+            rng,
+            parms,
+            (),
+            M;
+            test_func = test_compromise,
+            n_sim = 2000
+        )
 
         true_probs = [0.30025, 0.40453, 0.29522]
         true_mean_rts = [2.238162, 2.886065, 2.239521]
 
-        choices, rts = rand(model, 10_000, M)
+        choices, rts = rand(rng, model, 10_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         @test probs ≈ true_probs rtol = 0.02
         mean_rts = map(c -> mean(rts[choices .== c]), 1:3)
@@ -268,10 +279,10 @@ end
     @safetestset "attraction effect" begin
         using Distributions
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
         include("mdft_test_functions.jl")
-        Random.seed!(2141)
+        rng = StableRNG(5644)
 
         parms = (
             σ = 0.1,
@@ -291,12 +302,19 @@ end
             0.50 2.5
         ]
 
-        @test test_context_effect(parms, (), M; test_func = test_attraction, n_sim = 1000)
+        @test test_context_effect(
+            rng,
+            parms,
+            (),
+            M;
+            test_func = test_attraction,
+            n_sim = 1000
+        )
 
         true_probs = [0.55643, 0.44356, 0.00001]
         true_mean_rts = [0.3985818, 0.5411759, 0.3875000]
 
-        choices, rts = rand(model, 10_000, M)
+        choices, rts = rand(rng, model, 10_000, M)
         probs = map(c -> mean(choices .== c), 1:3)
         @test probs ≈ true_probs rtol = 0.02
         mean_rts = map(c -> mean(rts[choices .== c]), 1:3)

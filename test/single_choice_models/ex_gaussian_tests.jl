@@ -1,13 +1,13 @@
 @safetestset "ExGaussian" begin
     @safetestset "pdf 1" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
         include("../KDE.jl")
-        Random.seed!(5414)
+        rng = StableRNG(584)
 
         d = ExGaussian(μ = 0.5, σ = 0.10, τ = 0.20)
-        rts = rand(d, 10_000)
+        rts = rand(rng, d, 10_000)
 
         approx_pdf = kde(rts)
         x = 0.2:0.01:1.5
@@ -18,13 +18,13 @@
 
     @safetestset "pdf 2" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
         include("../KDE.jl")
-        Random.seed!(605)
+        rng = StableRNG(123)
 
         d = ExGaussian(μ = 0.8, σ = 0.30, τ = 0.60)
-        rts = rand(d, 20_000)
+        rts = rand(rng, d, 20_000)
 
         approx_pdf = kde(rts)
         x = 0.2:0.02:4.0
@@ -35,11 +35,11 @@
 
     @safetestset "pdf 3" begin
         using Distributions
-        using Random
+        using StableRNGs
         using SequentialSamplingModels
         using SequentialSamplingModels: Φ
         using Test
-        Random.seed!(218)
+        rng = StableRNG(345)
 
         # direct pdf, not used due to numerical instability in edge cases
         function _pdf(d::ExGaussian, rt::Float64)
@@ -48,21 +48,21 @@
         end
 
         for _ ∈ 1:100
-            d = ExGaussian(rand(Uniform(0.3, 1), 3)...)
-            rts = rand(d, 10)
+            d = ExGaussian(rand(rng, Uniform(0.3, 1), 3)...)
+            rts = rand(rng, d, 10)
             @test pdf.(d, rts) ≈ _pdf.(d, rts)
         end
     end
 
     @safetestset "logpdf" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
         include("../KDE.jl")
-        Random.seed!(87401)
+        rng = StableRNG(334)
 
         d = ExGaussian(μ = 0.8, σ = 0.30, τ = 0.60)
-        rts = rand(d, 10)
+        rts = rand(rng, d, 10)
 
         LL = logpdf.(d, rts)
         like = pdf.(d, rts)
@@ -72,40 +72,40 @@
 
     @safetestset "mean" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
-        Random.seed!(87401)
+        rng = StableRNG(45)
 
         d = ExGaussian(μ = 0.8, σ = 0.30, τ = 0.60)
-        rts = rand(d, 10_000)
+        rts = rand(rng, d, 10_000)
         sim_mean = mean(rts)
         @test mean(d) ≈ sim_mean rtol = 0.01
     end
 
     @safetestset "std" begin
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
         using Test
-        Random.seed!(6021)
+        rng = StableRNG(3456)
 
         d = ExGaussian(μ = 0.8, σ = 0.30, τ = 0.60)
-        rts = rand(d, 20_000)
+        rts = rand(rng, d, 20_000)
         sim_std = std(rts)
         @test std(d) ≈ sim_std rtol = 0.02
     end
 
     @safetestset "CDF" begin
         @safetestset "1" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(8741)
+            rng = StableRNG(333)
             n_sim = 10_000
 
             dist = ExGaussian(; μ = 0.5, σ = 0.10, τ = 0.20)
-            rt = rand(dist, n_sim)
+            rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(rt .≤ t)
@@ -115,16 +115,16 @@
         end
 
         @safetestset "2" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(8741)
+            rng = StableRNG(122)
             n_sim = 10_000
 
             dist = ExGaussian(; μ = 0.6, σ = 0.10, τ = 0.40)
-            rt = rand(dist, n_sim)
+            rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(rt .≤ t)

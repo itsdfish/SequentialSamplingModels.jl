@@ -53,7 +53,7 @@ ExGaussian(; μ = 0.5, σ = 0.20, τ = 0.20) = ExGaussian(μ, σ, τ)
 
 function rand(rng::AbstractRNG, dist::ExGaussian)
     (; μ, σ, τ) = dist
-    return rand(Normal(μ, σ)) + rand(Exponential(τ))
+    return rand(rng, Normal(μ, σ)) + rand(rng, Exponential(τ))
 end
 
 function logpdf(d::ExGaussian, rt::Float64)

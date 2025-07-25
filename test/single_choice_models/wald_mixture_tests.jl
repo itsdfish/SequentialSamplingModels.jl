@@ -1,12 +1,12 @@
 @safetestset "Wald Mixture" begin
     @safetestset "pd" begin
         @safetestset "pdf 1" begin
-            using Test, SequentialSamplingModels, Random
+            using Test, SequentialSamplingModels, StableRNGs
             include("../KDE.jl")
-            Random.seed!(54)
+            rng = StableRNG(2777)
             d = WaldMixture(3, 0.5, 1, 0.1)
             @test mean(d) ≈ (1 / 3) + 0.1 atol = 1e-5
-            rts = rand(d, 200_000)
+            rts = rand(rng, d, 200_000)
             # remove outliers
             filter!(x -> x < 5, rts)
             approx_pdf = kde(rts)
@@ -35,11 +35,11 @@
     @safetestset "loglikelihood" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(655)
+        using StableRNGs
+        rng = StableRNG(67)
 
         dist = WaldMixture(2, 0.2, 1, 0.1)
-        rt = rand(dist, 10)
+        rt = rand(rng, dist, 10)
 
         sum_logpdf = logpdf.(dist, rt) |> sum
         loglike = loglikelihood(dist, rt)
@@ -49,7 +49,6 @@
     @safetestset "logpdf" begin
         using SequentialSamplingModels
         using Test
-        using Random
 
         dist = WaldMixture(; ν = 2.0, η = 0.5, α = 0.3, τ = 0.130)
         t = range(0.131, 2, length = 20)
@@ -63,14 +62,14 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(3233)
+        rng = StableRNG(12)
         α = 0.80
 
         dist = WaldMixture(; α)
 
-        time_steps, evidence = simulate(dist; Δt = 0.0005)
+        time_steps, evidence = simulate(rng, dist; Δt = 0.0005)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == length(evidence)
@@ -79,16 +78,16 @@
 
     @safetestset "CDF" begin
         @safetestset "1" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(95)
+            rng = StableRNG(345)
             n_sim = 10_000
 
             dist = WaldMixture(; ν = 3.0, η = 0.5, α = 0.5, τ = 0.130)
-            rt = rand(dist, n_sim)
+            rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(rt .≤ t)
@@ -98,16 +97,16 @@
         end
 
         @safetestset "2" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(145)
+            rng = StableRNG(44)
             n_sim = 10_000
 
             dist = WaldMixture(; ν = 2.0, η = 0.2, α = 0.8, τ = 0.130)
-            rt = rand(dist, n_sim)
+            rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(rt .≤ t)

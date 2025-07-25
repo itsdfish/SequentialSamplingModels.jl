@@ -1,17 +1,18 @@
 @safetestset "Shifted Lognormal Distribution" begin
     @safetestset "rand" begin
         using Distributions
-        using Random
+        using StableRNGs
         using SequentialSamplingModels
         using Test
 
-        Random.seed!(5411)
+        rng = StableRNG(344)
 
         lognormal = LogNormal(-1, 0.3)
         shifted_lognormal = ShiftedLogNormal(ν = -1, σ = 0.3, τ = 0.5)
-        mean(rand(shifted_lognormal, 10_000))
+        mean(rand(rng, shifted_lognormal, 10_000))
         # τ is properly added
-        @test mean(rand(lognormal, 10_000)) - mean(rand(shifted_lognormal, 10_000)) ≈ -0.5 atol =
+        @test mean(rand(rng, lognormal, 10_000)) -
+              mean(rand(rng, shifted_lognormal, 10_000)) ≈ -0.5 atol =
             0.01
     end
 
@@ -39,14 +40,14 @@
 
     @safetestset "logpdf 2" begin
         using Distributions
-        using Random
+        using StableRNGs
         using SequentialSamplingModels
         using Test
 
-        Random.seed!(2008)
+        rng = StableRNG(4)
 
         parms = (ν = -1, σ = 0.3, τ = 0.0)
-        x = rand(ShiftedLogNormal(; parms...), 15_000)
+        x = rand(rng, ShiftedLogNormal(; parms...), 15_000)
 
         νs = range(0.80 * parms.ν, 1.2 * parms.ν, length = 100)
         LLs = map(ν -> sum(logpdf.(ShiftedLogNormal(; parms..., ν), x)), νs)

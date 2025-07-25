@@ -2,12 +2,12 @@
     @safetestset "stDDM predictions" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(8414)
+        using StableRNGs
+        rng = StableRNG(15)
 
         parms = (ν = [1.0, 1.2], α = 0.8, τ = 0.30, s = 0.0, z = 0.50)
         model = stDDM(; parms...)
-        choice, rt = rand(model, 10_000)
+        choice, rt = rand(rng, model, 10_000)
         # use validated simulator
         #Lombardi, G., & Hare, T. Piecewise constant averaging methods allow for fast and 
         # accurate hierarchical Bayesian estimation of drift diffusion models with 
@@ -23,7 +23,7 @@
 
         parms = (ν = [2, 1], α = 1.5, τ = 0.30, s = 0.20, z = 0.50)
         model = stDDM(; parms...)
-        choice, rt = rand(model, 10_000)
+        choice, rt = rand(rng, model, 10_000)
 
         #R:      0.8883 0.6639 0.6303 0.2377 0.3146
         #Python: 0.8918 0.6694 0.6285 0.2478 0.3156
@@ -37,7 +37,7 @@
 
         parms = (ν = [0.7, 0.9], α = 2, τ = 0.40, s = 0.60, z = 0.40)
         model = stDDM(; parms...)
-        choice, rt = rand(model, 10_000)
+        choice, rt = rand(rng, model, 10_000)
 
         #R:      0.7417 1.1632 1.0788 0.5329 0.6273
         #Python: 0.7345 1.1686 1.0444 0.5515 0.6125
@@ -109,7 +109,7 @@
     # def pystddm(d_v, d_h, thres, nDT, tIn, bias, sd_n, N, seed=None):
     #     # Set a seed for reproducibility if provided
     #     if seed is not None:
-    #         np.random.seed(seed)
+    #         np.StableRNGs.seed(seed)
 
     #     # Constants and Preparations
     #     T = 6  # Total time
@@ -132,10 +132,10 @@
     #         vecOut = T
 
     #         Sigma = np.array([[1, 0], [0, 1]])
-    #         d_vht = np.random.multivariate_normal([d_v, d_h], Sigma)
+    #         d_vht = np.StableRNGs.multivariate_normal([d_v, d_h], Sigma)
 
     #         while not flag and cont < lt:
-    #             noise = np.random.normal(0, sd_n) * np.sqrt(dt)
+    #             noise = np.StableRNGs.normal(0, sd_n) * np.sqrt(dt)
     #             X += (d_vht[0] * vec_tVal[cont] + d_vht[1] * vec_tHealth[cont]) * dt + noise
 
     #             if X > thres:
@@ -170,21 +170,21 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(8477)
+        rng = StableRNG(1554)
         α = 0.80
         Δt = 0.0001
         dist = stDDM(; α, ν = [3, 3])
 
-        time_steps, evidence = simulate(dist; Δt)
+        time_steps, evidence = simulate(rng, dist; Δt)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == length(evidence)
         @test evidence[end] ≈ α atol = 0.05
 
         dist = stDDM(; α, ν = [-3, -3])
-        time_steps, evidence = simulate(dist; Δt)
+        time_steps, evidence = simulate(rng, dist; Δt)
         @test evidence[end] ≈ 0.0 atol = 0.05
     end
 end

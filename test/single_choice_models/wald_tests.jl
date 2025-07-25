@@ -1,12 +1,12 @@
 @safetestset "Wald" begin
     @safetestset "pdf" begin
-        using Test, SequentialSamplingModels, Random
+        using Test, SequentialSamplingModels, StableRNGs
         include("../KDE.jl")
-        Random.seed!(22158)
+        rng = StableRNG(122)
         d = Wald(2, 1, 0.1)
         @test mean(d) ≈ (1 / 2) + 0.1 atol = 1e-5
 
-        function simulate(υ, α, τ)
+        function simulate(rng, υ, α, τ)
             noise = 1.0
             #Time Step
             Δt = 0.0005
@@ -17,11 +17,11 @@
             p = 0.5 * (1 + υ * sqrt(Δt) / noise)
             while (e < α)
                 t += Δt
-                e += rand() ≤ p ? Δe : -Δe
+                e += rand(rng,) ≤ p ? Δe : -Δe
             end
             return t
         end
-        rts = map(_ -> simulate(3, 1, 0.2), 1:(10 ^ 5))
+        rts = map(_ -> simulate(rng, 3, 1, 0.2), 1:(10 ^ 5))
         approx_pdf = kde(rts)
         x = 0.2:0.01:1.5
         y′ = pdf(approx_pdf, x)
@@ -34,8 +34,7 @@
     @safetestset "loglikelihood" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(655)
+        using StableRNGs
 
         dist = Wald(2, 1, 0.1)
         rt = rand(dist, 10)
@@ -48,14 +47,14 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(8433)
+        rng = StableRNG(445)
         α = 0.80
 
         dist = Wald(; α)
 
-        time_steps, evidence = simulate(dist; Δt = 0.0005)
+        time_steps, evidence = simulate(rng, dist; Δt = 0.0005)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == length(evidence)
@@ -64,16 +63,16 @@
 
     @safetestset "CDF" begin
         @safetestset "1" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(8741)
+            rng = StableRNG(554)
             n_sim = 10_000
 
             dist = Wald(ν = 3.0, α = 0.5, τ = 0.130)
-            rt = rand(dist, n_sim)
+            rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(rt .≤ t)
@@ -83,16 +82,16 @@
         end
 
         @safetestset "2" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(45)
+            rng = StableRNG(588)
             n_sim = 10_000
 
             dist = Wald(ν = 2.0, α = 0.8, τ = 0.130)
-            rt = rand(dist, n_sim)
+            rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(rt .≤ t)

@@ -2,13 +2,13 @@
     @safetestset "LCA predictions" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(4874)
+        using StableRNGs
+        rng = StableRNG(48444)
 
         parms = (α = 1.5, β = 0.20, λ = 0.10, ν = [2.5, 2.0], τ = 0.30, σ = 1.0)
 
         model = LCA(; parms...)
-        choice, rt = rand(model, 10_000)
+        choice, rt = rand(rng, model, 10_000)
 
         @test mean(choice .== 1) ≈ 0.60024 atol = 5e-3
         @test mean(rt[choice .== 1]) ≈ 0.7478 atol = 5e-3
@@ -96,8 +96,8 @@
         using SequentialSamplingModels
         using SequentialSamplingModels: increment!
         using Test
-        using Random
-        Random.seed!(6521)
+        using StableRNGs
+        rng = StableRNG(5674)
 
         Δt = 0.001
         model = LCA(;
@@ -114,7 +114,7 @@
         evidence = fill(0.0, n_reps, 2)
         for i ∈ 1:n_reps
             x .= 1.0
-            increment!(model, x, Δμ; Δt)
+            increment!(rng, model, x, Δμ; Δt)
             evidence[i, :] = x
         end
 
@@ -128,14 +128,14 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(843)
+        rng = StableRNG(57411)
         α = 0.80
         Δt = 0.0005
         dist = LCA(; α, ν = [2, 1])
 
-        time_steps, evidence = simulate(dist; Δt)
+        time_steps, evidence = simulate(rng, dist; Δt)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == size(evidence, 1)

@@ -94,12 +94,12 @@
     end
 
     @safetestset "logpdf" begin
-        using Random
+        using StableRNGs
         using SequentialSamplingModels
         using SequentialSamplingModels: compute_drift_rates!
         using Test
 
-        Random.seed!(80071)
+        rng = StableRNG(44504)
 
         parms = (
             λₚ = 0.20,
@@ -117,7 +117,7 @@
             4 1
         ]
 
-        choice, rt = rand(MLBA(; parms...,), 10000, M)
+        choice, rt = rand(rng, MLBA(; parms...,), 10000, M)
 
         λₚs = range(0.80 * parms.λₚ, 1.2 * parms.λₚ, length = 100)
         LLs = map(λₚ -> sum(logpdf.(MLBA(; parms..., λₚ), choice, rt, (M,))), λₚs)

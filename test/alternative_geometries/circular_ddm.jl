@@ -60,16 +60,16 @@
         @safetestset "rand 1" begin
             using Test
             using Distributions
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using Statistics
             include("../KDE.jl")
 
-            Random.seed!(550)
+            rng = StableRNG(584)
 
             model = CDDM(; ν = [1.5, 1], η = [0.0, 0.0], σ = 1.0, α = 1.5, τ = 0.300)
 
-            data = rand(model, 100_000)
+            data = rand(rng, model, 100_000)
             approx_pdf = kernel(data[:, 1])
 
             x = range(-π, π, length = 100)
@@ -85,16 +85,16 @@
         @safetestset "rand 2" begin
             using Test
             using Distributions
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using Statistics
             include("../KDE.jl")
 
-            Random.seed!(56)
+            rng = StableRNG(102)
 
             model = CDDM(; ν = [1.5, -1], η = [0.0, 0.0], σ = 0.5, α = 2.5, τ = 0.400)
 
-            data = rand(model, 100_000)
+            data = rand(rng, model, 100_000)
             approx_pdf = kernel(data[:, 1])
 
             x = range(-π, π, length = 200)
@@ -112,19 +112,19 @@
         @safetestset "pdf_rt 1" begin
             using Test
             using Distributions
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_rt
             using Statistics
             include("../KDE.jl")
 
-            Random.seed!(1345)
+            rng = StableRNG(588)
 
             model = CDDM(; ν = [1.75, 1.0], η = [0.50, 0.50], σ = 0.50, α = 2.5, τ = 0.20)
 
             rts = range(model.τ, 3.5, length = 200)
             dens = map(rt -> pdf_rt(model, rt), rts)
-            data = rand(model, 100_000)
+            data = rand(rng, model, 100_000)
 
             approx_pdf = kernel(data[:, 2])
             true_dens = pdf(approx_pdf, rts)
@@ -136,19 +136,19 @@
         @safetestset "pdf_rt 2" begin
             using Test
             using Distributions
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_rt
             using Statistics
             include("../KDE.jl")
 
-            Random.seed!(6541)
+            rng = StableRNG(112)
 
             model = CDDM(; ν = [1.75, 2.0], η = [0.50, 0.50], σ = 0.50, α = 1.0, τ = 0.30)
 
             rts = range(model.τ, 1.5, length = 200)
             dens = map(rt -> pdf_rt(model, rt), rts)
-            data = rand(model, 100_000)
+            data = rand(rng, model, 100_000)
 
             approx_pdf = kernel(data[:, 2])
             true_dens = pdf(approx_pdf, rts)
@@ -162,19 +162,19 @@
         @safetestset "pdf_angle 1" begin
             using Test
             using Distributions
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_angle
             using Statistics
             include("../KDE.jl")
 
-            Random.seed!(4556)
+            rng = StableRNG(478)
 
             model = CDDM(; ν = [1.75, 1.0], η = [0.50, 0.50], σ = 0.50, α = 2.5, τ = 0.20)
 
             θs = range(-π, π, length = 200)
             dens = map(θ -> pdf_angle(model, θ), θs)
-            data = rand(model, 100_000)
+            data = rand(rng, model, 100_000)
 
             approx_pdf = kernel(data[:, 1])
             true_dens = pdf(approx_pdf, θs)
@@ -186,19 +186,19 @@
         @safetestset "pdf_angle 2" begin
             using Test
             using Distributions
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using SequentialSamplingModels: pdf_angle
             using Statistics
             include("../KDE.jl")
 
-            Random.seed!(6541)
+            rng = StableRNG(90)
 
             model = CDDM(; ν = [1.75, 2.0], η = [0.50, 0.50], σ = 0.50, α = 1.0, τ = 0.30)
 
             θs = range(-π, π, length = 200)
             dens = map(θ -> pdf_angle(model, θ), θs)
-            data = rand(model, 100_000)
+            data = rand(rng, model, 100_000)
 
             approx_pdf = kernel(data[:, 1])
             true_dens = pdf(approx_pdf, θs)
@@ -240,16 +240,16 @@
         using Test
         using Distributions
         using SequentialSamplingModels
-        using Random
+        using StableRNGs
 
-        Random.seed!(584)
+        rng = StableRNG(665)
 
         sum_logpdf(model, data) = sum(logpdf(model, data))
 
         parms = (ν = [1.75, 1.0], η = [0.50, 0.50], σ = 1.0, α = 3.5, τ = 0.30)
 
         model = CDDM(; parms...)
-        data = rand(model, 1_500)
+        data = rand(rng, model, 2_000)
 
         τs = range(parms.τ * 0.5, parms.τ, length = 50)
         LLs = map(τ -> sum_logpdf(CDDM(; parms..., τ), data), τs)

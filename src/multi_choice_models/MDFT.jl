@@ -185,7 +185,7 @@ end
 function _rand(rng::AbstractRNG, dist::MDFT, x, Δμ; Δt = 0.001)
     (; α, τ) = dist
     t = 0.0
-    dist._att_idx = rand(1:2)
+    dist._att_idx = rand(rng, 1:2)
     while all(x .< α)
         increment!(rng, dist, x, Δμ; Δt)
         t += Δt
@@ -214,7 +214,7 @@ Increments the preference states `x` on each time step.
 function increment!(rng::AbstractRNG, dist::MDFT, x, Δμ; Δt)
     (; σ, _CM) = dist
     n_options = size(_CM, 1)
-    att_idx = update_attention(dist; Δt)
+    att_idx = update_attention(rng, dist; Δt)
     dist._att_idx = att_idx
     v = @view _CM[:, att_idx]
     compute_mean_evidence!(dist, x, Δμ, v)
@@ -270,9 +270,9 @@ Switch attention to different attribute based on exponential waiting time.
 
 - `Δt`: duration of time step
 """
-function update_attention(dist::MDFT; Δt)
+function update_attention(rng, dist::MDFT; Δt)
     (; κ, _att_idx) = dist
-    if rand() ≤ prob_switch(κ[_att_idx], Δt)
+    if rand(rng) ≤ prob_switch(κ[_att_idx], Δt)
         return _att_idx == 1 ? 2 : 1
     end
     return _att_idx
@@ -345,7 +345,7 @@ function simulate(rng::AbstractRNG, model::MDFT, M::AbstractArray; Δt = 0.001, 
     μΔ = fill(0.0, n)
     t = 0.0
     _CM .= C * M * γ
-    model._att_idx = rand(1:2)
+    model._att_idx = rand(rng, 1:2)
     distances = compute_distances(model, M)
     model.S = compute_feedback_matrix(model, distances)
     evidence = [fill(0.0, n)]

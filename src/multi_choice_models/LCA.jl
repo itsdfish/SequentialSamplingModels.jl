@@ -168,7 +168,7 @@ function inhibit(x, i)
     return v
 end
 
-function simulate(model::AbstractLCA; Δt = 0.001, _...)
+function simulate(rng::AbstractRNG, model::AbstractLCA; Δt = 0.001, _...)
     (; α) = model
     n = length(model.ν)
     x = fill(0.0, n)
@@ -178,7 +178,7 @@ function simulate(model::AbstractLCA; Δt = 0.001, _...)
     time_steps = [t]
     while all(x .< α)
         t += Δt
-        increment!(model, x, μΔ; Δt)
+        increment!(rng, model, x, μΔ; Δt)
         push!(evidence, copy(x))
         push!(time_steps, t)
     end

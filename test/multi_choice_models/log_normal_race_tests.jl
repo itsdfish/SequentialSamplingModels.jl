@@ -1,8 +1,8 @@
 @safetestset "LogNormal Race Tests" begin
     @safetestset "pdf" begin
-        using SequentialSamplingModels, Test, Random, Distributions
+        using SequentialSamplingModels, Test, StableRNGs, Distributions
         include("../KDE.jl")
-        Random.seed!(54154)
+        rng = StableRNG(4411)
         d1 = LNR(; ν = [1.0], σ = [1.0], τ = 0.1)
         v1 = 0.3
         p1 = pdf(d1, 1, v1)
@@ -41,19 +41,19 @@
         @test τ ≈ x[mi] atol = 0.0005
 
         d = LNR(ν = [m1, m2], σ = σ, τ = τ)
-        choice, rts = rand(d, 10^4)
+        choice, rts = rand(rng, d, 10^4)
         y1 = logpdf.(d, choice, rts)
         y2 = log.(pdf.(d, choice, rts))
         @test y1 ≈ y2 atol = 0.00001
 
         d = LNR(ν = [1.0, 0.5], σ = [0.4, 0.4], τ = 0.5)
-        choice, rts = rand(d, 10^4)
+        choice, rts = rand(rng, d, 10^4)
         y1 = logpdf.(d, choice, rts)
         y2 = log.(pdf.(d, choice, rts))
         @test y1 ≈ y2 atol = 0.00001
 
         dist = LNR(ν = [-1.5, -0.9], σ = [0.5, 0.5], τ = 0.3)
-        choice, rts = rand(dist, 10^5)
+        choice, rts = rand(rng, dist, 10^5)
         rts1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
         p2 = 1 - p1
@@ -74,8 +74,6 @@
     @safetestset "LNR loglikelihood" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(8521)
 
         dist = LNR(; ν = [1.0, 0.5], σ = [1.0, 1.0], τ = 0.1)
         choice, rt = rand(dist, 10)
@@ -87,15 +85,15 @@
 
     @safetestset "CDF" begin
         @safetestset "1" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(65)
+            rng = StableRNG(23)
             n_sim = 20_000
             dist = LNR(ν = [-2, -3], σ = [1.0, 1.0], τ = 0.3)
-            choice, rt = rand(dist, n_sim)
+            choice, rt = rand(rng, dist, n_sim)
 
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
@@ -106,15 +104,15 @@
         end
 
         @safetestset "2" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(1997)
+            rng = StableRNG(4144)
             n_sim = 20_000
             dist = LNR(ν = [-1, -0.4], σ = [1.4, 1.0], τ = 0.4)
-            choice, rt = rand(dist, n_sim)
+            choice, rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(choice .== 1 .&& rt .≤ t)
@@ -127,15 +125,15 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(5841)
+        rng = StableRNG(5644)
 
         # implied threshold 
         α = 1
         dist = LNR(ν = [-2, -3], σ = 1, τ = 0.3)
 
-        time_steps, evidence = simulate(dist; Δt = 0.001)
+        time_steps, evidence = simulate(rng, dist; Δt = 0.001)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == size(evidence, 1)

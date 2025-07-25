@@ -76,7 +76,7 @@ function rand(rng::AbstractRNG, d::WaldMixture, n::Int)
     return map(x -> rand(rng, d), 1:n)
 end
 
-function simulate(model::WaldMixture; Δt = 0.001)
+function simulate(rng::AbstractRNG, model::WaldMixture; Δt = 0.001)
     (; ν, α, η) = model
     n = length(model.ν)
     x = 0.0
@@ -86,7 +86,7 @@ function simulate(model::WaldMixture; Δt = 0.001)
     ν′ = rand(truncated(Normal(ν, η), 0, Inf))
     while x .< α
         t += Δt
-        x = increment!(model, x, ν′; Δt)
+        x = increment!(rng, model, x, ν′; Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end

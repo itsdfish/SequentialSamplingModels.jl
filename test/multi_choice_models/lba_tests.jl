@@ -1,11 +1,10 @@
 @safetestset "LBA Tests" begin
     @safetestset "LBA Test1" begin
-        using SequentialSamplingModels, Test, Random
+        using SequentialSamplingModels, Test, StableRNGs
         include("../KDE.jl")
-        Random.seed!(10542)
-
+        rng = StableRNG(10542)
         dist = LBA(ν = [3.0, 2.0], A = 0.8, k = 0.2, τ = 0.3)
-        choice, rt = rand(dist, 10^5)
+        choice, rt = rand(rng, dist, 10^5)
         rt1 = rt[choice .== 1]
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
@@ -24,15 +23,15 @@
     end
 
     @safetestset "LBA Test2" begin
-        using SequentialSamplingModels, Test, Random
+        using SequentialSamplingModels, Test, StableRNGs
         include("../KDE.jl")
-        Random.seed!(8521)
+        rng = StableRNG(8521)
 
         # note for some values, tests will fail
         # this is because kde is sensitive to outliers
         # density overlay on histograms are valid
         dist = LBA(ν = [2.0, 2.7], A = 0.6, k = 0.26, τ = 0.4)
-        choice, rt = rand(dist, 10^5)
+        choice, rt = rand(rng, dist, 10^5)
         rt1 = rt[choice .== 1]
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
@@ -51,15 +50,15 @@
     end
 
     @safetestset "LBA Test3" begin
-        using SequentialSamplingModels, Test, Random
+        using SequentialSamplingModels, Test, StableRNGs
         include("../KDE.jl")
-        Random.seed!(851)
+        rng = StableRNG(851)
 
         # note for some values, tests will fail
         # this is because kde is sensitive to outliers
         # density overlay on histograms are valid
         dist = LBA(ν = [2.0, 2.7], A = 0.4, k = 0.20, τ = 0.4, σ = [1.0, 0.5])
-        choice, rt = rand(dist, 10^5)
+        choice, rt = rand(rng, dist, 10^5)
         rt1 = rt[choice .== 1]
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
@@ -80,8 +79,6 @@
     @safetestset "LBA loglikelihood" begin
         using SequentialSamplingModels
         using Test
-        using Random
-        Random.seed!(8521)
 
         dist = LBA(ν = [2.0, 2.7], A = 0.6, k = 0.26, τ = 0.4)
         choice, rt = rand(dist, 10)
@@ -94,15 +91,15 @@
     @safetestset "simulate" begin
         using SequentialSamplingModels
         using Test
-        using Random
+        using StableRNGs
 
-        Random.seed!(8477)
+        rng = StableRNG(5614)
         A = 0.80
         k = 0.20
         α = A + k
         dist = LBA(; A, k, ν = [2, 1])
 
-        time_steps, evidence = simulate(dist; Δt = 0.001)
+        time_steps, evidence = simulate(rng, dist; Δt = 0.001)
 
         @test time_steps[1] ≈ 0
         @test length(time_steps) == size(evidence, 1)
@@ -112,15 +109,15 @@
 
     @safetestset "CDF" begin
         @safetestset "1" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(522)
+            rng = StableRNG(522)
             n_sim = 20_000
             dist = LBA(ν = [3.0, 2.0], A = 0.8, k = 0.2, τ = 0.3)
-            choice, rt = rand(dist, n_sim)
+            choice, rt = rand(rng, dist, n_sim)
 
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
@@ -131,15 +128,15 @@
         end
 
         @safetestset "2" begin
-            using Random
+            using StableRNGs
             using SequentialSamplingModels
             using StatsBase
             using Test
 
-            Random.seed!(301)
+            rng = StableRNG(301)
             n_sim = 20_000
             dist = LBA(ν = [1.0, 1.5], A = 0.4, k = 0.4, τ = 0.3)
-            choice, rt = rand(dist, n_sim)
+            choice, rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
                 sim_x = mean(choice .== 1 .&& rt .≤ t)

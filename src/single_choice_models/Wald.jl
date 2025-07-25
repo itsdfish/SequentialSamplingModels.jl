@@ -74,7 +74,7 @@ end
 mean(d::AbstractWald) = mean(InverseGaussian(d.α / d.ν, d.α^2)) + d.τ
 std(d::AbstractWald) = std(InverseGaussian(d.α / d.ν, d.α^2))
 
-function simulate(model::Wald; Δt = 0.001)
+function simulate(rng::AbstractRNG, model::Wald; Δt = 0.001)
     (; ν, α) = model
     n = length(model.ν)
     x = 0.0
@@ -83,7 +83,7 @@ function simulate(model::Wald; Δt = 0.001)
     time_steps = [t]
     while x .< α
         t += Δt
-        x = increment!(model, x, ν; Δt)
+        x = increment!(rng, model, x, ν; Δt)
         push!(evidence, x)
         push!(time_steps, t)
     end
