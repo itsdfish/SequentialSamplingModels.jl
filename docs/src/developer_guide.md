@@ -1,6 +1,37 @@
+# Contributing
+
+If you are interested in contributing, please open an issue and propose changes or additions you think would be beneficial. After discussion and approval, create a fork of the repository, and submit the changes via a pull request. Please review the guidelines described below.  
+
 # Style Guide
 
-The code written in SequentialSamplingModels.jl follows the guidlines presented in the .[JuliaFormatter.toml](https://github.com/itsdfish/SequentialSamplingModels.jl/blob/master/.JuliaFormatter.toml) file, which is inspired by [blue style](https://github.com/JuliaDiff/BlueStyle). You may run the formatter locally by loading SequentialSamplingModels into your session and running ` JuliaFormatter.format(SequentialSamplingModels)`. All PRs undergo a formatting check, which will provide suggestions if you forget to run the formatter locally.  
+The code written in SequentialSamplingModels.jl follows the guidlines presented in the .[JuliaFormatter.toml](https://github.com/itsdfish/SequentialSamplingModels.jl/blob/master/.JuliaFormatter.toml) file, which is inspired by [blue style](https://github.com/JuliaDiff/BlueStyle). You may run the formatter locally by loading SequentialSamplingModels into your session and running ` JuliaFormatter.format(SequentialSamplingModels)`. All PRs undergo a formatting check, which will provide suggestions if you forget to run the formatter locally. 
+
+# API
+
+In this section, we provide a high-level overview of the API. We recommend reviewing the code for the [Lognormal Race Model](https://github.com/itsdfish/SequentialSamplingModels.jl/blob/master/src/multi_choice_models/LNR.jl) for a simple example illustrating the implementation of a model. 
+
+## Types
+
+The type system current consists of the following abstract model types:
+
+- `SSM1D`: abstract SSM for univariate reaction time distributions
+- `SSM2D`: abstract SSM for joint choice, reaction time distributions
+- `ContinuousMultivariateSSM`: abstract SSM for continuous multivariate distributions
+
+Most models can be implimented as sub-types of one of the three abstract types above. When adding a new model, create a new abstract type so users can develop alternative implementations as needed. 
+
+## Methods 
+
+The following methods are required for each new model. Defining new methods for other functions in the API (e.g., `length`) is typically not required. 
+
+- `increment!`
+- `logpdf`
+- `pdf`
+- `plot_model`
+- `rand`
+- `simulate`
+
+Only export (make public) types and methods that are intended for users. Other methods are implementational details for interal use. 
 
 # Documentation
 
@@ -56,9 +87,6 @@ For the benefit of other developers, err on the side of providing doc strings fo
 
 Provide a detailed model walk through for the online documentation under the section `Models`. The walk through should include a description of the model, an explanation of the model parameters, and a demonstration showing the pdf overlayed on the histogram (if applicable). Please use existing model examples as a template. 
 
-# API
-
-Only export (make public) types and methods that are intended for users. Other methods are implementational details for interal use. 
 
 # Unit Tests
 
@@ -79,6 +107,3 @@ To ensure consistency across models, please use the following variable names:
 
 Use variable names that are descriptive unless there is a strong mathematical convention for a particular variable name. When appropriate, use verbs to describe functions. For example, use `summarize(model)` instead of `summary(model)`. Use lower case for variables, and capitalize the first letter of package names, types, and constructors. Use underscore to separate words. For example, name a file `developer_guide.md` instead of `developerguide.md`.
 
-# Contributing
-
-If you are interested in contributing, please open an issue and propose changes or additions you think would be beneficial. After discussion and approval, create a fork of the repository, and submit the changes via a pull request.  

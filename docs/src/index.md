@@ -70,6 +70,9 @@ logpdf(dist, sim_data)
 histogram(dist)
 plot!(dist; t_range=range(.3,2.5, length=100), xlims=(0, 2.5))
 ```
+# Contributing
+
+If you are interested in contributing, please review the [developer guidelines](developer_guide.md) before beginning. 
 
 # References
 Evans, N. J. & Wagenmakers, E.-J. Evidence accumulation models: Current limitations and future directions. Quantitative Methods for Psychololgy 16, 73–90 (2020).
