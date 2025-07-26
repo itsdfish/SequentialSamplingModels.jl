@@ -3,7 +3,7 @@
         using SequentialSamplingModels, Test, QuadGK, StableRNGs
         import SequentialSamplingModels: WaldA
         include("../KDE.jl")
-        rng = StableRNG(4574)
+        rng = StableRNG(6221)
 
         dist = WaldA(ν = 0.5, k = 0.3, A = 0.7, τ = 0.2)
         rts = map(_ -> rand(rng, dist), 1:(10 ^ 6))
@@ -62,7 +62,7 @@
         @test p′ ≈ p rtol = 0.001
         @test p ≈ mean((rts .< 1.5) .& (rts .> 1.4)) rtol = 0.02
 
-        dist = RDM(; ν = [1.0, 0.5], k = 0.5, A = 1.0, τ = 0.2)
+        dist = RDM(; ν = [1.0, 0.5], k = 0.2, A = 0.80, τ = 0.2)
         choice, rts = rand(rng, dist, 10^6)
         rt1 = rts[choice .== 1]
         p1 = mean(choice .== 1)
@@ -95,9 +95,9 @@
         @test p ≈ mean((rt1 .< 1) .& (rt1 .> 0.6)) * p1 atol = 0.01
 
         p =
-            quadgk(x -> pdf(dist, 1, x), 0.2, 1.5)[1] -
-            quadgk(x -> pdf(dist, 1, x), 0.2, 1.4)[1]
-        @test p ≈ mean((rt1 .< 1.5) .& (rt1 .> 1.4)) atol = 0.01
+            quadgk(x -> pdf(dist, 1, x), 0.2, 1.3)[1] -
+            quadgk(x -> pdf(dist, 1, x), 0.2, 1.2)[1]
+        @test p ≈ mean((rt1 .< 1.3) .& (rt1 .> 1.2)) atol = 0.01
 
         p′ = quadgk(x -> pdf(dist, 2, x), 0.2, Inf)[1]
         @test p′ ≈ p2 rtol = 0.001
@@ -186,5 +186,16 @@
                 @test sim_x ≈ x atol = 1e-2
             end
         end
+    end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = [1, 2], A = 0.7, k = 0.3, τ = 0.2)
+
+        model = RDM(; parms...)
+        @test values(parms) == params(model)
     end
 end

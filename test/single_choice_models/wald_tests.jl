@@ -100,4 +100,15 @@
             end
         end
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = 1.5, α = 0.75, τ = 0.20)
+
+        model = Wald(; parms...)
+        @test values(parms) == params(model)
+    end
 end

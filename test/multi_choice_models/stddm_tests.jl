@@ -187,4 +187,24 @@
         time_steps, evidence = simulate(rng, dist; Δt)
         @test evidence[end] ≈ 0.0 atol = 0.05
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (;
+            ν = [0.5, 0.6],
+            σ = 1,
+            η = fill(1.0, 2),
+            s = 0.50,
+            ρ = 0.0,
+            α = 1.0,
+            z = 0.50,
+            τ = 0.300
+        )
+
+        model = stDDM(; parms...)
+        @test values(parms) == params(model)
+    end
 end

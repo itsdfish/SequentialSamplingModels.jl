@@ -154,4 +154,25 @@
         _, mxidx = findmax(LLs)
         @test ks[mxidx] ≈ parms.k rtol = 0.02
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (;
+            ν = fill(0.0, 3),
+            β₀ = 5.0,
+            λₚ = 0.20,
+            λₙ = 0.40,
+            γ = 5.0,
+            σ = 1.0,
+            A = 1.0,
+            k = 1.0,
+            τ = 0.3
+        )
+
+        model = MLBA(; n_alternatives = 3, parms...)
+        @test values(parms) == params(model)
+    end
 end

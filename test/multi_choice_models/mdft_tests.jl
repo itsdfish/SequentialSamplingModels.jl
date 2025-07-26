@@ -320,4 +320,25 @@ end
         mean_rts = map(c -> mean(rts[choices .== c]), 1:3)
         @test mean_rts[1:2] ≈ true_mean_rts[1:2] rtol = 0.02
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+        using SequentialSamplingModels: make_default_contrast
+
+        parms = (;
+            σ = 0.1,
+            α = 0.50,
+            τ = 0.0,
+            γ = 1.0,
+            κ = [6.0, 5.0],
+            ϕ1 = 0.01,
+            ϕ2 = 0.10,
+            β = 10.0,
+            C = make_default_contrast(3)
+        )
+        model = MDFT(; n_alternatives = 3, parms...)
+        @test values(parms) == params(model)
+    end
 end

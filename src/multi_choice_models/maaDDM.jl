@@ -125,6 +125,8 @@ function maaDDM(;
     return maaDDM(ν, σ, Δ, θ, ϕ, ω, α, z, τ)
 end
 
+params(d::maaDDM) = (d.ν, d.σ, d.Δ, d.θ, d.ϕ, d.ω, d.α, d.z, d.τ)
+
 get_pdf_type(d::maaDDM) = Approximate
 
 n_options(d::maaDDM) = size(d.ν, 1)

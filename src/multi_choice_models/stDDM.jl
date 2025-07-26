@@ -7,18 +7,27 @@ An object for the starting-time diffusion decision model.
 
 - `ν::T`:  vector of drift rate weights for attribute one and two. ν ∈ ℝ.
 - `σ::T`:  diffusion noise. σ ∈ ℝ⁺.
-- `s::T`:  initial latency bias (positive for attribute two, negative for attribute one)
-- `z::T`:  initial evidence. z ∈ [0,α].  
 - `η::T`:  vector of variability in drift rate for attribute one and two. η ∈ ℝ⁺.
+- `s::T`:  initial latency bias (positive for attribute two, negative for attribute one)
 - `ρ::T`:  correlation between drift rate for attributes. ρ ∈ [-1,1].
 - `α::T`:  evidence threshold. α ∈ ℝ⁺.
+- `z::T`:  initial evidence. z ∈ [0,α].  
 - `τ::T`:  non-decision time. τ ∈ [0, min_rt].
 
 # Constructors 
 
-    stDDM(ν, σ, s, z, η, ρ, α, τ)
+    stDDM(ν, σ, η, s, ρ, α, z, τ)
 
-    stDDM(;ν = [0.5,0.6],σ = 1,s = 0.50, z = 0.50, η = [1.0,1.0], ρ = 0.00, α = 1.0, τ = .300)
+    stDDM(;
+        ν = [0.5, 0.6],
+        σ = 1,
+        s = 0.50,
+        ρ = 0.0,
+        η = fill(1.0, length(ν)),
+        α = 1.0,
+        z = 0.50,
+        τ = 0.300
+    )
         
 # Example 
 
@@ -27,15 +36,15 @@ using SequentialSamplingModels
 
 ν = [0.5, 0.6]
 σ = 1
-s = 0.50
-z = 0.50
 η = [1.0, 1.0]
 ρ = 0.00
+s = 0.50
 α = 1.0
+z = 0.50
 τ = 0.300
 
 # Create stDDM model instance
-dist = stDDM(;ν, σ, s, z, η, ρ, α, τ)
+dist = stDDM(; ν, σ, s, z, η, ρ, α, τ)
 
 choices,rts = rand(dist, 500)
 ```
@@ -56,36 +65,36 @@ Sullivan, N.J., Huettel, S.A. Healthful choices depend on the latency and rate o
 mutable struct stDDM{T <: Real} <: AbstractstDDM
     ν::Vector{T}
     σ::T
-    s::T
-    z::T
     η::Vector{T}
+    s::T
     ρ::T
     α::T
+    z::T
     τ::T
 end
 
-function stDDM(ν, σ, s, z, η, ρ, α, τ::T) where {T}
-    _, σ, s, z, _, ρ, α, τ = promote(ν[1], σ, s, z, η[1], ρ, α, τ)
+function stDDM(ν, σ, η, s, ρ, α, z, τ::T) where {T}
+    _, σ, _, s, ρ, α, z, τ = promote(ν[1], σ, η[1], s, ρ, α, z, τ)
     ν = convert(Vector{T}, ν)
     η = convert(Vector{T}, η)
-    return stDDM(ν, σ, s, z, η, ρ, α, τ)
+    return stDDM(ν, σ, η, s, ρ, α, z, τ)
 end
 
 function stDDM(;
     ν = [0.5, 0.6],
     σ = 1,
     s = 0.50,
-    z = 0.50,
-    η = fill(1.0, length(ν)),
     ρ = 0.0,
+    η = fill(1.0, length(ν)),
     α = 1.0,
+    z = 0.50,
     τ = 0.300
 )
-    return stDDM(ν, σ, s, z, η, ρ, α, τ)
+    return stDDM(ν, σ, η, s, ρ, α, z, τ)
 end
 
 function params(d::AbstractstDDM)
-    (d.ν, d.σ, d.s, d.z, d.η, d.ρ, d.α, d.τ)
+    (d.ν, d.σ, d.η, d.s, d.ρ, d.α, d.z, d.τ)
 end
 
 get_pdf_type(d::AbstractstDDM) = Approximate

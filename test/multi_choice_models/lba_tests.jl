@@ -145,4 +145,14 @@
             end
         end
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = [2.0, 1.75], σ = 1, A = 0.8, k = 0.5, τ = 0.3)
+        model = LBA(; parms...)
+        @test values(parms) == params(model)
+    end
 end

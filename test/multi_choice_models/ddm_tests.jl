@@ -311,4 +311,14 @@
         time_steps, evidence = simulate(rng, dist; Δt = 0.0001)
         @test evidence[end] ≈ 0.0 atol = 0.010
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = 1.00, α = 0.80, z = 0.50, τ = 0.30)
+        model = DDM(; parms...)
+        @test values(parms) == params(model)
+    end
 end

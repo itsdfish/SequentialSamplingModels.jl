@@ -133,4 +133,15 @@
             end
         end
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; μ = 0.5, σ = 0.20, τ = 0.20)
+
+        model = ExGaussian(; parms...)
+        @test values(parms) == params(model)
+    end
 end

@@ -83,6 +83,8 @@ function aDDM(; ν = [5.0, 4.0], α = 1.0, z = 0.0, θ = 0.3, σ = 0.02, Δ = 0.
     return aDDM(ν, σ, Δ, θ, α, z, τ)
 end
 
+params(d::aDDM) = (d.ν, d.σ, d.Δ, d.θ, d.α, d.z, d.τ)
+
 get_pdf_type(d::aDDM) = Approximate
 
 """

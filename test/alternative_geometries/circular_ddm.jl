@@ -286,4 +286,14 @@
         _, max_idx = findmax(LLs)
         @test parms.η[2] ≈ η2s[max_idx] atol = 0.05
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = [1, 0.5], σ = 1, η = [1, 1], α = 1.5, τ = 0.30)
+        model = CDDM(; parms...)
+        @test values(parms) == params(model)
+    end
 end

@@ -64,4 +64,15 @@
         _, idx = findmax(LLs)
         @test τs[idx] ≈ parms.τ rtol = 0.01
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = -1, σ = 0.5, τ = 0.20)
+
+        model = ShiftedLogNormal(; parms...)
+        @test values(parms) == params(model)
+    end
 end

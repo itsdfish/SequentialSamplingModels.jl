@@ -205,4 +205,25 @@
 
         @test evidence[end] ≈ -1 atol = 0.040
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (;
+            ν = [4.0 5.0; 5.0 4.0],
+            σ = 0.02,
+            Δ = 0.0004,
+            θ = 0.3,
+            ϕ = 0.50,
+            ω = 0.70,
+            α = 1.0,
+            z = 0.0,
+            τ = 0.0
+        )
+
+        model = maaDDM(; parms...)
+        @test values(parms) == params(model)
+    end
 end

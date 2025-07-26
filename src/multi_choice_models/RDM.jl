@@ -121,8 +121,8 @@ struct RDM{T <: Real} <: AbstractRDM
     τ::T
 end
 
-function RDM(ν, k::T, A, τ) where {T}
-    _, A, k, τ = promote(ν[1], k, A, τ)
+function RDM(ν, A, k::T, τ) where {T}
+    _, A, k, τ = promote(ν[1], A, k, τ)
     ν = convert(Vector{T}, ν)
     return RDM(ν, A, k, τ)
 end
@@ -131,7 +131,7 @@ function params(d::AbstractRDM)
     (d.ν, d.A, d.k, d.τ)
 end
 
-RDM(; ν = [1, 2], k = 0.3, A = 0.7, τ = 0.2) = RDM(ν, k, A, τ)
+RDM(; ν = [1, 2], k = 0.3, A = 0.7, τ = 0.2) = RDM(ν, A, k, τ)
 
 function rand(rng::AbstractRNG, dist::AbstractRDM)
     (; ν, A, k, τ) = dist

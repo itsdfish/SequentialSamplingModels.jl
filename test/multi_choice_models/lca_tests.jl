@@ -142,4 +142,14 @@
         @test size(evidence, 2) == 2
         @test maximum(evidence[end, :]) ≈ α atol = 0.005
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = [2.5, 2.0], σ = 1.0, β = 0.20, λ = 0.10, α = 1.5, τ = 0.30)
+        model = LCA(; parms...)
+        @test values(parms) == params(model)
+    end
 end

@@ -96,4 +96,15 @@
             end
         end
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = [0.05, 0.06], α = [5, 5], τ = 0.30)
+
+        model = PoissonRace(; parms...)
+        @test values(parms) == params(model)
+    end
 end
