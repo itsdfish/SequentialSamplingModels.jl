@@ -175,4 +175,195 @@
         model = MLBA(; n_alternatives = 3, parms...)
         @test values(parms) == params(model)
     end
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+            MLBA(; n_alternatives = 3, parms...)
+            MLBA(values(parms)...)
+            @test true
+        end
+
+        @safetestset "β₀ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = -5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "λₚ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = -0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "λₙ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = -0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "γ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = -5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = -1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "A invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = -1.0,
+                k = 1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "k invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = -1.0,
+                τ = 0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = fill(0.0, 3),
+                β₀ = 5.0,
+                λₚ = 0.20,
+                λₙ = 0.40,
+                γ = 5.0,
+                σ = 1.0,
+                A = 1.0,
+                k = 1.0,
+                τ = -0.3
+            )
+
+            @test_throws ArgumentError MLBA(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MLBA(values(parms)...)
+        end
+    end
 end

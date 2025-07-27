@@ -107,4 +107,46 @@
         model = PoissonRace(; parms...)
         @test values(parms) == params(model)
     end
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [0.05, 0.06], α = [5, 5], τ = 0.30)
+            PoissonRace(; parms...)
+            PoissonRace(values(parms)...)
+            @test true
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [0.05, 0.06], α = [-5, 5], τ = 0.30)
+            @test_throws ArgumentError  PoissonRace(; parms...)
+            @test_throws ArgumentError PoissonRace(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [0.05, 0.06], α = [5, 5], τ = -0.30)
+            @test_throws ArgumentError  PoissonRace(; parms...)
+            @test_throws ArgumentError PoissonRace(values(parms)...)
+        end
+
+        @safetestset "unequal lenth" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [0.05, 0.06], α = [5, 5, 5], τ = 0.30)
+            @test_throws ArgumentError  PoissonRace(; parms...)
+            @test_throws ArgumentError PoissonRace(values(parms)...)
+        end
+    end
 end

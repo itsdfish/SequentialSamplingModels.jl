@@ -119,6 +119,13 @@ struct RDM{T <: Real} <: AbstractRDM
     A::T
     k::T
     τ::T
+
+    function RDM(ν::Vector{T}, A::T, k::T, τ::T) where {T <: Real}
+        @argcheck A ≥ 0
+        @argcheck k ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(ν, A, k, τ)
+    end
 end
 
 function RDM(ν, A, k::T, τ) where {T}

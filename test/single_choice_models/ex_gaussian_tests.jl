@@ -144,4 +144,51 @@
         model = ExGaussian(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; μ = 0.5, σ = 0.20, τ = 0.20)
+
+            ExGaussian(; parms...)
+            ExGaussian(values(parms)...)
+            @test true
+        end
+
+        @safetestset "μ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; μ = -1, σ = 0.20, τ = 0.20)
+
+            @test_throws ArgumentError ExGaussian(; parms...)
+            @test_throws ArgumentError ExGaussian(values(parms)...)
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; μ = 0.5, σ = -0.20, τ = 0.20)
+
+            @test_throws ArgumentError ExGaussian(; parms...)
+            @test_throws ArgumentError ExGaussian(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; μ = 0.5, σ = 0.20, τ = -0.20)
+
+            @test_throws ArgumentError ExGaussian(; parms...)
+            @test_throws ArgumentError ExGaussian(values(parms)...)
+        end
+    end
 end

@@ -116,6 +116,49 @@
         end
     end
 
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 3.0, η = 0.2, α = 0.5, τ = 0.130)
+            WaldMixture(; parms...)
+            WaldMixture(values(parms)...)
+            @test true
+        end
+
+        @safetestset "η invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 3.0, η = -0.2, α = 0.5, τ = 0.130)
+            @test_throws ArgumentError WaldMixture(; parms...)
+            @test_throws ArgumentError WaldMixture(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 3.0, η = 0.2, α = -0.5, τ = 0.130)
+            @test_throws ArgumentError WaldMixture(; parms...)
+            @test_throws ArgumentError WaldMixture(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 3.0, η = 0.2, α = 0.5, τ = -0.130)
+            @test_throws ArgumentError WaldMixture(; parms...)
+            @test_throws ArgumentError WaldMixture(values(parms)...)
+        end
+    end
+
     @safetestset "params" begin
         using Test
         using Distributions

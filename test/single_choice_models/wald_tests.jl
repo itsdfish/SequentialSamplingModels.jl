@@ -111,4 +111,37 @@
         model = Wald(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.5, α = 0.75, τ = 0.20)
+            Wald(; parms...)
+            Wald(values(parms)...)
+            @test true
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.5, α = -0.75, τ = 0.20)
+            @test_throws ArgumentError Wald(; parms...)
+            @test_throws ArgumentError Wald(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.5, α = 0.75, τ = -0.20)
+            @test_throws ArgumentError Wald(; parms...)
+            @test_throws ArgumentError Wald(values(parms)...)
+        end
+    end
 end

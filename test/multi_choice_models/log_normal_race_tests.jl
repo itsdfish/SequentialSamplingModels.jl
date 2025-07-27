@@ -150,4 +150,41 @@
         model = LNR(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [-1, -2], σ = 1, τ = 0.20)
+            LNR(; parms...)
+            LNR(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [-1, -2], σ = -1, τ = 0.20)
+            @test_throws ArgumentError LNR(; parms...)
+            @test_throws ArgumentError LNR(values(parms)...)
+
+            parms = (; ν = [-1, -2], σ = [-1,1], τ = 0.20)
+            @test_throws ArgumentError LNR(; parms...)
+            @test_throws ArgumentError LNR(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [-1, -2], σ = 1, τ = -0.20)
+            @test_throws ArgumentError LNR(; parms...)
+            @test_throws ArgumentError LNR(values(parms)...)
+        end
+    end
 end

@@ -36,6 +36,11 @@ struct LNR{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractLNR{T, T1}
     ν::Vector{T}
     σ::T1
     τ::T
+    function LNR(ν::Vector{T}, σ::T1, τ::T) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
+        @argcheck all(σ .≥ 0)
+        @argcheck τ ≥ 0
+        return new{T,T1}(ν, σ, τ)
+    end
 end
 
 function LNR(ν, σ, τ::T) where {T}

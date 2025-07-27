@@ -37,6 +37,11 @@ struct Wald{T <: Real} <: AbstractWald
     ν::T
     α::T
     τ::T
+    function Wald(ν::T, α::T, τ::T) where {T <: Real}
+        @argcheck α ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(ν, α, τ)
+    end
 end
 
 Wald(; ν = 1.5, α = 0.75, τ = 0.20) = Wald(ν, α, τ)

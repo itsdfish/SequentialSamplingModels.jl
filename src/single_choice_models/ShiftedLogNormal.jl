@@ -36,6 +36,11 @@ struct ShiftedLogNormal{T <: Real} <: AbstractShiftedLogNormal
     ν::T
     σ::T
     τ::T
+    function ShiftedLogNormal(ν::T, σ::T, τ::T) where {T <: Real}
+        @argcheck σ ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(ν, σ, τ)
+    end
 end
 
 ShiftedLogNormal(ν, σ, τ) = ShiftedLogNormal(promote(ν, σ, τ)...)

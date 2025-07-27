@@ -41,6 +41,13 @@ mutable struct LBA{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractLBA{T, T
     A::T
     k::T
     τ::T
+    function LBA(ν::Vector{T}, σ::T1, A::T, k::T, τ::T) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
+        @argcheck all(σ .≥ 0)
+        @argcheck A ≥ 0
+        @argcheck k ≥ 0
+        @argcheck τ ≥ 0
+        return new{T,T1}(ν, σ, A, k, τ)
+    end
 end
 
 function LBA(ν, σ, A, k, τ::T) where {T}

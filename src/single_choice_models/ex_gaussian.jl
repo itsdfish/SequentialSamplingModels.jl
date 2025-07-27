@@ -38,6 +38,12 @@ struct ExGaussian{T <: Real} <: SSM1D
     μ::T
     σ::T
     τ::T
+    function ExGaussian(μ::T, σ::T, τ::T) where {T <: Real}
+        @argcheck μ ≥ 0
+        @argcheck σ ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(μ, σ, τ)
+    end
 end
 
 function ExGaussian(μ, σ, τ)

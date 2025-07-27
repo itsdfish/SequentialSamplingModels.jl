@@ -34,6 +34,12 @@ struct PoissonRace{T <: Real} <: AbstractPoissonRace
     ν::Vector{T}
     α::Vector{Int}
     τ::T
+    function PoissonRace(ν::Vector{T}, α::Vector{Int}, τ::T) where {T <: Real}
+        @argcheck length(ν) == length(α)
+        @argcheck all(α .≥ 0)
+        @argcheck τ ≥ 0
+        return new{T}(ν, α, τ)
+    end
 end
 
 function PoissonRace(ν, α, τ::T) where {T}

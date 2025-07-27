@@ -4,6 +4,7 @@ authors = ["itsdfish"]
 version = "0.13.0"
 
 [deps]
+ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DynamicPPL = "366bfd00-2699-11ea-058f-f148b4cae6d8"
 FunctionZeros = "b21f74c0-b399-568f-9643-d20f4fa2c814"
@@ -28,6 +29,7 @@ PlotsExt = "Plots"
 TuringExt = "Turing"
 
 [compat]
+ArgCheck = "2.5.0"
 Distributions = "v0.24.6, 0.25"
 DynamicPPL = "0.31.0,0.32.0,0.33.0,0.34.0,0.35.0,0.36.0"
 FunctionZeros = "0.2.0,0.3.0, 1"

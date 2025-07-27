@@ -6,6 +6,7 @@ https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
 
+using ArgCheck
 using Distributions
 using FunctionZeros
 using PrettyTables

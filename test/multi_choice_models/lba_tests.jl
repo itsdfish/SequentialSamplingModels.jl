@@ -155,4 +155,61 @@
         model = LBA(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.0, 1.75], σ = 1, A = 0.8, k = 0.5, τ = 0.3)
+            LBA(; parms...)
+            LBA(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.0, 1.75], σ = -1, A = 0.8, k = 0.5, τ = 0.3)
+            @test_throws ArgumentError LBA(; parms...)
+            @test_throws ArgumentError LBA(values(parms)...)
+
+            parms = (; ν = [2.0, 1.75], σ = [1,-1], A = 0.8, k = 0.5, τ = 0.3)
+            @test_throws ArgumentError LBA(; parms...)
+            @test_throws ArgumentError LBA(values(parms)...)
+        end
+
+        @safetestset "A invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.0, 1.75], σ = 1, A = -0.8, k = 0.5, τ = 0.3)
+            @test_throws ArgumentError LBA(; parms...)
+            @test_throws ArgumentError LBA(values(parms)...)
+        end
+
+        @safetestset "k invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.0, 1.75], σ = 1, A = 0.8, k = -0.5, τ = 0.3)
+            @test_throws ArgumentError LBA(; parms...)
+            @test_throws ArgumentError LBA(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.0, 1.75], σ = 1, A = 0.8, k = 0.5, τ = -0.3)
+            @test_throws ArgumentError LBA(; parms...)
+            @test_throws ArgumentError LBA(values(parms)...)
+        end
+    end
 end

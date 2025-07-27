@@ -6,11 +6,11 @@ An object for the attentional diffusion model.
 # Parameters 
 
 - `ν::Vector{T}`: relative decision values (i.e., drift rates). ν ∈ ℝⁿ.
-- `σ::T`: standard deviation of noise in evidence accumulation. σ ∈ ℝ.
-- `Δ::T`: constant of evidence accumulation speed (evidence per ms). Δ ∈ ℝ.
-- `α::T`: evidence threshold. α ∈ ℝ.  
-- `z::T`: initial evidence. z ∈ [0, α] 
-- `θ::T`: bias towards attended alternative (lower indicates more bias)
+- `σ::T`: standard deviation of noise in evidence accumulation. σ ∈ ℝ⁺.
+- `Δ::T`: constant of evidence accumulation speed (evidence per ms). Δ ∈ ℝ⁺.
+- `α::T`: evidence threshold. α ∈ ℝ⁺.  
+- `z::T`: initial evidence. z ∈ [-α, α] 
+- `θ::T`: bias towards attended alternative (lower indicates more bias) Δ ∈ ℝ⁺
 - `τ::T`: non-decision time. τ ∈ [0, min_rt]
 
 # Constructors
@@ -71,6 +71,16 @@ struct aDDM{T <: Real} <: AbstractaDDM
     α::T
     z::T
     τ::T
+
+    function aDDM(ν::Vector{T}, σ::T, Δ::T, θ::T, α::T, z::T, τ::T) where {T <: Real}
+        @argcheck σ ≥ 0
+        @argcheck Δ ≥ 0
+        @argcheck θ ≥ 0
+        @argcheck α ≥ 0
+        @argcheck abs(z) ≤ α
+        @argcheck τ ≥ 0
+        return new{T}(ν, σ, Δ, θ, α, z, τ)
+    end
 end
 
 function aDDM(ν, σ, Δ, θ, α, z, τ)
@@ -286,10 +296,8 @@ function increment(rng::AbstractRNG, dist::aDDM, location)
         # option 2
     elseif location == 2
         return -Δ * (ν[2] - θ * ν[1]) + noise(rng, σ)
-    else
-        return noise(rng, σ)
     end
-    return -100.0
+    return noise(rng, σ)
 end
 
 noise(rng, σ) = rand(rng, Normal(0, σ))

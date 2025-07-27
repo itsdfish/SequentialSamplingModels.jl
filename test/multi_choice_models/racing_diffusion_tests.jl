@@ -198,4 +198,47 @@
         model = RDM(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 2], A = 0.7, k = 0.3, τ = 0.2)
+            RDM(; parms...)
+            RDM(values(parms)...)
+            @test true
+        end
+
+        @safetestset "A invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 2], A = -0.7, k = 0.3, τ = 0.2)
+            @test_throws ArgumentError RDM(; parms...)
+            @test_throws ArgumentError RDM(values(parms)...)
+        end
+
+        @safetestset "k invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 2], A = 0.7, k = -0.3, τ = 0.2)
+            @test_throws ArgumentError RDM(; parms...)
+            @test_throws ArgumentError RDM(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 2], A = 0.7, k = 0.3, τ = -0.2)
+            @test_throws ArgumentError RDM(; parms...)
+            @test_throws ArgumentError RDM(values(parms)...)
+        end
+    end
 end

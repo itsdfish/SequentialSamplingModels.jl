@@ -75,4 +75,37 @@
         model = ShiftedLogNormal(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = -1.0, σ = 0.5, τ = 0.20)
+            ShiftedLogNormal(; parms...)
+            ShiftedLogNormal(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = -1.0, σ = -0.5, τ = 0.20)
+            @test_throws ArgumentError ShiftedLogNormal(; parms...)
+            @test_throws ArgumentError ShiftedLogNormal(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = -1.0, σ = 0.5, τ = -0.20)
+            @test_throws ArgumentError ShiftedLogNormal(; parms...)
+            @test_throws ArgumentError ShiftedLogNormal(values(parms)...)
+        end
+    end
 end

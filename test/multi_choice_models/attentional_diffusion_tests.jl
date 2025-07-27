@@ -103,4 +103,80 @@
         model = aDDM(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
+            aDDM(; parms...)
+            aDDM(values(parms)...)
+            @test true
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [5.0, 4.0], σ = -0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+        end
+
+        @safetestset "Δ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = -0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+        end
+
+        @safetestset "θ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = -0.3, α = 1.0, z = 0.0, τ = 0.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = -1.0, z = 0.0, τ = 0.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+        end
+
+        @safetestset "z invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 2.0, τ = 0.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = -2.0, τ = 0.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = -1.0)
+            @test_throws ArgumentError aDDM(; parms...)
+            @test_throws ArgumentError aDDM(values(parms)...)
+        end
+    end
 end

@@ -37,6 +37,12 @@ struct WaldMixture{T <: Real} <: AbstractWald
     η::T
     α::T
     τ::T
+    function WaldMixture(ν::T, η::T, α::T, τ::T) where {T <: Real}
+        @argcheck η ≥ 0
+        @argcheck α ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(ν, η, α, τ)
+    end
 end
 
 function WaldMixture(ν, η, α, τ)
