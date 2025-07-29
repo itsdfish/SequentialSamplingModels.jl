@@ -35,22 +35,22 @@ Random.seed!(8741)</code></pre><pre class="documenter-example-output"><code clas
  2.2692649939841587
  2.4433118766913005
  0.26859732000973674
- 1.9922053434900164
- 0.05114439639721592
- 1.731799777716515
+ 1.9922053434900167
+ 0.051144396397215915
+ 1.7317997777165153
  2.457302773951708
- 1.274091588381257
+ 1.2740915883812571
  2.3195238956203044
  2.033859655103181
  ⋮
- 2.4576543097133556
+ 2.457654309713356
  2.05577379300089
  1.6797170602614508
  2.4482020147214367
- 2.2414782496588876
- 2.3876624749963176
- 2.2069006559816264
- 1.9628977349877188
+ 2.241478249658888
+ 2.387662474996318
+ 2.206900655981627
+ 1.962897734987719
  0.31346433526698836</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf.(dist, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1000-element Vector{Float64}:
   0.8194559878652177
   0.8933544454830099
@@ -71,5 +71,5 @@ Random.seed!(8741)</code></pre><pre class="documenter-example-output"><code clas
   0.8703148434117703
   0.7915891131131431
   0.6744218176498067
- -1.1600696884843797</code></pre><h2 id="Compute-CDF"><a class="docs-heading-anchor" href="#Compute-CDF">Compute CDF</a><a id="Compute-CDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-CDF" title="Permalink"></a></h2><p>The cumulative probability density <span>$\Pr(T \leq t)$</span> is computed by passing the model and a value <span>$t$</span> to <code>cdf</code>.</p><pre><code class="language-julia hljs">cdf(dist, .75)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.6565202259861354</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histogram.</p><pre><code class="language-julia hljs">histogram(dist)
-plot!(dist; t_range=range(.130, 1.5, length=100))</code></pre><img src="b69908c7.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Heathcote, A., &amp; Bohlscheid, E. Analysis and Modeling of Response Time using the Shifted Lognormal Distribution.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ex_gaussian/">« Ex-Gaussian</a><a class="docs-footer-nextpage" href="../wald/">Wald »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Saturday 26 July 2025 18:40">Saturday 26 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ -1.1600696884843797</code></pre><h2 id="Compute-CDF"><a class="docs-heading-anchor" href="#Compute-CDF">Compute CDF</a><a id="Compute-CDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-CDF" title="Permalink"></a></h2><p>The cumulative probability density <span>$\Pr(T \leq t)$</span> is computed by passing the model and a value <span>$t$</span> to <code>cdf</code>.</p><pre><code class="language-julia hljs">cdf(dist, .75)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.6565202259861356</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histogram.</p><pre><code class="language- hljs">histogram(dist)
+plot!(dist; t_range=range(.130, 1.5, length=100))</code></pre><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Heathcote, A., &amp; Bohlscheid, E. Analysis and Modeling of Response Time using the Shifted Lognormal Distribution.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ex_gaussian/">« Ex-Gaussian</a><a class="docs-footer-nextpage" href="../wald/">Wald »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 29 July 2025 20:14">Tuesday 29 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
