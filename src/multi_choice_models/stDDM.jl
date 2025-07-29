@@ -8,7 +8,7 @@ An object for the starting-time diffusion decision model.
 - `ν::T`:  vector of drift rate weights for attribute one and two. ν ∈ ℝ.
 - `σ::T`:  diffusion noise. σ ∈ ℝ⁺.
 - `η::T`:  vector of variability in drift rate for attribute one and two. η ∈ ℝ⁺.
-- `s::T`:  initial latency bias (positive for attribute two, negative for attribute one)
+- `s::T`:  initial latency bias. s ∈ ℝ⁺. (-s for attribute 1, s for attribute 2)
 - `ρ::T`:  correlation between drift rate for attributes. ρ ∈ [-1,1].
 - `α::T`:  evidence threshold. α ∈ ℝ⁺.
 - `z::T`:  initial evidence. z ∈ [0,α].  
@@ -71,6 +71,26 @@ mutable struct stDDM{T <: Real} <: AbstractstDDM
     α::T
     z::T
     τ::T
+    function stDDM(
+        ν::Vector{T},
+        σ::T,
+        η::Vector{T},
+        s::T,
+        ρ::T,
+        α::T,
+        z::T,
+        τ::T
+    ) where {T <: Real}
+        @argcheck length(ν) == length(η)
+        @argcheck σ ≥ 0
+        @argcheck all(η .≥ 0)
+        @argcheck s ≥ 0
+        @argcheck (ρ ≥ -1) && (ρ ≤ 1)
+        @argcheck α ≥ 0
+        @argcheck (z ≥ 0) && (z ≤ α)
+        @argcheck τ ≥ 0
+        return new{T}(ν, σ, η, s, ρ, α, z, τ)
+    end
 end
 
 function stDDM(ν, σ, η, s, ρ, α, z, τ::T) where {T}
@@ -93,11 +113,9 @@ function stDDM(;
     return stDDM(ν, σ, η, s, ρ, α, z, τ)
 end
 
-function params(d::AbstractstDDM)
-    (d.ν, d.σ, d.η, d.s, d.ρ, d.α, d.z, d.τ)
-end
+params(d::AbstractstDDM) = (d.ν, d.σ, d.η, d.s, d.ρ, d.α, d.z, d.τ)
 
-get_pdf_type(d::AbstractstDDM) = Approximate
+get_pdf_type(::AbstractstDDM) = Approximate
 
 """
     rand(dist::AbstractstDDM)

@@ -59,7 +59,7 @@
         _, idx = findmax(LLs)
         @test σs[idx] ≈ parms.σ rtol = 0.01
 
-        τs = range(0.80 * parms.τ, 1.2 * parms.τ, length = 100)
+        τs = range(0.80 * parms.τ, parms.τ, length = 100)
         LLs = map(τ -> sum(logpdf.(ShiftedLogNormal(; parms..., τ), x)), τs)
         _, idx = findmax(LLs)
         @test τs[idx] ≈ parms.τ rtol = 0.01

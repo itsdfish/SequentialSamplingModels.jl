@@ -33,8 +33,8 @@ the mean drift rate for the attribute 1 of alternative 1 is given by:
 # Keywords 
 
 - `ν::T`: drift rates where rows are alternatives and columns are attributes. ν ∈ ℝⁿᵐ.
-- `σ::T`: standard deviation of noise in evidence accumulation. σ ∈ ℝ.
-- `Δ::T`: constant of evidence accumulation speed (evidence per ms). Δ ∈ ℝ.
+- `σ::T`: standard deviation of noise in evidence accumulation. σ ∈ ℝ⁺.
+- `Δ::T`: constant of evidence accumulation speed (evidence per ms). Δ ∈ ℝ⁺.
 - `θ::T`: bias away from unattended alternative (lower indicates more bias). θ ∈ [0,1].
 - `ϕ::T`: bias away from unattended attribute. ϕ ∈ [0,1]. 
 - `ω::T`: attribute weight. ω ∈ [0,1].
@@ -103,6 +103,27 @@ struct maaDDM{T <: Real} <: AbstractaDDM
     α::T
     z::T
     τ::T
+    function maaDDM(
+        ν::Array{T, 2},
+        σ::T,
+        Δ::T,
+        θ::T,
+        ϕ::T,
+        ω::T,
+        α::T,
+        z::T,
+        τ::T
+    ) where {T <: Real}
+        @argcheck σ ≥ 0
+        @argcheck Δ ≥ 0
+        @argcheck (θ ≥ 0) && (θ ≤ 1)
+        @argcheck (ϕ ≥ 0) && (ϕ ≤ 1)
+        @argcheck (ω ≥ 0) && (ω ≤ 1)
+        @argcheck α ≥ 0
+        @argcheck (z ≥ 0) && (z ≤ α)
+        @argcheck τ ≥ 0
+        return new{T}(ν, σ, Δ, θ, ϕ, ω, α, z, τ)
+    end
 end
 
 function maaDDM(ν, σ, Δ, θ, ϕ, ω, α, z, τ)

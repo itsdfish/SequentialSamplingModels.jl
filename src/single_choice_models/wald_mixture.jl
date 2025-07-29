@@ -55,21 +55,23 @@ function params(d::WaldMixture)
     return (d.ν, d.η, d.α, d.τ)
 end
 
-function pdf(d::WaldMixture, t::AbstractFloat)
+function pdf(d::WaldMixture, rt::AbstractFloat)
     (; ν, η, α, τ) = d
-    c1 = α / √((2 * π * (t - τ)^3) * ((t - τ) * η^2 + 1))
+    @argcheck τ ≤ rt
+    c1 = α / √((2 * π * (rt - τ)^3) * ((rt - τ) * η^2 + 1))
     c2 = 1 / Φ(ν / η)
-    c3 = exp(-(ν * (t - τ) - α)^2 / (2 * (t - τ) * ((t - τ) * η^2 + 1)))
-    c4 = (α * η^2 + ν) / √(η^2 * ((t - τ) * η^2 + 1))
+    c3 = exp(-(ν * (rt - τ) - α)^2 / (2 * (rt - τ) * ((rt - τ) * η^2 + 1)))
+    c4 = (α * η^2 + ν) / √(η^2 * ((rt - τ) * η^2 + 1))
     return c1 * c2 * c3 * Φ(c4)
 end
 
-function logpdf(d::WaldMixture, t::AbstractFloat)
+function logpdf(d::WaldMixture, rt::AbstractFloat)
     (; ν, η, α, τ) = d
-    c1 = log(α) - log(√((2 * π * (t - τ)^3) * ((t - τ) * η^2 + 1)))
+    @argcheck τ ≤ rt
+    c1 = log(α) - log(√((2 * π * (rt - τ)^3) * ((rt - τ) * η^2 + 1)))
     c2 = log(1) - logcdf(Normal(0, 1), ν / η)
-    c3 = -(ν * (t - τ) - α)^2 / (2 * (t - τ) * ((t - τ) * η^2 + 1))
-    c4 = (α * η^2 + ν) / √(η^2 * ((t - τ) * η^2 + 1))
+    c3 = -(ν * (rt - τ) - α)^2 / (2 * (rt - τ) * ((rt - τ) * η^2 + 1))
+    c4 = (α * η^2 + ν) / √(η^2 * ((rt - τ) * η^2 + 1))
     return c1 + c2 + c3 + logcdf(Normal(0, 1), c4)
 end
 
@@ -84,7 +86,6 @@ end
 
 function simulate(rng::AbstractRNG, model::WaldMixture; Δt = 0.001)
     (; ν, α, η) = model
-    n = length(model.ν)
     x = 0.0
     t = 0.0
     evidence = [0.0]

@@ -54,20 +54,24 @@ function params(d::Wald)
     return (d.ν, d.α, d.τ)
 end
 
-function pdf(d::AbstractWald, t::AbstractFloat)
-    return pdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
+function pdf(d::AbstractWald, rt::AbstractFloat)
+    @argcheck d.τ ≤ rt
+    return pdf(InverseGaussian(d.α / d.ν, d.α^2), rt - d.τ)
 end
 
-function logpdf(d::AbstractWald, t::AbstractFloat)
-    return d.ν == 0 ? -Inf : logpdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
+function logpdf(d::AbstractWald, rt::AbstractFloat)
+    @argcheck d.τ ≤ rt
+    return d.ν == 0 ? -Inf : logpdf(InverseGaussian(d.α / d.ν, d.α^2), rt - d.τ)
 end
 
-function logccdf(d::Wald, t::AbstractFloat)
-    return logccdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
+function logccdf(d::Wald, rt::AbstractFloat)
+    @argcheck d.τ ≤ rt
+    return logccdf(InverseGaussian(d.α / d.ν, d.α^2), rt - d.τ)
 end
 
-function cdf(d::Wald, t::AbstractFloat)
-    return cdf(InverseGaussian(d.α / d.ν, d.α^2), t - d.τ)
+function cdf(d::Wald, rt::AbstractFloat)
+    @argcheck d.τ ≤ rt
+    return cdf(InverseGaussian(d.α / d.ν, d.α^2), rt - d.τ)
 end
 
 rand(rng::AbstractRNG, d::AbstractWald) = rand(rng, InverseGaussian(d.α / d.ν, d.α^2)) + d.τ

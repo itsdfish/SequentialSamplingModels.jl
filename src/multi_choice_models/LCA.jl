@@ -5,11 +5,11 @@ A model type for the Leaky Competing Accumulator.
     
 # Parameters 
 
-- `ν::Vector{T}`: drift rates 
-- `σ::T`: diffusion noise 
-- `β::T`: lateral inhabition 
-- `λ::T`: leak rate
-- `α::T`: evidence threshold 
+- `ν::Vector{T}`: drift rates. ν ∈ ℝ 
+- `σ::T`: diffusion noise. σ ∈ ℝ⁺
+- `β::T`: lateral inhabition. β ∈ ℝ⁺ 
+- `λ::T`: leak rate. λ ∈ ℝ⁺
+- `α::T`: evidence threshold. λ ∈ ℝ⁺
 - `τ::T`: non-decision time. τ ∈ [0, min_rt] 
 
 # Constructors 
@@ -47,10 +47,19 @@ mutable struct LCA{T <: Real} <: AbstractLCA
     λ::T
     α::T
     τ::T
+    function LCA(ν::Vector{T}, σ::T, β::T, λ::T, α::T, τ::T) where {T <: Real}
+        @argcheck σ ≥ 0
+        @argcheck β ≥ 0
+        @argcheck λ ≥ 0
+        @argcheck α ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(ν, σ, β, λ, α, τ)
+    end
 end
 
-function LCA(ν, σ, β, λ, α, τ::T) where {T}
+function LCA(ν, σ, β, λ, α, τ)
     _, σ, β, λ, α, τ = promote(ν[1], σ, β, λ, α, τ)
+    T = typeof(σ)
     ν = convert(Vector{T}, ν)
     return LCA(ν, σ, β, λ, α, τ)
 end

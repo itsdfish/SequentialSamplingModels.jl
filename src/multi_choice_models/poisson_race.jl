@@ -61,27 +61,29 @@ function rand(rng::AbstractRNG, dist::AbstractPoissonRace)
     return (; choice, rt)
 end
 
-function logpdf(d::AbstractPoissonRace, r::Int, t::Float64)
+function logpdf(d::AbstractPoissonRace, r::Int, rt::Float64)
     (; ν, α, τ) = d
+    @argcheck τ ≤ rt
     LL = 0.0
     for i ∈ 1:length(ν)
         if i == r
-            LL += logpdf(Gamma(α[i], ν[i]), t - τ)
+            LL += logpdf(Gamma(α[i], ν[i]), rt - τ)
         else
-            LL += logccdf(Gamma(α[i], ν[i]), t - τ)
+            LL += logccdf(Gamma(α[i], ν[i]), rt - τ)
         end
     end
     return LL
 end
 
-function pdf(d::AbstractPoissonRace, r::Int, t::Float64)
+function pdf(d::AbstractPoissonRace, r::Int, rt::Float64)
     (; ν, α, τ) = d
+    @argcheck τ ≤ rt
     density = 1.0
     for i ∈ 1:length(ν)
         if i == r
-            density *= pdf(Gamma(α[i], ν[i]), t - τ)
+            density *= pdf(Gamma(α[i], ν[i]), rt - τ)
         else
-            density *= (1 - cdf(Gamma(α[i], ν[i]), t - τ))
+            density *= (1 - cdf(Gamma(α[i], ν[i]), rt - τ))
         end
     end
     return density

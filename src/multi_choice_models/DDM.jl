@@ -39,15 +39,19 @@ mutable struct DDM{T <: Real} <: AbstractDDM
     α::T
     z::T
     τ::T
+    function DDM(ν::T, α::T, z::T, τ::T) where {T <: Real}
+        @argcheck α ≥ 0
+        @argcheck (z ≥ 0) && (z ≤ 1)
+        @argcheck τ ≥ 0
+        return new{T}(ν, α, z, τ)
+    end
 end
 
 function DDM(ν, α, z, τ)
     return DDM(promote(ν, α, z, τ)...)
 end
 
-function params(d::DDM)
-    return (d.ν, d.α, d.z, d.τ)
-end
+params(d::DDM) = (d.ν, d.α, d.z, d.τ)
 
 function DDM(; ν = 1.00, α = 0.80, τ = 0.30, z = 0.50)
     return DDM(ν, α, z, τ)
@@ -64,7 +68,8 @@ end
 # Wabersich & Vandekerckhove (2014) #
 #####################################
 
-function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
+function pdf(d::DDM{T}, choice, rt; ϵ::Real = 1.0e-12) where {T <: Real}
+    @argcheck d.τ < rt
     if choice == 1
         (ν, α, z, τ) = params(d)
         return _pdf(DDM(-ν, α, 1 - z, τ), rt; ϵ)
@@ -73,11 +78,8 @@ function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
 end
 
 # probability density function over the lower boundary
-function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
+function _pdf(d::DDM, t::Real; ϵ::Real = 1.0e-12)
     (ν, α, z, τ) = params(d)
-    if τ ≥ t
-        return T(NaN)
-    end
     u = (t - τ) / α^2 #use normalized time
 
     K_s = 2.0
@@ -97,7 +99,6 @@ function _pdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
     if K_s < K_l
         return p * _small_time_pdf(u, z, ceil(Int, K_s))
     end
-
     return p * _large_time_pdf(u, z, ceil(Int, K_l))
 end
 
@@ -106,7 +107,7 @@ function _small_time_pdf(u::T, z::T, K::Int) where {T <: Real}
     inf_sum = zero(T)
 
     k_series = (-floor(Int, 0.5 * (K - 1))):ceil(Int, 0.5 * (K - 1))
-    for k in k_series
+    for k ∈ k_series
         inf_sum += ((2k + z) * exp(-((2k + z)^2 / (2u))))
     end
 
@@ -117,7 +118,7 @@ end
 function _large_time_pdf(u::T, z::T, K::Int) where {T <: Real}
     inf_sum = zero(T)
 
-    for k = 1:K
+    for k ∈ 1:K
         inf_sum += (k * exp(-0.5 * (k^2 * π^2 * u)) * sin(k * π * z))
     end
 
@@ -125,7 +126,6 @@ function _large_time_pdf(u::T, z::T, K::Int) where {T <: Real}
 end
 
 logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = log(pdf(d, choice, rt; ϵ))
-#logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12) = log(pdf(d, t; ϵ))
 
 logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 
@@ -134,7 +134,8 @@ logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
 # Blurton, Kesselmeier, & Gondan (2012) #
 #########################################
 
-function cdf(d::DDM, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12)
+function cdf(d::DDM{T}, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12) where {T <: Real}
+    @argcheck d.τ < rt
     if choice == 1
         (ν, α, z, τ) = params(d)
         return _cdf(DDM(-ν, α, 1 - z, τ), rt; ϵ)
@@ -144,11 +145,7 @@ function cdf(d::DDM, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12)
 end
 
 # cumulative density function over the lower boundary
-function _cdf(d::DDM{T}, t::Real; ϵ::Real = 1.0e-12) where {T <: Real}
-    if d.τ ≥ t
-        return T(NaN)
-    end
-
+function _cdf(d::DDM, t::Real; ϵ::Real = 1.0e-12)
     K_l = _K_large(d, t; ϵ)
     K_s = _K_small(d, t; ϵ)
 
@@ -163,7 +160,7 @@ function _Fl_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
     (ν, α, z, τ) = params(d)
     F = zero(T)
     K_series = K:-1:1
-    for k in K_series
+    for k ∈ K_series
         F -= (
             k / (ν^2 + k^2 * π^2 / (α^2)) *
             exp(-ν * α * z - 0.5 * ν^2 * (t - τ) - 0.5 * k^2 * π^2 / (α^2) * (t - τ)) *
@@ -186,7 +183,7 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
     S2 = zero(T)
     K_series = K:-1:1
 
-    for k in K_series
+    for k ∈ K_series
         S1 += (
             _exp_pnorm(2 * ν * α * k, -sign(ν) * (2 * α * k + α * z + ν * (t - τ)) / sqt) - _exp_pnorm(
             -2 * ν * α * k - 2 * ν * α * z,
@@ -214,11 +211,10 @@ function _Fs_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
 end
 
 # Zero drift version
-function _Fs0_lower(d::DDM{T}, K::Int, t::Real) where {T <: Real}
-    (_, α, z, τ) = params(d)
+function _Fs0_lower(dist::DDM{T}, K::Int, t::Real) where {T <: Real}
+    (; α, z, τ) = dist
     F = zero(T)
-    K_series = K:-1:0
-    for k in K_series
+    for k ∈ K:-1:0
         F -= (
             cdf(Distributions.Normal(), (-2 * k - 2 + z) * α / sqrt(t - τ)) +
             cdf(Distributions.Normal(), (-2 * k - z) * α / sqrt(t - τ))

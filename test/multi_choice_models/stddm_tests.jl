@@ -207,4 +207,247 @@
         model = stDDM(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = fill(1.0, 2),
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            stDDM(; parms...)
+            stDDM(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = -1,
+                η = fill(1.0, 2),
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "η invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1, 1],
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "η invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [-1, 1],
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "η invalid 3" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, -1],
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "s invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 11],
+                s = -0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "ρ invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1],
+                s = 0.50,
+                ρ = 1.01,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "ρ invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1],
+                s = 0.50,
+                ρ = -1.01,
+                α = 1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1],
+                s = 0.50,
+                ρ = 0.0,
+                α = -1.0,
+                z = 0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "z invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1],
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = -0.50,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "z invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1],
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 1.1,
+                τ = 0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [0.5, 0.6],
+                σ = 1,
+                η = [1, 1],
+                s = 0.50,
+                ρ = 0.0,
+                α = 1.0,
+                z = 0.0,
+                τ = -0.300
+            )
+
+            @test_throws ArgumentError stDDM(; parms...)
+            @test_throws ArgumentError stDDM(values(parms)...)
+        end
+    end
 end

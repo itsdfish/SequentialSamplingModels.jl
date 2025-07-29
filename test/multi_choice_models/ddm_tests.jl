@@ -321,4 +321,57 @@
         model = DDM(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.00, α = 0.80, z = 0.50, τ = 0.30)
+            DDM(; parms...)
+            DDM(values(parms)...)
+            @test true
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.00, α = -0.80, z = 0.50, τ = 0.30)
+            @test_throws ArgumentError DDM(; parms...)
+            @test_throws ArgumentError DDM(values(parms)...)
+        end
+
+        @safetestset "z invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.00, α = 0.80, z = -0.50, τ = 0.30)
+            @test_throws ArgumentError DDM(; parms...)
+            @test_throws ArgumentError DDM(values(parms)...)
+        end
+
+        @safetestset "z invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.00, α = 0.80, z = -1.50, τ = 0.30)
+            @test_throws ArgumentError DDM(; parms...)
+            @test_throws ArgumentError DDM(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 1.00, α = 0.80, z = 0.50, τ = -0.30)
+            @test_throws ArgumentError DDM(; parms...)
+            @test_throws ArgumentError DDM(values(parms)...)
+        end
+    end
 end

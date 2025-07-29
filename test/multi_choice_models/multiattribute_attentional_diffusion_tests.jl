@@ -226,4 +226,267 @@
         model = maaDDM(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            maaDDM(; parms...)
+            maaDDM(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = -0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "Δ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = -0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "θ invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = -0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "θ invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 1.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "ϕ invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = -0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "ϕ invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = -1.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "ω invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = -0.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "ω invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 1.70,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = -1.0,
+                z = 0.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "z invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = -1.0,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "z invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 1.1,
+                τ = 0.0
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (;
+                ν = [4.0 5.0; 5.0 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                ϕ = 0.50,
+                ω = 0.70,
+                α = 1.0,
+                z = 0.1,
+                τ = -0.01
+            )
+            @test_throws ArgumentError maaDDM(; parms...)
+            @test_throws ArgumentError maaDDM(values(parms)...)
+        end
+    end
 end

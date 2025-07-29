@@ -139,7 +139,7 @@
         _, mxidx = findmax(LLs)
         @test γs[mxidx] ≈ parms.γ rtol = 5e-2
 
-        τs = range(0.80 * parms.τ, 1.2 * parms.τ, length = 100)
+        τs = range(0.80 * parms.τ, parms.τ, length = 100)
         LLs = map(τ -> sum(logpdf.(MLBA(; parms..., τ), choice, rt, (M,))), τs)
         _, mxidx = findmax(LLs)
         @test τs[mxidx] ≈ parms.τ rtol = 0.02
@@ -180,7 +180,6 @@
             using Test
             using Distributions
             using SequentialSamplingModels
-
 
             parms = (;
                 ν = fill(0.0, 3),

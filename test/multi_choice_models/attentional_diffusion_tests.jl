@@ -109,7 +109,8 @@
             using Test
             using Distributions
             using SequentialSamplingModels
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
+            parms =
+                (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
             aDDM(; parms...)
             aDDM(values(parms)...)
             @test true
@@ -120,7 +121,15 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = [5.0, 4.0], σ = -0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
+            parms = (;
+                ν = [5.0, 4.0],
+                σ = -0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
         end
@@ -130,7 +139,15 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = -0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = 0.0)
+            parms = (;
+                ν = [5.0, 4.0],
+                σ = 0.02,
+                Δ = -0.0004,
+                θ = 0.3,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
         end
@@ -140,7 +157,15 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = -0.3, α = 1.0, z = 0.0, τ = 0.0)
+            parms = (;
+                ν = [5.0, 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = -0.3,
+                α = 1.0,
+                z = 0.0,
+                τ = 0.0
+            )
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
         end
@@ -150,7 +175,15 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = -1.0, z = 0.0, τ = 0.0)
+            parms = (;
+                ν = [5.0, 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                α = -1.0,
+                z = 0.0,
+                τ = 0.0
+            )
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
         end
@@ -160,11 +193,20 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 2.0, τ = 0.0)
+            parms =
+                (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 2.0, τ = 0.0)
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
 
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = -2.0, τ = 0.0)
+            parms = (;
+                ν = [5.0, 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                α = 1.0,
+                z = -2.0,
+                τ = 0.0
+            )
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
         end
@@ -174,7 +216,15 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = [5.0, 4.0], σ = 0.02, Δ = 0.0004, θ = 0.3, α = 1.0, z = 0.0, τ = -1.0)
+            parms = (;
+                ν = [5.0, 4.0],
+                σ = 0.02,
+                Δ = 0.0004,
+                θ = 0.3,
+                α = 1.0,
+                z = 0.0,
+                τ = -1.0
+            )
             @test_throws ArgumentError aDDM(; parms...)
             @test_throws ArgumentError aDDM(values(parms)...)
         end

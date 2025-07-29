@@ -152,4 +152,67 @@
         model = LCA(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.5, 2.0], σ = 1.0, β = 0.20, λ = 0.10, α = 1.5, τ = 0.30)
+            LCA(; parms...)
+            LCA(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.5, 2.0], σ = -1.0, β = 0.20, λ = 0.10, α = 1.5, τ = 0.30)
+            @test_throws ArgumentError LCA(; parms...)
+            @test_throws ArgumentError LCA(values(parms)...)
+        end
+
+        @safetestset "β invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.5, 2.0], σ = 1.0, β = -0.20, λ = 0.10, α = 1.5, τ = 0.30)
+            @test_throws ArgumentError LCA(; parms...)
+            @test_throws ArgumentError LCA(values(parms)...)
+        end
+
+        @safetestset "λ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.5, 2.0], σ = 1.0, β = 0.20, λ = -0.10, α = 1.5, τ = 0.30)
+            @test_throws ArgumentError LCA(; parms...)
+            @test_throws ArgumentError LCA(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.5, 2.0], σ = 1.0, β = 0.20, λ = 0.10, α = -1.5, τ = 0.30)
+            @test_throws ArgumentError LCA(; parms...)
+            @test_throws ArgumentError LCA(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [2.5, 2.0], σ = 1.0, β = 0.20, λ = 0.10, α = 1.5, τ = -0.30)
+            @test_throws ArgumentError LCA(; parms...)
+            @test_throws ArgumentError LCA(values(parms)...)
+        end
+    end
 end

@@ -100,6 +100,198 @@
         ground_truth = [0.559048, 0.440950, 0.000002]
         @test probs ≈ ground_truth atol = 5e-3
     end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+        using SequentialSamplingModels: make_default_contrast
+
+        parms = (;
+            # diffusion noise 
+            σ = 1.0,
+            C = make_default_contrast(3),
+            # feedback matrix 
+            S = [
+                0.950000 -0.01223200 -0.02264700
+                -0.012232 0.95000000 -0.00067034
+                -0.022647 -0.00067034 0.95000000
+            ],
+            # attribute attention weights 
+            w = [0.5, 0.5],
+            # decision threshold
+            α = 17.5,
+            # non-decision time 
+            τ = 0.300
+        )
+        model = ClassicMDFT(; parms...)
+        @test values(parms) == params(model)
+    end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                # diffusion noise 
+                σ = 1.0,
+                C = make_default_contrast(3),
+                # feedback matrix 
+                S = [
+                    0.950000 -0.01223200 -0.02264700
+                    -0.012232 0.95000000 -0.00067034
+                    -0.022647 -0.00067034 0.95000000
+                ],
+                # attribute attention weights 
+                w = [0.5, 0.5],
+                # decision threshold
+                α = 17.5,
+                # non-decision time 
+                τ = 0.300
+            )
+            ClassicMDFT(; parms...)
+            ClassicMDFT(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                # diffusion noise 
+                σ = -1.0,
+                C = make_default_contrast(3),
+                # feedback matrix 
+                S = [
+                    0.950000 -0.01223200 -0.02264700
+                    -0.012232 0.95000000 -0.00067034
+                    -0.022647 -0.00067034 0.95000000
+                ],
+                # attribute attention weights 
+                w = [0.5, 0.5],
+                # decision threshold
+                α = 17.5,
+                # non-decision time 
+                τ = 0.300
+            )
+            @test_throws ArgumentError ClassicMDFT(; parms...)
+            @test_throws ArgumentError ClassicMDFT(values(parms)...)
+        end
+
+        @safetestset "w invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                # diffusion noise 
+                σ = 1.0,
+                C = make_default_contrast(3),
+                # feedback matrix 
+                S = [
+                    0.950000 -0.01223200 -0.02264700
+                    -0.012232 0.95000000 -0.00067034
+                    -0.022647 -0.00067034 0.95000000
+                ],
+                # attribute attention weights 
+                w = [-0.5, 1.5],
+                # decision threshold
+                α = 17.5,
+                # non-decision time 
+                τ = 0.300
+            )
+            @test_throws ArgumentError ClassicMDFT(; parms...)
+            @test_throws ArgumentError ClassicMDFT(values(parms)...)
+        end
+
+        @safetestset "w invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                # diffusion noise 
+                σ = 1.0,
+                C = make_default_contrast(3),
+                # feedback matrix 
+                S = [
+                    0.950000 -0.01223200 -0.02264700
+                    -0.012232 0.95000000 -0.00067034
+                    -0.022647 -0.00067034 0.95000000
+                ],
+                # attribute attention weights 
+                w = [0.4, 1.5],
+                # decision threshold
+                α = 17.5,
+                # non-decision time 
+                τ = 0.300
+            )
+            @test_throws ArgumentError ClassicMDFT(; parms...)
+            @test_throws ArgumentError ClassicMDFT(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                # diffusion noise 
+                σ = 1.0,
+                C = make_default_contrast(3),
+                # feedback matrix 
+                S = [
+                    0.950000 -0.01223200 -0.02264700
+                    -0.012232 0.95000000 -0.00067034
+                    -0.022647 -0.00067034 0.95000000
+                ],
+                # attribute attention weights 
+                w = [0.5, 0.5],
+                # decision threshold
+                α = -17.5,
+                # non-decision time 
+                τ = 0.300
+            )
+            @test_throws ArgumentError ClassicMDFT(; parms...)
+            @test_throws ArgumentError ClassicMDFT(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                # diffusion noise 
+                σ = 1.0,
+                C = make_default_contrast(3),
+                # feedback matrix 
+                S = [
+                    0.950000 -0.01223200 -0.02264700
+                    -0.012232 0.95000000 -0.00067034
+                    -0.022647 -0.00067034 0.95000000
+                ],
+                # attribute attention weights 
+                w = [0.5, 0.5],
+                # decision threshold
+                α = 17.5,
+                # non-decision time 
+                τ = -0.300
+            )
+            @test_throws ArgumentError ClassicMDFT(; parms...)
+            @test_throws ArgumentError ClassicMDFT(values(parms)...)
+        end
+    end
 end
 
 @safetestset "MDFT" begin
@@ -329,16 +521,196 @@ end
 
         parms = (;
             σ = 0.1,
-            α = 0.50,
-            τ = 0.0,
             γ = 1.0,
             κ = [6.0, 5.0],
             ϕ1 = 0.01,
             ϕ2 = 0.10,
             β = 10.0,
-            C = make_default_contrast(3)
+            C = make_default_contrast(3),
+            α = 0.50,
+            τ = 0.0
         )
+
         model = MDFT(; n_alternatives = 3, parms...)
         @test values(parms) == params(model)
+    end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [6.0, 5.0],
+                ϕ1 = 0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = 0.0
+            )
+
+            MDFT(; n_alternatives = 3, parms...)
+            MDFT(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = -0.1,
+                γ = 1.0,
+                κ = [6.0, 5.0],
+                ϕ1 = 0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = 0.0
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
+
+        @safetestset "κ invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [-6.0, 5.0],
+                ϕ1 = 0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = 0.0
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
+
+        @safetestset "κ invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [6.0, -5.0],
+                ϕ1 = 0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = 0.0
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
+
+        @safetestset "ϕ1 invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [6.0, 5.0],
+                ϕ1 = -0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = 0.0
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
+
+        @safetestset "ϕ2 invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [6.0, 5.0],
+                ϕ1 = 0.01,
+                ϕ2 = -0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = 0.0
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [6.0, 5.0],
+                ϕ1 = 0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = -0.50,
+                τ = 0.0
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using SequentialSamplingModels: make_default_contrast
+
+            parms = (;
+                σ = 0.1,
+                γ = 1.0,
+                κ = [6.0, 5.0],
+                ϕ1 = 0.01,
+                ϕ2 = 0.10,
+                β = 10.0,
+                C = make_default_contrast(3),
+                α = 0.50,
+                τ = -0.1
+            )
+
+            @test_throws ArgumentError MDFT(; n_alternatives = 3, parms...)
+            @test_throws ArgumentError MDFT(values(parms)...)
+        end
     end
 end

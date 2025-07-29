@@ -58,14 +58,14 @@
         p1 = mean(choice .== 1)
         p2 = 1 - p1
         approx_pdf = kde(rts1)
-        x = 0.2:0.01:1.5
+        x = 0.3:0.01:1.5
         y′ = pdf(approx_pdf, x) * p1
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
         rts2 = rts[choice .== 2]
         approx_pdf = kde(rts2)
-        x = 0.2:0.01:1.5
+        x = 0.3:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
         @test y′ ≈ y rtol = 0.03
@@ -172,7 +172,7 @@
             @test_throws ArgumentError LNR(; parms...)
             @test_throws ArgumentError LNR(values(parms)...)
 
-            parms = (; ν = [-1, -2], σ = [-1,1], τ = 0.20)
+            parms = (; ν = [-1, -2], σ = [-1, 1], τ = 0.20)
             @test_throws ArgumentError LNR(; parms...)
             @test_throws ArgumentError LNR(values(parms)...)
         end

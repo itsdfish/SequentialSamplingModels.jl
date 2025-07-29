@@ -296,4 +296,67 @@
         model = CDDM(; parms...)
         @test values(parms) == params(model)
     end
+
+    @safetestset "parameter checks" begin
+        @safetestset "all valid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 0.5], σ = 1, η = [1, 1], α = 1.5, τ = 0.30)
+            CDDM(; parms...)
+            CDDM(values(parms)...)
+            @test true
+        end
+
+        @safetestset "σ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 0.5], σ = -1, η = [1, 1], α = 1.5, τ = 0.30)
+            @test_throws ArgumentError CDDM(; parms...)
+            @test_throws ArgumentError CDDM(values(parms)...)
+        end
+
+        @safetestset "σ invalid 1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 0.5], σ = 1, η = [-1, 1], α = 1.5, τ = 0.30)
+            @test_throws ArgumentError CDDM(; parms...)
+            @test_throws ArgumentError CDDM(values(parms)...)
+        end
+
+        @safetestset "σ invalid 2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 0.5], σ = 1, η = [1, -1], α = 1.5, τ = 0.30)
+            @test_throws ArgumentError CDDM(; parms...)
+            @test_throws ArgumentError CDDM(values(parms)...)
+        end
+
+        @safetestset "α invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 0.5], σ = 1, η = [1, 1], α = -1.5, τ = 0.30)
+            @test_throws ArgumentError CDDM(; parms...)
+            @test_throws ArgumentError CDDM(values(parms)...)
+        end
+
+        @safetestset "τ invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = [1, 0.5], σ = 1, η = [1, 1], α = 1.5, τ = -0.30)
+            @test_throws ArgumentError CDDM(; parms...)
+            @test_throws ArgumentError CDDM(values(parms)...)
+        end
+    end
 end

@@ -149,6 +149,7 @@ end
 
 function logpdf(d::AbstractRDM, r::Int, rt::Float64)
     (; ν, A, k, τ) = d
+    τ > rt ? (return NaN) : nothing
     LL = 0.0
     for (i, m) in enumerate(ν)
         if i == r
@@ -162,6 +163,7 @@ end
 
 function pdf(d::AbstractRDM, r::Int, rt::Float64)
     (; ν, A, k, τ) = d
+    τ > rt ? (return NaN) : nothing
     like = 1.0
     for (i, m) in enumerate(ν)
         if i == r

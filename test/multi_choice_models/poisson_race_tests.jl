@@ -17,7 +17,7 @@
 
         rts2 = rts[choice .== 2]
         approx_pdf = kde(rts2)
-        x = 0.2:0.01:1.5
+        x = 0.3:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
         @test y′ ≈ y rtol = 0.02
@@ -125,7 +125,7 @@
             using SequentialSamplingModels
 
             parms = (; ν = [0.05, 0.06], α = [-5, 5], τ = 0.30)
-            @test_throws ArgumentError  PoissonRace(; parms...)
+            @test_throws ArgumentError PoissonRace(; parms...)
             @test_throws ArgumentError PoissonRace(values(parms)...)
         end
 
@@ -135,7 +135,7 @@
             using SequentialSamplingModels
 
             parms = (; ν = [0.05, 0.06], α = [5, 5], τ = -0.30)
-            @test_throws ArgumentError  PoissonRace(; parms...)
+            @test_throws ArgumentError PoissonRace(; parms...)
             @test_throws ArgumentError PoissonRace(values(parms)...)
         end
 
@@ -145,7 +145,7 @@
             using SequentialSamplingModels
 
             parms = (; ν = [0.05, 0.06], α = [5, 5, 5], τ = 0.30)
-            @test_throws ArgumentError  PoissonRace(; parms...)
+            @test_throws ArgumentError PoissonRace(; parms...)
             @test_throws ArgumentError PoissonRace(values(parms)...)
         end
     end

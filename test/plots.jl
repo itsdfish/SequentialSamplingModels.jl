@@ -80,7 +80,7 @@
             dist;
             n_sim = 2,
             add_density = true,
-            density_kwargs = (; t_range = range(0.3, 1, length = 200),)
+            density_kwargs = (; t_range = range(0.301, 1, length = 200),)
         )
     end
 

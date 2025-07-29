@@ -9,14 +9,14 @@
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
         approx_pdf = kde(rt1)
-        x = 0.2:0.01:1.5
+        x = 0.3:0.01:1.5
         y′ = pdf(approx_pdf, x) * p1
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
         rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
-        x = 0.2:0.01:1.5
+        x = 0.30:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
         @test y′ ≈ y rtol = 0.03
@@ -36,14 +36,14 @@
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
         approx_pdf = kde(rt1)
-        x = 0.2:0.01:1.5
+        x = 0.4:0.01:1.5
         y′ = pdf(approx_pdf, x) * p1
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
         rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
-        x = 0.2:0.01:1.5
+        x = 0.4:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
         @test y′ ≈ y rtol = 0.03
@@ -63,14 +63,14 @@
         p1 = mean(x -> x == 1, choice)
         p2 = 1 - p1
         approx_pdf = kde(rt1)
-        x = 0.2:0.01:1.5
+        x = 0.4:0.01:1.5
         y′ = pdf(approx_pdf, x) * p1
         y = pdf.(dist, (1,), x)
         @test y′ ≈ y rtol = 0.03
 
         rt2 = rt[choice .== 2]
         approx_pdf = kde(rt2)
-        x = 0.2:0.01:1.5
+        x = 0.4:0.01:1.5
         y′ = pdf(approx_pdf, x) * p2
         y = pdf.(dist, (2,), x)
         @test y′ ≈ y rtol = 0.03
@@ -177,7 +177,7 @@
             @test_throws ArgumentError LBA(; parms...)
             @test_throws ArgumentError LBA(values(parms)...)
 
-            parms = (; ν = [2.0, 1.75], σ = [1,-1], A = 0.8, k = 0.5, τ = 0.3)
+            parms = (; ν = [2.0, 1.75], σ = [1, -1], A = 0.8, k = 0.5, τ = 0.3)
             @test_throws ArgumentError LBA(; parms...)
             @test_throws ArgumentError LBA(values(parms)...)
         end

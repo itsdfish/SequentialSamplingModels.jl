@@ -41,12 +41,18 @@ mutable struct LBA{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractLBA{T, T
     A::T
     k::T
     τ::T
-    function LBA(ν::Vector{T}, σ::T1, A::T, k::T, τ::T) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
+    function LBA(
+        ν::Vector{T},
+        σ::T1,
+        A::T,
+        k::T,
+        τ::T
+    ) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
         @argcheck all(σ .≥ 0)
         @argcheck A ≥ 0
         @argcheck k ≥ 0
         @argcheck τ ≥ 0
-        return new{T,T1}(ν, σ, A, k, τ)
+        return new{T, T1}(ν, σ, A, k, τ)
     end
 end
 
@@ -84,7 +90,6 @@ sample_drift_rates(ν, σ) = sample_drift_rates(Random.default_rng(), ν, σ)
 function sample_drift_rates(rng::AbstractRNG, ν, σ)
     negative = true
     v = similar(ν)
-    n_options = length(ν)
     while negative
         v = @. rand(rng, Normal(ν, σ))
         negative = any(x -> x > 0, v) ? false : true
@@ -106,8 +111,8 @@ end
 
 function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
     (; τ, ν, σ) = d
+    @argcheck τ ≤ rt
     LL = 0.0
-    rt < τ ? (return -Inf) : nothing
     for i ∈ 1:length(ν)
         if c == i
             LL += log_dens(d, ν[i], σ[i], rt)
@@ -123,7 +128,7 @@ end
 function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
     (; τ, ν, σ) = d
     LL = 0.0
-    rt < τ ? (return -Inf) : nothing
+    @argcheck τ ≤ rt
     for i ∈ 1:length(ν)
         if c == i
             LL += log_dens(d, ν[i], σ, rt)
@@ -137,9 +142,9 @@ function logpdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
 end
 
 function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Vector{<:Real}}
-    (; τ, A, k, ν, σ) = d
+    (; τ, ν, σ) = d
     den = 1.0
-    rt < τ ? (return 1e-10) : nothing
+    @argcheck τ ≤ rt
     for i ∈ 1:length(ν)
         if c == i
             den *= dens(d, ν[i], σ[i], rt)
@@ -156,7 +161,7 @@ end
 function pdf(d::AbstractLBA{T, T1}, c, rt) where {T, T1 <: Real}
     (; τ, ν, σ) = d
     den = 1.0
-    rt < τ ? (return 1e-10) : nothing
+    @argcheck τ ≤ rt
     for i ∈ 1:length(ν)
         if c == i
             den *= dens(d, ν[i], σ, rt)

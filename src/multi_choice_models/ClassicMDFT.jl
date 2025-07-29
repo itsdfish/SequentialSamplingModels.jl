@@ -6,18 +6,25 @@ A model type for Multiattribute Decision Field Theory.
     
 # Parameters 
 - `σ::T = 1.0`: diffusion noise. σ ∈ ℝ⁺. 
-- `α::T = 15.0`: evidence threshold. α  ∈ ℝ⁺.
-- `τ::T = .30`: non-decision time. τ ∈ [0, min_rt].
-- `w::Vector{T}`: attention weights vector where each element corresponds to the attention given to the corresponding dimension. wᵢ ∈ [0,1], ∑wᵢ = 1.
+- `C::Array{T, 2}`: contrast weight matrix where c_ij is the contrast weight when comparing options i and j.
 - `S::Array{T, 2}`: feedback matrix allowing self-connections and interconnections between alternatives. Self-connections range from zero to 1, where s_ij < 1 represents decay. Interconnections 
      between options i and j  where i ≠ j are inhibatory if s_ij < 0.
-- `C::Array{T, 2}`: contrast weight matrix where c_ij is the contrast weight when comparing options i and j.
+- `w::Vector{T}`: attention weights vector where each element corresponds to the attention given to the corresponding dimension. wᵢ ∈ [0,1], ∑wᵢ = 1.
+- `α::T = 15.0`: evidence threshold. α  ∈ ℝ⁺.
+- `τ::T = .30`: non-decision time. τ ∈ [0, min_rt].
 
 # Constructors 
 
-    ClassicMDFT(σ, α, τ, w, S, C)
+    ClassicMDFT(σ, C, S, w, α, τ)
 
-    ClassicMDFT(σ, α, τ, w, S, C = make_default_contrast(S))
+    ClassicMDFT(;
+        σ = 1.0,
+        α = 15.0,
+        τ = 10.0,
+        w,
+        S,
+        C = make_default_contrast(size(S, 1))
+    )
         
 # Example 
 
@@ -34,12 +41,8 @@ M = [
 ]
 
 model = ClassicMDFT(;
-    # non-decision time 
-    τ = 0.300,
     # diffusion noise 
     σ = 1.0,
-    # decision threshold
-    α = 17.5,
     # attribute attention weights 
     w = [0.5, 0.5],
     # feedback matrix 
@@ -48,6 +51,10 @@ model = ClassicMDFT(;
         -0.0122316 0.9500000 -0.00903030
         -0.0499996 -0.0090303 0.95000000
     ],
+    # decision threshold
+    α = 17.5,
+    # non-decision time 
+    τ = 0.300,
 )
 choices, rts = rand(model, 10_000, M; Δt = 1.0)
 map(c -> mean(choices .== c), 1:3)
@@ -58,19 +65,33 @@ Roe, Robert M., Jermone R. Busemeyer, and James T. Townsend. "Multiattribute Dec
 """
 mutable struct ClassicMDFT{T <: Real} <: AbstractMDFT
     σ::T
+    C::Array{T, 2}
+    S::Array{T, 2}
+    w::Vector{T}
     α::T
     τ::T
-    w::Vector{T}
-    S::Array{T, 2}
-    C::Array{T, 2}
+    function ClassicMDFT(
+        σ::T,
+        C::Array{T, 2},
+        S::Array{T, 2},
+        w::Vector{T},
+        α::T,
+        τ::T
+    ) where {T <: Real}
+        @argcheck σ ≥ 0
+        @argcheck α ≥ 0
+        @argcheck τ ≥ 0
+        @argcheck all(w .≥ 0) && (sum(w) == 1)
+        return new{T}(σ, C, S, w, α, τ)
+    end
 end
 
-function ClassicMDFT(σ, α, τ, w, S, C)
-    σ, α, τ, _, _, _ = promote(σ, α, τ, w[1], S[1], C[1])
-    w = convert(Vector{typeof(τ)}, w)
-    S = convert(Array{typeof(τ), 2}, S)
+function ClassicMDFT(σ, C, S, w, α, τ)
+    σ, _, _, _, α, τ, = promote(σ, C[1], S[1], w[1], α, τ)
     C = convert(Array{typeof(τ), 2}, C)
-    return ClassicMDFT(σ, α, τ, w, S, C)
+    S = convert(Array{typeof(τ), 2}, S)
+    w = convert(Vector{typeof(τ)}, w)
+    return ClassicMDFT(σ, C, S, w, α, τ)
 end
 
 function ClassicMDFT(;
@@ -81,14 +102,12 @@ function ClassicMDFT(;
     S,
     C = make_default_contrast(size(S, 1))
 )
-    return ClassicMDFT(σ, α, τ, w, S, C)
+    return ClassicMDFT(σ, C, S, w, α, τ)
 end
 
-get_pdf_type(d::AbstractMDFT) = Approximate
+get_pdf_type(::AbstractMDFT) = Approximate
 
-function params(d::ClassicMDFT)
-    return (d.σ, d.α, d.τ, d.w, d.S, d.C)
-end
+params(d::ClassicMDFT) = (d.σ, d.C, d.S, d.w, d.α, d.τ)
 
 """
     rand(

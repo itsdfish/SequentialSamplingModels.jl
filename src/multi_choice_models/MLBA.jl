@@ -69,7 +69,17 @@ mutable struct MLBA{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractMLBA{T,
     A::T
     k::T
     τ::T
-    function MLBA(ν::Vector{T}, β₀::T, λₚ::T, λₙ::T, γ::T, σ::T1, A::T, k::T, τ::T) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
+    function MLBA(
+        ν::Vector{T},
+        β₀::T,
+        λₚ::T,
+        λₙ::T,
+        γ::T,
+        σ::T1,
+        A::T,
+        k::T,
+        τ::T
+    ) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
         @argcheck β₀ ≥ 0
         @argcheck λₚ ≥ 0
         @argcheck λₙ ≥ 0
@@ -78,7 +88,7 @@ mutable struct MLBA{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractMLBA{T,
         @argcheck A ≥ 0
         @argcheck k ≥ 0
         @argcheck τ ≥ 0
-        return new{T,T1}(ν, β₀, λₚ, λₙ, γ, σ, A, k, τ)
+        return new{T, T1}(ν, β₀, λₚ, λₙ, γ, σ, A, k, τ)
     end
 end
 

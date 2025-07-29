@@ -46,6 +46,14 @@ struct CDDM{T <: Real} <: AbstractCDDM
     η::Vector{T}
     α::T
     τ::T
+
+    function CDDM(ν::Vector{T}, σ::T, η::Vector{T}, α::T, τ::T) where {T}
+        @argcheck σ ≥ 0
+        @argcheck all(η .≥ 0)
+        @argcheck α ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(ν, σ, η, α, τ)
+    end
 end
 
 function CDDM(ν, σ, η, α, τ)
@@ -55,9 +63,7 @@ function CDDM(ν, σ, η, α, τ)
     return CDDM(ν, σ, η, α, τ)
 end
 
-function params(d::AbstractCDDM)
-    return (d.ν, d.σ, d.η, d.α, d.τ)
-end
+params(d::AbstractCDDM) = (d.ν, d.σ, d.η, d.α, d.τ)
 
 function CDDM(; ν = [1, 0.5], η = [1, 1], σ = 1, α = 1.5, τ = 0.30)
     return CDDM(ν, σ, η, α, τ)
@@ -94,6 +100,7 @@ end
 
 function logpdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
     θ, rt = data
+    @argcheck d.τ ≤ rt
     return logpdf_term1(d, θ, rt) + logpdf_term2(d, rt; k_max)
 end
 
@@ -111,11 +118,13 @@ end
 
 function pdf(d::AbstractCDDM, data::Vector{<:Real}; k_max = 50)
     θ, rt = data
+    @argcheck d.τ ≤ rt
     return max(0.0, pdf_term1(d, θ, rt) * pdf_term2(d, rt; k_max))
 end
 
 function pdf(d::AbstractCDDM, data::Vector{<:Real}, j0, j01, j02; k_max = 50)
     θ, rt = data
+    @argcheck d.τ ≤ rt
     return max(0.0, pdf_term1(d, θ, rt) * pdf_term2(d, rt, j0, j01, j02; k_max))
 end
 

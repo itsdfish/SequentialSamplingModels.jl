@@ -5,23 +5,23 @@ A model type for simulating Multi-attribute Decision Field Theory (MDFT) as an S
     
 # Parameters 
 - `σ::T = 1.0`: diffusion noise. σ ∈ ℝ⁺. 
-- `α::T = 15.0`: evidence threshold. α ∈ ℝ⁺.
-- `τ::T = .30`: non-decision time. τ ∈ [0, min_rt].
 - `γ::T`: scales the valance, `CMW`, functioning like a drift rate. γ ∈ ℝ⁺.
 - `κ::Vector{T}`: exponential rate parameters for switching attention between attributes. Currently, limited to two 
     attributes. κ ∈ ℝ⁺.
 - `ϕ1::T`: controls the sensitivity of lateral inhibition to distance in the distance function for creating the feedback matrix, `S`. ϕ1 ∈ ℝ⁺.
 - `ϕ2::T`: controls evidence decay and maximum inhibition in the distance function for creating the feedback matrix, `S`. ϕ2 ∈ ℝ⁺.
-- `β::T`: controls the weight of the dominance dimension in the feedback matrix distance function. If `β` < 0, the indifference dimension 
+- `β::T`: controls the weight of the dominance dimension in the feedback matrix distance function. β ∈ ℝ. If `β` < 0, the indifference dimension 
     recieves more where. If `β` > 0, the dominance dimension recieves more weight
 - `S::Array{T, 2}`: feedback matrix allowing self-connections and interconnections between alternatives. Self-connections range from zero to 1, where s_ij < 1 represents decay. Interconnections 
      between options i and j where i ≠ j are inhibitory if s_ij < 0.
 - `C::Array{T, 2}`: contrast weight matrix for comparing attended alternative to other alternatives.
     The element c_ij is the contrast weight when comparing options i and j.
+- `α::T = 15.0`: evidence threshold. α ∈ ℝ⁺.
+- `τ::T = .30`: non-decision time. τ ∈ [0, min_rt].
 
 # Constructors 
 
-    MDFT(σ, α, τ, γ, κ, ϕ1, ϕ2, β, C)
+    MDFT(σ, γ, κ, ϕ1, ϕ2, β, C, α, τ)
 
     MDFT(;
         n_alternatives,
@@ -77,8 +77,6 @@ Roe, Robert M., Jermone R. Busemeyer, and James T. Townsend. "Multi-attribute De
 """
 mutable struct MDFT{T <: Real} <: AbstractMDFT
     σ::T
-    α::T
-    τ::T
     γ::T
     κ::Vector{T}
     ϕ1::T
@@ -86,17 +84,43 @@ mutable struct MDFT{T <: Real} <: AbstractMDFT
     β::T
     S::Array{T, 2}
     C::Array{T, 2}
+    α::T
+    τ::T
     _CM::Array{T, 2}
     _att_idx::Int
+    function MDFT(
+        σ::T,
+        γ::T,
+        κ::Vector{T},
+        ϕ1::T,
+        ϕ2::T,
+        β::T,
+        S::Array{T, 2},
+        C::Array{T, 2},
+        α::T,
+        τ::T,
+        _CM::Array{T, 2},
+        _att_idx::Int
+    ) where {T <: Real}
+        @argcheck σ ≥ 0
+        @argcheck γ ≥ 0
+        @argcheck all(κ .≥ 0)
+        @argcheck ϕ1 ≥ 0
+        @argcheck ϕ2 ≥ 0
+        @argcheck α ≥ 0
+        @argcheck τ ≥ 0
+        return new{T}(σ, γ, κ, ϕ1, ϕ2, β, S, C, α, τ, _CM, _att_idx)
+    end
 end
 
-function MDFT(σ, α, τ::T, γ, κ, ϕ1, ϕ2, β, C) where {T}
-    σ, α, τ, γ, _, ϕ1, ϕ2, β, = promote(σ, α, τ, γ, κ[1], ϕ1, ϕ2, β)
+function MDFT(σ, γ, κ, ϕ1, ϕ2, β, C, α, τ)
+    σ, γ, _, ϕ1, ϕ2, β, α, τ = promote(σ, γ, κ[1], ϕ1, ϕ2, β, α, τ)
+    T = typeof(σ)
     κ = convert(Vector{T}, κ)
     C = convert(Array{T, 2}, C)
     _CM = zeros(size(C, 1), length(κ))
     S = similar(C)
-    return MDFT(σ, α, τ, γ, κ, ϕ1, ϕ2, β, S, C, _CM, 0)
+    return MDFT(σ, γ, κ, ϕ1, ϕ2, β, S, C, α, τ, _CM, 0)
 end
 
 function MDFT(;
@@ -111,11 +135,11 @@ function MDFT(;
     β,
     C = make_default_contrast(n_alternatives)
 )
-    return MDFT(σ, α, τ, γ, κ, ϕ1, ϕ2, β, C)
+    return MDFT(σ, γ, κ, ϕ1, ϕ2, β, C, α, τ)
 end
 
 function params(d::MDFT)
-    return (d.σ, d.α, d.τ, d.γ, d.κ, d.ϕ1, d.ϕ2, d.β, d.C)
+    return (d.σ, d.γ, d.κ, d.ϕ1, d.ϕ2, d.β, d.C, d.α, d.τ)
 end
 
 n_options(d::AbstractMDFT) = size(d.C, 1)

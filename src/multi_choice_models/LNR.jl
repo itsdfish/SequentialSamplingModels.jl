@@ -39,7 +39,7 @@ struct LNR{T <: Real, T1 <: Union{<:T, Vector{<:T}}} <: AbstractLNR{T, T1}
     function LNR(ν::Vector{T}, σ::T1, τ::T) where {T <: Real, T1 <: Union{<:T, Vector{<:T}}}
         @argcheck all(σ .≥ 0)
         @argcheck τ ≥ 0
-        return new{T,T1}(ν, σ, τ)
+        return new{T, T1}(ν, σ, τ)
     end
 end
 
@@ -63,40 +63,43 @@ function rand(rng::AbstractRNG, dist::AbstractLNR)
     return (; choice, rt)
 end
 
-function logpdf(d::AbstractLNR{T, T1}, r::Int, t::Float64) where {T, T1 <: Vector{<:Real}}
+function logpdf(d::AbstractLNR{T, T1}, r::Int, rt::Float64) where {T, T1 <: Vector{<:Real}}
     (; ν, σ, τ) = d
+    @argcheck τ ≤ rt
     LL = 0.0
     for i ∈ 1:length(ν)
         if i == r
-            LL += logpdf(LogNormal(ν[i], σ[i]), t - τ)
+            LL += logpdf(LogNormal(ν[i], σ[i]), rt - τ)
         else
-            LL += logccdf(LogNormal(ν[i], σ[i]), t - τ)
+            LL += logccdf(LogNormal(ν[i], σ[i]), rt - τ)
         end
     end
     return LL
 end
 
-function logpdf(d::AbstractLNR{T, T1}, r::Int, t::Float64) where {T, T1 <: Real}
+function logpdf(d::AbstractLNR{T, T1}, r::Int, rt::Float64) where {T, T1 <: Real}
     (; ν, σ, τ) = d
+    @argcheck τ ≤ rt
     LL = 0.0
     for i ∈ 1:length(ν)
         if i == r
-            LL += logpdf(LogNormal(ν[i], σ), t - τ)
+            LL += logpdf(LogNormal(ν[i], σ), rt - τ)
         else
-            LL += logccdf(LogNormal(ν[i], σ), t - τ)
+            LL += logccdf(LogNormal(ν[i], σ), rt - τ)
         end
     end
     return LL
 end
 
-function pdf(d::AbstractLNR{T, T1}, r::Int, t::Float64) where {T, T1 <: Vector{<:Real}}
+function pdf(d::AbstractLNR{T, T1}, r::Int, rt::Float64) where {T, T1 <: Vector{<:Real}}
     (; ν, σ, τ) = d
+    @argcheck τ ≤ rt
     density = 1.0
     for i ∈ 1:length(ν)
         if i == r
-            density *= pdf(LogNormal(ν[i], σ[i]), t - τ)
+            density *= pdf(LogNormal(ν[i], σ[i]), rt - τ)
         else
-            density *= (1 - cdf(LogNormal(ν[i], σ[i]), t - τ))
+            density *= (1 - cdf(LogNormal(ν[i], σ[i]), rt - τ))
         end
     end
     return density

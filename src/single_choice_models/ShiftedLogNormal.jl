@@ -49,7 +49,14 @@ ShiftedLogNormal(; ν = -1, σ = 0.5, τ = 0.20) = ShiftedLogNormal(ν, σ, τ)
 
 function logpdf(dist::AbstractShiftedLogNormal, rt)
     (; τ, ν, σ) = dist
+    @argcheck τ ≤ rt
     return logpdf(LogNormal(ν, σ), rt - τ)
+end
+
+function pdf(dist::AbstractShiftedLogNormal, rt::Real)
+    (; τ, ν, σ) = dist
+    @argcheck τ ≤ rt
+    return pdf(LogNormal(ν, σ), rt - τ)
 end
 
 function rand(rng::AbstractRNG, dist::AbstractShiftedLogNormal, n_trials::Int)
