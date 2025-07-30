@@ -66,7 +66,7 @@ z = 0.50
 Now that values have been assigned to the parameters, we will pass them to `DDM` to generate the model object.
 
 ```@example DDM 
-dist = DDM(ν, α, τ, z)
+dist = DDM(; ν, α, z, τ)
 ```
 
 ## Simulate Model
@@ -101,7 +101,7 @@ The code below overlays the PDF on reaction time histograms for each option.
 
  ```@example DDM 
 histogram(dist)
-plot!(dist; t_range=range(.301, 1, length=100))
+plot!(dist; t_range=range(.501, 1, length=100))
 ```
 
 # References

@@ -56,7 +56,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 Now that values have been asigned to the parameters, we will pass them to `shifted lognormal` to generate the model object.
 
 ```@example shifted_lognormal 
-dist = ShiftedLogNormal(ν, σ, τ)
+dist = ShiftedLogNormal(; ν, σ, τ)
 ```
 ## Simulate Model
 
@@ -91,7 +91,7 @@ cdf(dist, .75)
 The code below overlays the PDF on reaction time histogram.
 ```@example shifted_lognormal 
 histogram(dist)
-plot!(dist; t_range=range(.130, 1.5, length=100))
+plot!(dist; t_range=range(.30, 1.5, length=100))
 ```
 # References
 

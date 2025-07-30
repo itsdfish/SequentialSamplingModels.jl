@@ -17,7 +17,6 @@ makedocs(
     ),
     modules = [
         SequentialSamplingModels,
-        Base.get_extension(SequentialSamplingModels, :TuringExt),
         Base.get_extension(SequentialSamplingModels, :PlotsExt)
     ],
     pages = [
