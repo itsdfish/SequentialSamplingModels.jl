@@ -3,54 +3,54 @@
 using Plots
 using Random
 
-Random.seed!(8741)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Random.TaskLocalRNG()</code></pre><h2 id="Create-Model-Object"><a class="docs-heading-anchor" href="#Create-Model-Object">Create Model Object</a><a id="Create-Model-Object-1"></a><a class="docs-heading-anchor-permalink" href="#Create-Model-Object" title="Permalink"></a></h2><p>In the code below, we will define parameters for the DDM and create a model object to store the parameter values. </p><h3 id="Drift-Rate"><a class="docs-heading-anchor" href="#Drift-Rate">Drift Rate</a><a id="Drift-Rate-1"></a><a class="docs-heading-anchor-permalink" href="#Drift-Rate" title="Permalink"></a></h3><p>The average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 &lt; ν &lt; 5</p><pre><code class="language-julia hljs">ν=1.0</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1.0</code></pre><h3 id="Boundary-Separation"><a class="docs-heading-anchor" href="#Boundary-Separation">Boundary Separation</a><a id="Boundary-Separation-1"></a><a class="docs-heading-anchor-permalink" href="#Boundary-Separation" title="Permalink"></a></h3><p>The amount of information that is considered for a decision. Large values indicates response caution. Typical range: 0.5 &lt; α &lt; 2</p><pre><code class="language-julia hljs">α = 0.80</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.8</code></pre><h3 id="Non-Decision-Time"><a class="docs-heading-anchor" href="#Non-Decision-Time">Non-Decision Time</a><a id="Non-Decision-Time-1"></a><a class="docs-heading-anchor-permalink" href="#Non-Decision-Time" title="Permalink"></a></h3><p>The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 &lt; τ &lt; 0.5 </p><pre><code class="language-julia hljs">τ = 0.30</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.3</code></pre><h3 id="Starting-Point"><a class="docs-heading-anchor" href="#Starting-Point">Starting Point</a><a id="Starting-Point-1"></a><a class="docs-heading-anchor-permalink" href="#Starting-Point" title="Permalink"></a></h3><p>An indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).</p><pre><code class="language-julia hljs">z = 0.50</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.5</code></pre><h3 id="DDM-Constructor"><a class="docs-heading-anchor" href="#DDM-Constructor">DDM Constructor</a><a id="DDM-Constructor-1"></a><a class="docs-heading-anchor-permalink" href="#DDM-Constructor" title="Permalink"></a></h3><p>Now that values have been assigned to the parameters, we will pass them to <code>DDM</code> to generate the model object.</p><pre><code class="language-julia hljs">dist = DDM(ν, α, τ, z)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr1">DDM
+Random.seed!(8741)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Random.TaskLocalRNG()</code></pre><h2 id="Create-Model-Object"><a class="docs-heading-anchor" href="#Create-Model-Object">Create Model Object</a><a id="Create-Model-Object-1"></a><a class="docs-heading-anchor-permalink" href="#Create-Model-Object" title="Permalink"></a></h2><p>In the code below, we will define parameters for the DDM and create a model object to store the parameter values. </p><h3 id="Drift-Rate"><a class="docs-heading-anchor" href="#Drift-Rate">Drift Rate</a><a id="Drift-Rate-1"></a><a class="docs-heading-anchor-permalink" href="#Drift-Rate" title="Permalink"></a></h3><p>The average slope of the information accumulation process. The drift gives information about the speed and direction of the accumulation of information. Typical range: -5 &lt; ν &lt; 5</p><pre><code class="language-julia hljs">ν=1.0</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1.0</code></pre><h3 id="Boundary-Separation"><a class="docs-heading-anchor" href="#Boundary-Separation">Boundary Separation</a><a id="Boundary-Separation-1"></a><a class="docs-heading-anchor-permalink" href="#Boundary-Separation" title="Permalink"></a></h3><p>The amount of information that is considered for a decision. Large values indicates response caution. Typical range: 0.5 &lt; α &lt; 2</p><pre><code class="language-julia hljs">α = 0.80</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.8</code></pre><h3 id="Non-Decision-Time"><a class="docs-heading-anchor" href="#Non-Decision-Time">Non-Decision Time</a><a id="Non-Decision-Time-1"></a><a class="docs-heading-anchor-permalink" href="#Non-Decision-Time" title="Permalink"></a></h3><p>The duration for a non-decisional processes (encoding and response execution). Typical range: 0.1 &lt; τ &lt; 0.5 </p><pre><code class="language-julia hljs">τ = 0.30</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.3</code></pre><h3 id="Starting-Point"><a class="docs-heading-anchor" href="#Starting-Point">Starting Point</a><a id="Starting-Point-1"></a><a class="docs-heading-anchor-permalink" href="#Starting-Point" title="Permalink"></a></h3><p>An indicator of an an initial bias towards a decision. The z parameter is relative to a (i.e. it ranges from 0 to 1).</p><pre><code class="language-julia hljs">z = 0.50</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.5</code></pre><h3 id="DDM-Constructor"><a class="docs-heading-anchor" href="#DDM-Constructor">DDM Constructor</a><a id="DDM-Constructor-1"></a><a class="docs-heading-anchor-permalink" href="#DDM-Constructor" title="Permalink"></a></h3><p>Now that values have been assigned to the parameters, we will pass them to <code>DDM</code> to generate the model object.</p><pre><code class="language-julia hljs">dist = DDM(; ν, α, z, τ)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr1">DDM
 ┌───────────┬───────┐
 │ Parameter │ Value │
 ├───────────┼───────┤
 │ ν         │  1.00 │
 │ α         │  0.80 │
-│ z         │  0.30 │
-│ τ         │  0.50 │
+│ z         │  0.50 │
+│ τ         │  0.30 │
 └───────────┴───────┘
-</span></code></pre><h2 id="Simulate-Model"><a class="docs-heading-anchor" href="#Simulate-Model">Simulate Model</a><a id="Simulate-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Simulate-Model" title="Permalink"></a></h2><p>Now that the model is defined, we will generate <span>$10,000$</span> choices and reaction times using <code>rand</code>. </p><pre><code class="language-julia hljs"> choices,rts = rand(dist, 10_000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(choice = [2, 2, 2, 1, 2, 2, 2, 1, 1, 2  …  1, 2, 2, 1, 1, 2, 2, 2, 1, 2], rt = [0.8540833743136477, 0.9172878615122555, 0.5167882086926956, 0.5619636321779704, 0.6372437543054534, 0.5187234905237433, 0.5290776286723692, 0.614469642399428, 0.6929130841909981, 0.5102443554497827  …  0.6764253513088843, 0.567697104139211, 0.5788217479547593, 0.6359702521570838, 0.6730704702512863, 0.5369607628955843, 0.56460519668186, 0.552534016007984, 0.578053863708004, 0.5450817074252159])</code></pre><h2 id="Compute-PDF"><a class="docs-heading-anchor" href="#Compute-PDF">Compute PDF</a><a id="Compute-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PDF" title="Permalink"></a></h2><p>The PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">pdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
- 0.1707570036840438
- 0.10157448683853935
- 6.176050605689833
- 1.9498828326430897
- 1.1120445858644057
- 6.254950207453447
- 5.560196242606552
- 2.2666992794573937
- 1.387715793919971
- 4.345154447894261
+</span></code></pre><h2 id="Simulate-Model"><a class="docs-heading-anchor" href="#Simulate-Model">Simulate Model</a><a id="Simulate-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Simulate-Model" title="Permalink"></a></h2><p>Now that the model is defined, we will generate <span>$10,000$</span> choices and reaction times using <code>rand</code>. </p><pre><code class="language-julia hljs"> choices,rts = rand(dist, 10_000)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(choice = [1, 2, 1, 2, 1, 1, 1, 1, 2, 2  …  1, 1, 1, 1, 2, 2, 2, 2, 1, 1], rt = [0.6235206166529468, 0.4730100628894679, 0.41416830567456797, 0.45348580657591553, 0.4902964459872113, 0.35549787903564745, 0.364794969473803, 0.38132429278262064, 0.4073764822411673, 0.48604364664185495  …  0.48572158356251227, 0.6502347287703497, 0.3677126338641864, 0.34315811087205195, 0.4169393291733256, 0.3491622503481624, 0.5229021632142459, 0.3565379011907389, 0.35755435178953376, 0.32320699819949383])</code></pre><h2 id="Compute-PDF"><a class="docs-heading-anchor" href="#Compute-PDF">Compute PDF</a><a id="Compute-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-PDF" title="Permalink"></a></h2><p>The PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">pdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
+ 0.514124104892007
+ 0.7948722232662816
+ 2.860504846615849
+ 0.9329255514317525
+ 1.5350142032434622
+ 4.189626309618437
+ 4.064726564953159
+ 3.6810990704177433
+ 1.3571601666217776
+ 0.7142306046953543
  ⋮
- 2.7012911122782364
- 2.2703563521558348
- 2.0467264610205906
- 1.6067755657360605
- 4.773632860177681
- 2.84352138656625
- 3.5215570936719485
- 2.282402058364405
- 4.0612153326284535</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
- -1.7675137641891465
- -2.2869628891660074
-  1.8206790066153677
-  0.6677692849463734
-  0.10620029022640319
-  1.8333731834480929
-  1.715633403072455
-  0.8183247114063541
-  0.32765908169488783
-  1.4690613042062655
+ 0.4128668079665767
+ 4.006584190722666
+ 4.070918713820625
+ 1.256913648962592
+ 1.8811098885973885
+ 0.5277392004877951
+ 1.8790220516837353
+ 4.1724231063021024
+ 2.1188708300025136</code></pre><h2 id="Compute-Log-PDF"><a class="docs-heading-anchor" href="#Compute-Log-PDF">Compute Log PDF</a><a id="Compute-Log-PDF-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Log-PDF" title="Permalink"></a></h2><p>Similarly, the log PDF for each observation can be computed as follows:</p><pre><code class="language-julia hljs">logpdf.(dist, choices, rts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10000-element Vector{Float64}:
+ -0.6652905934649012
+ -0.22957390269674277
+  1.0509981290497268
+ -0.06942987613984214
+  0.4285396339236893
+  1.4326115437081335
+  1.4023464750431558
+  1.3032113680302926
+  0.3053944038227346
+ -0.3365493930241957
   ⋮
-  0.9937298484466888
-  0.8199368025012795
-  0.7162416685465508
-  0.47422941660124457
-  1.5631076209329124
-  1.0450432089484079
-  1.2589032479561681
-  0.8252284227588448
-  1.4014822718313953</code></pre><h2 id="Compute-Choice-Probability"><a class="docs-heading-anchor" href="#Compute-Choice-Probability">Compute Choice Probability</a><a id="Compute-Choice-Probability-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Choice-Probability" title="Permalink"></a></h2><p>The choice probability <span>$\Pr(C=c)$</span> is computed by passing the model and choice index to <code>cdf</code> along with a large value for time as the second argument.</p><pre><code class="language-julia hljs">cdf(dist, 1, 10)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.47765310738402006</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histograms for each option.</p><pre><code class="language- hljs">histogram(dist)
-plot!(dist; t_range=range(.301, 1, length=100))</code></pre><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Navarro, D., &amp; Fuss, I. (2009). Fast and accurate calculations for first-passage times in Wiener diffusion models. https://doi.org/10.1016/J.JMP.2009.02.003</p><p>Ratcliff, R., &amp; McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922. https://doi.org/10.1162/neco.2008.12-06-420</p><p>Ratcliff, R., &amp; Rouder, J. N. (1998). Modeling Response Times for Two-Choice Decisions. Psychological Science, 9(5), 347–356. https://doi.org/10.1111/1467-9280.00067</p><p>Ratcliff, R., &amp; Smith, P. L. (2004). A comparison of sequential sampling models for two-choice reaction time. Psychological Review, 111 2, 333–367. https://doi.org/10.1037/0033-295X.111.2.333</p><p>Ratcliff, R., Smith, P. L., Brown, S. D., &amp; McKoon, G. (2016). Diffusion Decision Model: Current Issues and History. Trends in Cognitive Sciences, 20(4), 260–281. https://doi.org/10.1016/j.tics.2016.01.007</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../wald_mixture/">« Wald Mixture</a><a class="docs-footer-nextpage" href="../lca/">Leaky Competing Accumulator (LCA) »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 29 July 2025 20:14">Tuesday 29 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ -0.8846302369053225
+  1.3879390555488813
+  1.4038687021931797
+  0.2286592311168336
+  0.6318619689194519
+ -0.6391530557737511
+  0.6307514562239512
+  1.4284969476967095
+  0.7508833194302779</code></pre><h2 id="Compute-Choice-Probability"><a class="docs-heading-anchor" href="#Compute-Choice-Probability">Compute Choice Probability</a><a id="Compute-Choice-Probability-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-Choice-Probability" title="Permalink"></a></h2><p>The choice probability <span>$\Pr(C=c)$</span> is computed by passing the model and choice index to <code>cdf</code> along with a large value for time as the second argument.</p><pre><code class="language-julia hljs">cdf(dist, 1, 10)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.6899744811276125</code></pre><h2 id="Plot-Simulation"><a class="docs-heading-anchor" href="#Plot-Simulation">Plot Simulation</a><a id="Plot-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-Simulation" title="Permalink"></a></h2><p>The code below overlays the PDF on reaction time histograms for each option.</p><pre><code class="language-julia hljs">histogram(dist)
+plot!(dist; t_range=range(.501, 1, length=100))</code></pre><img src="7145cce3.svg" alt="Example block output"/><h1 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h1><p>Navarro, D., &amp; Fuss, I. (2009). Fast and accurate calculations for first-passage times in Wiener diffusion models. https://doi.org/10.1016/J.JMP.2009.02.003</p><p>Ratcliff, R., &amp; McKoon, G. (2008). The Diffusion Decision Model: Theory and Data for Two-Choice Decision Tasks. Neural Computation, 20(4), 873–922. https://doi.org/10.1162/neco.2008.12-06-420</p><p>Ratcliff, R., &amp; Rouder, J. N. (1998). Modeling Response Times for Two-Choice Decisions. Psychological Science, 9(5), 347–356. https://doi.org/10.1111/1467-9280.00067</p><p>Ratcliff, R., &amp; Smith, P. L. (2004). A comparison of sequential sampling models for two-choice reaction time. Psychological Review, 111 2, 333–367. https://doi.org/10.1037/0033-295X.111.2.333</p><p>Ratcliff, R., Smith, P. L., Brown, S. D., &amp; McKoon, G. (2016). Diffusion Decision Model: Current Issues and History. Trends in Cognitive Sciences, 20(4), 260–281. https://doi.org/10.1016/j.tics.2016.01.007</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../wald_mixture/">« Wald Mixture</a><a class="docs-footer-nextpage" href="../lca/">Leaky Competing Accumulator (LCA) »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Wednesday 30 July 2025 09:11">Wednesday 30 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

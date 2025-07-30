@@ -4,51 +4,109 @@
 using Plots
 using Random
 using SequentialSamplingModels
-using Turing 
+using Turing
+using TuringUtilities
 Random.seed!(1124)
 
 n_samples = 50
-rts = rand(Wald(ν=1.5, α=.8, τ=.3), n_samples)
+rts = rand(Wald(ν = 1.5, α = 0.8, τ = 0.3), n_samples)
 
 @model function wald_model(rts)
     ν ~ truncated(Normal(1.5, 1), 0, Inf)
-    α ~ truncated(Normal(.8, 1), 0, Inf)
+    α ~ truncated(Normal(0.8, 1), 0, Inf)
     τ = 0.3
     rts ~ Wald(ν, α, τ)
-    return (;ν, α, τ)
+    return (; ν, α, τ)
 end
 
 model = wald_model(rts)
 
 prior_chain = sample(model, Prior(), 1000)
 
-pred_model = predict_distribution(Wald; model, func=mean, n_samples)
-prior_preds = generated_quantities(pred_model, prior_chain)
+pred_model = predict_distribution(;
+    simulator = Θ -&gt; rand(Wald(; Θ...), n_samples),
+    model,
+    func = mean
+)
+prior_preds = returned(pred_model, prior_chain)
 
-post_chain = sample(model, NUTS(1000, .85), 1000)
-post_preds = generated_quantities(pred_model, post_chain)
+post_chain = sample(model, NUTS(1000, 0.85), 1000)
+post_preds = returned(pred_model, post_chain)
 
-histogram(prior_preds[:], xlims=(0,4), xlabel=&quot;Mean RT&quot;, ylabel=&quot;Density&quot;, norm=true, 
-    color=:grey, label=&quot;prior&quot;, grid=false)
-histogram!(post_preds[:], alpha=.7, color=:darkred, norm=true, label=&quot;posterior&quot;, grid=false)
-vline!([mean(rts)], linestyle=:dash, color=:black, linewidth=2, label=&quot;data&quot;)</code></pre></details><h1 id="Example"><a class="docs-heading-anchor" href="#Example">Example</a><a id="Example-1"></a><a class="docs-heading-anchor-permalink" href="#Example" title="Permalink"></a></h1><p>The first step is to load the required packages and set the seed for the random number generator.</p><pre><code class="language-julia hljs">using Distributions
+histogram(
+    prior_preds[:],
+    xlims = (0, 4),
+    xlabel = &quot;Mean RT&quot;,
+    ylabel = &quot;Density&quot;,
+    norm = true,
+    color = :grey,
+    label = &quot;prior&quot;,
+    grid = false
+)
+
+histogram!(
+    post_preds[:],
+    alpha = 0.7,
+    color = :darkred,
+    norm = true,
+    label = &quot;posterior&quot;,
+    grid = false
+)
+
+vline!([mean(rts)], linestyle = :dash, color = :black, linewidth = 2, label = &quot;data&quot;)
+
+pred_quantiles = predict_distribution(;
+    simulator = Θ -&gt; rand(Wald(; Θ...), n_samples),
+    model,
+    func = compute_quantiles
+)
+post_quantile_preds = returned(pred_quantiles, post_chain)
+q_data = compute_quantiles(rts)
+plot_quantiles(q_data, post_quantile_preds)</code></pre></details><h1 id="Example"><a class="docs-heading-anchor" href="#Example">Example</a><a id="Example-1"></a><a class="docs-heading-anchor-permalink" href="#Example" title="Permalink"></a></h1><p>The first step is to load the required packages and set the seed for the random number generator.</p><pre><code class="language-julia hljs">using Distributions
 using Plots
 using Random
 using SequentialSamplingModels
-using Turing 
+using Turing
+using TuringUtilities
 Random.seed!(1124)</code></pre><h2 id="Generate-Simulated-Data"><a class="docs-heading-anchor" href="#Generate-Simulated-Data">Generate Simulated Data</a><a id="Generate-Simulated-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-Simulated-Data" title="Permalink"></a></h2><p>We will use the <a href="../wald/">Wald</a> model as a simple example to illustrate how to create predictive distributions. The <code>Wald</code> model describes the evidence accumulation process underlying single detection decisions, such as respending when a stimulus appears. In the code block below, we will generate 50 data points.</p><pre><code class="language-julia hljs">n_samples = 50
-rts = rand(Wald(ν=1.5, α=.8, τ=.3), n_samples)</code></pre><h2 id="Define-Turing-Model"><a class="docs-heading-anchor" href="#Define-Turing-Model">Define Turing Model</a><a id="Define-Turing-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Define-Turing-Model" title="Permalink"></a></h2><p>Next, we will develop a Turing model for generating prior and posterior predictive distributions. You may develop the Turing model as usual, with one minor exception: you must return a <code>NamedTuple</code> of parameters. In the example below, <span>$\nu$</span> and <span>$\alpha$</span> are estimated, but <span>$\tau$</span> is fixed. You may use any combination of estimated and fixed parameters.  </p><pre><code class="language-julia hljs">@model function wald_model(rts)
+rts = rand(Wald(ν = 1.5, α = 0.8, τ = 0.3), n_samples)</code></pre><h2 id="Define-Turing-Model"><a class="docs-heading-anchor" href="#Define-Turing-Model">Define Turing Model</a><a id="Define-Turing-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Define-Turing-Model" title="Permalink"></a></h2><p>Next, we will develop a Turing model for generating prior and posterior predictive distributions. You may develop the Turing model as usual, with one minor exception: you must return a <code>NamedTuple</code> of parameters. In the example below, <span>$\nu$</span> and <span>$\alpha$</span> are estimated, but <span>$\tau$</span> is fixed. You may use any combination of estimated and fixed parameters.  </p><pre><code class="language-julia hljs">@model function wald_model(rts)
     ν ~ truncated(Normal(1.5, 1), 0, Inf)
-    α ~ truncated(Normal(.8, 1), 0, Inf)
+    α ~ truncated(Normal(0.8, 1), 0, Inf)
     τ = 0.3
     rts ~ Wald(ν, α, τ)
-    return (;ν, α, τ)
-end</code></pre><p>In the next code block, we will pass the data and create a model object.</p><pre><code class="language-julia hljs">model = wald_model(rts)</code></pre><h2 id="Generate-Prior-Predictive-Distribution"><a class="docs-heading-anchor" href="#Generate-Prior-Predictive-Distribution">Generate Prior Predictive Distribution</a><a id="Generate-Prior-Predictive-Distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-Prior-Predictive-Distribution" title="Permalink"></a></h2><p>Generating a prior predictive distribution involves two steps: (1) sample from the prior, and (2) predict data or a statistic with the model evaluated at the prior samples. Below, we will sample 1,000 parameter vectors from the model. </p><pre><code class="language-julia hljs">prior_chain = sample(model, Prior(), 1000)</code></pre><p>For the next step, we will generate predictions from the model using the parameters sampled from the prior distribution. When <code>Turing</code> is loaded, <code>SequentialSamplingModels</code> automatically loads <code>predict_distribution</code> into your session. The signature for <code>predict_distribution</code> is as follows:</p><pre><code class="language-julia hljs">predict_distribution(dist, args...; model, func, n_samples, kwargs...)</code></pre><p><code>func</code> computes a statistic from simulated data of the model and has the general form <code>func(sim_data, args...; kwargs...)</code>. Thus, the only constraint is that <code>func</code> must recieve the simulated data as its first argument. <code>args...</code> and <code>kwargs...</code> are optionally pased to <code>func</code>. The remaining inputs are the model type <code>dist</code>, the Turing model object <code>model</code>, and the number of simulated observations <code>n_samples</code>.</p><p>As a simple illustration, we will compute the prior predictive mean by calling the following two functions. The first function creates a new function to sample from the predictive distribution and the second function <code>generated_quantities</code> performs the sampling.</p><pre><code class="language-julia hljs">pred_model = predict_distribution(Wald; model, func=mean, n_samples)
-prior_preds = generated_quantities(pred_model, prior_chain)</code></pre><h2 id="Generate-Posterior-Predictive-Distribution"><a class="docs-heading-anchor" href="#Generate-Posterior-Predictive-Distribution">Generate Posterior Predictive Distribution</a><a id="Generate-Posterior-Predictive-Distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-Posterior-Predictive-Distribution" title="Permalink"></a></h2><p>Generating a posterior predictive distribution involves a similar process. First, we will estimate the parameters from the data to obtain a chain of posterior samples. Next, we will generate the posterior predictive distribution using <code>generated_quantities</code>:</p><pre><code class="language-julia hljs">post_chain = sample(model, NUTS(1000, .85), 1000)
-post_preds = generated_quantities(pred_model, post_chain)</code></pre><h2 id="Plot-the-Distributions"><a class="docs-heading-anchor" href="#Plot-the-Distributions">Plot the Distributions</a><a id="Plot-the-Distributions-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-Distributions" title="Permalink"></a></h2><p>Now that we have generated the predictive distributions, we can compare them to the data by plotting them as a histogram. The histogram below reveals two insights: first, the data are centered near the prior and posterior predictive distributions, indicating they predict the data accurately; second, the posterior distribution is concentrated more closely around the data, indicating the information gain acquired during parameter estimation. </p><pre><code class="language-julia hljs">histogram(prior_preds[:], xlims=(0,4), xlabel=&quot;Mean RT&quot;, ylabel=&quot;Density&quot;, norm=true, 
-    color=:grey, label=&quot;prior&quot;, grid=false)
-histogram!(post_preds[:], alpha=.7, color=:darkred, norm=true, label=&quot;posterior&quot;, grid=false)
-vline!([mean(rts)], linestyle=:dash, color=:black, linewidth=2, label=&quot;data&quot;)</code></pre><p><img src="../assets/wald_predictive_means.png" alt/></p><h2 id="Posterior-Predictive-Distribution-of-Quantiles"><a class="docs-heading-anchor" href="#Posterior-Predictive-Distribution-of-Quantiles">Posterior Predictive Distribution of Quantiles</a><a id="Posterior-Predictive-Distribution-of-Quantiles-1"></a><a class="docs-heading-anchor-permalink" href="#Posterior-Predictive-Distribution-of-Quantiles" title="Permalink"></a></h2><p>One goal of SSMs is to accurately characterize the distribution of reaction times. The previous example only evaluated one aspective of the model–-namely, the predicted mean. Given the interest in characterizing the shape of the RT distribution, we need a different method. One method for evaluating the model&#39;s ability to capture the shape of the distribution is to compare the quantiles. In the example below, the quantiles of the data and model are evaluated at the deciles: <span>$[.1,.2,\dots, .9]$</span>. If the model matches the data accurately, the quantiles will fall along the identity line.  </p><pre><code class="language-julia hljs">pred_quantiles = predict_distribution(Wald; model, func=compute_quantiles, n_samples=20)
-post_quantile_preds = generated_quantities(pred_quantiles, post_chain)
+    return (; ν, α, τ)
+end</code></pre><p>In the next code block, we will pass the data and create a model object.</p><pre><code class="language-julia hljs">model = wald_model(rts)</code></pre><h2 id="Generate-Prior-Predictive-Distribution"><a class="docs-heading-anchor" href="#Generate-Prior-Predictive-Distribution">Generate Prior Predictive Distribution</a><a id="Generate-Prior-Predictive-Distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-Prior-Predictive-Distribution" title="Permalink"></a></h2><p>Generating a prior predictive distribution involves two steps: (1) sample from the prior, and (2) predict data or a statistic with the model evaluated at the prior samples. Below, we will sample 1,000 parameter vectors from the model. </p><pre><code class="language-julia hljs">prior_chain = sample(model, Prior(), 1000)</code></pre><p>For the next step, we will generate predictions from the model using the parameters sampled from the prior distribution. When <code>Turing</code> is loaded, <code>SequentialSamplingModels</code> automatically loads <code>predict_distribution</code> into your session. The signature for <code>predict_distribution</code> is as follows:</p><pre><code class="language-julia hljs">predict_distribution(args...; simulator, model, func, kwargs...)</code></pre><p><code>The function</code>simulator<code>accepts a</code>NamedTuple<code>of sampled parameters and returns simulated data.</code>func<code>computes a statistic from simulated data of the model and has the general form</code>func(sim_data, args...; kwargs...)<code>. Thus, the only constraint is that</code>func<code>must recieve the simulated data as its first argument.</code>args...<code>and</code>kwargs...<code>are optionally pased to</code>func<code>.  The keyword</code>model` the Turing model object. </p><p>As a simple illustration, we will compute the prior predictive mean by calling the following two functions. The first function creates a new function to sample from the predictive distribution and the second function <code>returned</code> performs the sampling.</p><pre><code class="language-julia hljs">pred_model = predict_distribution(;
+    simulator = Θ -&gt; rand(Wald(; Θ...), n_samples),
+    model,
+    func = mean
+)
+prior_preds = returned(pred_model, prior_chain)</code></pre><h2 id="Generate-Posterior-Predictive-Distribution"><a class="docs-heading-anchor" href="#Generate-Posterior-Predictive-Distribution">Generate Posterior Predictive Distribution</a><a id="Generate-Posterior-Predictive-Distribution-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-Posterior-Predictive-Distribution" title="Permalink"></a></h2><p>Generating a posterior predictive distribution involves a similar process. First, we will estimate the parameters from the data to obtain a chain of posterior samples. Next, we will generate the posterior predictive distribution using <code>returned</code>:</p><pre><code class="language-julia hljs">post_chain = sample(model, NUTS(1000, 0.85), 1000)
+post_preds = returned(pred_model, post_chain)</code></pre><h2 id="Plot-the-Distributions"><a class="docs-heading-anchor" href="#Plot-the-Distributions">Plot the Distributions</a><a id="Plot-the-Distributions-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-Distributions" title="Permalink"></a></h2><p>Now that we have generated the predictive distributions, we can compare them to the data by plotting them as a histogram. The histogram below reveals two insights: first, the data are centered near the prior and posterior predictive distributions, indicating they predict the data accurately; second, the posterior distribution is concentrated more closely around the data, indicating the information gain acquired during parameter estimation. </p><pre><code class="language-julia hljs">histogram(
+    prior_preds[:],
+    xlims = (0, 4),
+    xlabel = &quot;Mean RT&quot;,
+    ylabel = &quot;Density&quot;,
+    norm = true,
+    color = :grey,
+    label = &quot;prior&quot;,
+    grid = false
+)
+
+histogram!(
+    post_preds[:],
+    alpha = 0.7,
+    color = :darkred,
+    norm = true,
+    label = &quot;posterior&quot;,
+    grid = false
+)
+
+vline!([mean(rts)], linestyle = :dash, color = :black, linewidth = 2, label = &quot;data&quot;)
+</code></pre><p><img src="../assets/wald_predictive_means.png" alt/></p><h2 id="Posterior-Predictive-Distribution-of-Quantiles"><a class="docs-heading-anchor" href="#Posterior-Predictive-Distribution-of-Quantiles">Posterior Predictive Distribution of Quantiles</a><a id="Posterior-Predictive-Distribution-of-Quantiles-1"></a><a class="docs-heading-anchor-permalink" href="#Posterior-Predictive-Distribution-of-Quantiles" title="Permalink"></a></h2><p>One goal of SSMs is to accurately characterize the distribution of reaction times. The previous example only evaluated one aspective of the model–-namely, the predicted mean. Given the interest in characterizing the shape of the RT distribution, we need a different method. One method for evaluating the model&#39;s ability to capture the shape of the distribution is to compare the quantiles. In the example below, the quantiles of the data and model are evaluated at the deciles: <span>$[.1,.2,\dots, .9]$</span>. If the model matches the data accurately, the quantiles will fall along the identity line.  </p><pre><code class="language-julia hljs">pred_quantiles = predict_distribution(;
+    simulator = Θ -&gt; rand(Wald(; Θ...), n_samples),
+    model,
+    func = compute_quantiles
+)
+post_quantile_preds = returned(pred_quantiles, post_chain)
 q_data = compute_quantiles(rts)
-plot_quantiles(q_data, post_quantile_preds)</code></pre><p><img src="../assets/wald_predictive_qq_plots.png" alt/></p><p>The posterior predictive quantile-quantile plot above shows that the model fits the reaction time distribution well. This close match is to be expected, as we generated the data from the same model. </p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../loo_compare/">« PSIS-LOO</a><a class="docs-footer-nextpage" href="../basic_plot_example/">Basic Example »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 29 July 2025 20:14">Tuesday 29 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+plot_quantiles(q_data, post_quantile_preds)</code></pre><p><img src="../assets/wald_predictive_qq_plots.png" alt/></p><p>The posterior predictive quantile-quantile plot above shows that the model fits the reaction time distribution well. This close match is to be expected, as we generated the data from the same model. </p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../loo_compare/">« PSIS-LOO</a><a class="docs-footer-nextpage" href="../basic_plot_example/">Basic Example »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Wednesday 30 July 2025 09:11">Wednesday 30 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
