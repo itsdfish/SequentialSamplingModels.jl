@@ -179,7 +179,7 @@
         using SequentialSamplingModels
         using Test
 
-        dist = Wald(ν = 3.0, α = 0.5, τ = 0.130, η = .10)
+        dist = Wald(ν = 3.0, α = 0.5, τ = 0.130, η = 0.10)
         h = histogram(dist)
         plot!(h, dist; t_range = range(0.130, 1.0, length = 100))
 

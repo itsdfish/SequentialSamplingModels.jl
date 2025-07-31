@@ -91,7 +91,7 @@ function logpdf(d::Wald, rt::AbstractFloat)
     return d.η > 0 ? _logpdf_full(d, rt) : _logpdf_partial(d, rt)
 end
 
-function  _logpdf_partial(d::Wald, rt::AbstractFloat)
+function _logpdf_partial(d::Wald, rt::AbstractFloat)
     return d.ν == 0 ? -Inf : logpdf(InverseGaussian(d.α / d.ν, d.α^2), rt - d.τ)
 end
 
