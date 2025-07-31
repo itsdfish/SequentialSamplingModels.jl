@@ -1,47 +1,60 @@
-@safetestset "Wald" begin
-    @safetestset "pdf" begin
-        using Test, SequentialSamplingModels, StableRNGs
-        include("../KDE.jl")
-        rng = StableRNG(122)
-        d = Wald(2, 1, 0.1)
-        @test mean(d) ≈ (1 / 2) + 0.1 atol = 1e-5
-
-        function simulate(rng, υ, α, τ)
-            noise = 1.0
-            #Time Step
-            Δt = 0.0005
-            #Evidence step
-            Δe = noise * sqrt(Δt)
-            e = 0.0
-            t = τ
-            p = 0.5 * (1 + υ * sqrt(Δt) / noise)
-            while (e < α)
-                t += Δt
-                e += rand(rng,) ≤ p ? Δe : -Δe
-            end
-            return t
+@safetestset "Wald Mixture" begin
+    @safetestset "pd" begin
+        @safetestset "pdf 1" begin
+            using Test, SequentialSamplingModels, StableRNGs
+            include("../KDE.jl")
+            rng = StableRNG(2777)
+            d = Wald(3, 0.5, 1, 0.1)
+            rts = rand(rng, d, 200_000)
+            # remove outliers
+            filter!(x -> x < 5, rts)
+            approx_pdf = kde(rts)
+            x = 0.11:0.01:1.5
+            y′ = pdf(approx_pdf, x)
+            y = pdf.(d, x)
+            @test y′ ≈ y rtol = 0.03
         end
-        rts = map(_ -> simulate(rng, 3, 1, 0.2), 1:(10 ^ 5))
-        approx_pdf = kde(rts)
-        x = 0.2:0.01:1.5
-        y′ = pdf(approx_pdf, x)
-        y = pdf.(Wald(3, 1, 0.2), x)
-        @test y′ ≈ y rtol = 0.03
-        @test mean(rts) ≈ mean(Wald(3, 1, 0.2)) atol = 5e-3
-        @test std(rts) ≈ std(Wald(3, 1, 0.2)) atol = 1e-3
+
+        @safetestset "pdf 2" begin
+            using Test
+            using SequentialSamplingModels
+            using QuadGK
+
+            dist = Wald(; ν = 3.0, η = 1.0, α = 0.5, τ = 0.130)
+            integral, _ = quadgk(t -> pdf(dist, t), 0.130, 20.0)
+            @test integral ≈ 1 atol = 1e-4
+
+            dist = Wald(; ν = 2.0, η = 0.5, α = 0.3, τ = 0.130)
+            integral, _ = quadgk(t -> pdf(dist, t), 0.130, 20.0)
+            @test integral ≈ 1 atol = 1e-4
+        end
     end
 
     @safetestset "loglikelihood" begin
         using SequentialSamplingModels
         using Test
         using StableRNGs
+        rng = StableRNG(67)
 
-        dist = Wald(2, 1, 0.1)
-        rt = rand(dist, 10)
+        dist = Wald(2, 0.2, 1, 0.1)
+        rt = rand(rng, dist, 10)
 
         sum_logpdf = logpdf.(dist, rt) |> sum
         loglike = loglikelihood(dist, rt)
         @test sum_logpdf ≈ loglike
+    end
+
+    @safetestset "logpdf" begin
+        using SequentialSamplingModels
+        using Test
+
+        dist = Wald(; ν = 2.0, η = 0.5, α = 0.3, τ = 0.130)
+        t = range(0.131, 2, length = 20)
+
+        pdfs = pdf.(dist, t)
+        logpdfs = logpdf.(dist, t)
+
+        @test logpdfs ≈ log.(pdfs) atol = 1e-8
     end
 
     @safetestset "simulate" begin
@@ -49,7 +62,7 @@
         using Test
         using StableRNGs
 
-        rng = StableRNG(445)
+        rng = StableRNG(12)
         α = 0.80
 
         dist = Wald(; α)
@@ -68,10 +81,10 @@
             using StatsBase
             using Test
 
-            rng = StableRNG(554)
+            rng = StableRNG(345)
             n_sim = 10_000
 
-            dist = Wald(ν = 3.0, α = 0.5, τ = 0.130)
+            dist = Wald(; ν = 3.0, η = 0.5, α = 0.5, τ = 0.130)
             rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
@@ -87,10 +100,10 @@
             using StatsBase
             using Test
 
-            rng = StableRNG(588)
+            rng = StableRNG(44)
             n_sim = 10_000
 
-            dist = Wald(ν = 2.0, α = 0.8, τ = 0.130)
+            dist = Wald(; ν = 2.0, η = 0.2, α = 0.8, τ = 0.130)
             rt = rand(rng, dist, n_sim)
             ul, ub = quantile(rt, [0.05, 0.95])
             for t ∈ range(ul, ub, length = 10)
@@ -101,27 +114,26 @@
         end
     end
 
-    @safetestset "params" begin
-        using Test
-        using Distributions
-        using SequentialSamplingModels
-
-        parms = (; ν = 1.5, α = 0.75, τ = 0.20)
-
-        model = Wald(; parms...)
-        @test values(parms) == params(model)
-    end
-
     @safetestset "parameter checks" begin
         @safetestset "all valid" begin
             using Test
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = 1.5, α = 0.75, τ = 0.20)
+            parms = (; ν = 3.0, η = 0.2, α = 0.5, τ = 0.130)
             Wald(; parms...)
             Wald(values(parms)...)
             @test true
+        end
+
+        @safetestset "η invalid" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            parms = (; ν = 3.0, η = -0.2, α = 0.5, τ = 0.130)
+            @test_throws ArgumentError Wald(; parms...)
+            @test_throws ArgumentError Wald(values(parms)...)
         end
 
         @safetestset "α invalid" begin
@@ -129,7 +141,7 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = 1.5, α = -0.75, τ = 0.20)
+            parms = (; ν = 3.0, η = 0.2, α = -0.5, τ = 0.130)
             @test_throws ArgumentError Wald(; parms...)
             @test_throws ArgumentError Wald(values(parms)...)
         end
@@ -139,9 +151,20 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; ν = 1.5, α = 0.75, τ = -0.20)
+            parms = (; ν = 3.0, η = 0.2, α = 0.5, τ = -0.130)
             @test_throws ArgumentError Wald(; parms...)
             @test_throws ArgumentError Wald(values(parms)...)
         end
+    end
+
+    @safetestset "params" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        parms = (; ν = 3.0, η = 0.2, α = 0.5, τ = 0.130)
+
+        model = Wald(; parms...)
+        @test values(parms) == params(model)
     end
 end

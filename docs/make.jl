@@ -26,7 +26,6 @@ makedocs(
                 "Ex-Gaussian" => "ex_gaussian.md",
                 "Shifted Log Normal" => "shifted_lognormal.md",
                 "Wald" => "wald.md",
-                "Wald Mixture" => "wald_mixture.md"
             ],
             "Multi-choice Models" => [
                 "Single Attribute Models" => [

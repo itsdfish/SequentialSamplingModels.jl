@@ -67,7 +67,6 @@ export SSM2D
 export stDDM
 export ContinuousMultivariateSSM
 export Wald
-export WaldMixture
 
 export cdf
 export compute_choice_probs
@@ -99,8 +98,7 @@ include("utilities.jl")
 
 include("single_choice_models/ex_gaussian.jl")
 include("single_choice_models/ShiftedLogNormal.jl")
-include("single_choice_models/Wald.jl")
-include("single_choice_models/wald_mixture.jl")
+include("single_choice_models/wald.jl")
 
 include("multi_choice_models/AttentionalDiffusion.jl")
 include("multi_choice_models/ClassicMDFT.jl")
