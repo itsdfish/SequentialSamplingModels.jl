@@ -107,7 +107,7 @@
         model = PoissonRace(; parms...)
         @test values(parms) == params(model)
     end
-    
+
     @safetestset "parameter checks" begin
         @safetestset "all valid" begin
             using Test

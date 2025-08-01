@@ -24,8 +24,8 @@
             integral, _ = quadgk(t -> pdf(dist, t), 0.130, 20.0)
             @test integral ≈ 1 atol = 1e-4
 
-            dist = Wald(; ν = 2.0, η = 0.0, α = 0.3, τ = .130)
-            integral, _ = quadgk(t -> pdf(dist, t), .130, 20.0)
+            dist = Wald(; ν = 2.0, η = 0.0, α = 0.3, τ = 0.130)
+            integral, _ = quadgk(t -> pdf(dist, t), 0.130, 20.0)
             @test integral ≈ 1 atol = 1e-4
         end
     end
@@ -63,30 +63,30 @@
         using StableRNGs
 
         rng = StableRNG(34)
-        
+
         Θ = (; ν = 2.0, η = 0.3, α = 0.3, τ = 0.130)
         dist = Wald(; Θ...)
         data = rand(rng, dist, 10_000)
 
-        νs = range(Θ.ν * .8, Θ.ν * 1.2, 100)
+        νs = range(Θ.ν * 0.8, Θ.ν * 1.2, 100)
         LLs = map(ν -> loglikelihood(Wald(; Θ..., ν), data), νs)
         _, max_idx = findmax(LLs)
-        @test νs[max_idx] ≈ Θ.ν rtol = .02
+        @test νs[max_idx] ≈ Θ.ν rtol = 0.02
 
         ηs = range(0, Θ.η * 1.2, 100)
         LLs = map(η -> loglikelihood(Wald(; Θ..., η), data), ηs)
         _, max_idx = findmax(LLs)
-        @test ηs[max_idx] ≈ Θ.η atol = .05
+        @test ηs[max_idx] ≈ Θ.η atol = 0.05
 
-        αs = range(Θ.α * .8, Θ.α * 1.2, 100)
+        αs = range(Θ.α * 0.8, Θ.α * 1.2, 100)
         LLs = map(α -> loglikelihood(Wald(; Θ..., α), data), αs)
         _, max_idx = findmax(LLs)
-        @test αs[max_idx] ≈ Θ.α rtol = .02
+        @test αs[max_idx] ≈ Θ.α rtol = 0.02
 
-        τs = range(Θ.τ * .8, Θ.τ, 100)
+        τs = range(Θ.τ * 0.8, Θ.τ, 100)
         LLs = map(τ -> loglikelihood(Wald(; Θ..., τ), data), τs)
         _, max_idx = findmax(LLs)
-        @test τs[max_idx] ≈ Θ.τ rtol = .02
+        @test τs[max_idx] ≈ Θ.τ rtol = 0.02
     end
 
     @safetestset "simulate" begin
