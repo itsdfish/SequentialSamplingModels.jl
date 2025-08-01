@@ -22,7 +22,6 @@ The following SSMs are supported:
 - [Ex-Gaussian](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/ex_gaussian/)
 - [Shifted Log Normal](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/shifted_lognormal/)
 - [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
-- [Wald Mixture](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald_mixture/)
 
 ### Multi-Choice Models 
 #### Single Attribute

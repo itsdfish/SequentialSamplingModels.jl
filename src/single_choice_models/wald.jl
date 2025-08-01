@@ -66,11 +66,6 @@ end
 
 function pdf(d::Wald, rt::AbstractFloat)
     return d.η > 0 ? _pdf_full(d, rt) : _pdf_partial(d, rt)
-    c1 = α / √((2 * π * (rt - τ)^3) * ((rt - τ) * η^2 + 1))
-    c2 = 1 / Φ(ν / η)
-    c3 = exp(-(ν * (rt - τ) - α)^2 / (2 * (rt - τ) * ((rt - τ) * η^2 + 1)))
-    c4 = (α * η^2 + ν) / √(η^2 * ((rt - τ) * η^2 + 1))
-    return c1 * c2 * c3 * Φ(c4)
 end
 
 function _pdf_full(d::Wald, rt::AbstractFloat)
