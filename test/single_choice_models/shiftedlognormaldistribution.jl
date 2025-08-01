@@ -71,8 +71,8 @@
             using Distributions
             using SequentialSamplingModels
 
-            dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
-            @test mean(LogNormal(-1, .5)) + .1 ≈ mean(dist)
+            dist = ShiftedLogNormal(; ν = -1, σ = 0.5, τ = 0.1)
+            @test mean(LogNormal(-1, 0.5)) + 0.1 ≈ mean(dist)
         end
 
         @safetestset "2" begin
@@ -80,36 +80,36 @@
             using Distributions
             using SequentialSamplingModels
             using StableRNGs
-            
+
             rng = StableRNG(32)
 
-            dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
+            dist = ShiftedLogNormal(; ν = -1, σ = 0.5, τ = 0.1)
             data = rand(dist, 10_000)
-            @test mean(data) ≈ mean(dist) rtol = .01
+            @test mean(data) ≈ mean(dist) rtol = 0.01
         end
     end
 
-    @safetestset "cdf" begin 
+    @safetestset "cdf" begin
         using Test
         using Distributions
         using SequentialSamplingModels
         using StableRNGs
-        
+
         rng = StableRNG(345)
 
-        dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
+        dist = ShiftedLogNormal(; ν = -1, σ = 0.5, τ = 0.1)
         data = rand(dist, 10_000)
 
-        @test cdf(dist, .5) ≈ mean(data .≤ .5) rtol = .02
+        @test cdf(dist, 0.5) ≈ mean(data .≤ 0.5) rtol = 0.02
     end
-        
+
     @safetestset "std" begin
         using Test
         using Distributions
         using SequentialSamplingModels
 
-        dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
-        @test std(LogNormal(-1, .5)) ≈ std(dist)
+        dist = ShiftedLogNormal(; ν = -1, σ = 0.5, τ = 0.1)
+        @test std(LogNormal(-1, 0.5)) ≈ std(dist)
     end
 
     @safetestset "params" begin
