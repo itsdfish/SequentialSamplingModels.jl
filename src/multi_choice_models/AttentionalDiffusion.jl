@@ -205,7 +205,7 @@ function rand(rng::AbstractRNG, dist::AbstractaDDM; fixate, Δt = 0.001)
     while abs(v) < α
         t += Δt
         location = fixate()
-        v += increment(rng, dist, location)
+        v += increment!(rng, dist, location)
     end
     choice = (v < α) + 1
     return (; choice, rt = t)
@@ -275,10 +275,10 @@ function survivor(d::AbstractaDDM, choice::Int, ub::Real, args...; fixate, kwarg
     return survivor(Random.default_rng(), d, choice, fixate, ub, args...; fixate, kwargs...)
 end
 
-increment(dist::AbstractaDDM, location) = increment(Random.default_rng(), dist, location)
+increment!(dist::AbstractaDDM, location) = increment!(Random.default_rng(), dist, location)
 
 """
-    increment(rng::AbstractRNG, dist::aDDM, location)
+    increment!(rng::AbstractRNG, dist::aDDM, location)
 
 Returns the change evidence for a single iteration. 
 
@@ -288,7 +288,7 @@ Returns the change evidence for a single iteration.
 - `dist::aDDM`: a model object for the attentional drift diffusion model
 - `location`: an index for fixation location 
 """
-function increment(rng::AbstractRNG, dist::aDDM, location)
+function increment!(rng::AbstractRNG, dist::aDDM, location)
     (; σ, ν, θ, Δ) = dist
     # option 1
     if location == 1
@@ -349,7 +349,7 @@ function simulate(
     while abs(x) < α
         t += Δt
         location = _fixate()
-        x += increment(model, location)
+        x += increment!(model, location)
         push!(evidence, x)
         push!(time_steps, t)
     end

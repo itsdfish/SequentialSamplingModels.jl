@@ -153,7 +153,7 @@ get_pdf_type(d::maaDDM) = Approximate
 n_options(d::maaDDM) = size(d.ν, 1)
 
 """
-    increment(rng, dist::maaDDM, location)
+    increment!(rng, dist::maaDDM, location)
 
 Returns the change evidence for a single iteration. 
 
@@ -162,7 +162,7 @@ Returns the change evidence for a single iteration.
 - `dist::maaDDM`: a model object for the multiattribute attentional drift diffusion model
 - `location`: an index for fixation location 
 """
-function increment(rng, dist::maaDDM, location)
+function increment!(rng, dist::maaDDM, location)
     (; ν, θ, ϕ, ω, Δ, σ) = dist
     # option 1, attribute 1
     if location == 1
@@ -177,9 +177,10 @@ function increment(rng, dist::maaDDM, location)
         return Δ * (ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * ϕ * (θ * ν[1, 2] - ν[2, 2])) +
                noise(rng, σ)
         # option 2, attribute 2
-    else
+    elseif location == 4
         return Δ * (ϕ * ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * (θ * ν[1, 2] - ν[2, 2])) +
                noise(rng, σ)
     end
+    @argcheck location ∈ [1,2,3,4]
     return -100.0
 end

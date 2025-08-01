@@ -114,8 +114,8 @@ function simulate(rng::AbstractRNG, model::Wald; Δt = 0.001)
     t = 0.0
     evidence = [0.0]
     time_steps = [t]
-    ν′ = rand(truncated(Normal(ν, η), 0, Inf))
-    while x .< α
+    ν′ = rand(rng, truncated(Normal(ν, η), 0, Inf))
+    while x < α
         t += Δt
         x = increment!(rng, model, x, ν′; Δt)
         push!(evidence, x)

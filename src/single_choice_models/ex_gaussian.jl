@@ -8,7 +8,7 @@ to model reaction time distributions. Note that this is not technically a sequen
 
 - `μ::T`: mean of Gaussian component. μ ∈ ℝ⁺.
 - `σ::T`: standard deviation of Gaussian component. σ ∈ ℝ⁺
-- `τ::T`: mean of exponential component. τ ∈ [0, min_rt]
+- `τ::T`: mean of exponential component. τ ∈ (0, min_rt]
 
 # Constructors
 
@@ -41,7 +41,7 @@ struct ExGaussian{T <: Real} <: SSM1D
     function ExGaussian(μ::T, σ::T, τ::T) where {T <: Real}
         @argcheck μ ≥ 0
         @argcheck σ ≥ 0
-        @argcheck τ ≥ 0
+        @argcheck τ > 0
         return new{T}(μ, σ, τ)
     end
 end
@@ -64,9 +64,6 @@ end
 
 function logpdf(d::ExGaussian, rt::Float64)
     (; μ, σ, τ) = d
-    if τ == 0
-        return -Inf
-    end
     return log(1 / τ) +
            (μ - rt) / τ +
            (σ^2 / 2τ^2) +

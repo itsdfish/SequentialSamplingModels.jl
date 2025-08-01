@@ -1,7 +1,7 @@
 @safetestset "maaDDM" begin
-    @safetestset "increment1" begin
+    @safetestset "increment!1" begin
         using Test, SequentialSamplingModels
-        using SequentialSamplingModels: increment
+        using SequentialSamplingModels: increment!
 
         model = maaDDM(;
             ν = [1.0 2.0; 2.0 3.0],
@@ -14,7 +14,7 @@
             Δ = 1.0
         )
 
-        Δ1s = map(x -> increment(model, x), 1:4)
+        Δ1s = map(x -> increment!(model, x), 1:4)
         @test Δ1s[1] > 0
         @test Δ1s[2] > 0
         @test Δ1s[3] < 0
@@ -31,13 +31,13 @@
             Δ = 1.0
         )
 
-        Δ2s = map(x -> increment(model, x), 1:4)
+        Δ2s = map(x -> increment!(model, x), 1:4)
         @test Δ1s ≈ Δ2s atol = 1e-5
     end
 
-    @safetestset "increment2" begin
+    @safetestset "increment!2" begin
         using Test, SequentialSamplingModels
-        using SequentialSamplingModels: increment
+        using SequentialSamplingModels: increment!
 
         model = maaDDM(;
             ν = [1.0 2.0; 2.0 3.0],
@@ -50,7 +50,7 @@
             Δ = 1.0
         )
 
-        Δs = map(x -> increment(model, x), 1:4)
+        Δs = map(x -> increment!(model, x), 1:4)
 
         @test Δs[1] > 0
         @test Δs[2] > 0
@@ -58,9 +58,9 @@
         @test Δs[4] < 0
     end
 
-    @safetestset "increment3" begin
+    @safetestset "increment!3" begin
         using Test, SequentialSamplingModels
-        using SequentialSamplingModels: increment
+        using SequentialSamplingModels: increment!
 
         model = maaDDM(
             ν = [1.0 1.0; 2.0 2.0],
@@ -73,13 +73,13 @@
             Δ = 1.0
         )
 
-        Δs = map(x -> increment(model, x), 1:4)
+        Δs = map(x -> increment!(model, x), 1:4)
         @test all(Δs .≈ -0.75)
     end
 
-    @safetestset "increment4" begin
+    @safetestset "increment!4" begin
         using Test, SequentialSamplingModels
-        using SequentialSamplingModels: increment
+        using SequentialSamplingModels: increment!
 
         model = maaDDM(
             ν = [1.0 1.0; 2.0 2.0],
@@ -92,7 +92,7 @@
             Δ = 1.0
         )
 
-        Δ1s = map(x -> increment(model, x), 1:4)
+        Δ1s = map(x -> increment!(model, x), 1:4)
 
         model = maaDDM(
             ν = [1.0 1.0; 2.0 2.0],
@@ -105,15 +105,15 @@
             Δ = 1.0
         )
 
-        Δ2s = map(x -> increment(model, x), 1:4)
+        Δ2s = map(x -> increment!(model, x), 1:4)
 
         @test all(Δ1s .≈ -1.0)
         @test all(Δ2s .≈ -1.0)
     end
 
-    @safetestset "increment5" begin
+    @safetestset "increment!5" begin
         using Test, SequentialSamplingModels
-        using SequentialSamplingModels: increment
+        using SequentialSamplingModels: increment!
 
         model = maaDDM(
             ν = [1.0 1.0; 2.0 2.0],
@@ -126,14 +126,14 @@
             Δ = 1.0
         )
 
-        Δ2s = map(x -> increment(model, x), 1:4)
+        Δ2s = map(x -> increment!(model, x), 1:4)
 
         @test Δ2s ≈ [-1, 0, -1, 0]
     end
 
-    @safetestset "increment6" begin
+    @safetestset "increment!6" begin
         using Test, SequentialSamplingModels
-        using SequentialSamplingModels: increment
+        using SequentialSamplingModels: increment!
 
         model = maaDDM(
             ν = [1.0 1.0; 2.0 2.0],
@@ -146,9 +146,27 @@
             Δ = 1.0
         )
 
-        Δ2s = map(x -> increment(model, x), 1:4)
+        Δ2s = map(x -> increment!(model, x), 1:4)
 
         @test Δ2s ≈ [1, 1, -2, -2]
+    end
+
+        @safetestset "increment! invalid" begin
+        using Test, SequentialSamplingModels
+        using SequentialSamplingModels: increment!
+
+        model = maaDDM(;
+            ν = [1.0 2.0; 2.0 3.0],
+            α = 1.0,
+            z = 0.0,
+            θ = 0.5,
+            ϕ = 0.50,
+            ω = 0.00,
+            σ = eps(),
+            Δ = 1.0
+        )
+
+        @test_throws ArgumentError increment!(model, 100)
     end
 
     @safetestset "simulate" begin
@@ -212,7 +230,7 @@
         using SequentialSamplingModels
 
         parms = (;
-            ν = [4.0 5.0; 5.0 4.0],
+            ν = [4 5; 5 4],
             σ = 0.02,
             Δ = 0.0004,
             θ = 0.3,
@@ -234,7 +252,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -255,7 +273,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = -0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -275,7 +293,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = -0.0004,
                 θ = 0.3,
@@ -295,7 +313,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = -0.3,
@@ -315,7 +333,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 1.3,
@@ -335,7 +353,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -355,7 +373,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -375,7 +393,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -395,7 +413,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -415,7 +433,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -435,7 +453,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -455,7 +473,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,
@@ -475,7 +493,7 @@
             using SequentialSamplingModels
 
             parms = (;
-                ν = [4.0 5.0; 5.0 4.0],
+                ν = [4 5; 5 4],
                 σ = 0.02,
                 Δ = 0.0004,
                 θ = 0.3,

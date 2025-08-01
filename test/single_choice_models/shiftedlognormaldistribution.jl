@@ -65,6 +65,53 @@
         @test τs[idx] ≈ parms.τ rtol = 0.01
     end
 
+    @safetestset "mean" begin
+        @safetestset "1" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+
+            dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
+            @test mean(LogNormal(-1, .5)) + .1 ≈ mean(dist)
+        end
+
+        @safetestset "2" begin
+            using Test
+            using Distributions
+            using SequentialSamplingModels
+            using StableRNGs
+            
+            rng = StableRNG(32)
+
+            dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
+            data = rand(dist, 10_000)
+            @test mean(data) ≈ mean(dist) rtol = .01
+        end
+    end
+
+    @safetestset "cdf" begin 
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+        using StableRNGs
+        
+        rng = StableRNG(345)
+
+        dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
+        data = rand(dist, 10_000)
+
+        @test cdf(dist, .5) ≈ mean(data .≤ .5) rtol = .02
+    end
+        
+    @safetestset "std" begin
+        using Test
+        using Distributions
+        using SequentialSamplingModels
+
+        dist = ShiftedLogNormal(; ν = -1, σ = .5, τ = .1)
+        @test std(LogNormal(-1, .5)) ≈ std(dist)
+    end
+
     @safetestset "params" begin
         using Test
         using Distributions

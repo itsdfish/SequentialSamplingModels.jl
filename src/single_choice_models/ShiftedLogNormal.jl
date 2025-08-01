@@ -59,6 +59,12 @@ function pdf(dist::AbstractShiftedLogNormal, rt::Real)
     return pdf(LogNormal(ν, σ), rt - τ)
 end
 
+function cdf(dist::AbstractShiftedLogNormal, rt::Real)
+    (; τ, ν, σ) = dist
+    @argcheck τ ≤ rt
+    return cdf(LogNormal(ν, σ), rt - τ)
+end
+
 function rand(rng::AbstractRNG, dist::AbstractShiftedLogNormal, n_trials::Int)
     (; τ, ν, σ) = dist
     return rand(rng, LogNormal(ν, σ), n_trials) .+ τ
@@ -66,7 +72,7 @@ end
 
 function rand(rng::AbstractRNG, dist::AbstractShiftedLogNormal)
     (; τ, ν, σ) = dist
-    return rand(rng, LogNormal(ν, σ)) .+ τ
+    return rand(rng, LogNormal(ν, σ)) + τ
 end
 
 function params(d::AbstractShiftedLogNormal)

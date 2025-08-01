@@ -185,7 +185,7 @@
             using Distributions
             using SequentialSamplingModels
 
-            parms = (; μ = 0.5, σ = 0.20, τ = -0.20)
+            parms = (; μ = 0.5, σ = 0.20, τ = 0)
 
             @test_throws ArgumentError ExGaussian(; parms...)
             @test_throws ArgumentError ExGaussian(values(parms)...)
