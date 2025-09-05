@@ -181,6 +181,6 @@ function increment!(rng, dist::maaDDM, location)
         return Δ * (ϕ * ω * (θ * ν[1, 1] - ν[2, 1]) + (1 - ω) * (θ * ν[1, 2] - ν[2, 2])) +
                noise(rng, σ)
     end
-    @argcheck location ∈ [1,2,3,4]
+    @argcheck location ∈ [1, 2, 3, 4]
     return -100.0
 end

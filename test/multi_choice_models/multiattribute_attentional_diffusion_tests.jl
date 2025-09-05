@@ -151,7 +151,7 @@
         @test Δ2s ≈ [1, 1, -2, -2]
     end
 
-        @safetestset "increment! invalid" begin
+    @safetestset "increment! invalid" begin
         using Test, SequentialSamplingModels
         using SequentialSamplingModels: increment!
 
