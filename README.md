@@ -1,6 +1,6 @@
 [![](docs/logo/logo.png)](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/)
 
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) [![CI](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml) [![CodeCov][codecov-img]][codecov-url] 
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) [![CI](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml) [![CodeCov][codecov-img]][codecov-url] [![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00186/status.svg)](https://doi.org/10.21105/jcon.00186) 
 
 [codecov-img]: https://codecov.io/github/itsdfish/SequentialSamplingModels.jl/badge.svg?branch=master
 [codecov-url]: https://codecov.io/github/itsdfish/SequentialSamplingModels.jl?branch=master
@@ -80,4 +80,25 @@ using SequentialSamplingModels
 dist = LBA(; ν=[2.75,1.75], A=0.8, k=0.5, τ=0.25)
 # Sample 1000 random data points from this distribution
 choice, rt = rand(dist, 1000)
+```
+
+## Citation
+
+If you use SequentialSamplingModels.jl in your research, please cite the following paper:
+
+Fernandez, K., Makowski, D., & Fisher, C. (2025). *SequentialSamplingModels.jl: Simulating and evaluating cognitive models of response times in Julia*. *Proceedings of the JuliaCon Conferences, 7*(78), 186. [https://doi.org/10.21105/jcon.00186](https://doi.org/10.21105/jcon.00186)
+
+```bibtex
+@article{fisher2025sequentialsamplingmodels,
+  title   = {SequentialSamplingModels.jl: Simulating and Evaluating Cognitive Models of Response Times in Julia},
+  author  = {Fernandez, Kiant{\'e} and Makowski, Dominique and Fisher, Christopher},
+  journal = {Proceedings of the JuliaCon Conferences},
+  year    = {2025},
+  volume  = {7},
+  number  = {78},
+  pages   = {186},
+  doi     = {10.21105/jcon.00186},
+  url     = {https://doi.org/10.21105/jcon.00186},
+  publisher = {The Open Journal}
+}
 ```
