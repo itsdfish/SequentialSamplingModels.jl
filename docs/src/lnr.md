@@ -25,7 +25,7 @@ In the code below, we will define parameters for the LBA and create a model obje
 
 ### $\nu$ 
 
-We will set $\nu [-1,-1.5]$.
+We will set $\nu = [-1,-1.5]$.
 
 ```@example lnr
 ν = [-1,-1.5]
@@ -55,7 +55,7 @@ Non-decision time is an additive constant representing encoding and motor respon
 Now that values have been asigned to the parameters, we will pass them to `LNR` to generate the model object.
 
 ```@example lnr
-dist = LNR(ν, σ, τ)
+dist = LNR(; ν, σ, τ)
 ```
 ## Simulate Model
 
@@ -81,7 +81,7 @@ logpdf.(dist, choices, rts)
 The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf`.
 
  ```@example lnr 
-cdf(dist, 1, Inf)
+cdf(dist, 1, 100)
 ```
 To compute the joint probability of choosing $c$ within $t$ seconds, i.e., $\Pr(T \leq t \wedge C=c)$, pass a third argument for $t$.
 

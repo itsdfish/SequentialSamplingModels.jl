@@ -48,7 +48,7 @@ A = 0.80
 ```
 ### Threshold - Maximum Starting Point
 
-Evidence accumulates until accumulator reaches a threshold $\alpha = k +A$. The threshold is parameterized this way to faciliate parameter estimation and to ensure that $A \le \alpha$.
+Evidence accumulates until accumulator reaches a threshold $\alpha = k + A$. The threshold is parameterized this way to faciliate parameter estimation and to ensure that $A \le \alpha$.
 ```@example lba 
 k = 0.50
 ```
@@ -88,14 +88,14 @@ logpdf.(dist, choices, rts)
 ## Compute Choice Probability
 The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf` along with a large value for time as the second argument.
  ```@example lba 
-cdf(dist, 1, Inf)
+cdf(dist, 1, 100)
 ```
 
 ## Plot Simulation
 The code below overlays the PDF on reaction time histograms for each option.
  ```@example lba 
 histogram(dist)
-plot!(dist; t_range=range(.3,2.5, length=100), xlims=(0, 2.5))
+plot!(dist; t_range=range(.3, 2.5, length=100), xlims=(0, 2.5))
 
 ```
 # References

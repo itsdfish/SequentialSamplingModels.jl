@@ -1,6 +1,9 @@
 [![](docs/logo/logo.png)](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/)
 
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) [![CI](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/) [![CI](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/itsdfish/SequentialSamplingModels.jl/actions/workflows/CI.yml) [![CodeCov][codecov-img]][codecov-url] 
+
+[codecov-img]: https://codecov.io/github/itsdfish/SequentialSamplingModels.jl/badge.svg?branch=master
+[codecov-url]: https://codecov.io/github/itsdfish/SequentialSamplingModels.jl?branch=master
 
 # SequentialSamplingModels
 
@@ -19,7 +22,6 @@ The following SSMs are supported:
 - [Ex-Gaussian](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/ex_gaussian/)
 - [Shifted Log Normal](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/shifted_lognormal/)
 - [Wald](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald/) 
-- [Wald Mixture](https://itsdfish.github.io/SequentialSamplingModels.jl/dev/wald_mixture/)
 
 ### Multi-Choice Models 
 #### Single Attribute

@@ -6,6 +6,7 @@ https://itsdfish.github.io/SequentialSamplingModels.jl/dev/
 """
 module SequentialSamplingModels
 
+using ArgCheck
 using Distributions
 using FunctionZeros
 using PrettyTables
@@ -67,7 +68,6 @@ export SSMProductDistribution
 export stDDM
 export ContinuousMultivariateSSM
 export Wald
-export WaldMixture
 
 export cdf
 export compute_choice_probs
@@ -94,24 +94,27 @@ export std
 export survivor
 
 include("type_system.jl")
-include("utilities.jl")
-include("LNR.jl")
-include("Wald.jl")
-include("wald_mixture.jl")
-include("LBA.jl")
-include("RDM.jl")
-include("AttentionalDiffusion.jl")
-include("maaDDM.jl")
-include("LCA.jl")
-include("DDM.jl")
-include("CircularDDM.jl")
 include("ext_functions.jl")
-include("ex_gaussian.jl")
-include("poisson_race.jl")
-include("stDDM.jl")
-include("MDFT.jl")
-include("ClassicMDFT.jl")
-include("MLBA.jl")
-include("ShiftedLogNormal.jl")
 include("product_distribution.jl")
+include("utilities.jl")
+
+include("single_choice_models/ex_gaussian.jl")
+include("single_choice_models/ShiftedLogNormal.jl")
+include("single_choice_models/wald.jl")
+
+include("multi_choice_models/AttentionalDiffusion.jl")
+include("multi_choice_models/ClassicMDFT.jl")
+include("multi_choice_models/DDM.jl")
+include("multi_choice_models/LBA.jl")
+include("multi_choice_models/LCA.jl")
+include("multi_choice_models/LNR.jl")
+include("multi_choice_models/maaDDM.jl")
+include("multi_choice_models/MDFT.jl")
+include("multi_choice_models/MLBA.jl")
+include("multi_choice_models/poisson_race.jl")
+include("multi_choice_models/RDM.jl")
+include("multi_choice_models/stDDM.jl")
+
+include("alternative_geometries/CircularDDM.jl")
+
 end

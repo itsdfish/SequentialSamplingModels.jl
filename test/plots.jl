@@ -80,7 +80,7 @@
             dist;
             n_sim = 2,
             add_density = true,
-            density_kwargs = (; t_range = range(0.3, 1, length = 200),)
+            density_kwargs = (; t_range = range(0.301, 1, length = 200),)
         )
     end
 
@@ -179,7 +179,7 @@
         using SequentialSamplingModels
         using Test
 
-        dist = Wald(ν = 3.0, α = 0.5, τ = 0.130)
+        dist = Wald(ν = 3.0, α = 0.5, τ = 0.130, η = 0.10)
         h = histogram(dist)
         plot!(h, dist; t_range = range(0.130, 1.0, length = 100))
 
@@ -263,29 +263,6 @@
 
         density_kwargs = (; t_range = range(0.1, 1.2, length = 100),)
         plot_model(dist; add_density = true, n_sim = 2, density_kwargs, xlims = (0, 1.2))
-    end
-
-    @safetestset "WaldMixture" begin
-        using Plots
-        using SequentialSamplingModels
-        using Test
-
-        dist = WaldMixture()
-
-        h = histogram(dist)
-        plot!(h, dist)
-
-        histogram(dist)
-        plot!(dist)
-
-        p = plot(dist)
-        histogram!(p, dist)
-
-        plot(dist)
-        histogram!(dist)
-
-        density_kwargs = (; t_range = range(0.13, 0.60, length = 100),)
-        plot_model(dist; add_density = true, n_sim = 2, density_kwargs, xlims = (0, 0.60))
     end
 
     @safetestset "PoissonRace" begin

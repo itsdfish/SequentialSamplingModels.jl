@@ -202,7 +202,7 @@ In this case, the preferences have reversed: job `B` is now preferred over job `
 The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf` along with a large value for time as the second argument.
 
  ```@example MLBA 
-cdf(dist, 1, Inf, M₃)
+cdf(dist, 1, 100, M₃)
 ```
 
 ## Plot Simulation

@@ -19,12 +19,12 @@ function _show(io::IO, model)
         io,
         values;
         title = model_name,
-        row_label_column_title = "Parameter",
+        column_labels = ["Value"],
+        stubhead_label = "Parameter",
         compact_printing = false,
-        header = ["Value"],
-        row_label_alignment = :l,
+        row_label_column_alignment = :l,
         row_labels = [fieldnames(typeof(model))...],
-        formatters = ft_printf("%5.2f"),
+        formatters = [fmt__printf("%5.2f", [2,])],
         alignment = :l
     )
 end

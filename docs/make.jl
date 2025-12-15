@@ -17,7 +17,6 @@ makedocs(
     ),
     modules = [
         SequentialSamplingModels,
-        Base.get_extension(SequentialSamplingModels, :TuringExt),
         Base.get_extension(SequentialSamplingModels, :PlotsExt)
     ],
     pages = [
@@ -26,8 +25,7 @@ makedocs(
             "Single Choice Models" => [
                 "Ex-Gaussian" => "ex_gaussian.md",
                 "Shifted Log Normal" => "shifted_lognormal.md",
-                "Wald" => "wald.md",
-                "Wald Mixture" => "wald_mixture.md"
+                "Wald" => "wald.md"
             ],
             "Multi-choice Models" => [
                 "Single Attribute Models" => [
@@ -69,6 +67,7 @@ makedocs(
             "Changing the Layout" => "layout.md",
             "Plot Model Process" => "plot_model.md"
         ],
+        "Help and Issues" => "issues.md",
         "Performance Tips" => "performance_tips.md",
         "API" => "api.md",
         "Developer Guide" => "developer_guide.md"

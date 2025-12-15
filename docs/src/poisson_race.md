@@ -73,7 +73,7 @@ logpdf.(dist, choices, rts)
 ## Compute Choice Probability
 The choice probability $\Pr(C=c)$ is computed by passing the model and choice index to `cdf` along with a large value for time as the second argument.
  ```@example poisson_race 
-cdf(dist, 1, Inf)
+cdf(dist, 1, 100)
 ```
 
 ## Plot Simulation
