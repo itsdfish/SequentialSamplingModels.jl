@@ -1,16 +1,5 @@
 @safetestset "Code Quality" begin
 
-    # check code is formatted. Disabled as JET requires JuliaSynatx v1.0, but JuliaFormatter uses v0.4.
-    # This causes conflicts when both packages are loaded. Once JuluiaFormatter supports JuliaSyntax v1.0, 
-    # this can be re-enabled.
-    # @safetestset "code formatting" begin
-    #     using JuliaFormatter
-    #     using SequentialSamplingModels
-    #     @test JuliaFormatter.format(
-    #         SequentialSamplingModels; verbose = false, overwrite = false
-    #     )
-    # end
-
     # check code quality via Aqua
     @safetestset "Aqua" begin
         using Aqua
