@@ -2,6 +2,7 @@
     @safetestset "rand SSM1D 1" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         walds = [Wald(; ν = 2.5, α = 0.1, τ = 0.2), Wald(; ν = 1.5, α = 1, τ = 10)]
@@ -15,6 +16,7 @@
     @safetestset "rand SSM1D 2" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         walds = [Wald(; ν = 2.5, α = 0.1, τ = 0.2), Wald(; ν = 1.5, α = 1, τ = 10)]
@@ -28,6 +30,7 @@
     @safetestset "rand logpdf 1" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         walds = [Wald(; ν = 2.5, α = 0.1, τ = 0.2), Wald(; ν = 1.5, α = 1, τ = 10)]
@@ -41,6 +44,7 @@
     @safetestset "logpdf SSM1D 2" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         walds = [Wald(; ν = 2.5, α = 0.1, τ = 0.2), Wald(; ν = 1.5, α = 1, τ = 10)]
@@ -54,6 +58,7 @@
     @safetestset "rand SSM2D 1" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         lbas = [
@@ -70,6 +75,7 @@
     @safetestset "rand SSM2D 2" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         lbas = [
@@ -86,6 +92,7 @@
     @safetestset "logpdf SSM2D 1" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         lbas = [
@@ -103,6 +110,7 @@
     @safetestset "logpdf SSM2D 2" begin
         using Distributions
         using SequentialSamplingModels
+        using SequentialSamplingModels: product_distribution
         using Test
 
         lbas = [

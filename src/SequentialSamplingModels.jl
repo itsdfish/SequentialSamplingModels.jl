@@ -86,7 +86,6 @@ export plot_model
 export plot_model!
 export plot_quantiles
 export plot_quantiles!
-export predict_distribution
 export product_distribution
 export rand
 export simulate

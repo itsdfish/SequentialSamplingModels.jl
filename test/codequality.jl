@@ -1,6 +1,8 @@
 @safetestset "Code Quality" begin
 
-    # check code is formatted
+    # check code is formatted. Disabled as JET requires JuliaSynatx v1.0, but JuliaFormatter uses v0.4.
+    # This causes conflicts when both packages are loaded. Once JuluiaFormatter supports JuliaSyntax v1.0, 
+    # this can be re-enabled.
     # @safetestset "code formatting" begin
     #     using JuliaFormatter
     #     using SequentialSamplingModels
@@ -14,8 +16,10 @@
         using Aqua
         using SequentialSamplingModels
         Aqua.test_all(
-            SequentialSamplingModels; ambiguities = false,
-            deps_compat = (check_extras = false,)
+            SequentialSamplingModels;
+            ambiguities = false,
+            deps_compat = (check_extras = false,),
+            project_extras = false
         )
     end
 
