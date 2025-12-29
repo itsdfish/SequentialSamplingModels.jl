@@ -72,7 +72,28 @@ plot!(dist; t_range=range(.3,2.5, length=100), xlims=(0, 2.5))
 ```
 # Contributing
 
-If you are interested in contributing, please review the [developer guidelines](developer_guide.md) before beginning. 
+If you are interested in contributing, please review the [developer guidelines](developer_guide.md) before beginning.
+
+# Citation
+
+If you use SequentialSamplingModels.jl in your research, please cite the following paper:
+
+Fernandez, K., Makowski, D., & Fisher, C. (2025). *SequentialSamplingModels.jl: Simulating and evaluating cognitive models of response times in Julia*. *Proceedings of the JuliaCon Conferences, 7*(78), 186. [https://doi.org/10.21105/jcon.00186](https://doi.org/10.21105/jcon.00186)
+
+```bibtex
+@article{fisher2025sequentialsamplingmodels,
+  title   = {SequentialSamplingModels.jl: Simulating and Evaluating Cognitive Models of Response Times in Julia},
+  author  = {Fernandez, Kiant{\'e} and Makowski, Dominique and Fisher, Christopher},
+  journal = {Proceedings of the JuliaCon Conferences},
+  year    = {2025},
+  volume  = {7},
+  number  = {78},
+  pages   = {186},
+  doi     = {10.21105/jcon.00186},
+  url     = {https://doi.org/10.21105/jcon.00186},
+  publisher = {The Open Journal}
+}
+```
 
 # References
 Evans, N. J. & Wagenmakers, E.-J. Evidence accumulation models: Current limitations and future directions. Quantitative Methods for Psychololgy 16, 73–90 (2020).
