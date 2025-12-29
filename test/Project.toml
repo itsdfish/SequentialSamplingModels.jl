@@ -20,4 +20,4 @@ TuringUtilities = "35dc62cd-6c01-44e1-a736-6cc36bfce0cc"
 TuringUtilities = {rev = "main", url = "https://github.com/itsdfish/TuringUtilities.jl"}
 
 [compat]
-JET = ">=0.9.0"
+JET = "0.9, 1"
