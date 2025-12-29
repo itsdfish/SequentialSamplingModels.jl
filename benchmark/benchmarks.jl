@@ -10,7 +10,7 @@ SUITE = BenchmarkGroup()
 #                                       logpdf
 ####################################################################################################
 dists2D = (DDM, LBA, LNR, RDM)
-dists1D = (Wald, WaldMixture)
+dists1D = (Wald,)
 ns = [10, 100]
 SUITE[:logpdf] = BenchmarkGroup()
 
@@ -40,7 +40,7 @@ end
 ####################################################################################################
 #                                       rand
 ####################################################################################################
-dists = (DDM, LBA, LCA, LNR, RDM, Wald, WaldMixture)
+dists = (DDM, LBA, LCA, LNR, RDM, Wald)
 ns = [10, 100]
 SUITE[:rand] = BenchmarkGroup()
 
@@ -54,7 +54,7 @@ end
 ####################################################################################################
 #                                       simulate
 ####################################################################################################
-dists = (DDM, LBA, LCA, RDM, Wald, WaldMixture)
+dists = (DDM, LBA, LCA, RDM, Wald)
 SUITE[:simulate] = BenchmarkGroup()
 
 for dist ∈ dists
