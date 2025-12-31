@@ -64,6 +64,7 @@ export PoissonRace
 export ShiftedLogNormal
 export SSM1D
 export SSM2D
+export SSMProductDistribution
 export stDDM
 export ContinuousMultivariateSSM
 export Wald
@@ -85,7 +86,7 @@ export plot_model
 export plot_model!
 export plot_quantiles
 export plot_quantiles!
-export predict_distribution
+export product_distribution
 export rand
 export simulate
 export std
