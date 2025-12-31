@@ -16,6 +16,9 @@
     @safetestset "JET" begin
         using JET
         using SequentialSamplingModels
-        JET.test_package(SequentialSamplingModels; target_modules = (SequentialSamplingModels,))
+        JET.test_package(
+            SequentialSamplingModels;
+            target_modules = (SequentialSamplingModels,)
+        )
     end
 end
