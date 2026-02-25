@@ -1,7 +1,7 @@
 name = "SequentialSamplingModels"
 uuid = "0e71a2a6-2b30-4447-8742-d083a85e82d1"
-authors = ["itsdfish"]
 version = "0.13.0"
+authors = ["itsdfish"]
 
 [deps]
 ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
@@ -28,7 +28,7 @@ PlotsExt = ["Plots", "Interpolations", "KernelDensity"]
 [compat]
 ArgCheck = "2.5.0"
 Distributions = "v0.24.6, 0.25"
-DynamicPPL = "0.25 - 0.39"
+DynamicPPL = "0.25 - 0.39, 0.40"
 FunctionZeros = "0.2.0,0.3.0, 1"
 HCubature = "1"
 Interpolations = "0.14.0,0.15.0,0.16.0"
