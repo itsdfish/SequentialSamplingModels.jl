@@ -272,7 +272,7 @@ make_default_contrast(3)
  -0.5  -0.5   1.0
 ```
 """
-function make_default_contrast(n)
+function make_default_contrast(n::Integer)
     C = fill(0.0, n, n)
     C .= -1 / (n - 1)
     for r ∈ 1:n
