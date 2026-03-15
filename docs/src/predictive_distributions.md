@@ -20,14 +20,15 @@ using TuringUtilities
 Random.seed!(1124)
 
 n_samples = 50
-rts = rand(Wald(ν = 1.5, α = 0.8, τ = 0.3), n_samples)
+rts = rand(Wald(ν = 1.5, α = 0.8, τ = 0.3, η = 0.0), n_samples)
 
 @model function wald_model(rts)
     ν ~ truncated(Normal(1.5, 1), 0, Inf)
     α ~ truncated(Normal(0.8, 1), 0, Inf)
     τ = 0.3
-    rts ~ Wald(ν, α, τ)
-    return (; ν, α, τ)
+    η = eps()
+    rts ~ Wald(; ν, η, α, τ)
+    return (; ν, η, α, τ)
 end
 
 model = wald_model(rts)
@@ -96,7 +97,7 @@ Random.seed!(1124)
 We will use the [Wald](wald.md) model as a simple example to illustrate how to create predictive distributions. The `Wald` model describes the evidence accumulation process underlying single detection decisions, such as respending when a stimulus appears. In the code block below, we will generate 50 data points.
 ```julia
 n_samples = 50
-rts = rand(Wald(ν = 1.5, α = 0.8, τ = 0.3), n_samples)
+rts = rand(Wald(ν = 1.5, α = 0.8, τ = 0.3, η = 0.0), n_samples)
 ```
 
 ## Define Turing Model 
@@ -108,8 +109,9 @@ Next, we will develop a Turing model for generating prior and posterior predicti
     ν ~ truncated(Normal(1.5, 1), 0, Inf)
     α ~ truncated(Normal(0.8, 1), 0, Inf)
     τ = 0.3
-    rts ~ Wald(ν, α, τ)
-    return (; ν, α, τ)
+    η = eps()
+    rts ~ Wald(; ν, η, α, τ)
+    return (; ν, η, α, τ)
 end
 ```
 In the next code block, we will pass the data and create a model object.
