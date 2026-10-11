@@ -1,7 +1,10 @@
 using Documenter
 using SequentialSamplingModels
 using Turing
+# load all PlotsExt triggers so the extension (and its docstrings) are available
 using Plots
+using Interpolations
+using KernelDensity
 
 makedocs(
     warnonly = true,

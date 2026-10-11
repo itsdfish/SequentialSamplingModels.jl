@@ -168,7 +168,7 @@ end
 #########################################
 
 function cdf(d::DDM{T}, choice::Int, rt::Real = 10; ϵ::Real = 1.0e-12) where {T <: Real}
-    @argcheck d.τ < rt
+    rt ≤ d.τ && return zero(float(promote_type(T, typeof(rt))))
     if choice == 1
         (ν, α, z, τ) = params(d)
         return _cdf(DDM(-ν, α, 1 - z, τ), rt; ϵ)
