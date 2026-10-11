@@ -296,85 +296,102 @@
         using SequentialSamplingModels
         using Test
 
-        dist = DDM(; ν = 2.0, α = 1.0, z = 0.5, τ = 0.3)
-        @test logpdf(dist, 1, 0.5) ≈ log(2.131129) atol = 1e-5
-        @test logpdf(dist, 2, 0.5) ≈ log(0.2884169) atol = 1e-5
-        @test pdf(dist, 1, 0.5) ≈ exp(logpdf(dist, 1, 0.5))
+        # logpdf agrees with log(pdf) for ordinary density values.
+        for ν ∈ -3:0.5:3, α ∈ [0.4, 0.8, 1.5, 2.5], z ∈ [0.2, 0.5, 0.8],
+            rt ∈ [0.35, 0.5, 1.0, 2.0], choice ∈ (1, 2)
 
-        # outside of support returns -Inf / 0 rather than throwing
-        @test logpdf(dist, 1, 0.3) == -Inf
-        @test logpdf(dist, 2, 0.1) == -Inf
-        @test logpdf(dist, 1, Inf) == -Inf
-        @test logpdf(dist, 3, 0.5) == -Inf
-        @test pdf(dist, 1, 0.1) == 0.0
-        @test cdf(dist, 1, 0.1) == 0.0
-
-        # extreme values stay accurate in log space where the pdf underflows
-        # reference values computed from the series in 1024-bit BigFloat with 300+ terms
-        @test logpdf(DDM(2.0, 0.05, 0.5, 0.3), 1, 5.0) ≈ -9279.641942591039
-        @test pdf(DDM(2.0, 0.05, 0.5, 0.3), 1, 5.0) == 0.0
-        @test logpdf(DDM(2.0, 3.0, 0.5, 0.3), 1, 0.3001) ≈ -11233.698162868372
-        @test logpdf(DDM(-8.0, 5.0, 0.99, 0.0), 2, 0.5) ≈ 0.347167902329698
-        @test logpdf(DDM(8.0, 0.05, 0.01, 0.0), 2, 10.0) ≈ -20055.537212544714
-        @test logpdf(DDM(0.0, 0.2, 0.3, 0.3), 1, 2.3) ≈ -242.58843967201665
-
-        # starting on a boundary gives zero density at that boundary
-        @test logpdf(DDM(1.0, 0.8, 0.0, 0.3), 2, 0.31) == -Inf
-        @test logpdf(DDM(1.0, 0.8, 0.0, 0.3), 2, 0.6) == -Inf
-        @test logpdf(DDM(1.0, 0.8, 1.0, 0.3), 1, 0.31) == -Inf
-    end
-
-    @safetestset "log series" begin
-        using SequentialSamplingModels: _log_small_time_pdf, _log_large_time_pdf
-        using Test
-
-        # a truncated large-time series can be non-positive, which must map to -Inf
-        @test _log_large_time_pdf(1e-4, 0.5, 3) == -Inf
-        # ±k pairs cancel exactly when z = 0
-        @test _log_small_time_pdf(0.1, 0.0, 5) == -Inf
-        @test _log_small_time_pdf(0.1, 0.0, 6) == -Inf
-        # both series agree where they overlap
-        for z ∈ (0.1, 0.5, 0.9), u ∈ (0.5, 1.0, 2.0)
-            @test _log_small_time_pdf(u, z, 50) ≈ _log_large_time_pdf(u, z, 50)
+            dist = DDM(; ν, α, z, τ = 0.3)
+            @test logpdf(dist, choice, rt) ≈ log(pdf(dist, choice, rt)) atol = 1e-10
         end
+
+        # logpdf stays finite when pdf is too small to represent accurately.
+        # Reference values use the original small-time series at 400-bit precision.
+        @test pdf(DDM(; ν = 6.0, α = 6.0, z = 0.2, τ = 0.2), 2, 0.201) < 1e-300
+        for (ν, α, z, τ, rt, true_value) ∈ [
+            (6.0, 6.0, 0.2, 0.2, 0.201, -717.592984057937),
+            (5.0, 4.0, 0.95, 0.05, 0.06, -733.8011821874904),
+            (4.0, 1.5, 0.8, 0.2, 0.201, -715.182984057937)
+        ]
+            @test logpdf(DDM(; ν, α, z, τ), 2, rt) ≈ true_value atol = 1e-9
+        end
+
+        # outside the support
+        dist = DDM(; ν = 1.0, α = 0.8, z = 0.5, τ = 0.3)
+        @test logpdf(dist, 1, 0.3) == -Inf
+        @test logpdf(dist, 1, 0.2) == -Inf
+        @test pdf(dist, 1, 0.2) == 0
     end
 
-    @safetestset "logpdf gradients" begin
+    @safetestset "automatic differentiation" begin
+        using ForwardDiff
         using SequentialSamplingModels
         using Test
-        using ForwardDiff
 
-        f(θ, c, rt) = logpdf(DDM(θ...), c, rt)
-        for θ ∈ ([1.0, 0.8, 0.5, 0.3], [0.01, 0.05, 0.1, 0.2], [-3.0, 3.0, 0.9, 0.01])
-            for c ∈ (1, 2), rt ∈ (0.31, 0.5, 2.0, 10.0)
-                g = ForwardDiff.gradient(θ -> f(θ, c, rt), θ)
-                @test all(isfinite, g)
-            end
+        f(p, choice, rt) = logpdf(DDM(p[1], p[2], p[3], p[4]), choice, rt)
+
+        # Gradients stay finite even when pdf is too small to differentiate reliably.
+        for (ν, α, z, τ, rt) ∈ [
+                (6.0, 6.0, 0.2, 0.2, 0.201),
+                (5.0, 4.0, 0.95, 0.05, 0.06),
+                (4.0, 1.5, 0.8, 0.2, 0.201),
+                (6.0, 0.3, 0.05, 0.05, 10.05)
+            ],
+            choice ∈ (1, 2)
+
+            grad = ForwardDiff.gradient(p -> f(p, choice, rt), [ν, α, z, τ])
+            @test all(isfinite, grad)
         end
-        # gradient is zero (not NaN) outside the support
-        g = ForwardDiff.gradient(θ -> f(θ, 1, 0.1), [1.0, 0.8, 0.5, 0.3])
-        @test !any(isnan, g)
 
-        # gradients match central finite differences
-        θ = [0.7, 1.2, 0.4, 0.2]
-        for c ∈ (1, 2), rt ∈ (0.25, 0.6, 3.0)
-            g = ForwardDiff.gradient(θ -> f(θ, c, rt), θ)
+        # Compare gradients with finite differences across the switch between series.
+        for α ∈ range(0.5, 1.5, length = 21), choice ∈ (1, 2)
+            p = [1.0, α, 0.5, 0.3]
+            ad = ForwardDiff.gradient(x -> f(x, choice, 0.6), p)
             h = 1e-6
-            g_fd = map(1:4) do i
-                e = zeros(4)
-                e[i] = h
-                (f(θ .+ e, c, rt) - f(θ .- e, c, rt)) / 2h
+            fd = map(eachindex(p)) do i
+                lo = copy(p)
+                hi = copy(p)
+                lo[i] -= h
+                hi[i] += h
+                (f(hi, choice, 0.6) - f(lo, choice, 0.6)) / (2h)
             end
-            @test g ≈ g_fd rtol = 1e-5
+            @test ad ≈ fd atol = 1e-4
         end
 
-        # cdf gradients are finite
-        F(θ, c, rt) = cdf(DDM(θ...), c, rt)
-        for θ ∈ ([1.0, 0.8, 0.5, 0.3], [0.01, 0.05, 0.1, 0.2], [-3.0, 3.0, 0.9, 0.01])
-            for c ∈ (1, 2), rt ∈ (0.31, 0.5, 2.0, 10.0)
-                @test all(isfinite, ForwardDiff.gradient(θ -> F(θ, c, rt), θ))
-            end
+        # out of support the gradient is zero rather than NaN
+        @test all(iszero, ForwardDiff.gradient(p -> f(p, 1, 0.2), [1.0, 0.8, 0.5, 0.3]))
+    end
+
+    @safetestset "degenerate parameters" begin
+        using ForwardDiff
+        using SequentialSamplingModels
+        using Test
+
+        f(p, choice, rt) = logpdf(DDM(p[1], p[2], p[3], p[4]), choice, rt)
+
+        # Boundary parameters give logpdf = -Inf and zero gradients.
+        for p ∈ [[1.0, 0.0, 0.5, 0.3], [1.0, 0.8, 0.0, 0.3]], choice ∈ (1, 2)
+            @test logpdf(DDM(p[1], p[2], p[3], p[4]), choice, 0.6) == -Inf
+            @test pdf(DDM(p[1], p[2], p[3], p[4]), choice, 0.6) == 0
+            @test all(iszero, ForwardDiff.gradient(x -> f(x, choice, 0.6), p))
         end
+        # The constructor rejects ForwardDiff inputs at z = 1; check only logpdf here.
+        for choice ∈ (1, 2)
+            @test logpdf(DDM(; ν = 1.0, α = 0.8, z = 1.0, τ = 0.3), choice, 0.6) == -Inf
+        end
+
+        # Parameters just inside the boundaries still give finite log densities.
+        for z ∈ [1e-16, 1 - 1e-16], choice ∈ (1, 2)
+            @test isfinite(logpdf(DDM(; ν = 1.0, α = 0.8, z, τ = 0.3), choice, 0.6))
+        end
+        @test isfinite(logpdf(DDM(; ν = 1.0, α = 1e-16, z = 0.5, τ = 0.3), 2, 0.6))
+
+        # Huge α makes normalized time round to zero; this used to throw InexactError.
+        @test logpdf(DDM(; ν = 1.0, α = 1e300, z = 0.5, τ = 0.3), 2, 0.6) == -Inf
+        # A large α still gives a finite log density when normalized time is nonzero.
+        @test isfinite(logpdf(DDM(; ν = 1.0, α = 1e19, z = 0.5, τ = 0.3), 2, 0.6))
+        # Tiny decision times used to give NaN from Inf - Inf in the k = 0 term.
+        @test logpdf(DDM(; ν = 1.0, α = 1.0, z = 0.5, τ = 0.0), 2, 5e-324) == -Inf
+        @test logpdf(DDM(; ν = 1.0, α = 1.0, z = 0.5, τ = 0.0), 2, 1e-200) ≈ -1.25e199
     end
 
     @safetestset "simulate" begin

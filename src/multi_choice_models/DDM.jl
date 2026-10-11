@@ -68,31 +68,52 @@ end
 # Wabersich & Vandekerckhove (2014) #
 #####################################
 
-"""
-    logpdf(d::DDM, choice, rt; ϵ = 1.0e-12)
-
-Log density of `rt` at the boundary given by `choice` (1 = upper, 2 = lower). The density is
-computed directly in log space; returns `-Inf` outside the support (`rt ≤ τ`, infinite `rt`,
-or an invalid `choice`) rather than throwing, so it can be used safely inside samplers.
-"""
-function logpdf(d::DDM{T}, choice, rt; ϵ::Real = 1.0e-12) where {T <: Real}
-    (ν, α, z, τ) = params(d)
-    LT = typeof(float(zero(promote_type(T, typeof(rt)))))
-    ((choice ≠ 1) && (choice ≠ 2)) && return LT(-Inf)
-    ((rt ≤ τ) || isinf(rt)) && return LT(-Inf)
-    if choice == 1
-        return _logpdf_lower(-ν, α, 1 - z, τ, rt; ϵ)
-    end
-    return _logpdf_lower(ν, α, z, τ, rt; ϵ)
+function pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
+    return exp(logpdf(d, choice, rt; ϵ))
 end
 
-pdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12) = exp(logpdf(d, choice, rt; ϵ))
+# At α = 0 or z = 0 or 1, the process stops at τ, so the density is zero for rt > τ.
+# Round before comparing so ForwardDiff checks only the value, ignoring derivatives.
+# Keep the rounded values as floats: converting a large α to Int can overflow.
+_is_degenerate(d::DDM) = ceil(d.α) ≤ 0 || ceil(d.z) ≤ 0 || floor(d.z) ≥ 1
 
-# log probability density function over the lower boundary
-function _logpdf_lower(ν, α, z, τ, t; ϵ::Real = 1.0e-12)
-    Δt = t - τ
-    u = Δt / α^2 #use normalized time
+function logpdf(d::DDM, choice, rt; ϵ::Real = 1.0e-12)
+    (ν, α, z, τ) = params(d)
+    # Return -Inf with zero gradient so the sampler can reject this proposal.
+    if rt ≤ τ || _is_degenerate(d)
+        return promote_type(typeof(ν), typeof(rt))(-Inf)
+    end
+    if choice == 1
+        return _logpdf(DDM(-ν, α, 1 - z, τ), rt; ϵ)
+    end
+    return _logpdf(d, rt; ϵ)
+end
 
+logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
+
+# Log density at the lower boundary.
+# Compute in log space to keep tail values and gradients finite when pdf is too small.
+function _logpdf(d::DDM, t::Real; ϵ::Real = 1.0e-12)
+    (ν, α, z, τ) = params(d)
+    u = (t - τ) / α^2 #use normalized time
+
+    # Very large α can make u round to zero. Avoid dividing by zero below.
+    # As in _is_degenerate, compare the value without its derivatives.
+    ceil(u) ≤ 0 && return promote_type(typeof(u), typeof(z))(-Inf)
+
+    K_s, K_l = _n_terms_pdf(u, ϵ)
+
+    log_p = -α * z * ν - 0.5 * ν^2 * (t - τ) - 2 * log(α)
+
+    # Use the series that needs fewer terms.
+    if K_s < K_l
+        return log_p + _log_small_time_pdf(u, z, ceil(Int, K_s))
+    end
+    return log_p + _log_large_time_pdf(u, z, ceil(Int, K_l))
+end
+
+# Terms needed for each series at accuracy ϵ (Navarro & Fuss, 2009).
+function _n_terms_pdf(u::Real, ϵ::Real)
     K_s = 2.0
     K_l = 1 / (π * sqrt(u))
     # number of terms needed for large-time expansion
@@ -103,47 +124,43 @@ function _logpdf_lower(ν, α, z, τ, t; ϵ::Real = 1.0e-12)
     if (2 * sqrt(2 * π * u) * ϵ) < 1
         K_s = max(2 + sqrt(-2u * log(2ϵ * sqrt(2 * π * u))), sqrt(u) + 1)
     end
-
-    log_p = -α * z * ν - 0.5 * ν^2 * Δt - 2 * log(α)
-
-    # decision rule for infinite sum algorithm
-    if K_s < K_l
-        return log_p + _log_small_time_pdf(u, z, ceil(Int, K_s))
-    end
-    log_large = _log_large_time_pdf(u, z, ceil(Int, K_l))
-    # truncated large-time series can be non-positive; fall back to small-time series
-    isfinite(log_large) && return log_p + log_large
-    return log_p + _log_small_time_pdf(u, z, ceil(Int, K_s))
+    return K_s, K_l
 end
 
-# log of the small-time expansion. The k = 0 term has the largest exponent (-z²/2u),
-# so it is factored out of the sum to avoid underflow at small u.
-function _log_small_time_pdf(u, z, K::Int)
-    # ((2k + z)² - z²) / 2u = 2k(k + z) / u ≥ 0
-    term(k) = (2k + z) * exp(-2k * (k + z) / u)
-    inf_sum = zero(promote_type(typeof(u), typeof(z)))
-    # sum symmetric ±k pairs from smallest to largest so that they cancel exactly when z = 0.
-    # This uses at least as many terms as the K terms required by the error bound.
-    for k ∈ ceil(Int, 0.5 * (K - 1)):-1:1
-        inf_sum += term(k) + term(-k)
+# log of the small-time expansion
+function _log_small_time_pdf(u::Real, z::Real, K::Int)
+    T = promote_type(typeof(u), typeof(z))
+    inf_sum = zero(T)
+
+    # Factor out the largest exponential (k = 0) to avoid underflow.
+    shift = -z^2 / (2u)
+
+    k_series = (-floor(Int, 0.5 * (K - 1))):ceil(Int, 0.5 * (K - 1))
+    for k ∈ k_series
+        # Subtract before dividing so k = 0 gives zero even when u is tiny.
+        a = 2k + z
+        inf_sum += (a * exp((z^2 - a^2) / (2u)))
     end
-    inf_sum += z
-    inf_sum ≤ 0 && return oftype(inf_sum, -Inf)
-    return -z^2 / (2u) + log(inf_sum) - 0.5 * log(2π) - 1.5 * log(u)
+
+    inf_sum ≤ 0 && return T(-Inf)
+    return shift - 0.5 * log(2π) - 1.5 * log(u) + log(inf_sum)
 end
 
-# log of the large-time expansion. The k = 1 term has the largest exponent (-π²u/2),
-# so it is factored out of the sum to avoid underflow at large u.
-function _log_large_time_pdf(u, z, K::Int)
-    inf_sum = zero(promote_type(typeof(u), typeof(z)))
+# log of the large-time expansion
+function _log_large_time_pdf(u::Real, z::Real, K::Int)
+    T = promote_type(typeof(u), typeof(z))
+    inf_sum = zero(T)
+
+    # Factor out the largest exponential (k = 1) to avoid underflow.
+    shift = -0.5 * π^2 * u
+
     for k ∈ 1:K
-        inf_sum += k * exp(-0.5 * (k^2 - 1) * π^2 * u) * sin(k * π * z)
+        inf_sum += (k * exp(-0.5 * (k^2 - 1) * π^2 * u) * sin(k * π * z))
     end
-    inf_sum ≤ 0 && return oftype(inf_sum, -Inf)
-    return log(π) - 0.5 * π^2 * u + log(inf_sum)
-end
 
-logpdf(d::DDM, data::Tuple) = logpdf(d, data...)
+    inf_sum ≤ 0 && return T(-Inf)
+    return shift + log(π) + log(inf_sum)
+end
 
 #########################################
 # Cumulative density function           #
