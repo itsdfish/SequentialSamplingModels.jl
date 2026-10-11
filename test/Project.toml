@@ -1,6 +1,7 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
